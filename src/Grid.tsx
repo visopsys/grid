@@ -11,7 +11,6 @@ import React, {
 } from "react";
 import { Stage, Layer, Group } from "react-konva";
 import {
-  getBoundedCells,
   getRowStartIndexForOffset,
   getRowStopIndexForStartIndex,
   getColumnStartIndexForOffset,
@@ -123,6 +122,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
   useImperativeHandle(forwardedRef, () => {
     return {
       scrollTo,
+      stage: stageRef.current,
       resetAfterIndices,
     };
   });
@@ -134,6 +134,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     estimatedColumnWidth: estimatedColumnWidth || DEFAULT_ESTIMATED_ITEM_SIZE,
     estimatedRowHeight: estimatedRowHeight || DEFAULT_ESTIMATED_ITEM_SIZE,
   });
+  const stageRef = useRef(null);
   const verticalScrollRef = useRef<HTMLDivElement>(null);
   const wheelingRef = useRef<number | null>(null);
   const horizontalScrollRef = useRef<HTMLDivElement>(null);
@@ -141,6 +142,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
   const [scrollTop, setScrollTop] = useState<number>(0);
   const [scrollLeft, setScrollLeft] = useState<number>(0);
 
+  /* Redraw grid imperatively */
   const resetAfterIndices = useCallback(
     ({
       columnIndex,
@@ -321,7 +323,6 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
               right: 0,
               top: 0,
               width: scrollbarSize,
-              background: "#666",
             }}
             onScroll={handleScroll}
             ref={verticalScrollRef}
@@ -342,7 +343,6 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
               left: 0,
               width: containerWidth,
               height: scrollbarSize,
-              background: "#666",
             }}
             onScroll={handleScrollLeft}
             ref={horizontalScrollRef}
@@ -358,7 +358,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
         </>
       ) : null}
       <div onWheel={handleWheel} tabIndex={-1}>
-        <Stage width={containerWidth} height={containerHeight}>
+        <Stage width={containerWidth} height={containerHeight} ref={stageRef}>
           <Layer>
             <Group offsetY={scrollTop} offsetX={scrollLeft}>
               {items}
