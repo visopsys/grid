@@ -7,6 +7,7 @@ import React, {
   useEffect,
   forwardRef,
   useImperativeHandle,
+  useReducer,
 } from "react";
 import { Stage, Layer, Group } from "react-konva";
 import {
@@ -43,6 +44,10 @@ type TScrollCoords = {
   scrollTop: number;
   scrollLeft: number;
 };
+
+type TForceUpdate = {
+  shouldForceUpdate: boolean
+}
 
 const defaultProps = {
   width: 800,
@@ -118,6 +123,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
   useImperativeHandle(forwardedRef, () => {
     return {
       scrollTo,
+      resetAfterIndices
     };
   });
   const instanceProps = useRef<IInstanceProps>({
@@ -131,8 +137,26 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
   const verticalScrollRef = useRef<HTMLDivElement>(null);
   const wheelingRef = useRef<number | null>(null);
   const horizontalScrollRef = useRef<HTMLDivElement>(null);
+  const [ _, forceRender ] = useReducer(s => s + 1, 0)
   const [scrollTop, setScrollTop] = useState<number>(0);
   const [scrollLeft, setScrollLeft] = useState<number>(0);
+
+  const resetAfterIndices = useCallback(({ columnIndex, rowIndex, shouldForceUpdate = true }: ICell & TForceUpdate) => {
+    if (typeof columnIndex === 'number') {
+      instanceProps.current.lastMeasuredColumnIndex = Math.min(
+        instanceProps.current.lastMeasuredColumnIndex,
+        columnIndex - 1
+      );
+    }
+    if (typeof rowIndex === 'number') {
+      instanceProps.current.lastMeasuredRowIndex = Math.min(
+        instanceProps.current.lastMeasuredRowIndex,
+        rowIndex - 1
+      );
+    }
+
+    if (shouldForceUpdate) forceRender()
+  }, [])
 
   /* Handle vertical scroll */
   const handleScroll = useCallback(
@@ -191,7 +215,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
         verticalScrollRef.current.scrollTop = y + dy;
     });
   }, []);
-
+  
   const rowStartIndex = getRowStartIndexForOffset({
     itemType: "row",
     rowHeight,
