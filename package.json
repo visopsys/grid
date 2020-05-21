@@ -10,7 +10,8 @@
     "storybook": "start-storybook -p 9002",
     "build-storybook": "build-storybook -c .storybook -o .out",
     "deploy-storybook": "storybook-to-ghpages",
-    "prepublish": "yarn build",
+    "prepublish": "npm run build",
+    "postpublish": "build-storybook",
     "prettier": "prettier src/**/*.tsx --write"
   },
   "author": "Vinay M <rmdort@gmail.com>",
