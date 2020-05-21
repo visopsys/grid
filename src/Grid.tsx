@@ -35,17 +35,14 @@ export interface IProps {
   scrollbarSize: number;
   estimatedColumnWidth?: number;
   estimatedRowHeight?: number;
-  onScroll: ({
-    scrollLeft,
-    scrollTop,
-  }: TScrollCoords) => void;
-  showScrollbar: boolean
+  onScroll: ({ scrollLeft, scrollTop }: TScrollCoords) => void;
+  showScrollbar: boolean;
 }
 
 type TScrollCoords = {
   scrollTop: number;
   scrollLeft: number;
-}
+};
 
 const defaultProps = {
   width: 800,
@@ -55,7 +52,7 @@ const defaultProps = {
   rowHeight: () => 20,
   columnWidth: () => 100,
   scrollbarSize: 20,
-  showScrollbar: true
+  showScrollbar: true,
 };
 
 type RenderComponent = React.FC<IChildrenProps>;
@@ -120,9 +117,9 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
   /* Expose some methods in ref */
   useImperativeHandle(forwardedRef, () => {
     return {
-      scrollTo
-    }
-  })
+      scrollTo,
+    };
+  });
   const instanceProps = useRef<IInstanceProps>({
     columnMetadataMap: {},
     rowMetadataMap: {},
@@ -138,31 +135,42 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
   const [scrollLeft, setScrollLeft] = useState<number>(0);
 
   /* Handle vertical scroll */
-  const handleScroll = useCallback((e) => {
-    setScrollTop(e.target.scrollTop);
-    /* Scroll callbacks */
-    onScroll && onScroll({ scrollTop: e.target.scrollTop, scrollLeft })
-  }, [ scrollLeft ]);
+  const handleScroll = useCallback(
+    (e) => {
+      setScrollTop(e.target.scrollTop);
+      /* Scroll callbacks */
+      onScroll && onScroll({ scrollTop: e.target.scrollTop, scrollLeft });
+    },
+    [scrollLeft]
+  );
 
   /* Handle horizontal scroll */
-  const handleScrollLeft = useCallback((e) => {    
-    setScrollLeft(e.target.scrollLeft);
-    /* Scroll callbacks */
-    onScroll && onScroll({ scrollLeft: e.target.scrollLeft, scrollTop })
-  }, [ scrollTop ]);
+  const handleScrollLeft = useCallback(
+    (e) => {
+      setScrollLeft(e.target.scrollLeft);
+      /* Scroll callbacks */
+      onScroll && onScroll({ scrollLeft: e.target.scrollLeft, scrollTop });
+    },
+    [scrollTop]
+  );
 
   /* Scroll based on left, top position */
-  const scrollTo = useCallback(({ scrollTop, scrollLeft }: TScrollCoords) => {
-    /* If scrollbar is visible, lets update it which triggers a state change */
-    if (showScrollbar) {
-      if (horizontalScrollRef.current) horizontalScrollRef.current.scrollLeft = scrollLeft
-      if (verticalScrollRef.current) verticalScrollRef.current.scrollTop = scrollTop
-    } else {
-      scrollLeft !== void 0 && setScrollLeft(scrollLeft)
-      scrollTop !== void 0 && setScrollTop(scrollTop)
-    }
-  }, [ showScrollbar ])
-  
+  const scrollTo = useCallback(
+    ({ scrollTop, scrollLeft }: TScrollCoords) => {
+      /* If scrollbar is visible, lets update it which triggers a state change */
+      if (showScrollbar) {
+        if (horizontalScrollRef.current)
+          horizontalScrollRef.current.scrollLeft = scrollLeft;
+        if (verticalScrollRef.current)
+          verticalScrollRef.current.scrollTop = scrollTop;
+      } else {
+        scrollLeft !== void 0 && setScrollLeft(scrollLeft);
+        scrollTop !== void 0 && setScrollTop(scrollTop);
+      }
+    },
+    [showScrollbar]
+  );
+
   const handleWheel = useCallback((event: React.WheelEvent) => {
     if (wheelingRef.current) return;
     const { deltaX, deltaY, deltaMode } = event.nativeEvent;
@@ -272,53 +280,52 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     <div
       style={{ position: "relative", width: containerWidth + scrollbarSize }}
     >
-      {showScrollbar
-        ? <>
+      {showScrollbar ? (
+        <>
+          <div
+            style={{
+              height: containerHeight,
+              overflow: "scroll",
+              position: "absolute",
+              right: 0,
+              top: 0,
+              width: scrollbarSize,
+              background: "#666",
+            }}
+            onScroll={handleScroll}
+            ref={verticalScrollRef}
+          >
             <div
               style={{
-                height: containerHeight,
-                overflow: "scroll",
                 position: "absolute",
-                right: 0,
-                top: 0,
-                width: scrollbarSize,
-                background: "#666",
+                height: estimatedTotalHeight,
+                width: 1,
               }}
-              onScroll={handleScroll}
-              ref={verticalScrollRef}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  height: estimatedTotalHeight,
-                  width: 1,
-                }}
-              />
-            </div>
+            />
+          </div>
+          <div
+            style={{
+              overflow: "scroll",
+              position: "absolute",
+              bottom: -scrollbarSize,
+              left: 0,
+              width: containerWidth,
+              height: scrollbarSize,
+              background: "#666",
+            }}
+            onScroll={handleScrollLeft}
+            ref={horizontalScrollRef}
+          >
             <div
               style={{
-                overflow: "scroll",
                 position: "absolute",
-                bottom: -scrollbarSize,
-                left: 0,
-                width: containerWidth,
-                height: scrollbarSize,
-                background: "#666",
+                width: estimatedTotalWidth,
+                height: 1,
               }}
-              onScroll={handleScrollLeft}
-              ref={horizontalScrollRef}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  width: estimatedTotalWidth,
-                  height: 1,
-                }}
-              />
-            </div>
-          </>
-        : null
-      }
+            />
+          </div>
+        </>
+      ) : null}
       <div onWheel={handleWheel} tabIndex={-1}>
         <Stage width={containerWidth} height={containerHeight}>
           <Layer>
@@ -330,7 +337,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
       </div>
     </div>
   );
-})
+});
 
 Grid.defaultProps = defaultProps;
 

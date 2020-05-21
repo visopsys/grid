@@ -170,9 +170,8 @@ LargeGrid.story = {
   name: "1,000,000 rows and cols",
 };
 
-
 export const TableGrid: React.FC = () => {
-  const gridRef = useRef()
+  const gridRef = useRef();
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -180,14 +179,12 @@ export const TableGrid: React.FC = () => {
     y,
     width,
     height,
-    header
+    header,
   }: IChildrenProps) => {
     const text = header
       ? `Header ${columnIndex}`
       : `${rowIndex}x${columnIndex}`;
-    const fill = header
-      ? '#eee'
-      : 'white'
+    const fill = header ? "#eee" : "white";
     return (
       <Group>
         <Rect
@@ -205,18 +202,18 @@ export const TableGrid: React.FC = () => {
           height={height}
           width={width}
           text={text}
-          fontStyle={header ? 'bold': 'normal'}
+          fontStyle={header ? "bold" : "normal"}
           verticalAlign="middle"
           align="center"
         />
       </Group>
     );
   };
-  const columnCount = 100000
-  const rowCount = 100000
-  const width = 1200
+  const columnCount = 100000;
+  const rowCount = 100000;
+  const width = 1200;
   return (
-    <div style={{ display: 'flex', flexDirection: 'column'}}>
+    <div style={{ display: "flex", flexDirection: "column" }}>
       <Grid
         columnCount={columnCount}
         height={40}
@@ -243,13 +240,13 @@ export const TableGrid: React.FC = () => {
         columnWidth={(index) => {
           if (index % 3 === 0) return 200;
           return 100;
-        }}        
+        }}
         rowHeight={(index) => {
           if (index % 2 === 0) return 40;
           return 20;
         }}
         onScroll={({ scrollLeft }) => {
-          gridRef.current.scrollTo({ scrollLeft })
+          gridRef.current.scrollTo({ scrollLeft });
         }}
       >
         {Cell}
