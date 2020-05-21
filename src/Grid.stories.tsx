@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import Grid, { IChildrenProps } from "./Grid";
 import { Layer, Rect, Text, Group } from "react-konva";
 
@@ -42,6 +42,62 @@ export const BaseGrid: React.FC = () => {
   };
   return (
     <Grid
+      columnCount={200}
+      rowCount={200}
+      columnWidth={(index) => {
+        return 100;
+      }}
+      rowHeight={(index) => {
+        return 20;
+      }}
+    >
+      {Cell}
+    </Grid>
+  );
+};
+
+export const BaseGridWithSelection: React.FC = () => {
+  const selectionArea = {
+    top: 2,
+    right: 6,
+    left: 2,
+    bottom: 6,
+  };
+  const Cell = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+  }: IChildrenProps) => {
+    const text = `${rowIndex}x${columnIndex}`;
+    return (
+      <Group>
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill="white"
+          stroke="grey"
+          strokeWidth={0.5}
+        />
+        <Text
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          text={text}
+          verticalAlign="middle"
+          align="center"
+        />
+      </Group>
+    );
+  };
+  return (
+    <Grid
+      selectionArea={selectionArea}
       columnCount={200}
       rowCount={200}
       columnWidth={(index) => {

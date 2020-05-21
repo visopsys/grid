@@ -181,7 +181,7 @@ export const getColumnOffset = ({
   }).offset
 }
 
-export const getRowHeight = (index: number, instanceProps: IInstanceProps) => {
+export const getRowHeight = (index: number, instanceProps: IInstanceProps) => {  
   return instanceProps.rowMetadataMap[index].size
 }
 

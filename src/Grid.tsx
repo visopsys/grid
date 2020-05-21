@@ -9,7 +9,7 @@ import React, {
   useImperativeHandle,
   useReducer,
 } from "react";
-import { Stage, Layer, Group } from "react-konva";
+import { Stage, Layer, Group, Rect, FastLayer } from "react-konva";
 import {
   getRowStartIndexForOffset,
   getRowStopIndexForStartIndex,
@@ -37,6 +37,9 @@ export interface IProps {
   estimatedRowHeight?: number;
   onScroll: ({ scrollLeft, scrollTop }: TScrollCoords) => void;
   showScrollbar: boolean;
+  selectionBackgroundColor: string;
+  selectionBorderColor: string;
+  selectionArea: IArea;
 }
 
 type TScrollCoords = {
@@ -57,6 +60,9 @@ const defaultProps = {
   columnWidth: () => 100,
   scrollbarSize: 20,
   showScrollbar: true,
+  selectionBackgroundColor: "rgba(66, 133, 244, 0.3)",
+  selectionBorderColor: "rgba(66, 133, 244, 1)",
+  selectionArea: { top: 0, bottom: 0, left: 0, right: 0 },
 };
 
 type RenderComponent = React.FC<IChildrenProps>;
@@ -117,6 +123,9 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     children,
     onScroll,
     showScrollbar,
+    selectionBackgroundColor,
+    selectionBorderColor,
+    selectionArea,
   } = props;
   /* Expose some methods in ref */
   useImperativeHandle(forwardedRef, () => {
@@ -298,6 +307,52 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     }
   }
 
+  const selections = [];
+  const { top, left, right, bottom } = selectionArea;
+  const selectionBounds = { x: 0, y: 0, width: 0, height: 0 };
+  if (rowCount > bottom && columnCount > right) {
+    for (let rowIndex = top; rowIndex < bottom; rowIndex++) {
+      for (let columnIndex = left; columnIndex < right; columnIndex++) {
+        const width = getColumnWidth(columnIndex, instanceProps.current);
+        const x = getColumnOffset({
+          index: columnIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
+        const height = getRowHeight(rowIndex, instanceProps.current);
+        const y = getRowOffset({
+          index: rowIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
+        if (rowIndex === top) {
+          selectionBounds.y = y;
+        }
+        if (rowIndex === bottom - 1) {
+          selectionBounds.height = y - selectionBounds.y + height;
+        }
+        if (columnIndex === left) {
+          selectionBounds.x = x;
+        }
+        if (columnIndex === right - 1) {
+          selectionBounds.width = x - selectionBounds.x + width;
+        }
+        selections.push(
+          <Rect
+            key={itemKey({ rowIndex, columnIndex })}
+            width={width}
+            height={height}
+            x={x}
+            y={y}
+            fill={selectionBackgroundColor}
+          />
+        );
+      }
+    }
+  }
+
   const estimatedTotalHeight = getEstimatedTotalHeight(
     rowCount,
     instanceProps.current.estimatedRowHeight,
@@ -313,6 +368,25 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     <div
       style={{ position: "relative", width: containerWidth + scrollbarSize }}
     >
+      <div onWheel={handleWheel} tabIndex={-1}>
+        <Stage width={containerWidth} height={containerHeight} ref={stageRef}>
+          <Layer clearBeforeDraw={false}>
+            <Group offsetY={scrollTop} offsetX={scrollLeft}>
+              {items}
+            </Group>
+          </Layer>
+          <FastLayer listening={false} offsetY={scrollTop} offsetX={scrollLeft}>
+            <Rect
+              stroke={selectionBorderColor}
+              x={selectionBounds.x}
+              y={selectionBounds.y}
+              width={selectionBounds.width}
+              height={selectionBounds.height}
+            />
+            {selections}
+          </FastLayer>
+        </Stage>
+      </div>
       {showScrollbar ? (
         <>
           <div
@@ -357,15 +431,6 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
           </div>
         </>
       ) : null}
-      <div onWheel={handleWheel} tabIndex={-1}>
-        <Stage width={containerWidth} height={containerHeight} ref={stageRef}>
-          <Layer>
-            <Group offsetY={scrollTop} offsetX={scrollLeft}>
-              {items}
-            </Group>
-          </Layer>
-        </Stage>
-      </div>
     </div>
   );
 });
