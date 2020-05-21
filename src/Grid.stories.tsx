@@ -26,6 +26,7 @@ export const BaseGrid: React.FC = () => {
           width={width}
           fill="white"
           stroke="grey"
+          strokeWidth={0.5}
         />
         <Text
           x={x}
@@ -74,6 +75,7 @@ export const VariableSizeGrid: React.FC = () => {
           width={width}
           fill="white"
           stroke="grey"
+          strokeWidth={0.5}
         />
         <Text
           x={x}
@@ -115,6 +117,14 @@ export const LargeGrid: React.FC = () => {
     height,
   }: IChildrenProps) => {
     const text = `${rowIndex}x${columnIndex}`;
+    const fill =
+      columnIndex % 2 === 0
+        ? rowIndex % 2 === 0
+          ? "#f8f8f0"
+          : "white"
+        : rowIndex % 2
+        ? "#f8f8f0"
+        : "white";
     return (
       <Group>
         <Rect
@@ -122,8 +132,9 @@ export const LargeGrid: React.FC = () => {
           y={y}
           height={height}
           width={width}
-          fill="white"
+          fill={fill}
           stroke="grey"
+          strokeWidth={0.5}
         />
         <Text
           x={x}

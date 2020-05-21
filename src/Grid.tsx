@@ -4,6 +4,7 @@ import React, {
   useState,
   useMemo,
   createElement,
+  useEffect,
 } from "react";
 import { Stage, Layer, Group } from "react-konva";
 import {
@@ -32,6 +33,13 @@ export interface IProps {
   scrollbarSize: number;
   estimatedColumnWidth?: number;
   estimatedRowHeight?: number;
+  onScroll: ({
+    scrollLeft,
+    scrollTop,
+  }: {
+    scrollTop: number;
+    scrollLeft: number;
+  }) => void;
 }
 
 const defaultProps = {
@@ -100,6 +108,7 @@ const Grid: React.FC<IProps> = (props) => {
     columnCount,
     scrollbarSize,
     children,
+    onScroll,
   } = props;
   const instanceProps = useRef<IInstanceProps>({
     columnMetadataMap: {},
@@ -120,6 +129,11 @@ const Grid: React.FC<IProps> = (props) => {
   const handleScrollLeft = useCallback((e) => {
     setScrollLeft(e.target.scrollLeft);
   }, []);
+
+  useEffect(() => {
+    onScroll && onScroll({ scrollLeft, scrollTop });
+  }, [scrollLeft, scrollTop]);
+
   const scrollHeight = rowCount * rowHeight();
   const scrollWidth = columnCount * columnWidth();
   const [selectedArea, setSelectedArea] = useState({
@@ -237,7 +251,9 @@ const Grid: React.FC<IProps> = (props) => {
   );
 
   return (
-    <div style={{ position: "relative", width: containerWidth + 20 }}>
+    <div
+      style={{ position: "relative", width: containerWidth + scrollbarSize }}
+    >
       <div
         style={{
           height: containerHeight,
