@@ -430,60 +430,58 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
 
   const selectionAreas = useMemo(() => {
     const areas = [];
-    if (selections.length) {
-      for (let i = 0; i < selections.length; i++) {
-        const { top, left, right, bottom } = selections[i];
-        const selectionBounds = { x: 0, y: 0, width: 0, height: 0 };
-        const actualBottom = Math.min(rowStopIndex, bottom);
-        const actualRight = Math.min(columnStopIndex, right);
-        selectionBounds.y = getRowOffset({
-          index: top,
+    for (let i = 0; i < selections.length; i++) {
+      const { top, left, right, bottom } = selections[i];
+      const selectionBounds = { x: 0, y: 0, width: 0, height: 0 };
+      const actualBottom = Math.min(rowStopIndex, bottom);
+      const actualRight = Math.min(columnStopIndex, right);
+      selectionBounds.y = getRowOffset({
+        index: top,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      selectionBounds.height =
+        getRowOffset({
+          index: actualBottom,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
-        });
-        selectionBounds.height =
-          getRowOffset({
-            index: actualBottom,
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current,
-          }) -
-          selectionBounds.y +
-          getRowHeight(actualBottom, instanceProps.current);
+        }) -
+        selectionBounds.y +
+        getRowHeight(actualBottom, instanceProps.current);
 
-        selectionBounds.x = getColumnOffset({
-          index: left,
+      selectionBounds.x = getColumnOffset({
+        index: left,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+
+      selectionBounds.width =
+        getColumnOffset({
+          index: actualRight,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
-        });
+        }) -
+        selectionBounds.x +
+        getColumnWidth(actualRight, instanceProps.current);
 
-        selectionBounds.width =
-          getColumnOffset({
-            index: actualRight,
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current,
-          }) -
-          selectionBounds.x +
-          getColumnWidth(actualRight, instanceProps.current);
-
-        areas.push(
-          <Rect
-            key={i}
-            stroke={selectionBorderColor}
-            x={selectionBounds.x}
-            y={selectionBounds.y}
-            width={selectionBounds.width}
-            height={selectionBounds.height}
-            fill={selectionBackgroundColor}
-            shadowForStrokeEnabled={false}
-            listening={false}
-            strokeHitEnabled={false}
-          />
-        );
-      }
+      areas.push(
+        <Rect
+          key={i}
+          stroke={selectionBorderColor}
+          x={selectionBounds.x}
+          y={selectionBounds.y}
+          width={selectionBounds.width}
+          height={selectionBounds.height}
+          fill={selectionBackgroundColor}
+          shadowForStrokeEnabled={false}
+          listening={false}
+          strokeHitEnabled={false}
+        />
+      );
     }
 
     return areas;

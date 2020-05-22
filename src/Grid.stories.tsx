@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useRef, useState, useCallback } from "react";
 import Grid, { IChildrenProps } from "./Grid";
 import { Layer, Rect, Text, Group } from "react-konva";
