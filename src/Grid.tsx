@@ -310,47 +310,44 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
   const selections = [];
   const { top, left, right, bottom } = selectionArea;
   const selectionBounds = { x: 0, y: 0, width: 0, height: 0 };
-  if (rowCount > bottom && columnCount > right) {
-    for (let rowIndex = top; rowIndex < bottom; rowIndex++) {
-      for (let columnIndex = left; columnIndex < right; columnIndex++) {
-        const width = getColumnWidth(columnIndex, instanceProps.current);
-        const x = getColumnOffset({
-          index: columnIndex,
-          rowHeight,
-          columnWidth,
-          instanceProps: instanceProps.current,
-        });
-        const height = getRowHeight(rowIndex, instanceProps.current);
-        const y = getRowOffset({
-          index: rowIndex,
-          rowHeight,
-          columnWidth,
-          instanceProps: instanceProps.current,
-        });
-        if (rowIndex === top) {
-          selectionBounds.y = y;
-        }
-        if (rowIndex === bottom - 1) {
-          selectionBounds.height = y - selectionBounds.y + height;
-        }
-        if (columnIndex === left) {
-          selectionBounds.x = x;
-        }
-        if (columnIndex === right - 1) {
-          selectionBounds.width = x - selectionBounds.x + width;
-        }
-        selections.push(
-          <Rect
-            key={itemKey({ rowIndex, columnIndex })}
-            width={width}
-            height={height}
-            x={x}
-            y={y}
-            fill={selectionBackgroundColor}
-          />
-        );
-      }
-    }
+  if (
+    rowCount > bottom &&
+    columnCount > right &&
+    top < bottom &&
+    left < right
+  ) {
+    selectionBounds.y = getRowOffset({
+      index: top,
+      rowHeight,
+      columnWidth,
+      instanceProps: instanceProps.current,
+    });
+    selectionBounds.height =
+      getRowOffset({
+        index: bottom - 1,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      }) -
+      selectionBounds.y +
+      getRowHeight(bottom, instanceProps.current);
+
+    selectionBounds.x = getColumnOffset({
+      index: left,
+      rowHeight,
+      columnWidth,
+      instanceProps: instanceProps.current,
+    });
+
+    selectionBounds.width =
+      getColumnOffset({
+        index: right - 1,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      }) -
+      selectionBounds.x +
+      getColumnWidth(right, instanceProps.current);
   }
 
   const estimatedTotalHeight = getEstimatedTotalHeight(
@@ -382,8 +379,8 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
               y={selectionBounds.y}
               width={selectionBounds.width}
               height={selectionBounds.height}
+              fill={selectionBackgroundColor}
             />
-            {selections}
           </FastLayer>
         </Stage>
       </div>
