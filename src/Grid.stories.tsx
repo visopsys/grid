@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import Grid, { IChildrenProps } from "./Grid";
 import { Layer, Rect, Text, Group } from "react-konva";
 import { number } from "@storybook/addon-knobs";
@@ -328,6 +328,160 @@ export const DataGrid: React.FC = () => {
       </Grid>
     </div>
   );
+};
+
+export const DataGridResizable: React.FC = () => {
+  const gridRef = useRef();
+  const mainGridRef = useRef();
+  const [columnWidthMap, setColumnWidthMap] = useState({});
+  const frozenColumns = number("frozenColumns", 1);
+  const dragHandleWidth = 5;
+  const minWidth = 40;
+  const Cell = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+    header,
+  }: IChildrenProps) => {
+    const text = header
+      ? columnIndex < frozenColumns
+        ? "S/No"
+        : `Header ${columnIndex}`
+      : `${rowIndex}x${columnIndex}`;
+    const fill = header ? "#eee" : "white";
+    const dragRef = useRef();
+    const [isHovered, setIsHovered] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+    const showDragHandle = header && (isHovered || isDragging);
+    useEffect(() => {
+      if (gridRef.current?.stage)
+        gridRef.current.stage.container().style.cursor = isDragging
+          ? "ew-resize"
+          : "default";
+    }, [isDragging]);
+    return (
+      <Group
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill={fill}
+          stroke="grey"
+          strokeWidth={0.5}
+        />
+        <Text
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          text={text}
+          fontStyle={header ? "bold" : "normal"}
+          verticalAlign="middle"
+          align="center"
+        />
+        {showDragHandle && (
+          <Rect
+            x={x + width - dragHandleWidth}
+            y={y}
+            width={dragHandleWidth}
+            height={height}
+            fill="blue"
+            draggable
+            ref={dragRef}
+            onDragMove={(e) => {
+              window.requestAnimationFrame(() => dragRef.current.draw());
+            }}
+            hitStrokeWidth={20}
+            onMouseEnter={(e) => {
+              setIsDragging(true);
+            }}
+            onMouseLeave={(e) => {
+              setIsDragging(false);
+            }}
+            onDragEnd={(e) => {
+              const node = e.target;
+              const newWidth = node.x() - x + dragHandleWidth;
+              setIsDragging(false);
+              setColumnWidthMap((prev) => {
+                return {
+                  ...prev,
+                  [columnIndex]: newWidth,
+                };
+              });
+              gridRef.current.resetAfterIndices({ columnIndex });
+              mainGridRef.current.resetAfterIndices({ columnIndex });
+            }}
+            dragBoundFunc={(pos) => {
+              return {
+                ...pos,
+                y: 0,
+              };
+            }}
+          />
+        )}
+      </Group>
+    );
+  };
+  const columnCount = 100000;
+  const rowCount = 100000;
+  const width = 1200;
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <Grid
+        columnCount={columnCount}
+        height={40}
+        rowCount={1}
+        frozenColumns={frozenColumns}
+        ref={gridRef}
+        width={width}
+        columnWidth={(index) => {
+          if (index in columnWidthMap) return columnWidthMap[index];
+          if (index % 3 === 0) return 200;
+          return 100;
+        }}
+        rowHeight={(index) => {
+          if (index % 2 === 0) return 40;
+          return 20;
+        }}
+        showScrollbar={false}
+      >
+        {(props) => <Cell {...props} header />}
+      </Grid>
+      <Grid
+        columnCount={columnCount}
+        rowCount={rowCount}
+        frozenColumns={frozenColumns}
+        height={600}
+        width={width}
+        ref={mainGridRef}
+        columnWidth={(index) => {
+          if (index in columnWidthMap) return columnWidthMap[index];
+          if (index % 3 === 0) return 200;
+          return 100;
+        }}
+        rowHeight={(index) => {
+          if (index % 2 === 0) return 40;
+          return 20;
+        }}
+        onScroll={({ scrollLeft }) => {
+          gridRef.current.scrollTo({ scrollLeft });
+        }}
+      >
+        {Cell}
+      </Grid>
+    </div>
+  );
+};
+
+DataGridResizable.story = {
+  name: "Grid with resizable headers",
 };
 
 export const GridWithFrozenRow: React.FC = () => {
