@@ -9,7 +9,14 @@ import React, {
   useImperativeHandle,
   useReducer,
 } from "react";
-import { Stage, Layer, Group, Rect, FastLayer } from "react-konva";
+import {
+  Stage,
+  Layer,
+  Rect,
+  FastLayer,
+  Group,
+} from "react-konva/lib/ReactKonvaCore";
+
 import {
   getRowStartIndexForOffset,
   getRowStopIndexForStartIndex,
@@ -110,7 +117,7 @@ export type TCellMetaData = {
 const DEFAULT_ESTIMATED_ITEM_SIZE = 50;
 
 /**
- * Grid component
+ * Grid component using React Konva
  * @param props
  */
 const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
@@ -276,6 +283,17 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     containerWidth,
     instanceProps: instanceProps.current,
   });
+  const estimatedTotalHeight = getEstimatedTotalHeight(
+    rowCount,
+    instanceProps.current.estimatedRowHeight,
+    instanceProps.current
+  );
+  const estimatedTotalWidth = getEstimatedTotalWidth(
+    columnCount,
+    instanceProps.current.estimatedColumnWidth,
+    instanceProps.current
+  );
+
   const cells = [];
   if (columnCount > 0 && rowCount) {
     for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
@@ -460,6 +478,9 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
             width={selectionBounds.width}
             height={selectionBounds.height}
             fill={selectionBackgroundColor}
+            shadowForStrokeEnabled={false}
+            listening={false}
+            strokeHitEnabled={false}
           />
         );
       }
@@ -467,17 +488,6 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
 
     return areas;
   }, [selections]);
-
-  const estimatedTotalHeight = getEstimatedTotalHeight(
-    rowCount,
-    instanceProps.current.estimatedRowHeight,
-    instanceProps.current
-  );
-  const estimatedTotalWidth = getEstimatedTotalWidth(
-    columnCount,
-    instanceProps.current.estimatedColumnWidth,
-    instanceProps.current
-  );
 
   return (
     <div style={{ position: "relative", width: containerWidth }}>
@@ -497,7 +507,12 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
               {frozenIntersectionCells}
             </Group>
           </Layer>
-          <FastLayer listening={false} offsetY={scrollTop} offsetX={scrollLeft}>
+          <FastLayer
+            listening={false}
+            offsetY={scrollTop}
+            offsetX={scrollLeft}
+            hitGraphEnabled={false}
+          >
             {selectionAreas}
           </FastLayer>
         </Stage>

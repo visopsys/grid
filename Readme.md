@@ -2,9 +2,13 @@
 
 Canvas grid to render large set of tabular data. Uses virtualization similar to `react-window`
 
-1. Supports virtualization - Only visible cells are rendered
+## Features
+
+1. Only visible cells are rendered
 1. Supports scrolling using native scrollbars
 1. Supports both Fixed and Variable sized grids
+1. Freeze rows and columns
+1. Fully typed API written in TypeScript
 1. Highly customizable using [react-konva](https://github.com/konvajs/react-konva/)
 
 ## Installation

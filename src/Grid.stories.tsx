@@ -9,6 +9,8 @@ export default {
 };
 
 export const BaseGrid: React.FC = () => {
+  const width = number("width", 900);
+  const height = number("height", 600);
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -19,7 +21,7 @@ export const BaseGrid: React.FC = () => {
   }: IChildrenProps) => {
     const text = `${rowIndex}x${columnIndex}`;
     return (
-      <Group>
+      <>
         <Rect
           x={x}
           y={y}
@@ -38,11 +40,13 @@ export const BaseGrid: React.FC = () => {
           verticalAlign="middle"
           align="center"
         />
-      </Group>
+      </>
     );
   };
   return (
     <Grid
+      width={width}
+      height={height}
       columnCount={200}
       rowCount={200}
       columnWidth={(index) => {
@@ -82,7 +86,7 @@ export const BaseGridWithSelection: React.FC = () => {
   }: IChildrenProps) => {
     const text = `${rowIndex}x${columnIndex}`;
     return (
-      <Group>
+      <>
         <Rect
           x={x}
           y={y}
@@ -101,7 +105,7 @@ export const BaseGridWithSelection: React.FC = () => {
           verticalAlign="middle"
           align="center"
         />
-      </Group>
+      </>
     );
   };
   return (
@@ -132,7 +136,7 @@ export const VariableSizeGrid: React.FC = () => {
   }: IChildrenProps) => {
     const text = `${rowIndex}x${columnIndex}`;
     return (
-      <Group>
+      <>
         <Rect
           x={x}
           y={y}
@@ -151,7 +155,7 @@ export const VariableSizeGrid: React.FC = () => {
           verticalAlign="middle"
           align="center"
         />
-      </Group>
+      </>
     );
   };
   return (
@@ -191,7 +195,7 @@ export const LargeGrid: React.FC = () => {
         ? "#f8f8f0"
         : "white";
     return (
-      <Group>
+      <>
         <Rect
           x={x}
           y={y}
@@ -210,7 +214,7 @@ export const LargeGrid: React.FC = () => {
           verticalAlign="middle"
           align="center"
         />
-      </Group>
+      </>
     );
   };
   return (
@@ -254,7 +258,7 @@ export const DataGrid: React.FC = () => {
       : `${rowIndex}x${columnIndex}`;
     const fill = header ? "#eee" : "white";
     return (
-      <Group>
+      <>
         <Rect
           x={x}
           y={y}
@@ -274,7 +278,7 @@ export const DataGrid: React.FC = () => {
           verticalAlign="middle"
           align="center"
         />
-      </Group>
+      </>
     );
   };
   const columnCount = 100000;
@@ -338,7 +342,7 @@ export const GridWithFrozenRow: React.FC = () => {
     const text = `${rowIndex}x${columnIndex}`;
     const isFrozen = rowIndex < frozenRows;
     return (
-      <Group>
+      <>
         <Rect
           x={x}
           y={y}
@@ -357,7 +361,7 @@ export const GridWithFrozenRow: React.FC = () => {
           verticalAlign="middle"
           align="center"
         />
-      </Group>
+      </>
     );
   };
   return (
@@ -393,7 +397,7 @@ export const GridWithFrozenColumns: React.FC = () => {
     const text = `${rowIndex}x${columnIndex}`;
     const isFrozen = columnIndex < frozenColumns;
     return (
-      <Group>
+      <>
         <Rect
           x={x}
           y={y}
@@ -412,7 +416,7 @@ export const GridWithFrozenColumns: React.FC = () => {
           verticalAlign="middle"
           align="center"
         />
-      </Group>
+      </>
     );
   };
   return (
@@ -449,7 +453,7 @@ export const GridWithFrozenEdges: React.FC = () => {
     const text = `${rowIndex}x${columnIndex}`;
     const isFrozen = rowIndex < frozenRows || columnIndex < frozenColumns;
     return (
-      <Group>
+      <>
         <Rect
           x={x}
           y={y}
@@ -468,7 +472,7 @@ export const GridWithFrozenEdges: React.FC = () => {
           verticalAlign="middle"
           align="center"
         />
-      </Group>
+      </>
     );
   };
   return (
