@@ -36,7 +36,9 @@
     }
   },
   "lint-staged": {
-    "**/*.+(js|jsx|ts|tsx)": ["prettier --write"]
+    "**/*.+(js|jsx|ts|tsx)": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
@@ -44,6 +46,7 @@
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
     "@storybook/addon-info": "^5.3.18",
+    "@storybook/addon-knobs": "^5.3.18",
     "@storybook/react": "^5.3.18",
     "@storybook/storybook-deployer": "^2.8.6",
     "@types/react": "^16.9.35",

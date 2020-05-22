@@ -1,19 +1,20 @@
 module.exports = {
-  stories: ['../src/**/*.stories.[tj]s[x]'],
-  webpackFinal: async config => {
+  stories: ["../src/**/*.stories.[tj]s[x]"],
+  addons: ["@storybook/addon-knobs/register"],
+  webpackFinal: async (config) => {
     config.module.rules.push({
       test: /\.(ts|tsx)$/,
       use: [
         {
-          loader: require.resolve('babel-loader'),
+          loader: require.resolve("babel-loader"),
         },
         // Optional
         {
-          loader: require.resolve('react-docgen-typescript-loader'),
+          loader: require.resolve("react-docgen-typescript-loader"),
         },
       ],
     });
-    config.resolve.extensions.push('.ts', '.tsx');
+    config.resolve.extensions.push(".ts", ".tsx");
     return config;
   },
-}
+};

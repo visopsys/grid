@@ -1,6 +1,7 @@
 import React, { useRef, useState, useCallback } from "react";
 import Grid, { IChildrenProps } from "./Grid";
 import { Layer, Rect, Text, Group } from "react-konva";
+import { number } from "@storybook/addon-knobs";
 
 export default {
   title: "Grid",
@@ -236,6 +237,7 @@ LargeGrid.story = {
 
 export const DataGrid: React.FC = () => {
   const gridRef = useRef();
+  const frozenColumns = number("frozenColumns", 1);
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -246,7 +248,9 @@ export const DataGrid: React.FC = () => {
     header,
   }: IChildrenProps) => {
     const text = header
-      ? `Header ${columnIndex}`
+      ? columnIndex < frozenColumns
+        ? "S/No"
+        : `Header ${columnIndex}`
       : `${rowIndex}x${columnIndex}`;
     const fill = header ? "#eee" : "white";
     return (
@@ -282,6 +286,7 @@ export const DataGrid: React.FC = () => {
         columnCount={columnCount}
         height={40}
         rowCount={1}
+        frozenColumns={frozenColumns}
         ref={gridRef}
         width={width}
         columnWidth={(index) => {
@@ -299,6 +304,7 @@ export const DataGrid: React.FC = () => {
       <Grid
         columnCount={columnCount}
         rowCount={rowCount}
+        frozenColumns={frozenColumns}
         height={600}
         width={width}
         columnWidth={(index) => {
@@ -320,6 +326,7 @@ export const DataGrid: React.FC = () => {
 };
 
 export const GridWithFrozenRow: React.FC = () => {
+  const frozenRows = number("frozenRows", 1);
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -329,7 +336,7 @@ export const GridWithFrozenRow: React.FC = () => {
     height,
   }: IChildrenProps) => {
     const text = `${rowIndex}x${columnIndex}`;
-    const isFrozen = rowIndex < 2;
+    const isFrozen = rowIndex < frozenRows;
     return (
       <Group>
         <Rect
@@ -357,7 +364,7 @@ export const GridWithFrozenRow: React.FC = () => {
     <Grid
       columnCount={200}
       rowCount={200}
-      frozenRows={2}
+      frozenRows={frozenRows}
       columnWidth={(index) => {
         return 100;
       }}
@@ -374,6 +381,7 @@ GridWithFrozenRow.story = {
 };
 
 export const GridWithFrozenColumns: React.FC = () => {
+  const frozenColumns = number("frozenColumns", 1);
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -383,7 +391,7 @@ export const GridWithFrozenColumns: React.FC = () => {
     height,
   }: IChildrenProps) => {
     const text = `${rowIndex}x${columnIndex}`;
-    const isFrozen = columnIndex < 2;
+    const isFrozen = columnIndex < frozenColumns;
     return (
       <Group>
         <Rect
@@ -411,7 +419,7 @@ export const GridWithFrozenColumns: React.FC = () => {
     <Grid
       columnCount={200}
       rowCount={200}
-      frozenColumns={2}
+      frozenColumns={frozenColumns}
       columnWidth={(index) => {
         return 100;
       }}
@@ -428,6 +436,8 @@ GridWithFrozenColumns.story = {
 };
 
 export const GridWithFrozenEdges: React.FC = () => {
+  const frozenRows = number("frozenRows", 1);
+  const frozenColumns = number("frozenColumns", 1);
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -437,7 +447,7 @@ export const GridWithFrozenEdges: React.FC = () => {
     height,
   }: IChildrenProps) => {
     const text = `${rowIndex}x${columnIndex}`;
-    const isFrozen = rowIndex < 2 || columnIndex < 2;
+    const isFrozen = rowIndex < frozenRows || columnIndex < frozenColumns;
     return (
       <Group>
         <Rect
@@ -465,8 +475,8 @@ export const GridWithFrozenEdges: React.FC = () => {
     <Grid
       columnCount={200}
       rowCount={200}
-      frozenColumns={2}
-      frozenRows={2}
+      frozenColumns={frozenColumns}
+      frozenRows={frozenRows}
       columnWidth={(index) => {
         return 100;
       }}
