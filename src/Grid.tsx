@@ -58,7 +58,7 @@ const defaultProps = {
   columnCount: 200,
   rowHeight: () => 20,
   columnWidth: () => 100,
-  scrollbarSize: 20,
+  scrollbarSize: 17,
   showScrollbar: true,
   selectionBackgroundColor: "rgba(66, 133, 244, 0.3)",
   selectionBorderColor: "rgba(66, 133, 244, 1)",
@@ -362,9 +362,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
   );
 
   return (
-    <div
-      style={{ position: "relative", width: containerWidth + scrollbarSize }}
-    >
+    <div style={{ position: "relative", width: containerWidth }}>
       <div onWheel={handleWheel} tabIndex={-1}>
         <Stage width={containerWidth} height={containerHeight} ref={stageRef}>
           <Layer clearBeforeDraw={false}>
@@ -410,7 +408,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
             style={{
               overflow: "scroll",
               position: "absolute",
-              bottom: -scrollbarSize,
+              bottom: 0,
               left: 0,
               width: containerWidth,
               height: scrollbarSize,

@@ -1,7 +1,7 @@
 {
   "name": "react-konva-grid",
   "description": "Canvas grid to render large set of tabular data with virtualization.",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -11,7 +11,7 @@
     "build-storybook": "build-storybook -c .storybook -o .out",
     "deploy-storybook": "storybook-to-ghpages",
     "prepublish": "npm run build",
-    "postpublish": "build-storybook",
+    "postpublish": "build-storybook && storybook-to-ghpages",
     "prettier": "prettier src/**/*.tsx --write"
   },
   "author": "Vinay M <rmdort@gmail.com>",
@@ -32,8 +32,11 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run prettier && npm run check:types"
+      "pre-commit": "npm run check:types && lint-staged"
     }
+  },
+  "lint-staged": {
+    "**/*.+(js|jsx|ts|tsx)": ["prettier --write"]
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
@@ -47,6 +50,7 @@
     "@types/react-dom": "^16.9.8",
     "babel-loader": "^8.1.0",
     "husky": "^4.2.5",
+    "lint-staged": "^10.2.4",
     "prettier": "^2.0.5",
     "react-docgen-typescript-loader": "^3.7.2",
     "typescript": "^3.9.3"
