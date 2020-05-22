@@ -307,15 +307,11 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     }
   }
 
-  const selections = [];
   const { top, left, right, bottom } = selectionArea;
+  const hasSelection =
+    rowCount > bottom && columnCount > right && top < bottom && left < right;
   const selectionBounds = { x: 0, y: 0, width: 0, height: 0 };
-  if (
-    rowCount > bottom &&
-    columnCount > right &&
-    top < bottom &&
-    left < right
-  ) {
+  if (hasSelection) {
     selectionBounds.y = getRowOffset({
       index: top,
       rowHeight,
