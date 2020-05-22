@@ -342,6 +342,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
           height,
           rowIndex,
           columnIndex,
+          key: itemKey({ rowIndex, columnIndex }),
         })
       );
     }
@@ -372,6 +373,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
           height,
           rowIndex,
           columnIndex,
+          key: itemKey({ rowIndex, columnIndex }),
         })
       );
     }
@@ -402,6 +404,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
           height,
           rowIndex,
           columnIndex,
+          key: itemKey({ rowIndex, columnIndex }),
         })
       );
     }
@@ -410,8 +413,8 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
   const selectionAreas = useMemo(() => {
     const areas = [];
     if (selections.length) {
-      for (let [index, selection] of selections.entries()) {
-        const { top, left, right, bottom } = selection;
+      for (let i = 0; i < selections.length; i++) {
+        const { top, left, right, bottom } = selections[i];
         const selectionBounds = { x: 0, y: 0, width: 0, height: 0 };
         const actualBottom = Math.min(rowStopIndex, bottom);
         const actualRight = Math.min(columnStopIndex, right);
@@ -450,7 +453,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
 
         areas.push(
           <Rect
-            key={index}
+            key={i}
             stroke={selectionBorderColor}
             x={selectionBounds.x}
             y={selectionBounds.y}
