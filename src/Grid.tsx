@@ -51,12 +51,12 @@ export interface IProps {
   frozenColumns: number;
 }
 
-type TScrollCoords = {
+export type TScrollCoords = {
   scrollTop: number;
   scrollLeft: number;
 };
 
-type TForceUpdate = {
+export type TForceUpdate = {
   shouldForceUpdate: boolean;
 };
 
@@ -76,7 +76,7 @@ const defaultProps = {
   frozenColumns: 0,
 };
 
-type RenderComponent = React.FC<IChildrenProps>;
+export type RenderComponent = React.FC<IChildrenProps>;
 
 export interface IChildrenProps extends ICell {
   x: number;
@@ -485,7 +485,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     }
 
     return areas;
-  }, [selections]);
+  }, [selections, rowStopIndex, columnStopIndex]);
 
   return (
     <div style={{ position: "relative", width: containerWidth }}>
