@@ -39,7 +39,7 @@ export interface IProps {
   showScrollbar: boolean;
   selectionBackgroundColor: string;
   selectionBorderColor: string;
-  selectionArea: IArea;
+  selections: IArea[];
 }
 
 type TScrollCoords = {
@@ -62,7 +62,7 @@ const defaultProps = {
   showScrollbar: true,
   selectionBackgroundColor: "rgba(66, 133, 244, 0.3)",
   selectionBorderColor: "rgba(66, 133, 244, 1)",
-  selectionArea: { top: 0, bottom: 0, left: 0, right: 0 },
+  selections: [],
 };
 
 type RenderComponent = React.FC<IChildrenProps>;
@@ -125,7 +125,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     showScrollbar,
     selectionBackgroundColor,
     selectionBorderColor,
-    selectionArea,
+    selections,
   } = props;
   /* Expose some methods in ref */
   useImperativeHandle(forwardedRef, () => {
@@ -307,44 +307,63 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     }
   }
 
-  const { top, left, right, bottom } = selectionArea;
-  const hasSelection =
-    rowCount > bottom && columnCount > right && top < bottom && left < right;
-  const selectionBounds = { x: 0, y: 0, width: 0, height: 0 };
-  if (hasSelection) {
-    selectionBounds.y = getRowOffset({
-      index: top,
-      rowHeight,
-      columnWidth,
-      instanceProps: instanceProps.current,
-    });
-    selectionBounds.height =
-      getRowOffset({
-        index: bottom - 1,
-        rowHeight,
-        columnWidth,
-        instanceProps: instanceProps.current,
-      }) -
-      selectionBounds.y +
-      getRowHeight(bottom, instanceProps.current);
+  const selectionAreas = useMemo(() => {
+    const areas = [];
+    if (selections.length) {
+      for (let [index, selection] of selections.entries()) {
+        const { top, left, right, bottom } = selection;
+        const selectionBounds = { x: 0, y: 0, width: 0, height: 0 };
+        const actualBottom = Math.min(rowStopIndex, bottom);
+        const actualRight = Math.min(columnStopIndex, right);
+        selectionBounds.y = getRowOffset({
+          index: top,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
+        selectionBounds.height =
+          getRowOffset({
+            index: actualBottom,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          }) -
+          selectionBounds.y +
+          getRowHeight(actualBottom, instanceProps.current);
 
-    selectionBounds.x = getColumnOffset({
-      index: left,
-      rowHeight,
-      columnWidth,
-      instanceProps: instanceProps.current,
-    });
+        selectionBounds.x = getColumnOffset({
+          index: left,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
 
-    selectionBounds.width =
-      getColumnOffset({
-        index: right - 1,
-        rowHeight,
-        columnWidth,
-        instanceProps: instanceProps.current,
-      }) -
-      selectionBounds.x +
-      getColumnWidth(right, instanceProps.current);
-  }
+        selectionBounds.width =
+          getColumnOffset({
+            index: actualRight,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          }) -
+          selectionBounds.x +
+          getColumnWidth(actualRight, instanceProps.current);
+
+        areas.push(
+          <Rect
+            key={index}
+            stroke={selectionBorderColor}
+            x={selectionBounds.x}
+            y={selectionBounds.y}
+            width={selectionBounds.width}
+            height={selectionBounds.height}
+            fill={selectionBackgroundColor}
+          />
+        );
+      }
+    }
+
+    return areas;
+  }, [selections]);
 
   const estimatedTotalHeight = getEstimatedTotalHeight(
     rowCount,
@@ -367,14 +386,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
             </Group>
           </Layer>
           <FastLayer listening={false} offsetY={scrollTop} offsetX={scrollLeft}>
-            <Rect
-              stroke={selectionBorderColor}
-              x={selectionBounds.x}
-              y={selectionBounds.y}
-              width={selectionBounds.width}
-              height={selectionBounds.height}
-              fill={selectionBackgroundColor}
-            />
+            {selectionAreas}
           </FastLayer>
         </Stage>
       </div>

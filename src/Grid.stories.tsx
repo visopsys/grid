@@ -57,12 +57,20 @@ export const BaseGrid: React.FC = () => {
 };
 
 export const BaseGridWithSelection: React.FC = () => {
-  const selectionArea = {
-    top: 2,
-    right: 6,
-    left: 2,
-    bottom: 6,
-  };
+  const selections = [
+    {
+      top: 2,
+      right: 3,
+      left: 2,
+      bottom: 20,
+    },
+    {
+      top: 2,
+      right: 5,
+      left: 5,
+      bottom: 20,
+    },
+  ];
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -97,7 +105,7 @@ export const BaseGridWithSelection: React.FC = () => {
   };
   return (
     <Grid
-      selectionArea={selectionArea}
+      selections={selections}
       columnCount={200}
       rowCount={200}
       columnWidth={(index) => {
@@ -226,7 +234,7 @@ LargeGrid.story = {
   name: "1,000,000 rows and cols",
 };
 
-export const TableGrid: React.FC = () => {
+export const DataGrid: React.FC = () => {
   const gridRef = useRef();
   const Cell = ({
     rowIndex,
