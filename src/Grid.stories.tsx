@@ -369,6 +369,9 @@ export const GridWithFrozenRow: React.FC = () => {
     </Grid>
   );
 };
+GridWithFrozenRow.story = {
+  name: "Frozen rows",
+};
 
 export const GridWithFrozenColumns: React.FC = () => {
   const Cell = ({
@@ -419,4 +422,63 @@ export const GridWithFrozenColumns: React.FC = () => {
       {Cell}
     </Grid>
   );
+};
+GridWithFrozenColumns.story = {
+  name: "Frozen columns",
+};
+
+export const GridWithFrozenEdges: React.FC = () => {
+  const Cell = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+  }: IChildrenProps) => {
+    const text = `${rowIndex}x${columnIndex}`;
+    const isFrozen = rowIndex < 2 || columnIndex < 2;
+    return (
+      <Group>
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill={isFrozen ? "lightblue" : "white"}
+          stroke="grey"
+          strokeWidth={0.5}
+        />
+        <Text
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          text={text}
+          verticalAlign="middle"
+          align="center"
+        />
+      </Group>
+    );
+  };
+  return (
+    <Grid
+      columnCount={200}
+      rowCount={200}
+      frozenColumns={2}
+      frozenRows={2}
+      columnWidth={(index) => {
+        return 100;
+      }}
+      rowHeight={(index) => {
+        return 20;
+      }}
+    >
+      {Cell}
+    </Grid>
+  );
+};
+
+GridWithFrozenEdges.story = {
+  name: "Frozen columns and rows",
 };

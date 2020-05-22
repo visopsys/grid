@@ -377,6 +377,36 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     }
   }
 
+  const frozenIntersectionCells = [];
+  for (let rowIndex = 0; rowIndex < frozenRows; rowIndex++) {
+    for (let columnIndex = 0; columnIndex < frozenColumns; columnIndex++) {
+      const width = getColumnWidth(columnIndex, instanceProps.current);
+      const x = getColumnOffset({
+        index: columnIndex,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      const height = getRowHeight(rowIndex, instanceProps.current);
+      const y = getRowOffset({
+        index: rowIndex,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      frozenIntersectionCells.push(
+        createElement(children, {
+          x,
+          y,
+          width,
+          height,
+          rowIndex,
+          columnIndex,
+        })
+      );
+    }
+  }
+
   const selectionAreas = useMemo(() => {
     const areas = [];
     if (selections.length) {
@@ -459,6 +489,9 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
             </Group>
             <Group offsetY={0} offsetX={scrollLeft}>
               {frozenRowCells}
+            </Group>
+            <Group offsetY={0} offsetX={0}>
+              {frozenIntersectionCells}
             </Group>
           </Layer>
           <FastLayer listening={false} offsetY={scrollTop} offsetX={scrollLeft}>
