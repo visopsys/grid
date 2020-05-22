@@ -4,7 +4,6 @@ import React, {
   useState,
   useMemo,
   createElement,
-  useEffect,
   forwardRef,
   useImperativeHandle,
   useReducer,
@@ -16,7 +15,6 @@ import {
   FastLayer,
   Group,
 } from "react-konva/lib/ReactKonvaCore";
-
 import {
   getRowStartIndexForOffset,
   getRowStopIndexForStartIndex,
