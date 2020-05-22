@@ -318,3 +318,105 @@ export const DataGrid: React.FC = () => {
     </div>
   );
 };
+
+export const GridWithFrozenRow: React.FC = () => {
+  const Cell = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+  }: IChildrenProps) => {
+    const text = `${rowIndex}x${columnIndex}`;
+    const isFrozen = rowIndex < 2;
+    return (
+      <Group>
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill={isFrozen ? "lightblue" : "white"}
+          stroke="grey"
+          strokeWidth={0.5}
+        />
+        <Text
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          text={text}
+          verticalAlign="middle"
+          align="center"
+        />
+      </Group>
+    );
+  };
+  return (
+    <Grid
+      columnCount={200}
+      rowCount={200}
+      frozenRows={2}
+      columnWidth={(index) => {
+        return 100;
+      }}
+      rowHeight={(index) => {
+        return 20;
+      }}
+    >
+      {Cell}
+    </Grid>
+  );
+};
+
+export const GridWithFrozenColumns: React.FC = () => {
+  const Cell = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+  }: IChildrenProps) => {
+    const text = `${rowIndex}x${columnIndex}`;
+    const isFrozen = columnIndex < 2;
+    return (
+      <Group>
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill={isFrozen ? "lightblue" : "white"}
+          stroke="grey"
+          strokeWidth={0.5}
+        />
+        <Text
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          text={text}
+          verticalAlign="middle"
+          align="center"
+        />
+      </Group>
+    );
+  };
+  return (
+    <Grid
+      columnCount={200}
+      rowCount={200}
+      frozenColumns={2}
+      columnWidth={(index) => {
+        return 100;
+      }}
+      rowHeight={(index) => {
+        return 20;
+      }}
+    >
+      {Cell}
+    </Grid>
+  );
+};

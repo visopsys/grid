@@ -40,6 +40,8 @@ export interface IProps {
   selectionBackgroundColor: string;
   selectionBorderColor: string;
   selections: IArea[];
+  frozenRows: number;
+  frozenColumns: number;
 }
 
 type TScrollCoords = {
@@ -63,6 +65,8 @@ const defaultProps = {
   selectionBackgroundColor: "rgba(66, 133, 244, 0.3)",
   selectionBorderColor: "rgba(66, 133, 244, 1)",
   selections: [],
+  frozenRows: 0,
+  frozenColumns: 0,
 };
 
 type RenderComponent = React.FC<IChildrenProps>;
@@ -126,6 +130,8 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     selectionBackgroundColor,
     selectionBorderColor,
     selections,
+    frozenRows,
+    frozenColumns,
   } = props;
   /* Expose some methods in ref */
   useImperativeHandle(forwardedRef, () => {
@@ -270,7 +276,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     containerWidth,
     instanceProps: instanceProps.current,
   });
-  const items = [];
+  const cells = [];
   if (columnCount > 0 && rowCount) {
     for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
       for (
@@ -292,7 +298,7 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
           columnWidth,
           instanceProps: instanceProps.current,
         });
-        items.push(
+        cells.push(
           createElement(children, {
             x,
             y,
@@ -304,6 +310,70 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
           })
         );
       }
+    }
+  }
+
+  const frozenRowCells = [];
+  for (let rowIndex = 0; rowIndex < frozenRows; rowIndex++) {
+    for (
+      let columnIndex = columnStartIndex;
+      columnIndex <= columnStopIndex;
+      columnIndex++
+    ) {
+      const width = getColumnWidth(columnIndex, instanceProps.current);
+      const x = getColumnOffset({
+        index: columnIndex,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      const height = getRowHeight(rowIndex, instanceProps.current);
+      const y = getRowOffset({
+        index: rowIndex,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      frozenRowCells.push(
+        createElement(children, {
+          x,
+          y,
+          width,
+          height,
+          rowIndex,
+          columnIndex,
+        })
+      );
+    }
+  }
+
+  const frozenColumnCells = [];
+  for (let columnIndex = 0; columnIndex < frozenColumns; columnIndex++) {
+    for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
+      const width = getColumnWidth(columnIndex, instanceProps.current);
+      const x = getColumnOffset({
+        index: columnIndex,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      const height = getRowHeight(rowIndex, instanceProps.current);
+      const y = getRowOffset({
+        index: rowIndex,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      frozenColumnCells.push(
+        createElement(children, {
+          x,
+          y,
+          width,
+          height,
+          rowIndex,
+          columnIndex,
+        })
+      );
     }
   }
 
@@ -382,7 +452,13 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
         <Stage width={containerWidth} height={containerHeight} ref={stageRef}>
           <Layer clearBeforeDraw={false}>
             <Group offsetY={scrollTop} offsetX={scrollLeft}>
-              {items}
+              {cells}
+            </Group>
+            <Group offsetY={scrollTop} offsetX={0}>
+              {frozenColumnCells}
+            </Group>
+            <Group offsetY={0} offsetX={scrollLeft}>
+              {frozenRowCells}
             </Group>
           </Layer>
           <FastLayer listening={false} offsetY={scrollTop} offsetX={scrollLeft}>
