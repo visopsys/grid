@@ -388,7 +388,7 @@ export const DataGridResizable: React.FC = () => {
         />
         {showDragHandle && (
           <Rect
-            x={x + width - dragHandleWidth}
+            x={x + width - dragHandleWidth - 1}
             y={y}
             width={dragHandleWidth}
             height={height}

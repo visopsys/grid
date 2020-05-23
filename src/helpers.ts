@@ -1,61 +1,60 @@
 // Utilities extracted from https://github.com/bvaughn/react-window
-import { TItemSize, IInstanceProps, IArea, ICell, TCellMetaData } from './Grid'
+import { TItemSize, IInstanceProps, IArea, ICell, TCellMetaData } from "./Grid";
+
+type ItemType = "row" | "column";
 
 export interface IItemMetaData {
-  itemType: 'row' | 'column'
-  offset: number
-  index: number
-  rowCount: number
-  columnCount: number
-  rowHeight: TItemSize
-  columnWidth: TItemSize
-  instanceProps: IInstanceProps
+  itemType: ItemType;
+  offset: number;
+  index: number;
+  rowCount: number;
+  columnCount: number;
+  rowHeight: TItemSize;
+  columnWidth: TItemSize;
+  instanceProps: IInstanceProps;
 }
 
-export const getRowStartIndexForOffset = (
-  {
-    itemType,
-    rowHeight,
-    columnWidth,
-    rowCount,
-    columnCount,
-    instanceProps,
-    offset
-  }: Omit<IItemMetaData, 'index'>
-): number => {
+export const getRowStartIndexForOffset = ({
+  rowHeight,
+  columnWidth,
+  rowCount,
+  columnCount,
+  instanceProps,
+  offset,
+}: Omit<IItemMetaData, "index" | "itemType">): number => {
   return findNearestItem({
-    itemType,
+    itemType: "row",
     rowHeight,
     columnWidth,
     rowCount,
     columnCount,
     instanceProps,
-    offset
-  })
+    offset,
+  });
 };
 
-interface IRowStopIndex extends Omit<IItemMetaData, 'itemType' | 'index' | 'offset' | 'columnCount'> {
-  startIndex: number
-  containerHeight: number
-  scrollTop: number
+interface IRowStopIndex
+  extends Omit<IItemMetaData, "itemType" | "index" | "offset" | "columnCount"> {
+  startIndex: number;
+  containerHeight: number;
+  scrollTop: number;
 }
-export  const getRowStopIndexForStartIndex = ({
+export const getRowStopIndexForStartIndex = ({
   startIndex,
   rowCount,
   rowHeight,
   columnWidth,
   scrollTop,
   containerHeight,
-  instanceProps
+  instanceProps,
 }: IRowStopIndex): number => {
-
   const itemMetadata = getItemMetadata({
-    itemType: 'row',
+    itemType: "row",
     rowHeight,
     columnWidth,
     index: startIndex,
-    instanceProps
-  })
+    instanceProps,
+  });
   const maxOffset = scrollTop + containerHeight;
 
   let offset = itemMetadata.offset + itemMetadata.size;
@@ -64,60 +63,58 @@ export  const getRowStopIndexForStartIndex = ({
   while (stopIndex < rowCount - 1 && offset < maxOffset) {
     stopIndex++;
     offset += getItemMetadata({
-      itemType: 'row',
+      itemType: "row",
       rowHeight,
       columnWidth,
       index: stopIndex,
-      instanceProps
+      instanceProps,
     }).size;
   }
 
   return stopIndex;
 };
 
-export  const getColumnStartIndexForOffset = (
-  {
-    itemType,
-    rowHeight,
-    columnWidth,
-    rowCount,
-    columnCount,
-    instanceProps,
-    offset
-  }: Omit<IItemMetaData, 'index'>
-): number => {
+export const getColumnStartIndexForOffset = ({
+  rowHeight,
+  columnWidth,
+  rowCount,
+  columnCount,
+  instanceProps,
+  offset,
+}: Omit<IItemMetaData, "index" | "itemType">): number => {
   return findNearestItem({
-    itemType,
+    itemType: "column",
     rowHeight,
     columnWidth,
     rowCount,
     columnCount,
     instanceProps,
-    offset
-  })
+    offset,
+  });
 };
 
-interface IColumnStopIndex extends Omit<IItemMetaData, 'itemType' | 'index' | 'offset' | 'rowCount'> {
-  startIndex: number
-  containerWidth: number
-  scrollLeft: number
+interface IColumnStopIndex
+  extends Omit<IItemMetaData, "itemType" | "index" | "offset" | "rowCount"> {
+  startIndex: number;
+  containerWidth: number;
+  scrollLeft: number;
 }
-export  const getColumnStopIndexForStartIndex = ({
+export const getColumnStopIndexForStartIndex = ({
   startIndex,
   rowHeight,
   columnWidth,
   instanceProps,
   containerWidth,
   scrollLeft,
-  columnCount
+  columnCount,
 }: IColumnStopIndex): number => {
   const itemMetadata = getItemMetadata({
-    itemType: 'column',
+    itemType: "column",
     index: startIndex,
     rowHeight,
     columnWidth,
-    instanceProps
-  })
+    instanceProps,
+  });
   const maxOffset = scrollLeft + containerWidth;
 
   let offset = itemMetadata.offset + itemMetadata.size;
@@ -126,15 +123,15 @@ export  const getColumnStopIndexForStartIndex = ({
   while (stopIndex < columnCount - 1 && offset < maxOffset) {
     stopIndex++;
     offset += getItemMetadata({
-      itemType: 'column',
+      itemType: "column",
       rowHeight,
       columnWidth,
       index: stopIndex,
-      instanceProps
+      instanceProps,
     }).size;
   }
 
-  return stopIndex; 
+  return stopIndex;
 };
 
 export const getBoundedCells = (area: IArea) => {
@@ -148,7 +145,7 @@ export const getBoundedCells = (area: IArea) => {
   return cells;
 };
 
-export  const itemKey = ({ rowIndex, columnIndex }: ICell) =>
+export const itemKey = ({ rowIndex, columnIndex }: ICell) =>
   `${rowIndex}:${columnIndex}`;
 
 export const getRowOffset = ({
@@ -156,58 +153,65 @@ export const getRowOffset = ({
   rowHeight,
   columnWidth,
   instanceProps,
-}: Omit<IGetItemMetadata, 'itemType'>): number => {
+}: Omit<IGetItemMetadata, "itemType">): number => {
   return getItemMetadata({
-    itemType: 'row',
+    itemType: "row",
     index,
     rowHeight,
     columnWidth,
-    instanceProps
-  }).offset
-}
+    instanceProps,
+  }).offset;
+};
 
 export const getColumnOffset = ({
   index,
   rowHeight,
   columnWidth,
   instanceProps,
-}: Omit<IGetItemMetadata, 'itemType'>): number => {
+}: Omit<IGetItemMetadata, "itemType">): number => {
   return getItemMetadata({
-    itemType: 'column',
+    itemType: "column",
     index,
     rowHeight,
     columnWidth,
-    instanceProps
-  }).offset
-}
+    instanceProps,
+  }).offset;
+};
 
-export const getRowHeight = (index: number, instanceProps: IInstanceProps) => {  
-  return instanceProps.rowMetadataMap[index].size
-}
+export const getRowHeight = (index: number, instanceProps: IInstanceProps) => {
+  return instanceProps.rowMetadataMap[index].size;
+};
 
-export const getColumnWidth = (index: number, instanceProps: IInstanceProps) => {
-  return instanceProps.columnMetadataMap[index].size
-}
+export const getColumnWidth = (
+  index: number,
+  instanceProps: IInstanceProps
+) => {
+  return instanceProps.columnMetadataMap[index].size;
+};
 
-interface IGetItemMetadata extends Pick<IItemMetaData, 'itemType' | 'index' | 'rowHeight' | 'columnWidth' | 'instanceProps'>{}
+interface IGetItemMetadata
+  extends Pick<
+    IItemMetaData,
+    "itemType" | "index" | "rowHeight" | "columnWidth" | "instanceProps"
+  > {}
 export const getItemMetadata = ({
   itemType,
   index,
   rowHeight,
   columnWidth,
-  instanceProps
-}: IGetItemMetadata): TCellMetaData=> {
+  instanceProps,
+}: IGetItemMetadata): TCellMetaData => {
   let itemMetadataMap, itemSize, lastMeasuredIndex;
-  if (itemType === 'column') {
-    itemMetadataMap = instanceProps.columnMetadataMap
-    itemSize = columnWidth
-    lastMeasuredIndex = instanceProps.lastMeasuredColumnIndex
+  if (itemType === "column") {
+    itemMetadataMap = instanceProps.columnMetadataMap;
+    itemSize = columnWidth;
+    lastMeasuredIndex = instanceProps.lastMeasuredColumnIndex;
   } else {
     itemMetadataMap = instanceProps.rowMetadataMap;
-    itemSize = rowHeight
+    itemSize = rowHeight;
     lastMeasuredIndex = instanceProps.lastMeasuredRowIndex;
   }
-  
+
   if (index > lastMeasuredIndex) {
     let offset = 0;
     if (lastMeasuredIndex >= 0) {
@@ -226,7 +230,7 @@ export const getItemMetadata = ({
       offset += size;
     }
 
-    if (itemType === 'column') {
+    if (itemType === "column") {
       instanceProps.lastMeasuredColumnIndex = index;
     } else {
       instanceProps.lastMeasuredRowIndex = index;
@@ -234,7 +238,7 @@ export const getItemMetadata = ({
   }
 
   return itemMetadataMap[index];
-}
+};
 
 const findNearestItem = ({
   itemType,
@@ -243,10 +247,10 @@ const findNearestItem = ({
   rowCount,
   columnCount,
   instanceProps,
-  offset
-}: Omit<IItemMetaData, 'index'>): number => {
+  offset,
+}: Omit<IItemMetaData, "index">): number => {
   let itemMetadataMap, lastMeasuredIndex;
-  if (itemType === 'column') {
+  if (itemType === "column") {
     itemMetadataMap = instanceProps.columnMetadataMap;
     lastMeasuredIndex = instanceProps.lastMeasuredColumnIndex;
   } else {
@@ -256,7 +260,6 @@ const findNearestItem = ({
 
   const lastMeasuredItemOffset =
     lastMeasuredIndex > 0 ? itemMetadataMap[lastMeasuredIndex].offset : 0;
-
   if (lastMeasuredItemOffset >= offset) {
     // If we've already measured items within this range just use a binary search as it's faster.
     return findNearestItemBinarySearch({
@@ -266,8 +269,8 @@ const findNearestItem = ({
       instanceProps,
       high: lastMeasuredIndex,
       low: 0,
-      offset
-    })
+      offset,
+    });
   } else {
     // If we haven't yet measured this high, fallback to an exponential search with an inner binary search.
     // The exponential search avoids pre-computing sizes for the full set of items as a binary search would.
@@ -280,14 +283,15 @@ const findNearestItem = ({
       columnWidth,
       instanceProps,
       index: Math.max(0, lastMeasuredIndex),
-      offset
+      offset,
     });
   }
 };
 
-interface IBinarySearchArgs extends Omit<IItemMetaData, 'index' | 'rowCount' | 'columnCount'>{
-  high: number
-  low: number
+interface IBinarySearchArgs
+  extends Omit<IItemMetaData, "index" | "rowCount" | "columnCount"> {
+  high: number;
+  low: number;
 }
 const findNearestItemBinarySearch = ({
   itemType,
@@ -296,7 +300,7 @@ const findNearestItemBinarySearch = ({
   instanceProps,
   high,
   low,
-  offset
+  offset,
 }: IBinarySearchArgs): number => {
   while (low <= high) {
     const middle = low + Math.floor((high - low) / 2);
@@ -305,7 +309,7 @@ const findNearestItemBinarySearch = ({
       rowHeight,
       columnWidth,
       index: middle,
-      instanceProps
+      instanceProps,
     }).offset;
 
     if (currentOffset === offset) {
@@ -332,9 +336,9 @@ const findNearestItemExponentialSearch = ({
   columnCount,
   instanceProps,
   index,
-  offset
+  offset,
 }: IItemMetaData) => {
-  const itemCount = itemType === 'column' ? columnCount : rowCount;
+  const itemCount = itemType === "column" ? columnCount : rowCount;
   let interval = 1;
 
   while (
@@ -344,7 +348,7 @@ const findNearestItemExponentialSearch = ({
       rowHeight,
       columnWidth,
       index,
-      instanceProps
+      instanceProps,
     }).offset < offset
   ) {
     index += interval;
@@ -358,35 +362,42 @@ const findNearestItemExponentialSearch = ({
     instanceProps,
     high: Math.min(index, itemCount - 1),
     low: Math.floor(index / 2),
-    offset
+    offset,
   });
 };
 
-
-export const getEstimatedTotalHeight = (rowCount: number, estimatedRowHeight: number, instanceProps: IInstanceProps) => {
+export const getEstimatedTotalHeight = (
+  rowCount: number,
+  estimatedRowHeight: number,
+  instanceProps: IInstanceProps
+) => {
   let totalSizeOfMeasuredRows = 0;
-  let { lastMeasuredRowIndex, rowMetadataMap } = instanceProps
+  let { lastMeasuredRowIndex, rowMetadataMap } = instanceProps;
 
   // Edge case check for when the number of items decreases while a scroll is in progress.
   // https://github.com/bvaughn/react-window/pull/138
   if (lastMeasuredRowIndex >= rowCount) {
     lastMeasuredRowIndex = rowCount - 1;
   }
-  
+
   if (lastMeasuredRowIndex >= 0) {
     const itemMetadata = rowMetadataMap[lastMeasuredRowIndex];
     totalSizeOfMeasuredRows = itemMetadata.offset + itemMetadata.size;
   }
-  
-  const numUnmeasuredItems = rowCount - lastMeasuredRowIndex - 1;  
+
+  const numUnmeasuredItems = rowCount - lastMeasuredRowIndex - 1;
   const totalSizeOfUnmeasuredItems = numUnmeasuredItems * estimatedRowHeight;
 
   return totalSizeOfMeasuredRows + totalSizeOfUnmeasuredItems;
 };
 
-export const getEstimatedTotalWidth = (columnCount: number, estimatedColumnWidth: number, instanceProps: IInstanceProps) => {
+export const getEstimatedTotalWidth = (
+  columnCount: number,
+  estimatedColumnWidth: number,
+  instanceProps: IInstanceProps
+) => {
   let totalSizeOfMeasuredRows = 0;
-  let { lastMeasuredColumnIndex, columnMetadataMap } = instanceProps
+  let { lastMeasuredColumnIndex, columnMetadataMap } = instanceProps;
   // Edge case check for when the number of items decreases while a scroll is in progress.
   // https://github.com/bvaughn/react-window/pull/138
   if (lastMeasuredColumnIndex >= columnCount) {

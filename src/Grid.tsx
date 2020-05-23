@@ -246,7 +246,6 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
   }, []);
 
   const rowStartIndex = getRowStartIndexForOffset({
-    itemType: "row",
     rowHeight,
     columnWidth,
     rowCount,
@@ -264,7 +263,6 @@ const Grid: React.FC<IProps> = forwardRef((props, forwardedRef) => {
     instanceProps: instanceProps.current,
   });
   const columnStartIndex = getColumnStartIndexForOffset({
-    itemType: "column",
     rowHeight,
     columnWidth,
     rowCount,
