@@ -53,12 +53,11 @@ export const BaseGrid: React.FC = () => {
       columnWidth={(index) => {
         return 100;
       }}
+      itemRenderer={Cell}
       rowHeight={(index) => {
         return 20;
       }}
-    >
-      {Cell}
-    </Grid>
+    />
   );
 };
 
@@ -124,9 +123,8 @@ export const BaseGridWithSelection: React.FC = () => {
       rowHeight={(index) => {
         return 20;
       }}
-    >
-      {Cell}
-    </Grid>
+      itemRenderer={Cell}
+    />
   );
 };
 
@@ -179,9 +177,8 @@ export const VariableSizeGrid: React.FC = () => {
         if (index % 2 === 0) return 40;
         return 20;
       }}
-    >
-      {Cell}
-    </Grid>
+      itemRenderer={Cell}
+    />
   );
 };
 
@@ -242,9 +239,8 @@ export const LargeGrid: React.FC = () => {
         if (index % 2 === 0) return 40;
         return 20;
       }}
-    >
-      {Cell}
-    </Grid>
+      itemRenderer={Cell}
+    />
   );
 };
 
@@ -317,9 +313,8 @@ export const DataGrid: React.FC = () => {
           return 20;
         }}
         showScrollbar={false}
-      >
-        {(props) => <Cell {...props} header />}
-      </Grid>
+        itemRenderer={(props) => <Cell {...props} header />}
+      />
       <Grid
         columnCount={columnCount}
         rowCount={rowCount}
@@ -338,14 +333,13 @@ export const DataGrid: React.FC = () => {
         onScroll={({ scrollLeft }) => {
           gridRef.current.scrollTo({ scrollLeft });
         }}
-      >
-        {Cell}
-      </Grid>
+        itemRenderer={Cell}
+      />
     </div>
   );
 };
 
-export const DataGridResizable: React.FC = () => {
+const DataGridResizable: React.FC = () => {
   const width = number("width", 900);
   const height = number("height", 600);
   const gridRef = useRef();
@@ -467,10 +461,11 @@ export const DataGridResizable: React.FC = () => {
           if (index % 2 === 0) return 40;
           return 20;
         }}
+        itemRenderer={(props) => {
+          return <Cell {...props} header />;
+        }}
         showScrollbar={false}
-      >
-        {(props) => <Cell {...props} header />}
-      </Grid>
+      />
       <Grid
         columnCount={columnCount}
         rowCount={rowCount}
@@ -491,9 +486,8 @@ export const DataGridResizable: React.FC = () => {
         onScroll={({ scrollLeft }) => {
           gridRef.current.scrollTo({ scrollLeft });
         }}
-      >
-        {Cell}
-      </Grid>
+        itemRenderer={Cell}
+      />
     </div>
   );
 };
@@ -552,9 +546,8 @@ export const GridWithFrozenRow: React.FC = () => {
       rowHeight={(index) => {
         return 20;
       }}
-    >
-      {Cell}
-    </Grid>
+      itemRenderer={Cell}
+    />
   );
 };
 GridWithFrozenRow.story = {
@@ -611,9 +604,8 @@ export const GridWithFrozenColumns: React.FC = () => {
       rowHeight={(index) => {
         return 20;
       }}
-    >
-      {Cell}
-    </Grid>
+      itemRenderer={Cell}
+    />
   );
 };
 GridWithFrozenColumns.story = {
@@ -672,9 +664,8 @@ export const GridWithFrozenEdges: React.FC = () => {
       rowHeight={(index) => {
         return 20;
       }}
-    >
-      {Cell}
-    </Grid>
+      itemRenderer={Cell}
+    />
   );
 };
 
@@ -756,7 +747,7 @@ export const EditableGrid: React.FC = () => {
         columnIndex={columnIndex}
         rowIndex={rowIndex}
         onDblClick={handleDblClick}
-        onClick={handleSelect}
+        onMouseDown={handleSelect}
       >
         <Rect
           x={x}
@@ -790,12 +781,9 @@ export const EditableGrid: React.FC = () => {
         columnWidth={getColumnWidth}
         rowHeight={getRowHeight}
         selections={selections}
-        onScroll={(args) => {
-          if (showEditInput) setScrollPosition(args);
-        }}
-      >
-        {Cell}
-      </Grid>
+        itemRenderer={Cell}
+        onScroll={setScrollPosition}
+      />
       <input
         style={{
           position: "absolute",

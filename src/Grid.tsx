@@ -48,6 +48,7 @@ export interface IProps {
   selections: IArea[];
   frozenRows: number;
   frozenColumns: number;
+  itemRenderer: (props: IChildrenProps) => React.ReactNode;
 }
 
 export type TScrollCoords = {
@@ -84,6 +85,7 @@ export interface IChildrenProps extends ICell {
   y: number;
   width: number;
   height: number;
+  key: string;
 }
 
 export type TItemSize = (index?: number) => number;
@@ -141,6 +143,7 @@ const Grid: React.FC<IProps> = memo(
       selections,
       frozenRows,
       frozenColumns,
+      itemRenderer,
     } = props;
     /* Expose some methods in ref */
     useImperativeHandle(forwardedRef, () => {
@@ -325,7 +328,7 @@ const Grid: React.FC<IProps> = memo(
             instanceProps: instanceProps.current,
           });
           cells.push(
-            createElement(children, {
+            itemRenderer({
               x,
               y,
               width,
@@ -365,7 +368,7 @@ const Grid: React.FC<IProps> = memo(
           instanceProps: instanceProps.current,
         });
         frozenRowCells.push(
-          createElement(children, {
+          itemRenderer({
             x,
             y,
             width,
@@ -400,7 +403,7 @@ const Grid: React.FC<IProps> = memo(
           instanceProps: instanceProps.current,
         });
         frozenColumnCells.push(
-          createElement(children, {
+          itemRenderer({
             x,
             y,
             width,
@@ -439,7 +442,7 @@ const Grid: React.FC<IProps> = memo(
           instanceProps: instanceProps.current,
         });
         frozenIntersectionCells.push(
-          createElement(children, {
+          itemRenderer({
             x,
             y,
             width,
