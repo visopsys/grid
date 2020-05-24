@@ -63,6 +63,8 @@ export const BaseGrid: React.FC = () => {
 };
 
 export const BaseGridWithSelection: React.FC = () => {
+  const width = number("width", 900);
+  const height = number("height", 600);
   const selections = [
     {
       top: 2,
@@ -111,6 +113,8 @@ export const BaseGridWithSelection: React.FC = () => {
   };
   return (
     <Grid
+      width={width}
+      height={height}
       selections={selections}
       columnCount={200}
       rowCount={200}
@@ -127,6 +131,8 @@ export const BaseGridWithSelection: React.FC = () => {
 };
 
 export const VariableSizeGrid: React.FC = () => {
+  const width = number("width", 900);
+  const height = number("height", 600);
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -161,6 +167,8 @@ export const VariableSizeGrid: React.FC = () => {
   };
   return (
     <Grid
+      width={width}
+      height={height}
       columnCount={200}
       rowCount={200}
       columnWidth={(index) => {
@@ -178,6 +186,8 @@ export const VariableSizeGrid: React.FC = () => {
 };
 
 export const LargeGrid: React.FC = () => {
+  const width = number("width", 900);
+  const height = number("height", 600);
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -220,6 +230,8 @@ export const LargeGrid: React.FC = () => {
   };
   return (
     <Grid
+      width={width}
+      height={height}
       columnCount={1000000}
       rowCount={1000000}
       columnWidth={(index) => {
@@ -241,6 +253,8 @@ LargeGrid.story = {
 };
 
 export const DataGrid: React.FC = () => {
+  const width = number("width", 900);
+  const height = number("height", 600);
   const gridRef = useRef();
   const frozenColumns = number("frozenColumns", 1);
   const Cell = ({
@@ -284,7 +298,6 @@ export const DataGrid: React.FC = () => {
   };
   const columnCount = 100000;
   const rowCount = 100000;
-  const width = 1200;
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <Grid
@@ -295,6 +308,7 @@ export const DataGrid: React.FC = () => {
         ref={gridRef}
         width={width}
         columnWidth={(index) => {
+          if (index === 0) return 80;
           if (index % 3 === 0) return 200;
           return 100;
         }}
@@ -310,9 +324,10 @@ export const DataGrid: React.FC = () => {
         columnCount={columnCount}
         rowCount={rowCount}
         frozenColumns={frozenColumns}
-        height={600}
+        height={height}
         width={width}
         columnWidth={(index) => {
+          if (index === 0) return 80;
           if (index % 3 === 0) return 200;
           return 100;
         }}
@@ -331,6 +346,8 @@ export const DataGrid: React.FC = () => {
 };
 
 export const DataGridResizable: React.FC = () => {
+  const width = number("width", 900);
+  const height = number("height", 600);
   const gridRef = useRef();
   const mainGridRef = useRef();
   const [columnWidthMap, setColumnWidthMap] = useState({});
@@ -431,7 +448,6 @@ export const DataGridResizable: React.FC = () => {
   };
   const columnCount = 100000;
   const rowCount = 100000;
-  const width = 1200;
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <Grid
@@ -443,6 +459,7 @@ export const DataGridResizable: React.FC = () => {
         width={width}
         columnWidth={(index) => {
           if (index in columnWidthMap) return columnWidthMap[index];
+          if (index === 0) return 80;
           if (index % 3 === 0) return 200;
           return 100;
         }}
@@ -458,11 +475,12 @@ export const DataGridResizable: React.FC = () => {
         columnCount={columnCount}
         rowCount={rowCount}
         frozenColumns={frozenColumns}
-        height={600}
+        height={height}
         width={width}
         ref={mainGridRef}
         columnWidth={(index) => {
           if (index in columnWidthMap) return columnWidthMap[index];
+          if (index === 0) return 80;
           if (index % 3 === 0) return 200;
           return 100;
         }}
@@ -486,6 +504,8 @@ DataGridResizable.story = {
 
 export const GridWithFrozenRow: React.FC = () => {
   const frozenRows = number("frozenRows", 1);
+  const width = number("width", 900);
+  const height = number("height", 600);
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -521,6 +541,8 @@ export const GridWithFrozenRow: React.FC = () => {
   };
   return (
     <Grid
+      width={width}
+      height={height}
       columnCount={200}
       rowCount={200}
       frozenRows={frozenRows}
@@ -541,6 +563,8 @@ GridWithFrozenRow.story = {
 
 export const GridWithFrozenColumns: React.FC = () => {
   const frozenColumns = number("frozenColumns", 1);
+  const width = number("width", 900);
+  const height = number("height", 600);
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -576,6 +600,8 @@ export const GridWithFrozenColumns: React.FC = () => {
   };
   return (
     <Grid
+      width={width}
+      height={height}
       columnCount={200}
       rowCount={200}
       frozenColumns={frozenColumns}
@@ -597,6 +623,8 @@ GridWithFrozenColumns.story = {
 export const GridWithFrozenEdges: React.FC = () => {
   const frozenRows = number("frozenRows", 1);
   const frozenColumns = number("frozenColumns", 1);
+  const width = number("width", 900);
+  const height = number("height", 600);
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -632,6 +660,8 @@ export const GridWithFrozenEdges: React.FC = () => {
   };
   return (
     <Grid
+      width={width}
+      height={height}
       columnCount={200}
       rowCount={200}
       frozenColumns={frozenColumns}
@@ -650,4 +680,171 @@ export const GridWithFrozenEdges: React.FC = () => {
 
 GridWithFrozenEdges.story = {
   name: "Frozen columns and rows",
+};
+
+export const EditableGrid: React.FC = () => {
+  const width = number("width", 900);
+  const height = number("height", 600);
+  const [data, setData] = useState({
+    [[1, 2].toString()]: 2,
+  });
+  const [selections, setSelections] = useState([]);
+  const [showEditInput, setShowEditInput] = useState(false);
+  const [editPosition, setEditPosition] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    rowIndex: null,
+    columnIndex: null,
+    value: "",
+  });
+  const [scrollPosition, setScrollPosition] = useState({
+    scrollLeft: 0,
+    scrollTop: 0,
+  });
+  const getColumnWidth = (columnIndex) => {
+    return 100;
+  };
+  const getRowHeight = (columnIndex) => {
+    return 20;
+  };
+  const handleDblClick = (e) => {
+    const { rowIndex, columnIndex } = e.currentTarget.attrs;
+    const node = e.target;
+    const width = node.width();
+    const x = node.x();
+    const y = node.y();
+    const height = node.height();
+    setEditPosition({
+      x,
+      y,
+      width,
+      height,
+      rowIndex,
+      columnIndex,
+      value: data[[rowIndex, columnIndex].toString()] || "",
+    });
+    setShowEditInput(true);
+  };
+  const handleSelect = (e) => {
+    const { rowIndex, columnIndex } = e.currentTarget.attrs;
+    setSelections([
+      {
+        top: rowIndex,
+        left: columnIndex,
+        bottom: rowIndex,
+        right: columnIndex,
+      },
+    ]);
+    if (e.evt.detail === 2) return handleDblClick(e);
+  };
+  const Cell = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+  }: IChildrenProps) => {
+    const key = [rowIndex, columnIndex].toString();
+    const text = data[key] || `${rowIndex}x${columnIndex}`;
+    return (
+      <Group
+        columnIndex={columnIndex}
+        rowIndex={rowIndex}
+        onDblClick={handleDblClick}
+        onClick={handleSelect}
+      >
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill="white"
+          stroke="grey"
+          strokeWidth={0.5}
+        />
+        <Text
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          text={text}
+          verticalAlign="middle"
+          align="center"
+        />
+      </Group>
+    );
+  };
+  return (
+    <div style={{ position: "relative" }}>
+      <Grid
+        width={width}
+        height={height}
+        columnCount={200}
+        rowCount={200}
+        columnWidth={getColumnWidth}
+        rowHeight={getRowHeight}
+        selections={selections}
+        onScroll={setScrollPosition}
+      >
+        {Cell}
+      </Grid>
+      <input
+        style={{
+          position: "absolute",
+          left: showEditInput ? editPosition.x : -2000,
+          top: showEditInput ? editPosition.y : -2000,
+          transform: `translate3d(-${scrollPosition.scrollLeft}px, -${scrollPosition.scrollTop}px, 0)`,
+          height: editPosition.height,
+          width: editPosition.width,
+          margin: 0,
+          padding: "0 5px",
+          boxSizing: "border-box",
+          border: "2px rgba(66, 133, 244, 1) solid",
+          outline: "none",
+          zIndex: 10,
+        }}
+        value={editPosition.value}
+        onChange={(e) => {
+          const value = e.target.value;
+          setEditPosition((prevData) => {
+            return {
+              ...prevData,
+              value: value,
+            };
+          });
+        }}
+        onKeyDown={(e) => {
+          if (e.which === 13) {
+            const value = editPosition.value;
+            setData((prevData) => {
+              return {
+                ...prevData,
+                [[
+                  editPosition.rowIndex,
+                  editPosition.columnIndex,
+                ].toString()]: value,
+              };
+            });
+            setShowEditInput(false);
+          }
+        }}
+        onBlur={() => {
+          setShowEditInput(false);
+        }}
+        ref={(el) => {
+          if (el) {
+            el.focus();
+          }
+        }}
+        autoFocus
+      />
+    </div>
+  );
+};
+
+EditableGrid.story = {
+  name: "Editable grid",
 };
