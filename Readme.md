@@ -75,9 +75,8 @@ const App = () => {
       height={800}
       rowHeight={(rowIndex) => 20}
       columnWidth={(columnIndex) => 100}
-    >
-      {Cell}
-    </Grid>
+      itemRenderer={Cell}
+    />
   )
 }
 ```
@@ -93,7 +92,7 @@ This is the list of props that are meant to be used to customise the `konva-grid
 | rowCount | true | number | No of rows in the grid | 200 |
 | rowHeight | true | function | Function that returns height of the row based on rowIndex | (rowIndex) => 20 |
 | columnWidth | true | function | Function that returns width of the column based on columnIndex | (columnIndex) => 100 |
-| children | true | React.ReactNode | React component to render the cell | null |
+| itemRenderer | true | Function | React component to render the cell | null |
 | scrollbarSize | false | number | Size of the scrollbar | 17 |
 | showScrollbar | false | boolean | Always show scrollbar | true |
 | selectionBackgroundColor | false | string | Background color of selected cells | rgba(66, 133, 244, 0.3) |
