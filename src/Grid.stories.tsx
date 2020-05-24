@@ -685,6 +685,7 @@ GridWithFrozenEdges.story = {
 export const EditableGrid: React.FC = () => {
   const width = number("width", 900);
   const height = number("height", 600);
+  const gridRef = useRef();
   const [data, setData] = useState({
     [[1, 2].toString()]: 2,
   });
@@ -716,6 +717,7 @@ export const EditableGrid: React.FC = () => {
     const x = node.x();
     const y = node.y();
     const height = node.height();
+    setScrollPosition(gridRef.current.getScrollPosition());
     setEditPosition({
       x,
       y,
@@ -780,6 +782,7 @@ export const EditableGrid: React.FC = () => {
   return (
     <div style={{ position: "relative" }}>
       <Grid
+        ref={gridRef}
         width={width}
         height={height}
         columnCount={200}
@@ -787,7 +790,9 @@ export const EditableGrid: React.FC = () => {
         columnWidth={getColumnWidth}
         rowHeight={getRowHeight}
         selections={selections}
-        onScroll={setScrollPosition}
+        onScroll={(args) => {
+          if (showEditInput) setScrollPosition(args);
+        }}
       >
         {Cell}
       </Grid>
@@ -836,7 +841,7 @@ export const EditableGrid: React.FC = () => {
         }}
         ref={(el) => {
           if (el) {
-            el.focus();
+            if (showEditInput) el.focus();
           }
         }}
         autoFocus

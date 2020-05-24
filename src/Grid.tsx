@@ -148,6 +148,7 @@ const Grid: React.FC<IProps> = memo(
         scrollTo,
         stage: stageRef.current,
         resetAfterIndices,
+        getScrollPosition,
       };
     });
     const instanceProps = useRef<IInstanceProps>({
@@ -165,6 +166,13 @@ const Grid: React.FC<IProps> = memo(
     const [_, forceRender] = useReducer((s) => s + 1, 0);
     const [scrollTop, setScrollTop] = useState<number>(0);
     const [scrollLeft, setScrollLeft] = useState<number>(0);
+
+    const getScrollPosition = useCallback(() => {
+      return {
+        scrollTop,
+        scrollLeft,
+      };
+    }, [scrollTop, scrollLeft]);
 
     /* Redraw grid imperatively */
     const resetAfterIndices = useCallback(
