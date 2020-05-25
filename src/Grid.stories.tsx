@@ -44,21 +44,25 @@ export const BaseGrid: React.FC = () => {
       </>
     );
   };
-  return (
-    <Grid
-      width={width}
-      height={height}
-      columnCount={200}
-      rowCount={200}
-      columnWidth={(index) => {
-        return 100;
-      }}
-      itemRenderer={Cell}
-      rowHeight={(index) => {
-        return 20;
-      }}
-    />
-  );
+  const App = () => {
+    return (
+      <Grid
+        width={width}
+        height={height}
+        columnCount={200}
+        rowCount={200}
+        columnWidth={(index) => {
+          return 100;
+        }}
+        itemRenderer={(props) => <Cell {...props} />}
+        rowHeight={(index) => {
+          return 20;
+        }}
+      />
+    );
+  };
+
+  return <App />;
 };
 
 export const BaseGridWithSelection: React.FC = () => {
@@ -339,45 +343,38 @@ export const DataGrid: React.FC = () => {
   );
 };
 
-const DataGridResizable: React.FC = () => {
-  const width = number("width", 900);
-  const height = number("height", 600);
-  const gridRef = useRef();
-  const mainGridRef = useRef();
-  const [columnWidthMap, setColumnWidthMap] = useState({});
-  const frozenColumns = number("frozenColumns", 1);
+export const DataGridResize: React.FC = () => {
   const dragHandleWidth = 5;
-  const minWidth = 40;
-  const Cell = ({
+  const DraggableRect = (props) => {
+    return (
+      <Rect
+        fill="blue"
+        draggable
+        dragBoundFunc={(pos) => {
+          return {
+            ...pos,
+            y: 0,
+          };
+        }}
+        {...props}
+      />
+    );
+  };
+  const HeaderComponent = ({
     rowIndex,
     columnIndex,
     x,
     y,
     width,
     height,
-    header,
-  }: IChildrenProps) => {
-    const text = header
-      ? columnIndex < frozenColumns
-        ? "S/No"
-        : `Header ${columnIndex}`
-      : `${rowIndex}x${columnIndex}`;
-    const fill = header ? "#eee" : "white";
-    const dragRef = useRef();
-    const [isHovered, setIsHovered] = useState(false);
-    const [isDragging, setIsDragging] = useState(false);
-    const showDragHandle = header && (isHovered || isDragging);
-    useEffect(() => {
-      if (gridRef.current?.stage)
-        gridRef.current.stage.container().style.cursor = isDragging
-          ? "ew-resize"
-          : "default";
-    }, [isDragging]);
+    key,
+    frozenColumns,
+    onResize,
+  }) => {
+    const text = columnIndex < frozenColumns ? "S/No" : `Header ${columnIndex}`;
+    const fill = "#eee";
     return (
-      <Group
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+      <Group key={key}>
         <Rect
           x={x}
           y={y}
@@ -393,106 +390,135 @@ const DataGridResizable: React.FC = () => {
           height={height}
           width={width}
           text={text}
-          fontStyle={header ? "bold" : "normal"}
+          fontStyle="bold"
           verticalAlign="middle"
           align="center"
         />
-        {showDragHandle && (
-          <Rect
-            x={x + width - dragHandleWidth - 1}
-            y={y}
-            width={dragHandleWidth}
-            height={height}
-            fill="blue"
-            draggable
-            ref={dragRef}
-            onDragMove={(e) => {
-              window.requestAnimationFrame(() => dragRef.current.draw());
-            }}
-            hitStrokeWidth={20}
-            onMouseEnter={(e) => {
-              setIsDragging(true);
-            }}
-            onMouseLeave={(e) => {
-              setIsDragging(false);
-            }}
-            onDragEnd={(e) => {
-              const node = e.target;
-              const newWidth = node.x() - x + dragHandleWidth;
-              setIsDragging(false);
-              setColumnWidthMap((prev) => {
-                return {
-                  ...prev,
-                  [columnIndex]: newWidth,
-                };
-              });
-              gridRef.current.resetAfterIndices({ columnIndex });
-              mainGridRef.current.resetAfterIndices({ columnIndex });
-            }}
-            dragBoundFunc={(pos) => {
-              return {
-                ...pos,
-                y: 0,
-              };
-            }}
-          />
-        )}
+        <DraggableRect
+          x={x + width - dragHandleWidth}
+          y={y}
+          width={dragHandleWidth}
+          height={height}
+          onDragMove={(e) => {
+            const node = e.target;
+            const newWidth = node.x() - x + dragHandleWidth;
+
+            onResize(columnIndex, newWidth);
+          }}
+        />
       </Group>
+    );
+  };
+  const Cell = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+  }: IChildrenProps) => {
+    const text = `${rowIndex}x${columnIndex}`;
+    const fill = "white";
+    return (
+      <>
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill={fill}
+          stroke="grey"
+          strokeWidth={0.5}
+        />
+        <Text
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          text={text}
+          fontStyle="normal"
+          verticalAlign="middle"
+          align="center"
+        />
+      </>
     );
   };
   const columnCount = 100000;
   const rowCount = 100000;
-  return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <Grid
-        columnCount={columnCount}
-        height={40}
-        rowCount={1}
-        frozenColumns={frozenColumns}
-        ref={gridRef}
-        width={width}
-        columnWidth={(index) => {
-          if (index in columnWidthMap) return columnWidthMap[index];
-          if (index === 0) return 80;
-          if (index % 3 === 0) return 200;
-          return 100;
-        }}
-        rowHeight={(index) => {
-          if (index % 2 === 0) return 40;
-          return 20;
-        }}
-        itemRenderer={(props) => {
-          return <Cell {...props} header />;
-        }}
-        showScrollbar={false}
-      />
-      <Grid
-        columnCount={columnCount}
-        rowCount={rowCount}
-        frozenColumns={frozenColumns}
-        height={height}
-        width={width}
-        ref={mainGridRef}
-        columnWidth={(index) => {
-          if (index in columnWidthMap) return columnWidthMap[index];
-          if (index === 0) return 80;
-          if (index % 3 === 0) return 200;
-          return 100;
-        }}
-        rowHeight={(index) => {
-          if (index % 2 === 0) return 40;
-          return 20;
-        }}
-        onScroll={({ scrollLeft }) => {
-          gridRef.current.scrollTo({ scrollLeft });
-        }}
-        itemRenderer={Cell}
-      />
-    </div>
-  );
+  const App = () => {
+    const width = number("width", 900);
+    const height = number("height", 600);
+    const gridRef = useRef();
+    const mainGridRef = useRef();
+    const frozenColumns = number("frozenColumns", 1);
+    const [columnWidthMap, setColumnWidthMap] = useState({});
+    const handleResize = (columnIndex, newWidth) => {
+      setColumnWidthMap((prev) => {
+        return {
+          ...prev,
+          [columnIndex]: newWidth,
+        };
+      });
+      gridRef.current.resetAfterIndices({ columnIndex });
+      mainGridRef.current.resetAfterIndices({ columnIndex });
+    };
+    return (
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <Grid
+          columnCount={columnCount}
+          height={40}
+          rowCount={1}
+          frozenColumns={frozenColumns}
+          ref={gridRef}
+          width={width}
+          columnWidth={(index) => {
+            if (index in columnWidthMap) return columnWidthMap[index];
+            if (index === 0) return 80;
+            if (index % 3 === 0) return 200;
+            return 100;
+          }}
+          rowHeight={(index) => {
+            if (index % 2 === 0) return 40;
+            return 20;
+          }}
+          showScrollbar={false}
+          itemRenderer={(props) => (
+            <HeaderComponent
+              onResize={handleResize}
+              frozenColumns={frozenColumns}
+              {...props}
+            />
+          )}
+        />
+        <Grid
+          columnCount={columnCount}
+          rowCount={rowCount}
+          frozenColumns={frozenColumns}
+          height={height}
+          width={width}
+          ref={mainGridRef}
+          columnWidth={(index) => {
+            if (index in columnWidthMap) return columnWidthMap[index];
+            if (index === 0) return 80;
+            if (index % 3 === 0) return 200;
+            return 100;
+          }}
+          rowHeight={(index) => {
+            if (index % 2 === 0) return 40;
+            return 20;
+          }}
+          onScroll={({ scrollLeft }) => {
+            gridRef.current.scrollTo({ scrollLeft });
+          }}
+          itemRenderer={Cell}
+        />
+      </div>
+    );
+  };
+  return <App />;
 };
 
-DataGridResizable.story = {
+DataGridResize.story = {
   name: "Grid with resizable headers",
 };
 
@@ -674,64 +700,13 @@ GridWithFrozenEdges.story = {
 };
 
 export const EditableGrid: React.FC = () => {
-  const width = number("width", 900);
-  const height = number("height", 600);
-  const gridRef = useRef();
-  const [data, setData] = useState({
-    [[1, 2].toString()]: 2,
-  });
-  const [selections, setSelections] = useState([]);
-  const [showEditInput, setShowEditInput] = useState(false);
-  const [editPosition, setEditPosition] = useState({
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-    rowIndex: null,
-    columnIndex: null,
-    value: "",
-  });
-  const [scrollPosition, setScrollPosition] = useState({
-    scrollLeft: 0,
-    scrollTop: 0,
-  });
   const getColumnWidth = (columnIndex) => {
     return 100;
   };
   const getRowHeight = (columnIndex) => {
     return 20;
   };
-  const handleDblClick = (e) => {
-    const { rowIndex, columnIndex } = e.currentTarget.attrs;
-    const node = e.target;
-    const width = node.width();
-    const x = node.x();
-    const y = node.y();
-    const height = node.height();
-    setScrollPosition(gridRef.current.getScrollPosition());
-    setEditPosition({
-      x,
-      y,
-      width,
-      height,
-      rowIndex,
-      columnIndex,
-      value: data[[rowIndex, columnIndex].toString()] || "",
-    });
-    setShowEditInput(true);
-  };
-  const handleSelect = (e) => {
-    const { rowIndex, columnIndex } = e.currentTarget.attrs;
-    setSelections([
-      {
-        top: rowIndex,
-        left: columnIndex,
-        bottom: rowIndex,
-        right: columnIndex,
-      },
-    ]);
-    if (e.evt.detail === 2) return handleDblClick(e);
-  };
+
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -739,6 +714,9 @@ export const EditableGrid: React.FC = () => {
     y,
     width,
     height,
+    data,
+    onSelect,
+    onDblClick,
   }: IChildrenProps) => {
     const key = [rowIndex, columnIndex].toString();
     const text = data[key] || `${rowIndex}x${columnIndex}`;
@@ -746,8 +724,8 @@ export const EditableGrid: React.FC = () => {
       <Group
         columnIndex={columnIndex}
         rowIndex={rowIndex}
-        onDblClick={handleDblClick}
-        onMouseDown={handleSelect}
+        onDblClick={onDblClick}
+        onMouseDown={onSelect}
       >
         <Rect
           x={x}
@@ -770,72 +748,136 @@ export const EditableGrid: React.FC = () => {
       </Group>
     );
   };
-  return (
-    <div style={{ position: "relative" }}>
-      <Grid
-        ref={gridRef}
-        width={width}
-        height={height}
-        columnCount={200}
-        rowCount={200}
-        columnWidth={getColumnWidth}
-        rowHeight={getRowHeight}
-        selections={selections}
-        itemRenderer={Cell}
-        onScroll={setScrollPosition}
-      />
-      <input
-        style={{
-          position: "absolute",
-          left: showEditInput ? editPosition.x : -2000,
-          top: showEditInput ? editPosition.y : -2000,
-          transform: `translate3d(-${scrollPosition.scrollLeft}px, -${scrollPosition.scrollTop}px, 0)`,
-          height: editPosition.height,
-          width: editPosition.width,
-          margin: 0,
-          padding: "0 5px",
-          boxSizing: "border-box",
-          border: "2px rgba(66, 133, 244, 1) solid",
-          outline: "none",
-          zIndex: 10,
-        }}
-        value={editPosition.value}
-        onChange={(e) => {
-          const value = e.target.value;
-          setEditPosition((prevData) => {
-            return {
-              ...prevData,
-              value: value,
-            };
-          });
-        }}
-        onKeyDown={(e) => {
-          if (e.which === 13) {
-            const value = editPosition.value;
-            setData((prevData) => {
-              return {
-                ...prevData,
-                [[
-                  editPosition.rowIndex,
-                  editPosition.columnIndex,
-                ].toString()]: value,
-              };
-            });
-            setShowEditInput(false);
-          }
-        }}
-        onBlur={() => {
-          setShowEditInput(false);
-        }}
-        ref={(el) => {
-          if (el) {
-            if (showEditInput) el.focus();
-          }
-        }}
-        autoFocus
-      />
-    </div>
-  );
+  const App = () => {
+    const width = number("width", 900);
+    const height = number("height", 600);
+    const gridRef = useRef();
+    const [data, setData] = useState({
+      [[1, 2].toString()]: 2,
+    });
+    const [selections, setSelections] = useState([]);
+    const [showEditInput, setShowEditInput] = useState(false);
+    const [editPosition, setEditPosition] = useState({
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      rowIndex: null,
+      columnIndex: null,
+      value: "",
+    });
+    const [scrollPosition, setScrollPosition] = useState({
+      scrollLeft: 0,
+      scrollTop: 0,
+    });
+    const handleSelect = (e) => {
+      const { rowIndex, columnIndex } = e.currentTarget.attrs;
+      setSelections([
+        {
+          top: rowIndex,
+          left: columnIndex,
+          bottom: rowIndex,
+          right: columnIndex,
+        },
+      ]);
+    };
+    const handleDblClick = (e) => {
+      const { rowIndex, columnIndex } = e.currentTarget.attrs;
+      const node = e.target;
+      const width = node.width();
+      const x = node.x();
+      const y = node.y();
+      const height = node.height();
+      setScrollPosition(gridRef.current.getScrollPosition());
+      setEditPosition({
+        x,
+        y,
+        width,
+        height,
+        rowIndex,
+        columnIndex,
+        value: data[[rowIndex, columnIndex].toString()] || "",
+      });
+      setShowEditInput(true);
+    };
+
+    return (
+      <div style={{ position: "relative" }}>
+        <Grid
+          ref={gridRef}
+          width={width}
+          height={height}
+          columnCount={200}
+          rowCount={200}
+          columnWidth={getColumnWidth}
+          rowHeight={getRowHeight}
+          selections={selections}
+          itemRenderer={(props) => (
+            <Cell
+              onSelect={handleSelect}
+              onDblClick={handleDblClick}
+              data={data}
+              {...props}
+            />
+          )}
+          onScroll={setScrollPosition}
+        />
+        {showEditInput && (
+          <input
+            style={{
+              position: "absolute",
+              left: showEditInput ? editPosition.x : -2000,
+              top: showEditInput ? editPosition.y : -2000,
+              transform: `translate3d(-${scrollPosition.scrollLeft}px, -${scrollPosition.scrollTop}px, 0)`,
+              height: editPosition.height,
+              width: editPosition.width,
+              margin: 0,
+              padding: "0 5px",
+              boxSizing: "border-box",
+              border: "2px rgba(66, 133, 244, 1) solid",
+              outline: "none",
+              zIndex: 10,
+            }}
+            value={editPosition.value}
+            onChange={(e) => {
+              const value = e.target.value;
+              setEditPosition((prevData) => {
+                return {
+                  ...prevData,
+                  value: value,
+                };
+              });
+            }}
+            onKeyDown={(e) => {
+              if (e.which === 13) {
+                const value = editPosition.value;
+                setData((prevData) => {
+                  return {
+                    ...prevData,
+                    [[
+                      editPosition.rowIndex,
+                      editPosition.columnIndex,
+                    ].toString()]: value,
+                  };
+                });
+                setShowEditInput(false);
+              }
+            }}
+            onBlur={() => {
+              setShowEditInput(false);
+            }}
+            ref={(el) => {
+              if (el) {
+                el.focus();
+              }
+            }}
+          />
+        )}
+      </div>
+    );
+  };
+
+  return <App />;
 };
 
 EditableGrid.story = {
