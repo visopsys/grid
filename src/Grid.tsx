@@ -3,19 +3,12 @@ import React, {
   useCallback,
   useState,
   useMemo,
-  createElement,
   forwardRef,
   useImperativeHandle,
   useReducer,
   memo,
 } from "react";
-import {
-  Stage,
-  Layer,
-  Rect,
-  FastLayer,
-  Group,
-} from "react-konva/lib/ReactKonvaCore";
+import { Stage, Layer, Rect, Group } from "react-konva/lib/ReactKonvaCore";
 import {
   getRowStartIndexForOffset,
   getRowStopIndexForStartIndex,
@@ -532,14 +525,9 @@ const Grid: React.FC<IProps> = memo(
                 {frozenIntersectionCells}
               </Group>
             </Layer>
-            <FastLayer
-              listening={false}
-              offsetY={scrollTop}
-              offsetX={scrollLeft}
-              hitGraphEnabled={false}
-            >
+            <Layer listening={false} offsetY={scrollTop} offsetX={scrollLeft}>
               {selectionAreas}
-            </FastLayer>
+            </Layer>
           </Stage>
         </div>
         {showScrollbar ? (
