@@ -1,7 +1,7 @@
 {
   "name": "react-konva-grid",
   "description": "Canvas grid to render large set of tabular data with virtualization.",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -11,7 +11,7 @@
     "build-storybook": "build-storybook -c .storybook -o .out",
     "deploy-storybook": "storybook-to-ghpages",
     "prepublish": "npm run build",
-    "postpublish": "build-storybook && storybook-to-ghpages",
+    "postpublish": "storybook-to-ghpages",
     "prettier": "prettier src/**/*.tsx --write"
   },
   "author": "Vinay M <rmdort@gmail.com>",
