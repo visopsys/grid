@@ -128,7 +128,6 @@ const Grid: React.FC<IProps> = memo(
       rowCount,
       columnCount,
       scrollbarSize,
-      children,
       onScroll,
       showScrollbar,
       selectionBackgroundColor,
@@ -253,40 +252,60 @@ const Grid: React.FC<IProps> = memo(
       });
     }, []);
 
-    const rowStartIndex = getRowStartIndexForOffset({
-      rowHeight,
-      columnWidth,
-      rowCount,
-      columnCount,
-      instanceProps: instanceProps.current,
-      offset: scrollTop,
-    });
-    const rowStopIndex = getRowStopIndexForStartIndex({
-      startIndex: rowStartIndex,
-      rowCount,
-      rowHeight,
-      columnWidth,
-      scrollTop,
-      containerHeight,
-      instanceProps: instanceProps.current,
-    });
-    const columnStartIndex = getColumnStartIndexForOffset({
-      rowHeight,
-      columnWidth,
-      rowCount,
-      columnCount,
-      instanceProps: instanceProps.current,
-      offset: scrollLeft,
-    });
-    const columnStopIndex = getColumnStopIndexForStartIndex({
-      startIndex: columnStartIndex,
-      columnCount,
-      rowHeight,
-      columnWidth,
-      scrollLeft,
-      containerWidth,
-      instanceProps: instanceProps.current,
-    });
+    const rowStartIndex = useMemo(
+      () =>
+        getRowStartIndexForOffset({
+          rowHeight,
+          columnWidth,
+          rowCount,
+          columnCount,
+          instanceProps: instanceProps.current,
+          offset: scrollTop,
+        }),
+      [scrollTop]
+    );
+
+    const rowStopIndex = useMemo(
+      () =>
+        getRowStopIndexForStartIndex({
+          startIndex: rowStartIndex,
+          rowCount,
+          rowHeight,
+          columnWidth,
+          scrollTop,
+          containerHeight,
+          instanceProps: instanceProps.current,
+        }),
+      [rowStartIndex, scrollTop, containerHeight]
+    );
+
+    const columnStartIndex = useMemo(
+      () =>
+        getColumnStartIndexForOffset({
+          rowHeight,
+          columnWidth,
+          rowCount,
+          columnCount,
+          instanceProps: instanceProps.current,
+          offset: scrollLeft,
+        }),
+      [scrollLeft]
+    );
+
+    const columnStopIndex = useMemo(
+      () =>
+        getColumnStopIndexForStartIndex({
+          startIndex: columnStartIndex,
+          columnCount,
+          rowHeight,
+          columnWidth,
+          scrollLeft,
+          containerWidth,
+          instanceProps: instanceProps.current,
+        }),
+      [columnStartIndex, scrollLeft, containerWidth]
+    );
+
     const estimatedTotalHeight = getEstimatedTotalHeight(
       rowCount,
       instanceProps.current.estimatedRowHeight,
