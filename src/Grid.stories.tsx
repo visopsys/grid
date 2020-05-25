@@ -350,6 +350,7 @@ export const DataGridResize: React.FC = () => {
       <Rect
         fill="blue"
         draggable
+        hitStrokeWidth={20}
         dragBoundFunc={(pos) => {
           return {
             ...pos,

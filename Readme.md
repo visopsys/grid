@@ -16,6 +16,8 @@ Canvas grid to render large set of tabular data. Uses virtualization similar to 
 - :hammer_and_wrench: Fully typed API written in TypeScript
 - :muscle: Highly customizable using [react-konva](https://github.com/konvajs/react-konva/)
 
+![Screen capture](screencapture.gif)
+
 ### Why another canvas grid library
 
 Born out of frustration *at work*, having to deal with complicated imperative canvas libraries, I wanted to create something easy to understand and declarative in nature. React-Konva uses React's custom renderer to expose [konva](https://github.com/konvajs/konva) components. 
@@ -119,11 +121,6 @@ Examples can be found as stories in `Grid.stories.tsx`. To run storybook, enter 
 yarn
 yarn run storybook
 ```
-
-### Screenshot
-
-![](screenshot.png)
-
 
 ### Contribution
 
