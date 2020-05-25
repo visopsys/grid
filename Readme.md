@@ -4,6 +4,8 @@ Canvas grid to render large set of tabular data. Uses virtualization similar to 
 
 [Demo](https://rmdort.github.io/konva-grid)
 
+<kbd>![Screen capture](screencapture.gif)</kbd>
+
 ## Features
 
 - :electron: React powered declarative library
@@ -15,8 +17,6 @@ Canvas grid to render large set of tabular data. Uses virtualization similar to 
 - :hand: Resizable headers
 - :hammer_and_wrench: Fully typed API written in TypeScript
 - :muscle: Highly customizable using [react-konva](https://github.com/konvajs/react-konva/)
-
-![Screen capture](screencapture.gif)
 
 ### Why another canvas grid library
 
