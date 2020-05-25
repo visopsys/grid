@@ -506,7 +506,7 @@ const Grid: React.FC<IProps> = memo(
             fill={selectionBackgroundColor}
             shadowForStrokeEnabled={false}
             listening={false}
-            strokeHitEnabled={false}
+            hitStrokeWidth={0}
           />
         );
       }

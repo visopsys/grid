@@ -748,6 +748,16 @@ export const EditableGrid: React.FC = () => {
       </Group>
     );
   };
+
+  const Input = ({ onChange, ...props }) => {
+    const inputRef = useRef();
+    useEffect(() => {
+      if (!inputRef.current) return;
+      inputRef.current.focus();
+      inputRef.current.select();
+    }, []);
+    return <input type="text" ref={inputRef} onChange={onChange} {...props} />;
+  };
   const App = () => {
     const width = number("width", 900);
     const height = number("height", 600);
@@ -823,7 +833,20 @@ export const EditableGrid: React.FC = () => {
           onScroll={setScrollPosition}
         />
         {showEditInput && (
-          <input
+          <Input
+            onChange={(e) => {
+              const value = e.target.value;
+              setEditPosition((prevData) => {
+                return {
+                  ...prevData,
+                  value: value,
+                };
+              });
+            }}
+            value={editPosition.value}
+            onBlur={() => {
+              setShowEditInput(false);
+            }}
             style={{
               position: "absolute",
               left: showEditInput ? editPosition.x : -2000,
@@ -834,19 +857,9 @@ export const EditableGrid: React.FC = () => {
               margin: 0,
               padding: "0 5px",
               boxSizing: "border-box",
-              border: "2px rgba(66, 133, 244, 1) solid",
+              border: "1px rgba(66, 133, 244, 1) solid",
               outline: "none",
               zIndex: 10,
-            }}
-            value={editPosition.value}
-            onChange={(e) => {
-              const value = e.target.value;
-              setEditPosition((prevData) => {
-                return {
-                  ...prevData,
-                  value: value,
-                };
-              });
             }}
             onKeyDown={(e) => {
               if (e.which === 13) {
@@ -861,14 +874,6 @@ export const EditableGrid: React.FC = () => {
                   };
                 });
                 setShowEditInput(false);
-              }
-            }}
-            onBlur={() => {
-              setShowEditInput(false);
-            }}
-            ref={(el) => {
-              if (el) {
-                el.focus();
               }
             }}
           />
