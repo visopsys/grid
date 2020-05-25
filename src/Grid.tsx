@@ -301,11 +301,19 @@ const Grid: React.FC<IProps> = memo(
     const cells = [];
     if (columnCount > 0 && rowCount) {
       for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
+        /* Skip frozen rows */
+        if (rowIndex < frozenRows) {
+          continue;
+        }
         for (
           let columnIndex = columnStartIndex;
           columnIndex <= columnStopIndex;
           columnIndex++
         ) {
+          /* Skip frozen columns */
+          if (columnIndex < frozenColumns) {
+            continue;
+          }
           const width = getColumnWidth(columnIndex, instanceProps.current);
           const x = getColumnOffset({
             index: columnIndex,
