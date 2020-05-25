@@ -518,7 +518,7 @@ const Grid: React.FC<IProps> = memo(
       <div style={{ position: "relative", width: containerWidth }}>
         <div onWheel={handleWheel} tabIndex={-1}>
           <Stage width={containerWidth} height={containerHeight} ref={stageRef}>
-            <Layer clearBeforeDraw={false}>
+            <Layer>
               <Group offsetY={scrollTop} offsetX={scrollLeft}>
                 {cells}
               </Group>

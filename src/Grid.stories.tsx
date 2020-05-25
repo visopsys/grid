@@ -351,6 +351,8 @@ export const DataGridResize: React.FC = () => {
         fill="blue"
         draggable
         hitStrokeWidth={20}
+        onMouseEnter={() => (document.body.style.cursor = "ew-resize")}
+        onMouseLeave={() => (document.body.style.cursor = "default")}
         dragBoundFunc={(pos) => {
           return {
             ...pos,
@@ -368,14 +370,13 @@ export const DataGridResize: React.FC = () => {
     y,
     width,
     height,
-    key,
     frozenColumns,
     onResize,
   }) => {
     const text = columnIndex < frozenColumns ? "S/No" : `Header ${columnIndex}`;
     const fill = "#eee";
     return (
-      <Group key={key}>
+      <Group>
         <Rect
           x={x}
           y={y}
@@ -417,11 +418,12 @@ export const DataGridResize: React.FC = () => {
     y,
     width,
     height,
+    key,
   }: IChildrenProps) => {
     const text = `${rowIndex}x${columnIndex}`;
     const fill = "white";
     return (
-      <>
+      <React.Fragment key={key}>
         <Rect
           x={x}
           y={y}
@@ -441,7 +443,7 @@ export const DataGridResize: React.FC = () => {
           verticalAlign="middle"
           align="center"
         />
-      </>
+      </React.Fragment>
     );
   };
   const columnCount = 100000;
@@ -720,7 +722,7 @@ export const EditableGrid: React.FC = () => {
     onDblClick,
   }: IChildrenProps) => {
     const key = [rowIndex, columnIndex].toString();
-    const text = data[key] || `${rowIndex}x${columnIndex}`;
+    const text = data || `${rowIndex}x${columnIndex}`;
     return (
       <Group
         columnIndex={columnIndex}
@@ -823,14 +825,16 @@ export const EditableGrid: React.FC = () => {
           columnWidth={getColumnWidth}
           rowHeight={getRowHeight}
           selections={selections}
-          itemRenderer={(props) => (
-            <Cell
-              onSelect={handleSelect}
-              onDblClick={handleDblClick}
-              data={data}
-              {...props}
-            />
-          )}
+          itemRenderer={(props) => {
+            return (
+              <Cell
+                onSelect={handleSelect}
+                onDblClick={handleDblClick}
+                data={data[[props.rowIndex, props.columnIndex]]}
+                {...props}
+              />
+            );
+          }}
           onScroll={setScrollPosition}
         />
         {showEditInput && (
@@ -861,6 +865,7 @@ export const EditableGrid: React.FC = () => {
               border: "1px rgba(66, 133, 244, 1) solid",
               outline: "none",
               zIndex: 10,
+              fontSize: 12,
             }}
             onKeyDown={(e) => {
               if (e.which === 13) {
