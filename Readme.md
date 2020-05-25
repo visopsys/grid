@@ -20,7 +20,7 @@ Canvas grid to render large set of tabular data. Uses virtualization similar to 
 
 ### Why another canvas grid library
 
-Born out of frustration, having to deal with complicated imperative canvas libraries, I wanted to create something easy to understand and declarative in nature. The Grid primitive is built on top of [React Konva](https://github.com/konvajs/react-konva/) making it easy to customize and extend. Take a look at the storybook to learn more.
+Born out of frustration, having to deal with complicated imperative canvas libraries, I wanted to create something easy to understand and declarative in nature. This Grid primitive is built on top of [React Konva](https://github.com/konvajs/react-konva/) making it easy to customize and extend. Take a look at the storybook to learn more.
 
 ## Installation
 
