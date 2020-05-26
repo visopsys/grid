@@ -46,7 +46,11 @@ import { Grid } from 'react-konva-grid'
 import { Group, Text, Rect } from 'react-konva'
 
 const App = () => {
+  const data = {
+    [[1, 2]]: 'Hello world'
+  }
   const Cell = ({ rowIndex, columnIndex, x, y, width, height, key }) => {
+    const text = data[[rowIndex, columnIndex]] || `${rowIndex}x${columnIndex}`
     return (
       <Group key={key}>
         <Rect
