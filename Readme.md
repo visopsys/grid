@@ -2,7 +2,7 @@
 
 Canvas table grid to render large set of tabular data. Uses virtualization similar to `react-window`. 
 
-[Demo](https://rmdort.github.io/konva-grid) | [Wiki](https://github.com/rmdort/konva-grid/wiki/Extending-Konva-Grid-using-hooks)
+[Demo](https://rmdort.github.io/konva-grid) | [Usage](#Usage) | [Wiki](https://github.com/rmdort/konva-grid/wiki/Extending-Konva-Grid-using-hooks)
 
 <kbd>![Screen capture](screencapture.gif)</kbd>
 
@@ -46,9 +46,9 @@ import { Grid } from 'react-konva-grid'
 import { Group, Text, Rect } from 'react-konva'
 
 const App = () => {
-  const Cell = ({ rowIndex, columnIndex, x, y, width, height}) => {
+  const Cell = ({ rowIndex, columnIndex, x, y, width, height, key }) => {
     return (
-      <Group>
+      <Group key={key}>
         <Rect
           x={x}
           y={y}
