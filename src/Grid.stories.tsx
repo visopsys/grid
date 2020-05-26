@@ -822,13 +822,17 @@ export const EditableGrid: React.FC = () => {
     const [data, setData] = useState({
       [[1, 2]]: "Hello",
     });
+    const dataRef = useRef(null);
+    /* Escape closures */
+    useEffect(() => {
+      dataRef.current = data;
+    });
     const gridRef = useRef(null);
     const { selections, ...selectionProps } = useSelection({ gridRef });
     const { editorComponent, ...editableProps } = useEditable({
       gridRef,
-      getValue: ({ rowIndex, columnIndex }) => {
-        return data[[rowIndex, columnIndex]];
-      },
+      getValue: ({ rowIndex, columnIndex }) =>
+        dataRef.current[[rowIndex, columnIndex]],
       onChange: (value, { rowIndex, columnIndex }) =>
         setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value })),
     });
