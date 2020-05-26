@@ -12,7 +12,7 @@
     "deploy-storybook": "storybook-to-ghpages",
     "prepublish": "npm run build",
     "postpublish": "storybook-to-ghpages",
-    "prettier": "prettier src/**/*.tsx --write",
+    "prettier": "prettier src/**/*.{ts,tsx} --write",
     "test": "jest"
   },
   "author": "Vinay M <rmdort@gmail.com>",

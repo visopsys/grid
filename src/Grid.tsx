@@ -111,12 +111,13 @@ const defaultProps = {
 };
 
 export type RenderComponent = React.FC<IChildrenProps>;
-
-export interface IChildrenProps extends ICell {
+export interface IPosition {
   x: number;
   y: number;
   width: number;
   height: number;
+}
+export interface IChildrenProps extends IPosition, ICell {
   key: string;
 }
 
@@ -148,6 +149,19 @@ export type TCellMetaData = {
   offset: number;
   size: number;
 };
+
+export interface IRef {
+  scrollTo: any;
+  stage: any;
+  resetAfterIndices: any;
+  getScrollPosition: any;
+  isMergedCell: any;
+  getCellBounds: any;
+  getCellCoordsFromOffsets: any;
+  getCellOffsetFromCoords: any;
+}
+
+export type TGridRef = React.MutableRefObject<IRef>;
 
 export type MergedCellMap = Map<string, IArea>;
 
@@ -196,6 +210,7 @@ const Grid: React.FC<IProps> = memo(
         isMergedCell,
         getCellBounds,
         getCellCoordsFromOffsets,
+        getCellOffsetFromCoords,
       };
     });
     const instanceProps = useRef<IInstanceProps>({
@@ -674,6 +689,36 @@ const Grid: React.FC<IProps> = memo(
 
       return areas;
     }, [selections, rowStopIndex, columnStopIndex]);
+
+    /**
+     * Get cell offset position from rowIndex, columnIndex
+     */
+    const getCellOffsetFromCoords = useCallback(
+      ({ rowIndex, columnIndex }: ICell) => {
+        const width = getColumnWidth(columnIndex, instanceProps.current);
+        const x = getColumnOffset({
+          index: columnIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
+        const height = getRowHeight(rowIndex, instanceProps.current);
+        const y = getRowOffset({
+          index: rowIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
+
+        return {
+          x,
+          y,
+          width,
+          height,
+        };
+      },
+      []
+    );
 
     /**
      * Get cell cordinates from current mouse x/y positions

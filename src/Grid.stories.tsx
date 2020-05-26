@@ -1,6 +1,8 @@
 // @ts-nocheck
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import Grid, { IChildrenProps } from "./Grid";
+import useSelection from "./hooks/useSelection";
+import useEditable from "./hooks/useEditable";
 import { Layer, Rect, Text, Group } from "react-konva";
 import { number } from "@storybook/addon-knobs";
 
@@ -139,7 +141,7 @@ export const MergedCells: React.FC = () => {
 export const BaseGridWithSelection: React.FC = () => {
   const width = number("width", 900);
   const height = number("height", 600);
-  const initialSelection = [
+  const initialSelections = [
     {
       top: 2,
       right: 3,
@@ -182,12 +184,11 @@ export const BaseGridWithSelection: React.FC = () => {
     );
   };
   const App = () => {
-    const [selections, setSelections] = useState(initialSelection);
-    const [isSelecting, setIsSelecting] = useState(false);
-    const [selectionStart, setSelectionStart] = useState(null);
-    const selectionRef = useRef({});
-    selectionRef.current.isSelecting = isSelecting;
-    selectionRef.current.selectionStart = selectionStart;
+    const gridRef = useRef();
+    const { selections, ...selectionProps } = useSelection({
+      initialSelections,
+      gridRef,
+    });
     return (
       <Grid
         width={width}
@@ -195,43 +196,8 @@ export const BaseGridWithSelection: React.FC = () => {
         selections={selections}
         columnCount={200}
         rowCount={200}
-        onMouseDown={(_, rowIndex, columnIndex) => {
-          setIsSelecting(true);
-          const firstSelection = {
-            top: rowIndex,
-            left: columnIndex,
-            bottom: rowIndex,
-            right: columnIndex,
-          };
-          setSelectionStart(firstSelection);
-          setSelections([firstSelection]);
-        }}
-        onMouseMove={(_, rowIndex, columnIndex) => {
-          if (!selectionRef.current.isSelecting) return;
-          setSelections((prev) => {
-            return [
-              {
-                top: Math.min(
-                  rowIndex,
-                  selectionRef.current.selectionStart.top
-                ),
-                bottom: Math.max(
-                  rowIndex,
-                  selectionRef.current.selectionStart.bottom
-                ),
-                left: Math.min(
-                  columnIndex,
-                  selectionRef.current.selectionStart.left
-                ),
-                right: Math.max(
-                  columnIndex,
-                  selectionRef.current.selectionStart.right
-                ),
-              },
-            ];
-          });
-        }}
-        onMouseUp={() => setIsSelecting(false)}
+        ref={gridRef}
+        {...selectionProps}
         columnWidth={(index) => {
           return 100;
         }}
@@ -817,13 +783,8 @@ GridWithFrozenEdges.story = {
 };
 
 export const EditableGrid: React.FC = () => {
-  const getColumnWidth = (columnIndex) => {
-    return 100;
-  };
-  const getRowHeight = (columnIndex) => {
-    return 20;
-  };
-
+  const width = number("width", 900);
+  const height = number("height", 600);
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -831,19 +792,11 @@ export const EditableGrid: React.FC = () => {
     y,
     width,
     height,
-    data,
-    onSelect,
-    onDblClick,
+    value,
   }: IChildrenProps) => {
-    const key = [rowIndex, columnIndex].toString();
-    const text = data || `${rowIndex}x${columnIndex}`;
+    const text = value || `${rowIndex}x${columnIndex}`;
     return (
-      <Group
-        columnIndex={columnIndex}
-        rowIndex={rowIndex}
-        onDblClick={onDblClick}
-        onMouseDown={onSelect}
-      >
+      <>
         <Rect
           x={x}
           y={y}
@@ -862,164 +815,51 @@ export const EditableGrid: React.FC = () => {
           verticalAlign="middle"
           align="center"
         />
-      </Group>
+      </>
     );
   };
-
-  const Input = ({ onChange, ...props }) => {
-    const inputRef = useRef();
-    useEffect(() => {
-      if (!inputRef.current) return;
-      inputRef.current.focus();
-      inputRef.current.select();
-    }, []);
-    return <input type="text" ref={inputRef} onChange={onChange} {...props} />;
-  };
   const App = () => {
-    const width = number("width", 900);
-    const height = number("height", 600);
-    const gridRef = useRef();
     const [data, setData] = useState({
-      [[1, 2].toString()]: 2,
+      [[1, 2]]: "Hello",
     });
-    const [selections, setSelections] = useState([]);
-    const [showEditInput, setShowEditInput] = useState(false);
-    const [editPosition, setEditPosition] = useState({
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-      rowIndex: null,
-      columnIndex: null,
-      value: "",
-    });
-    const [scrollPosition, setScrollPosition] = useState({
-      scrollLeft: 0,
-      scrollTop: 0,
-    });
-    const handleSelect = (e) => {
-      const { rowIndex, columnIndex } = e.currentTarget.attrs;
-      const bounds = gridRef.current.getCellBounds(rowIndex, columnIndex);
-      setSelections([bounds]);
-    };
-    const handleDblClick = (e) => {
-      const { rowIndex, columnIndex } = e.currentTarget.attrs;
-      const node = e.target;
-      const width = node.width();
-      const x = node.x();
-      const y = node.y();
-      const height = node.height();
-      setScrollPosition(gridRef.current.getScrollPosition());
-      setEditPosition({
-        x,
-        y,
-        width,
-        height,
-        rowIndex,
-        columnIndex,
-        value: data[[rowIndex, columnIndex].toString()] || "",
-      });
-      setShowEditInput(true);
-    };
-
-    const mergedCells = [
-      {
-        top: 5,
-        left: 5,
-        right: 6,
-        bottom: 8,
+    const gridRef = useRef(null);
+    const { selections, ...selectionProps } = useSelection({ gridRef });
+    const { editorComponent, ...editableProps } = useEditable({
+      gridRef,
+      getValue: ({ rowIndex, columnIndex }) => {
+        return data[[rowIndex, columnIndex]];
       },
-    ];
-
+      onChange: (value, { rowIndex, columnIndex }) =>
+        setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value })),
+    });
     return (
       <div style={{ position: "relative" }}>
         <Grid
-          ref={gridRef}
           width={width}
           height={height}
           columnCount={200}
           rowCount={200}
-          columnWidth={getColumnWidth}
-          rowHeight={getRowHeight}
+          ref={gridRef}
           selections={selections}
-          mergedCells={mergedCells}
-          itemRenderer={(props) => {
-            return (
-              <Cell
-                onSelect={handleSelect}
-                onDblClick={handleDblClick}
-                data={data[[props.rowIndex, props.columnIndex]]}
-                {...props}
-              />
-            );
+          columnWidth={(index) => {
+            return 100;
           }}
-          onScroll={setScrollPosition}
+          itemRenderer={(props) => (
+            <Cell
+              value={data[[props.rowIndex, props.columnIndex]]}
+              {...props}
+            />
+          )}
+          rowHeight={(index) => {
+            return 20;
+          }}
+          {...editableProps}
+          {...selectionProps}
         />
-        {showEditInput && (
-          <Input
-            onChange={(e) => {
-              const value = e.target.value;
-              setEditPosition((prevData) => {
-                return {
-                  ...prevData,
-                  value: value,
-                };
-              });
-            }}
-            value={editPosition.value}
-            onBlur={() => {
-              setShowEditInput(false);
-            }}
-            style={{
-              position: "absolute",
-              left: showEditInput ? editPosition.x : -2000,
-              top: showEditInput ? editPosition.y : -2000,
-              transform: `translate3d(-${scrollPosition.scrollLeft}px, -${scrollPosition.scrollTop}px, 0)`,
-              height: editPosition.height,
-              width: editPosition.width,
-              margin: 0,
-              padding: "0 5px",
-              boxSizing: "border-box",
-              border: "1px rgba(66, 133, 244, 1) solid",
-              outline: "none",
-              zIndex: 10,
-              fontSize: 12,
-            }}
-            onKeyDown={(e) => {
-              if (e.which === 13) {
-                const value = editPosition.value;
-                setData((prevData) => {
-                  return {
-                    ...prevData,
-                    [[
-                      editPosition.rowIndex,
-                      editPosition.columnIndex,
-                    ].toString()]: value,
-                  };
-                });
-                /* Select the next cell */
-                setSelections((prev) => {
-                  return [
-                    {
-                      top: prev[0].top + 1,
-                      left: prev[0].left,
-                      bottom: prev[0].bottom + 1,
-                      right: prev[0].right,
-                    },
-                  ];
-                });
-                setShowEditInput(false);
-              }
-            }}
-          />
-        )}
+        {editorComponent}
       </div>
     );
   };
 
   return <App />;
-};
-
-EditableGrid.story = {
-  name: "Editable grid",
 };

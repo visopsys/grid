@@ -137,6 +137,10 @@ Returns a selection `IArea` for a particular cell. Useful to get selection area 
 
 Returns exact `rowIndex` and `columnIndex` from a `x`  and `y` cordinate. Useful if you want to get cell coords based on mouse position
 
+#### `getCellOffsetFromCoords({ rowIndex, columnIndex })`
+
+Returns offset position `{ x, y, width, height }` of a cell
+
 
 #### `stage`
 
@@ -150,7 +154,7 @@ const gridRef = useRef()
 >
 
 const stage = gridRef.current.stage
-```
+````
 
 ## Storybook
 
