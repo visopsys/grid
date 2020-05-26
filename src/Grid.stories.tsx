@@ -183,8 +183,10 @@ export const BaseGridWithSelection: React.FC = () => {
   const App = () => {
     const [selections, setSelections] = useState(initialSelection);
     const [isSelecting, setIsSelecting] = useState(false);
-    const selectionRef = useRef();
-    selectionRef.current = isSelecting;
+    const [selectionStart, setSelectionStart] = useState(null);
+    const selectionRef = useRef({});
+    selectionRef.current.isSelecting = isSelecting;
+    selectionRef.current.selectionStart = selectionStart;
     return (
       <Grid
         width={width}
@@ -194,24 +196,36 @@ export const BaseGridWithSelection: React.FC = () => {
         rowCount={200}
         onMouseDown={(_, rowIndex, columnIndex) => {
           setIsSelecting(true);
-          setSelections([
-            {
-              top: rowIndex,
-              left: columnIndex,
-              bottom: rowIndex,
-              right: columnIndex,
-            },
-          ]);
+          const firstSelection = {
+            top: rowIndex,
+            left: columnIndex,
+            bottom: rowIndex,
+            right: columnIndex,
+          };
+          setSelectionStart(firstSelection);
+          setSelections([firstSelection]);
         }}
         onMouseMove={(_, rowIndex, columnIndex) => {
-          if (!selectionRef.current) return;
+          if (!selectionRef.current.isSelecting) return;
           setSelections((prev) => {
             return [
               {
-                top: prev[0].top,
-                bottom: rowIndex,
-                left: prev[0].left,
-                right: columnIndex,
+                top: Math.min(
+                  rowIndex,
+                  selectionRef.current.selectionStart.top
+                ),
+                bottom: Math.max(
+                  rowIndex,
+                  selectionRef.current.selectionStart.bottom
+                ),
+                left: Math.min(
+                  columnIndex,
+                  selectionRef.current.selectionStart.left
+                ),
+                right: Math.max(
+                  columnIndex,
+                  selectionRef.current.selectionStart.right
+                ),
               },
             ];
           });
