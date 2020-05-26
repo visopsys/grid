@@ -23,16 +23,16 @@ const useSelection = (options: IOptions = {}) => {
     isSelectionMode.current = true;
 
     /* To cater to merged Cells, get the bounds from internal fn */
-    const selection = gridRef.current.getCellBounds(rowIndex, columnIndex);
+    const bounds = gridRef.current.getCellBounds(rowIndex, columnIndex);
 
     /**
      * Save the initial Selection in ref
      * so we can adjust the bounds in mousemove
      */
-    selectionStart.current = selection;
+    selectionStart.current = bounds;
 
     /* Add selection to state */
-    setSelections([selection]);
+    setSelections([bounds]);
   }, []);
 
   /**
@@ -41,7 +41,7 @@ const useSelection = (options: IOptions = {}) => {
   const handleMouseMove = useCallback(
     (_, rowIndex, columnIndex) => {
       /* Exit if user is not in selection mode */
-      if (!isSelectionMode.current) return;
+      if (!isSelectionMode.current || !gridRef) return;
 
       /* Get the current selection */
       const _selectionStart = selectionStart.current as IArea;
@@ -49,13 +49,16 @@ const useSelection = (options: IOptions = {}) => {
       /* Exit early */
       if (!_selectionStart) return;
 
+      /* Get new bounds */
+      const bounds = gridRef.current.getCellBounds(rowIndex, columnIndex);
+
       setSelections((prevSelection) => {
         return prevSelection.map((selection) => {
           return {
-            top: Math.min(rowIndex, _selectionStart.top),
-            bottom: Math.max(rowIndex, _selectionStart.bottom),
-            left: Math.min(columnIndex, _selectionStart.left),
-            right: Math.max(columnIndex, _selectionStart.right),
+            top: Math.min(bounds.top, _selectionStart.top),
+            bottom: Math.max(bounds.bottom, _selectionStart.bottom),
+            left: Math.min(bounds.left, _selectionStart.left),
+            right: Math.max(bounds.right, _selectionStart.right),
           };
         });
       });

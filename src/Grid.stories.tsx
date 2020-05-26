@@ -117,12 +117,15 @@ export const MergedCells: React.FC = () => {
         bottom: 5,
       },
     ];
+    const gridRef = useRef();
+    const { selection, ...selectionProps } = useSelection({ gridRef });
     return (
       <Grid
         width={width}
         height={height}
         columnCount={200}
         rowCount={200}
+        ref={gridRef}
         mergedCells={mergedCells}
         columnWidth={(index) => {
           return 100;
@@ -131,6 +134,8 @@ export const MergedCells: React.FC = () => {
         rowHeight={(index) => {
           return 20;
         }}
+        selection={selection}
+        {...selectionProps}
       />
     );
   };
