@@ -37,7 +37,7 @@ npm install react-konva-grid --save
 
 ## Compatiblity
 
-Konva grid will work with any browser that supports [react](https://github.com/facebook/react/), [konva](https://konvajs.org/) and canvas element.
+Konva grid will work in any browser that supports [react](https://github.com/facebook/react/), [konva](https://konvajs.org/) and canvas element.
 
 ## Usage
 
