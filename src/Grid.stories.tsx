@@ -997,6 +997,17 @@ export const EditableGrid: React.FC = () => {
                     ].toString()]: value,
                   };
                 });
+                /* Select the next cell */
+                setSelections((prev) => {
+                  return [
+                    {
+                      top: prev[0].top + 1,
+                      left: prev[0].left,
+                      bottom: prev[0].bottom + 1,
+                      right: prev[0].right,
+                    },
+                  ];
+                });
                 setShowEditInput(false);
               }
             }}
