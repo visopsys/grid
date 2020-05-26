@@ -65,6 +65,77 @@ export const BaseGrid: React.FC = () => {
   return <App />;
 };
 
+export const MergedCells: React.FC = () => {
+  const width = number("width", 900);
+  const height = number("height", 600);
+  const Cell = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+  }: IChildrenProps) => {
+    const text = `${rowIndex}x${columnIndex}`;
+    return (
+      <>
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill="white"
+          stroke="grey"
+          strokeWidth={0.5}
+        />
+        <Text
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          text={text}
+          verticalAlign="middle"
+          align="center"
+        />
+      </>
+    );
+  };
+  const App = () => {
+    const mergedCells = [
+      {
+        top: 5,
+        left: 5,
+        right: 6,
+        bottom: 5,
+      },
+      {
+        top: 1,
+        left: 2,
+        right: 4,
+        bottom: 5,
+      },
+    ];
+    return (
+      <Grid
+        width={width}
+        height={height}
+        columnCount={200}
+        rowCount={200}
+        mergedCells={mergedCells}
+        columnWidth={(index) => {
+          return 100;
+        }}
+        itemRenderer={(props) => <Cell {...props} />}
+        rowHeight={(index) => {
+          return 20;
+        }}
+      />
+    );
+  };
+
+  return <App />;
+};
+
 export const BaseGridWithSelection: React.FC = () => {
   const width = number("width", 900);
   const height = number("height", 600);
@@ -785,14 +856,8 @@ export const EditableGrid: React.FC = () => {
     });
     const handleSelect = (e) => {
       const { rowIndex, columnIndex } = e.currentTarget.attrs;
-      setSelections([
-        {
-          top: rowIndex,
-          left: columnIndex,
-          bottom: rowIndex,
-          right: columnIndex,
-        },
-      ]);
+      const bounds = gridRef.current.getCellBounds(rowIndex, columnIndex);
+      setSelections([bounds]);
     };
     const handleDblClick = (e) => {
       const { rowIndex, columnIndex } = e.currentTarget.attrs;
@@ -814,6 +879,15 @@ export const EditableGrid: React.FC = () => {
       setShowEditInput(true);
     };
 
+    const mergedCells = [
+      {
+        top: 5,
+        left: 5,
+        right: 6,
+        bottom: 8,
+      },
+    ];
+
     return (
       <div style={{ position: "relative" }}>
         <Grid
@@ -825,6 +899,7 @@ export const EditableGrid: React.FC = () => {
           columnWidth={getColumnWidth}
           rowHeight={getRowHeight}
           selections={selections}
+          mergedCells={mergedCells}
           itemRenderer={(props) => {
             return (
               <Cell

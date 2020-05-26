@@ -21,6 +21,8 @@ import {
   getRowHeight,
   getEstimatedTotalHeight,
   getEstimatedTotalWidth,
+  getBoundedCells,
+  cellIndentifier,
 } from "./helpers";
 
 export interface IProps {
@@ -39,6 +41,7 @@ export interface IProps {
   selectionBackgroundColor: string;
   selectionBorderColor: string;
   selections: IArea[];
+  mergedCells: IArea[];
   frozenRows: number;
   frozenColumns: number;
   itemRenderer: (props: IChildrenProps) => React.ReactNode;
@@ -67,6 +70,7 @@ const defaultProps = {
   selectionBackgroundColor: "rgb(14, 101, 235, 0.1)",
   selectionBorderColor: "#1a73e8",
   selections: [],
+  mergedCells: [],
   frozenRows: 0,
   frozenColumns: 0,
 };
@@ -110,6 +114,8 @@ export type TCellMetaData = {
   size: number;
 };
 
+export type MergedCellMap = Map<string, IArea>;
+
 const DEFAULT_ESTIMATED_ITEM_SIZE = 50;
 
 /**
@@ -136,6 +142,7 @@ const Grid: React.FC<IProps> = memo(
       frozenRows,
       frozenColumns,
       itemRenderer,
+      mergedCells,
     } = props;
     /* Expose some methods in ref */
     useImperativeHandle(forwardedRef, () => {
@@ -144,6 +151,8 @@ const Grid: React.FC<IProps> = memo(
         stage: stageRef.current,
         resetAfterIndices,
         getScrollPosition,
+        isMergedCell,
+        getCellBounds,
       };
     });
     const instanceProps = useRef<IInstanceProps>({
@@ -192,6 +201,46 @@ const Grid: React.FC<IProps> = memo(
         if (shouldForceUpdate) forceRender();
       },
       []
+    );
+
+    /**
+     * Create a map of merged cells
+     * [rowIndex, columnindex] => [parentRowIndex, parentColumnIndex]
+     */
+    const mergedCellMap = useMemo((): MergedCellMap => {
+      const mergedCellMap = new Map();
+      for (let i = 0; i < mergedCells.length; i++) {
+        const bounds = mergedCells[i];
+        const { top, left } = bounds;
+        for (const cell of getBoundedCells(bounds)) {
+          mergedCellMap.set(cell, bounds);
+        }
+      }
+      return mergedCellMap;
+    }, [mergedCells]);
+
+    /* Check if a cell is part of a merged cell */
+    const isMergedCell = useCallback(
+      (rowIndex: number, columnIndex: number) => {
+        return mergedCellMap.has(cellIndentifier(rowIndex, columnIndex));
+      },
+      [mergedCellMap]
+    );
+
+    /* Get top, left bounds of a cell */
+    const getCellBounds = useCallback(
+      (rowIndex: number, columnIndex: number): IArea | undefined => {
+        const isMerged = isMergedCell(rowIndex, columnIndex);
+        if (isMerged)
+          return mergedCellMap.get(cellIndentifier(rowIndex, columnIndex));
+        return {
+          top: rowIndex,
+          left: columnIndex,
+          right: columnIndex,
+          bottom: rowIndex,
+        } as IArea;
+      },
+      [mergedCellMap]
     );
 
     /* Handle vertical scroll */
@@ -330,7 +379,10 @@ const Grid: React.FC<IProps> = memo(
           columnIndex++
         ) {
           /* Skip frozen columns */
-          if (columnIndex < frozenColumns) {
+          if (
+            columnIndex < frozenColumns ||
+            isMergedCell(rowIndex, columnIndex)
+          ) {
             continue;
           }
           const width = getColumnWidth(columnIndex, instanceProps.current);
@@ -361,6 +413,60 @@ const Grid: React.FC<IProps> = memo(
         }
       }
     }
+
+    const mergedCellAreas = useMemo(() => {
+      const areas = [];
+      for (let i = 0; i < mergedCells.length; i++) {
+        const { top: rowIndex, left: columnIndex, right, bottom } = mergedCells[
+          i
+        ];
+        const x = getColumnOffset({
+          index: columnIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
+        const y = getRowOffset({
+          index: rowIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
+        const width =
+          getColumnOffset({
+            index: right + 1,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          }) - x;
+        const height =
+          getRowOffset({
+            index: bottom + 1,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          }) - y;
+
+        areas.push(
+          itemRenderer({
+            x,
+            y,
+            width,
+            height,
+            rowIndex,
+            columnIndex,
+            key: itemKey({ rowIndex, columnIndex }),
+          })
+        );
+      }
+      return areas;
+    }, [
+      mergedCells,
+      rowStartIndex,
+      rowStopIndex,
+      columnStartIndex,
+      columnStopIndex,
+    ]);
 
     const frozenRowCells = [];
     for (
@@ -541,6 +647,7 @@ const Grid: React.FC<IProps> = memo(
             <Layer>
               <Group offsetY={scrollTop} offsetX={scrollLeft}>
                 {cells}
+                {mergedCellAreas}
               </Group>
               <Group offsetY={scrollTop} offsetX={0}>
                 {frozenColumnCells}

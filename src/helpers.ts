@@ -134,12 +134,13 @@ export const getColumnStopIndexForStartIndex = ({
   return stopIndex;
 };
 
-export const getBoundedCells = (area: IArea) => {
-  const { top, bottom, left, right } = area;
+export const getBoundedCells = (area: IArea | null | undefined) => {
   const cells = new Set();
+  if (!area) return cells;
+  const { top, bottom, left, right } = area;
   for (let i = top; i <= bottom; i++) {
     for (let j = left; j <= right; j++) {
-      cells.add(JSON.stringify([i, j]));
+      cells.add(cellIndentifier(i, j));
     }
   }
   return cells;
@@ -414,3 +415,9 @@ export const getEstimatedTotalWidth = (
 
   return totalSizeOfMeasuredRows + totalSizeOfUnmeasuredItems;
 };
+
+/* Create a stringified cell identifier */
+export const cellIndentifier = (
+  rowIndex: number,
+  columnIndex: number
+): string => [rowIndex, columnIndex].toString();

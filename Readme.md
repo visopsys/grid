@@ -14,6 +14,7 @@ Canvas grid to render large set of tabular data. Uses virtualization similar to 
 - :scroll: Supports scrolling using native scrollbars
 - :computer: Supports both Fixed and Variable sized grids
 - :fire: Freeze rows and columns
+- :white_square_button: Merge rows and columns
 - :hand: Resizable headers
 - :hammer_and_wrench: Fully typed API written in TypeScript
 - :muscle: Highly customizable using [react-konva](https://github.com/konvajs/react-konva/)
