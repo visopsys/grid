@@ -811,6 +811,7 @@ const Grid: React.FC<IProps> = memo(
             <Layer>
               <Group offsetY={scrollTop} offsetX={scrollLeft}>
                 {cells}
+                {mergedCellAreas}
               </Group>
               <Group offsetY={scrollTop} offsetX={0}>
                 {frozenColumnCells}
