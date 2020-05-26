@@ -101,6 +101,7 @@ This is the list of props that are meant to be used to customise the `konva-grid
 | selectionBackgroundColor | false | string | Background color of selected cells | rgba(66, 133, 244, 0.3) |
 | selectionBorderColor | false | string | Border color of bounding box of selected cells | rgba(66, 133, 244, 1) |
 | selections | false | Array | Array of selected cell areas | []|
+| mergedCells | false | Array | Array of merged cell areas | []|
 | frozenRows | false | number | No of frozen rows | 0 |
 | frozenColumns | false | number | No of frozen columns | 0 |
 
