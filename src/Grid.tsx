@@ -45,6 +45,41 @@ export interface IProps {
   frozenRows: number;
   frozenColumns: number;
   itemRenderer: (props: IChildrenProps) => React.ReactNode;
+  onMouseDown: (
+    e: React.MouseEvent<HTMLElement>,
+    rowIndex: number,
+    columnIndex: number
+  ) => void;
+  onMouseUp: (
+    e: React.MouseEvent<HTMLElement>,
+    rowIndex: number,
+    columnIndex: number
+  ) => void;
+  onMouseMove: (
+    e: React.MouseEvent<HTMLElement>,
+    rowIndex: number,
+    columnIndex: number
+  ) => void;
+  onMouseEnter: (
+    e: React.MouseEvent<HTMLElement>,
+    rowIndex: number,
+    columnIndex: number
+  ) => void;
+  onMouseLeave: (
+    e: React.MouseEvent<HTMLElement>,
+    rowIndex: number,
+    columnIndex: number
+  ) => void;
+  onClick: (
+    e: React.MouseEvent<HTMLElement>,
+    rowIndex: number,
+    columnIndex: number
+  ) => void;
+  onDoubleClick: (
+    e: React.MouseEvent<HTMLElement>,
+    rowIndex: number,
+    columnIndex: number
+  ) => void;
 }
 
 export type TScrollCoords = {
@@ -143,6 +178,13 @@ const Grid: React.FC<IProps> = memo(
       frozenColumns,
       itemRenderer,
       mergedCells,
+      onMouseDown,
+      onClick,
+      onDoubleClick,
+      onMouseMove,
+      onMouseUp,
+      onMouseEnter,
+      onMouseLeave,
     } = props;
     /* Expose some methods in ref */
     useImperativeHandle(forwardedRef, () => {
@@ -153,6 +195,7 @@ const Grid: React.FC<IProps> = memo(
         getScrollPosition,
         isMergedCell,
         getCellBounds,
+        getCellCoordsFromOffsets,
       };
     });
     const instanceProps = useRef<IInstanceProps>({
@@ -366,6 +409,7 @@ const Grid: React.FC<IProps> = memo(
       instanceProps.current
     );
 
+    /* Draw all cells */
     const cells = [];
     if (columnCount > 0 && rowCount) {
       for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
@@ -414,6 +458,7 @@ const Grid: React.FC<IProps> = memo(
       }
     }
 
+    /* Draw merged cells */
     const mergedCellAreas = useMemo(() => {
       const areas = [];
       for (let i = 0; i < mergedCells.length; i++) {
@@ -468,6 +513,7 @@ const Grid: React.FC<IProps> = memo(
       columnStopIndex,
     ]);
 
+    /* Draw frozen rows */
     const frozenRowCells = [];
     for (
       let rowIndex = 0;
@@ -507,6 +553,7 @@ const Grid: React.FC<IProps> = memo(
       }
     }
 
+    /* Draw frozen columns */
     const frozenColumnCells = [];
     for (
       let columnIndex = 0;
@@ -542,6 +589,7 @@ const Grid: React.FC<IProps> = memo(
       }
     }
 
+    /* Draw frozen intersection cells */
     const frozenIntersectionCells = [];
     for (
       let rowIndex = 0;
@@ -581,6 +629,9 @@ const Grid: React.FC<IProps> = memo(
       }
     }
 
+    /**
+     * Convert selections to area
+     */
     const selectionAreas = useMemo(() => {
       const areas = [];
       for (let i = 0; i < selections.length; i++) {
@@ -640,9 +691,138 @@ const Grid: React.FC<IProps> = memo(
       return areas;
     }, [selections, rowStopIndex, columnStopIndex]);
 
+    /**
+     * Get cell cordinates from current mouse x/y positions
+     */
+    const getCellCoordsFromOffsets = useCallback(
+      (x, y) => {
+        const rowIndex = getRowStartIndexForOffset({
+          rowHeight,
+          columnWidth,
+          rowCount,
+          columnCount,
+          instanceProps: instanceProps.current,
+          offset: y + scrollTop,
+        });
+        const columnIndex = getColumnStartIndexForOffset({
+          rowHeight,
+          columnWidth,
+          rowCount,
+          columnCount,
+          instanceProps: instanceProps.current,
+          offset: x + scrollLeft,
+        });
+
+        return [rowIndex, columnIndex];
+      },
+      [scrollLeft, scrollTop]
+    );
+
+    /* Mouse down */
+    const handleMouseDown = useCallback(
+      (e: React.MouseEvent<HTMLElement>) => {
+        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+          e.clientX,
+          e.clientY
+        );
+
+        onMouseDown && onMouseDown(e, rowIndex, columnIndex);
+      },
+      [scrollLeft, scrollTop]
+    );
+
+    /* Mouse up */
+    const handleMouseUp = useCallback(
+      (e: React.MouseEvent<HTMLElement>) => {
+        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+          e.clientX,
+          e.clientY
+        );
+
+        onMouseUp && onMouseUp(e, rowIndex, columnIndex);
+      },
+      [scrollLeft, scrollTop]
+    );
+
+    /* Click */
+    const handleClick = useCallback(
+      (e: React.MouseEvent<HTMLElement>) => {
+        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+          e.clientX,
+          e.clientY
+        );
+
+        onClick && onClick(e, rowIndex, columnIndex);
+      },
+      [scrollLeft, scrollTop]
+    );
+
+    /* Dbl Click */
+    const handleDoubleClick = useCallback(
+      (e: React.MouseEvent<HTMLElement>) => {
+        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+          e.clientX,
+          e.clientY
+        );
+
+        onDoubleClick && onDoubleClick(e, rowIndex, columnIndex);
+      },
+      [scrollLeft, scrollTop]
+    );
+
+    /* onMouseMove */
+    const handleMouseMove = useCallback(
+      (e: React.MouseEvent<HTMLElement>) => {
+        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+          e.clientX,
+          e.clientY
+        );
+
+        onMouseMove && onMouseMove(e, rowIndex, columnIndex);
+      },
+      [scrollLeft, scrollTop]
+    );
+
+    /* onMouseEnter */
+    const handleMouseEnter = useCallback(
+      (e: React.MouseEvent<HTMLElement>) => {
+        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+          e.clientX,
+          e.clientY
+        );
+
+        onMouseEnter && onMouseEnter(e, rowIndex, columnIndex);
+      },
+      [scrollLeft, scrollTop]
+    );
+
+    /* onMouseLeave */
+    const handleMouseLeave = useCallback(
+      (e: React.MouseEvent<HTMLElement>) => {
+        const { clientX, clientY } = e;
+        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+          clientX,
+          clientY
+        );
+
+        onMouseLeave && onMouseLeave(e, rowIndex, columnIndex);
+      },
+      [scrollLeft, scrollTop]
+    );
+
     return (
       <div style={{ position: "relative", width: containerWidth }}>
-        <div onWheel={handleWheel} tabIndex={-1}>
+        <div
+          onWheel={handleWheel}
+          tabIndex={-1}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          onClick={handleClick}
+          onDoubleClick={handleDoubleClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           <Stage width={containerWidth} height={containerHeight} ref={stageRef}>
             <Layer>
               <Group offsetY={scrollTop} offsetX={scrollLeft}>

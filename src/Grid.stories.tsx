@@ -139,20 +139,15 @@ export const MergedCells: React.FC = () => {
 export const BaseGridWithSelection: React.FC = () => {
   const width = number("width", 900);
   const height = number("height", 600);
-  const selections = [
+  const initialSelection = [
     {
       top: 2,
       right: 3,
       left: 2,
       bottom: 20,
     },
-    {
-      top: 2,
-      right: 5,
-      left: 5,
-      bottom: 20,
-    },
   ];
+
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -185,22 +180,55 @@ export const BaseGridWithSelection: React.FC = () => {
       </>
     );
   };
-  return (
-    <Grid
-      width={width}
-      height={height}
-      selections={selections}
-      columnCount={200}
-      rowCount={200}
-      columnWidth={(index) => {
-        return 100;
-      }}
-      rowHeight={(index) => {
-        return 20;
-      }}
-      itemRenderer={Cell}
-    />
-  );
+  const App = () => {
+    const [selections, setSelections] = useState(initialSelection);
+    const [isSelecting, setIsSelecting] = useState(false);
+    const selectionRef = useRef();
+    selectionRef.current = isSelecting;
+    return (
+      <Grid
+        width={width}
+        height={height}
+        selections={selections}
+        columnCount={200}
+        rowCount={200}
+        onMouseDown={(_, rowIndex, columnIndex) => {
+          setIsSelecting(true);
+          setSelections([
+            {
+              top: rowIndex,
+              left: columnIndex,
+              bottom: rowIndex,
+              right: columnIndex,
+            },
+          ]);
+        }}
+        onMouseMove={(_, rowIndex, columnIndex) => {
+          if (!selectionRef.current) return;
+          setSelections((prev) => {
+            return [
+              {
+                top: prev[0].top,
+                bottom: rowIndex,
+                left: prev[0].left,
+                right: columnIndex,
+              },
+            ];
+          });
+        }}
+        onMouseUp={() => setIsSelecting(false)}
+        columnWidth={(index) => {
+          return 100;
+        }}
+        rowHeight={(index) => {
+          return 20;
+        }}
+        itemRenderer={Cell}
+      />
+    );
+  };
+
+  return <App />;
 };
 
 export const VariableSizeGrid: React.FC = () => {
