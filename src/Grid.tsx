@@ -713,7 +713,7 @@ const Grid: React.FC<IProps> = memo(
           offset: x + scrollLeft,
         });
 
-        return [rowIndex, columnIndex];
+        return { rowIndex, columnIndex };
       },
       [scrollLeft, scrollTop]
     );
@@ -721,7 +721,7 @@ const Grid: React.FC<IProps> = memo(
     /* Mouse down */
     const handleMouseDown = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
-        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           e.clientX,
           e.clientY
         );
@@ -734,7 +734,7 @@ const Grid: React.FC<IProps> = memo(
     /* Mouse up */
     const handleMouseUp = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
-        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           e.clientX,
           e.clientY
         );
@@ -747,7 +747,7 @@ const Grid: React.FC<IProps> = memo(
     /* Click */
     const handleClick = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
-        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           e.clientX,
           e.clientY
         );
@@ -760,7 +760,7 @@ const Grid: React.FC<IProps> = memo(
     /* Dbl Click */
     const handleDoubleClick = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
-        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           e.clientX,
           e.clientY
         );
@@ -773,7 +773,7 @@ const Grid: React.FC<IProps> = memo(
     /* onMouseMove */
     const handleMouseMove = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
-        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           e.clientX,
           e.clientY
         );
@@ -786,7 +786,7 @@ const Grid: React.FC<IProps> = memo(
     /* onMouseEnter */
     const handleMouseEnter = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
-        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           e.clientX,
           e.clientY
         );
@@ -800,7 +800,7 @@ const Grid: React.FC<IProps> = memo(
     const handleMouseLeave = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
         const { clientX, clientY } = e;
-        const [rowIndex, columnIndex] = getCellCoordsFromOffsets(
+        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           clientX,
           clientY
         );

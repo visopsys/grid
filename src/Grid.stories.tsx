@@ -167,6 +167,7 @@ export const BaseGridWithSelection: React.FC = () => {
           fill="white"
           stroke="grey"
           strokeWidth={0.5}
+          listening={false}
         />
         <Text
           x={x}

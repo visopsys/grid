@@ -115,6 +115,43 @@ Scrolls the grid to a specified `x,y` position relative to the container
 
 Imperatively trigger re-render of the grid after specified `rowIndex` or `columnIndex`
 
+
+#### `getScrollPosition()`
+
+Get the current scroll position of the grid. 
+
+````
+const gridRef = useRef()
+const { scrollLeft, scrollTop } = gridRef.current.getScrollPosition()
+````
+
+#### `isMergedCell({ rowIndex, columnIndex })`
+
+Check if a cell at a coordinate is a merged cell
+
+#### `getCellBounds({ rowIndex, columnIndex })`
+
+Returns a selection `IArea` for a particular cell. Useful to get selection area of a merged cell
+
+#### `getCellCoordsFromOffsets(x , y)`
+
+Returns exact `rowIndex` and `columnIndex` from a `x`  and `y` cordinate. Useful if you want to get cell coords based on mouse position
+
+
+#### `stage`
+
+Access Konva `stage` instance
+
+````
+const gridRef = useRef()
+
+<Grid
+  ref={gridRef}
+>
+
+const stage = gridRef.current.stage
+````
+
 ## Storybook
 
 Examples can be found as stories in `Grid.stories.tsx`. To run storybook, enter the following commands
