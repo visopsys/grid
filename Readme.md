@@ -142,7 +142,7 @@ Returns exact `rowIndex` and `columnIndex` from a `x`  and `y` cordinate. Useful
 
 Access Konva `stage` instance
 
-````
+```js
 const gridRef = useRef()
 
 <Grid
@@ -150,7 +150,7 @@ const gridRef = useRef()
 >
 
 const stage = gridRef.current.stage
-````
+```
 
 ## Storybook
 
