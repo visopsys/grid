@@ -344,59 +344,43 @@ const Grid: React.FC<IProps> = memo(
       });
     }, []);
 
-    const rowStartIndex = useMemo(
-      () =>
-        getRowStartIndexForOffset({
-          rowHeight,
-          columnWidth,
-          rowCount,
-          columnCount,
-          instanceProps: instanceProps.current,
-          offset: scrollTop,
-        }),
-      [scrollTop]
-    );
+    const rowStartIndex = getRowStartIndexForOffset({
+      rowHeight,
+      columnWidth,
+      rowCount,
+      columnCount,
+      instanceProps: instanceProps.current,
+      offset: scrollTop,
+    });
 
-    const rowStopIndex = useMemo(
-      () =>
-        getRowStopIndexForStartIndex({
-          startIndex: rowStartIndex,
-          rowCount,
-          rowHeight,
-          columnWidth,
-          scrollTop,
-          containerHeight,
-          instanceProps: instanceProps.current,
-        }),
-      [rowStartIndex, scrollTop, containerHeight]
-    );
+    const rowStopIndex = getRowStopIndexForStartIndex({
+      startIndex: rowStartIndex,
+      rowCount,
+      rowHeight,
+      columnWidth,
+      scrollTop,
+      containerHeight,
+      instanceProps: instanceProps.current,
+    });
 
-    const columnStartIndex = useMemo(
-      () =>
-        getColumnStartIndexForOffset({
-          rowHeight,
-          columnWidth,
-          rowCount,
-          columnCount,
-          instanceProps: instanceProps.current,
-          offset: scrollLeft,
-        }),
-      [scrollLeft]
-    );
+    const columnStartIndex = getColumnStartIndexForOffset({
+      rowHeight,
+      columnWidth,
+      rowCount,
+      columnCount,
+      instanceProps: instanceProps.current,
+      offset: scrollLeft,
+    });
 
-    const columnStopIndex = useMemo(
-      () =>
-        getColumnStopIndexForStartIndex({
-          startIndex: columnStartIndex,
-          columnCount,
-          rowHeight,
-          columnWidth,
-          scrollLeft,
-          containerWidth,
-          instanceProps: instanceProps.current,
-        }),
-      [columnStartIndex, scrollLeft, containerWidth]
-    );
+    const columnStopIndex = getColumnStopIndexForStartIndex({
+      startIndex: columnStartIndex,
+      columnCount,
+      rowHeight,
+      columnWidth,
+      scrollLeft,
+      containerWidth,
+      instanceProps: instanceProps.current,
+    });
 
     const estimatedTotalHeight = getEstimatedTotalHeight(
       rowCount,
@@ -827,7 +811,6 @@ const Grid: React.FC<IProps> = memo(
             <Layer>
               <Group offsetY={scrollTop} offsetX={scrollLeft}>
                 {cells}
-                {mergedCellAreas}
               </Group>
               <Group offsetY={scrollTop} offsetX={0}>
                 {frozenColumnCells}
