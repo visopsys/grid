@@ -120,9 +120,7 @@ const useEditable = ({
     ) => {
       const activeCell = { rowIndex, columnIndex };
       if (!gridRef.current) return;
-      const pos: IPosition = gridRef.current.getCellOffsetFromCoords(
-        activeCell
-      );
+      const pos = gridRef.current.getCellOffsetFromCoords(activeCell);
       setActiveCell(activeCell);
       setValue(getValue<string>(activeCell) || "");
       setPosition(pos);

@@ -23,10 +23,7 @@ const useSelection = (options: IOptions = {}) => {
     isSelectionMode.current = true;
 
     /* To cater to merged Cells, get the bounds from internal fn */
-    const selection: IArea = gridRef.current.getCellBounds(
-      rowIndex,
-      columnIndex
-    );
+    const selection = gridRef.current.getCellBounds(rowIndex, columnIndex);
 
     /**
      * Save the initial Selection in ref

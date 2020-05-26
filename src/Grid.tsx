@@ -151,14 +151,14 @@ export type TCellMetaData = {
 };
 
 export interface IRef {
-  scrollTo: any;
-  stage: any;
-  resetAfterIndices: any;
-  getScrollPosition: any;
-  isMergedCell: any;
-  getCellBounds: any;
-  getCellCoordsFromOffsets: any;
-  getCellOffsetFromCoords: any;
+  scrollTo: (scrollPosition: TScrollCoords) => void;
+  stage: typeof Stage;
+  resetAfterIndices: (coords: ICell) => void;
+  getScrollPosition: () => TScrollCoords;
+  isMergedCell: (coords: ICell) => boolean;
+  getCellBounds: (rowIndex: number, columnindex: number) => IArea;
+  getCellCoordsFromOffsets: (x: number, y: number) => ICell;
+  getCellOffsetFromCoords: (coords: ICell) => IPosition;
 }
 
 export type TGridRef = React.MutableRefObject<IRef>;
@@ -694,7 +694,7 @@ const Grid: React.FC<IProps> = memo(
      * Get cell offset position from rowIndex, columnIndex
      */
     const getCellOffsetFromCoords = useCallback(
-      ({ rowIndex, columnIndex }: ICell) => {
+      ({ rowIndex, columnIndex }: ICell): IPosition => {
         const width = getColumnWidth(columnIndex, instanceProps.current);
         const x = getColumnOffset({
           index: columnIndex,
@@ -724,7 +724,7 @@ const Grid: React.FC<IProps> = memo(
      * Get cell cordinates from current mouse x/y positions
      */
     const getCellCoordsFromOffsets = useCallback(
-      (x, y) => {
+      (x: number, y: number): ICell => {
         const rowIndex = getRowStartIndexForOffset({
           rowHeight,
           columnWidth,
