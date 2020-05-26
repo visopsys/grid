@@ -2,7 +2,7 @@
 
 Canvas table grid to render large set of tabular data. Uses virtualization similar to `react-window`. 
 
-[Demo](https://rmdort.github.io/konva-grid)
+[Demo](https://rmdort.github.io/konva-grid) | [Wiki](https://github.com/rmdort/konva-grid/wiki/Extending-Konva-Grid-using-hooks)
 
 <kbd>![Screen capture](screencapture.gif)</kbd>
 

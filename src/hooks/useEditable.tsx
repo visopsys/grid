@@ -9,14 +9,14 @@ import React, {
 import { ICell, TScrollCoords, IPosition, TGridRef } from "../Grid";
 
 interface IProps {
-  getEditor: (cell: ICell) => React.ElementType;
+  getEditor: (cell: ICell | null) => React.ElementType;
   gridRef: TGridRef;
-  getValue: <T>(ICell) => T;
+  getValue: <T>(cell: ICell) => T;
   onChange: <T>(value: T, coords: ICell) => void;
 }
 
 interface IEditable {
-  editorComponent: JSX.Element;
+  editorComponent: JSX.Element | null;
   onDoubleClick: (
     e: React.MouseEvent<HTMLInputElement>,
     rowIndex: number,
@@ -48,8 +48,9 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     onHide,
     ...rest
   } = props;
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
+    if (!inputRef.current) return;
     inputRef.current.focus();
     inputRef.current.select();
   }, []);
@@ -85,7 +86,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
   );
 };
 
-const getDefaultEditor = (cell: ICell) => DefaultEditor;
+const getDefaultEditor = (cell: ICell | null) => DefaultEditor;
 
 /**
  * Hook to make grid editable
@@ -97,7 +98,7 @@ const useEditable = ({
   getValue,
   onChange,
 }: IProps): IEditable => {
-  const [activeCell, setActiveCell] = useState<ICell>(null);
+  const [activeCell, setActiveCell] = useState<ICell | null>(null);
   const [value, setValue] = useState<string>("");
   const [position, setPosition] = useState<IPosition>({
     x: 0,
@@ -123,7 +124,7 @@ const useEditable = ({
         activeCell
       );
       setActiveCell(activeCell);
-      setValue(getValue(activeCell) || "");
+      setValue(getValue<string>(activeCell) || "");
       setPosition(pos);
     },
     []
@@ -133,6 +134,7 @@ const useEditable = ({
 
   /* Save the value */
   const handleSubmit = useCallback(() => {
+    if (!activeCell) return;
     onChange && onChange(value, activeCell);
     setActiveCell(null);
   }, [value, activeCell]);
