@@ -20,6 +20,7 @@ Canvas table grid to render large set of tabular data. Uses virtualization simil
 - :fire: Freeze rows and columns
 - :white_square_button: Merge rows and columns
 - :hand: Resizable headers
+- :deciduous_tree: Create Tree tables
 - :hammer_and_wrench: Fully typed API written in TypeScript
 - :muscle: Highly customizable using [react-konva](https://github.com/konvajs/react-konva/)
 
