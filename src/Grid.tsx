@@ -610,65 +610,64 @@ const Grid: React.FC<IProps> = memo(
 
     /**
      * Convert selections to area
+     * Removed useMemo as changes to lastMeasureRowIndex, lastMeasuredColumnIndex,
+     * does not trigger useMemo
+     * Dependencies : [selections, rowStopIndex, columnStopIndex, instanceProps]
      */
-    const selectionAreas = useMemo(() => {
-      const areas = [];
-      for (let i = 0; i < selections.length; i++) {
-        const { top, left, right, bottom } = selections[i];
-        const selectionBounds = { x: 0, y: 0, width: 0, height: 0 };
-        const actualBottom = Math.min(rowStopIndex, bottom);
-        const actualRight = Math.min(columnStopIndex, right);
-        selectionBounds.y = getRowOffset({
-          index: top,
+    const selectionAreas = [];
+    for (let i = 0; i < selections.length; i++) {
+      const { top, left, right, bottom } = selections[i];
+      const selectionBounds = { x: 0, y: 0, width: 0, height: 0 };
+      const actualBottom = Math.min(rowStopIndex, bottom);
+      const actualRight = Math.min(columnStopIndex, right);
+      selectionBounds.y = getRowOffset({
+        index: top,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      selectionBounds.height =
+        getRowOffset({
+          index: actualBottom,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
-        });
-        selectionBounds.height =
-          getRowOffset({
-            index: actualBottom,
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current,
-          }) -
-          selectionBounds.y +
-          getRowHeight(actualBottom, instanceProps.current);
+        }) -
+        selectionBounds.y +
+        getRowHeight(actualBottom, instanceProps.current);
 
-        selectionBounds.x = getColumnOffset({
-          index: left,
+      selectionBounds.x = getColumnOffset({
+        index: left,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+
+      selectionBounds.width =
+        getColumnOffset({
+          index: actualRight,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
-        });
+        }) -
+        selectionBounds.x +
+        getColumnWidth(actualRight, instanceProps.current);
 
-        selectionBounds.width =
-          getColumnOffset({
-            index: actualRight,
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current,
-          }) -
-          selectionBounds.x +
-          getColumnWidth(actualRight, instanceProps.current);
-
-        areas.push(
-          <Rect
-            key={i}
-            stroke={selectionBorderColor}
-            x={selectionBounds.x}
-            y={selectionBounds.y}
-            width={selectionBounds.width}
-            height={selectionBounds.height}
-            fill={selectionBackgroundColor}
-            shadowForStrokeEnabled={false}
-            listening={false}
-            hitStrokeWidth={0}
-          />
-        );
-      }
-
-      return areas;
-    }, [selections, rowStopIndex, columnStopIndex, instanceProps]);
+      selectionAreas.push(
+        <Rect
+          key={i}
+          stroke={selectionBorderColor}
+          x={selectionBounds.x}
+          y={selectionBounds.y}
+          width={selectionBounds.width}
+          height={selectionBounds.height}
+          fill={selectionBackgroundColor}
+          shadowForStrokeEnabled={false}
+          listening={false}
+          hitStrokeWidth={0}
+        />
+      );
+    }
 
     /**
      * Get cell offset position from rowIndex, columnIndex
