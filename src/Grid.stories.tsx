@@ -1151,28 +1151,28 @@ export const TreeTable: React.FC = () => {
     const [treeState, setTreeState] = useState({ open: [] });
     const initialData = [
       {
-        VPivot: "AUD",
-        text: "AUD",
-        Delta: 0.2012312312,
+        VPivot: "Parent",
+        text: "Parent",
+        Aggregate: 0.2012312312,
         parent: "",
         leaf: false,
         kids: true,
         depth: 0,
       },
       {
-        VPivot: "AUD__1Y",
-        text: "1Y",
-        Delta: 12.02,
-        parent: "AUD",
+        VPivot: "Child",
+        text: "Child",
+        Aggregate: 12.02,
+        parent: "Parent",
         leaf: true,
         kids: true,
         depth: 1,
       },
       {
-        VPivot: "AUD__1Y___Hello",
-        text: "Hello",
-        Delta: 12.02,
-        parent: "AUD__1Y",
+        VPivot: "Grandchild",
+        text: "Grandchild",
+        Aggregate: 12.02,
+        parent: "Child",
         leaf: true,
         kids: false,
         depth: 2,
@@ -1185,8 +1185,8 @@ export const TreeTable: React.FC = () => {
         headers: ["VPivot"],
       },
       {
-        name: "Delta",
-        headers: ["Delta"],
+        name: "Aggregate",
+        headers: ["Aggregate"],
       },
     ];
 
@@ -1224,7 +1224,7 @@ export const TreeTable: React.FC = () => {
         width={width}
         height={height}
         columnCount={headers.length + 1}
-        rowCount={200}
+        rowCount={data.length + frozenRows}
         selection={selection}
         frozenRows={frozenRows}
         frozenColumns={1}
