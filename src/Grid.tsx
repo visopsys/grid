@@ -7,6 +7,7 @@ import React, {
   useImperativeHandle,
   useReducer,
   memo,
+  useEffect,
 } from "react";
 import { Stage, Layer, Rect, Group } from "react-konva/lib/ReactKonvaCore";
 import {
@@ -45,6 +46,7 @@ export interface IProps {
   frozenRows: number;
   frozenColumns: number;
   itemRenderer: (props: IChildrenProps) => React.ReactNode;
+  onViewChange: (view: IView) => void;
   onMouseDown: (
     e: React.MouseEvent<HTMLElement>,
     rowIndex: number,
@@ -135,6 +137,13 @@ export interface ICell {
   columnIndex: number;
 }
 
+export interface IView {
+  rowStartIndex: number;
+  rowStopIndex: number;
+  columnStartIndex: number;
+  columnStopIndex: number;
+}
+
 export interface IInstanceProps {
   columnMetadataMap: TCellMetaDataMap;
   rowMetadataMap: TCellMetaDataMap;
@@ -192,6 +201,7 @@ const Grid: React.FC<IProps> = memo(
       frozenColumns,
       itemRenderer,
       mergedCells,
+      onViewChange,
       onMouseDown,
       onClick,
       onDoubleClick,
@@ -199,6 +209,7 @@ const Grid: React.FC<IProps> = memo(
       onMouseUp,
       onMouseEnter,
       onMouseLeave,
+      ...rest
     } = props;
     /* Expose some methods in ref */
     useImperativeHandle(forwardedRef, () => {
@@ -407,6 +418,17 @@ const Grid: React.FC<IProps> = memo(
       instanceProps.current.estimatedColumnWidth,
       instanceProps.current
     );
+
+    /* Callback when visible rows or columns have changed */
+    useEffect(() => {
+      onViewChange &&
+        onViewChange({
+          rowStartIndex,
+          rowStopIndex,
+          columnStartIndex,
+          columnStopIndex,
+        });
+    }, [rowStartIndex, rowStopIndex, columnStartIndex, columnStopIndex]);
 
     /* Draw all cells */
     const cells = [];
@@ -688,7 +710,7 @@ const Grid: React.FC<IProps> = memo(
       }
 
       return areas;
-    }, [selections, rowStopIndex, columnStopIndex]);
+    }, [selections, rowStopIndex, columnStopIndex, instanceProps]);
 
     /**
      * Get cell offset position from rowIndex, columnIndex
@@ -851,6 +873,7 @@ const Grid: React.FC<IProps> = memo(
           onDoubleClick={handleDoubleClick}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
+          {...rest}
         >
           <Stage width={containerWidth} height={containerHeight} ref={stageRef}>
             <Layer>

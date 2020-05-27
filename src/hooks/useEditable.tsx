@@ -5,6 +5,7 @@ import React, {
   useState,
   useMemo,
   RefAttributes,
+  DependencyList,
 } from "react";
 import { ICell, TScrollCoords, IPosition, TGridRef } from "../Grid";
 
@@ -100,6 +101,7 @@ const useEditable = ({
 }: IProps): IEditable => {
   const [activeCell, setActiveCell] = useState<ICell | null>(null);
   const [value, setValue] = useState<string>("");
+  const getValueRef = useRef(getValue);
   const [position, setPosition] = useState<IPosition>({
     x: 0,
     y: 0,
@@ -110,6 +112,9 @@ const useEditable = ({
     scrollLeft: 0,
     scrollTop: 0,
   });
+
+  /* Update the valueref when dependencies change */
+  getValueRef.current = getValue;
 
   /* Activate edit mode */
   const handleDoubleClick = useCallback(
@@ -122,7 +127,7 @@ const useEditable = ({
       if (!gridRef.current) return;
       const pos = gridRef.current.getCellOffsetFromCoords(activeCell);
       setActiveCell(activeCell);
-      setValue(getValue<string>(activeCell) || "");
+      setValue(getValueRef.current<string>(activeCell) || "");
       setPosition(pos);
     },
     []

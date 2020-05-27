@@ -3,6 +3,7 @@ import React, { useRef, useState, useCallback, useEffect } from "react";
 import Grid, { IChildrenProps } from "./Grid";
 import useSelection from "./hooks/useSelection";
 import useEditable from "./hooks/useEditable";
+import useAutoSizer from "./hooks/useAutoSizer";
 import { Layer, Rect, Text, Group } from "react-konva";
 import { number } from "@storybook/addon-knobs";
 
@@ -60,6 +61,81 @@ export const BaseGrid: React.FC = () => {
         rowHeight={(index) => {
           return 20;
         }}
+      />
+    );
+  };
+
+  return <App />;
+};
+
+export const AutoSizer: React.FC = () => {
+  const width = number("width", 900);
+  const height = number("height", 600);
+  const Cell = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+    value,
+  }: IChildrenProps) => {
+    const text = value || `${rowIndex}x${columnIndex}`;
+    return (
+      <>
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill="white"
+          stroke="grey"
+          strokeWidth={0.5}
+        />
+        <Text
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          text={text}
+          verticalAlign="middle"
+          align="left"
+          offsetX={-5}
+        />
+      </>
+    );
+  };
+  const App = () => {
+    const [data, setData] = useState({
+      [[1, 2]]: "Hello, good morning",
+      [[30, 4]]: "lorem asd asd as das dasd asd as da sdasdasda",
+      [[2, 15]]: "lorem asd asd as das dasd asd as da sdasdasda",
+    });
+    const gridRef = useRef(null);
+    const getCellValue = useCallback(
+      ({ rowIndex, columnIndex }) => data[[rowIndex, columnIndex]],
+      [data]
+    );
+    const autoSizerProps = useAutoSizer({
+      gridRef,
+      getValue: getCellValue,
+    });
+    return (
+      <Grid
+        width={width}
+        height={height}
+        columnCount={200}
+        rowCount={200}
+        columnWidth={(index) => {
+          return 100;
+        }}
+        itemRenderer={(props) => (
+          <Cell value={data[[props.rowIndex, props.columnIndex]]} {...props} />
+        )}
+        rowHeight={(index) => {
+          return 20;
+        }}
+        {...autoSizerProps}
       />
     );
   };
@@ -826,20 +902,26 @@ export const EditableGrid: React.FC = () => {
   const App = () => {
     const [data, setData] = useState({
       [[1, 2]]: "Hello",
-    });
-    const dataRef = useRef(null);
-    /* Escape closures */
-    useEffect(() => {
-      dataRef.current = data;
+      [[30, 4]]: "lorem asd asd as das dasd asd as da sdasdasda",
+      [[2, 15]]: "lorem asd asd as das dasd asd as da sdasdasda",
     });
     const gridRef = useRef(null);
+    const getCellValue = useCallback(
+      ({ rowIndex, columnIndex }) => data[[rowIndex, columnIndex]],
+      [data]
+    );
     const { selections, ...selectionProps } = useSelection({ gridRef });
     const { editorComponent, ...editableProps } = useEditable({
       gridRef,
-      getValue: ({ rowIndex, columnIndex }) =>
-        dataRef.current[[rowIndex, columnIndex]],
-      onChange: (value, { rowIndex, columnIndex }) =>
-        setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value })),
+      getValue: getCellValue,
+      onChange: (value, { rowIndex, columnIndex }) => {
+        setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value }));
+        gridRef.current.resetAfterIndices({ rowIndex, columnIndex }, false);
+      },
+    });
+    const autoSizerProps = useAutoSizer({
+      gridRef,
+      getValue: getCellValue,
     });
     return (
       <div style={{ position: "relative" }}>
@@ -864,6 +946,7 @@ export const EditableGrid: React.FC = () => {
           }}
           {...editableProps}
           {...selectionProps}
+          {...autoSizerProps}
         />
         {editorComponent}
       </div>
