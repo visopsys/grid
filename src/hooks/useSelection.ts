@@ -15,12 +15,17 @@ const useSelection = (options: IOptions = {}) => {
   const [selections, setSelections] = useState<IArea[]>(initialSelections);
   const selectionStart = useRef<IArea>();
   const isSelectionMode = useRef<boolean>();
-  const handleMouseDown = useCallback((_, rowIndex, columnIndex) => {
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     /* Exit early if grid is not initialized */
     if (!gridRef || !gridRef.current) return;
 
     /* Activate selection mode */
     isSelectionMode.current = true;
+
+    const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffsets(
+      e.clientX,
+      e.clientY
+    );
 
     /* To cater to merged Cells, get the bounds from internal fn */
     const bounds = gridRef.current.getCellBounds(rowIndex, columnIndex);
@@ -39,7 +44,7 @@ const useSelection = (options: IOptions = {}) => {
    * Mousemove handler
    */
   const handleMouseMove = useCallback(
-    (_, rowIndex, columnIndex) => {
+    (e: React.MouseEvent<HTMLDivElement>) => {
       /* Exit if user is not in selection mode */
       if (!isSelectionMode.current || !gridRef) return;
 
@@ -48,6 +53,11 @@ const useSelection = (options: IOptions = {}) => {
 
       /* Exit early */
       if (!_selectionStart) return;
+
+      const {
+        rowIndex,
+        columnIndex,
+      } = gridRef.current.getCellCoordsFromOffsets(e.clientX, e.clientY);
 
       /* Get new bounds */
       const bounds = gridRef.current.getCellBounds(rowIndex, columnIndex);

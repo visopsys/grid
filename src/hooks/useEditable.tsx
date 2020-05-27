@@ -117,21 +117,18 @@ const useEditable = ({
   getValueRef.current = getValue;
 
   /* Activate edit mode */
-  const handleDoubleClick = useCallback(
-    (
-      e: React.MouseEvent<HTMLElement>,
-      rowIndex: number,
-      columnIndex: number
-    ) => {
-      const activeCell = { rowIndex, columnIndex };
-      if (!gridRef.current) return;
-      const pos = gridRef.current.getCellOffsetFromCoords(activeCell);
-      setActiveCell(activeCell);
-      setValue(getValueRef.current<string>(activeCell) || "");
-      setPosition(pos);
-    },
-    []
-  );
+  const handleDoubleClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffsets(
+      e.clientX,
+      e.clientY
+    );
+    const activeCell = { rowIndex, columnIndex };
+    if (!gridRef.current) return;
+    const pos = gridRef.current.getCellOffsetFromCoords(activeCell);
+    setActiveCell(activeCell);
+    setValue(getValueRef.current<string>(activeCell) || "");
+    setPosition(pos);
+  }, []);
   /* Save scroll position to align the input */
   const handleScroll = useCallback(setScrollPosition, []);
 

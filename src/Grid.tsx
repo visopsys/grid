@@ -47,41 +47,41 @@ export interface IProps {
   frozenColumns: number;
   itemRenderer: (props: IChildrenProps) => React.ReactNode;
   onViewChange: (view: IView) => void;
-  onMouseDown: (
-    e: React.MouseEvent<HTMLElement>,
-    rowIndex: number,
-    columnIndex: number
-  ) => void;
-  onMouseUp: (
-    e: React.MouseEvent<HTMLElement>,
-    rowIndex: number,
-    columnIndex: number
-  ) => void;
-  onMouseMove: (
-    e: React.MouseEvent<HTMLElement>,
-    rowIndex: number,
-    columnIndex: number
-  ) => void;
-  onMouseEnter: (
-    e: React.MouseEvent<HTMLElement>,
-    rowIndex: number,
-    columnIndex: number
-  ) => void;
-  onMouseLeave: (
-    e: React.MouseEvent<HTMLElement>,
-    rowIndex: number,
-    columnIndex: number
-  ) => void;
-  onClick: (
-    e: React.MouseEvent<HTMLElement>,
-    rowIndex: number,
-    columnIndex: number
-  ) => void;
-  onDoubleClick: (
-    e: React.MouseEvent<HTMLElement>,
-    rowIndex: number,
-    columnIndex: number
-  ) => void;
+  // onMouseDown: (
+  //   e: React.MouseEvent<HTMLElement>,
+  //   rowIndex: number,
+  //   columnIndex: number
+  // ) => void;
+  // onMouseUp: (
+  //   e: React.MouseEvent<HTMLElement>,
+  //   rowIndex: number,
+  //   columnIndex: number
+  // ) => void;
+  // onMouseMove: (
+  //   e: React.MouseEvent<HTMLElement>,
+  //   rowIndex: number,
+  //   columnIndex: number
+  // ) => void;
+  // onMouseEnter: (
+  //   e: React.MouseEvent<HTMLElement>,
+  //   rowIndex: number,
+  //   columnIndex: number
+  // ) => void;
+  // onMouseLeave: (
+  //   e: React.MouseEvent<HTMLElement>,
+  //   rowIndex: number,
+  //   columnIndex: number
+  // ) => void;
+  // onClick: (
+  //   e: React.MouseEvent<HTMLElement>,
+  //   rowIndex: number,
+  //   columnIndex: number
+  // ) => void;
+  // onDoubleClick: (
+  //   e: React.MouseEvent<HTMLElement>,
+  //   rowIndex: number,
+  //   columnIndex: number
+  // ) => void;
 }
 
 export type TScrollCoords = {
@@ -202,13 +202,6 @@ const Grid: React.FC<IProps> = memo(
       itemRenderer,
       mergedCells,
       onViewChange,
-      onMouseDown,
-      onClick,
-      onDoubleClick,
-      onMouseMove,
-      onMouseUp,
-      onMouseEnter,
-      onMouseLeave,
       ...rest
     } = props;
     /* Expose some methods in ref */
@@ -769,119 +762,9 @@ const Grid: React.FC<IProps> = memo(
       [scrollLeft, scrollTop, rowCount, columnCount]
     );
 
-    /* Mouse down */
-    const handleMouseDown = useCallback(
-      (e: React.MouseEvent<HTMLElement>) => {
-        if (!onMouseDown) return;
-        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
-          e.clientX,
-          e.clientY
-        );
-
-        onMouseDown(e, rowIndex, columnIndex);
-      },
-      [scrollLeft, scrollTop, rowCount, columnCount]
-    );
-
-    /* Mouse up */
-    const handleMouseUp = useCallback(
-      (e: React.MouseEvent<HTMLElement>) => {
-        if (!onMouseUp) return;
-        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
-          e.clientX,
-          e.clientY
-        );
-
-        onMouseUp(e, rowIndex, columnIndex);
-      },
-      [scrollLeft, scrollTop, rowCount, columnCount]
-    );
-
-    /* Click */
-    const handleClick = useCallback(
-      (e: React.MouseEvent<HTMLElement>) => {
-        if (!onClick) return;
-        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
-          e.clientX,
-          e.clientY
-        );
-
-        onClick(e, rowIndex, columnIndex);
-      },
-      [scrollLeft, scrollTop, rowCount, columnCount]
-    );
-
-    /* Dbl Click */
-    const handleDoubleClick = useCallback(
-      (e: React.MouseEvent<HTMLElement>) => {
-        if (!onDoubleClick) return;
-        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
-          e.clientX,
-          e.clientY
-        );
-
-        onDoubleClick(e, rowIndex, columnIndex);
-      },
-      [scrollLeft, scrollTop, rowCount, columnCount]
-    );
-
-    /* onMouseMove */
-    const handleMouseMove = useCallback(
-      (e: React.MouseEvent<HTMLElement>) => {
-        if (!onMouseMove) return;
-        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
-          e.clientX,
-          e.clientY
-        );
-
-        onMouseMove(e, rowIndex, columnIndex);
-      },
-      [scrollLeft, scrollTop, rowCount, columnCount]
-    );
-
-    /* onMouseEnter */
-    const handleMouseEnter = useCallback(
-      (e: React.MouseEvent<HTMLElement>) => {
-        if (!onMouseEnter) return;
-        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
-          e.clientX,
-          e.clientY
-        );
-
-        onMouseEnter(e, rowIndex, columnIndex);
-      },
-      [scrollLeft, scrollTop, rowCount, columnCount]
-    );
-
-    /* onMouseLeave */
-    const handleMouseLeave = useCallback(
-      (e: React.MouseEvent<HTMLElement>) => {
-        if (!onMouseLeave) return;
-        const { clientX, clientY } = e;
-        const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
-          clientX,
-          clientY
-        );
-
-        onMouseLeave(e, rowIndex, columnIndex);
-      },
-      [scrollLeft, scrollTop, rowCount, columnCount]
-    );
-
     return (
       <div style={{ position: "relative", width: containerWidth }}>
-        <div
-          onWheel={handleWheel}
-          tabIndex={-1}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
-          onClick={handleClick}
-          onDoubleClick={handleDoubleClick}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          {...rest}
-        >
+        <div onWheel={handleWheel} tabIndex={-1} {...rest}>
           <Stage width={containerWidth} height={containerHeight} ref={stageRef}>
             <Layer>
               <Group offsetY={scrollTop} offsetX={scrollLeft}>
