@@ -766,99 +766,106 @@ const Grid: React.FC<IProps> = memo(
 
         return { rowIndex, columnIndex };
       },
-      [scrollLeft, scrollTop]
+      [scrollLeft, scrollTop, rowCount, columnCount]
     );
 
     /* Mouse down */
     const handleMouseDown = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
+        if (!onMouseDown) return;
         const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           e.clientX,
           e.clientY
         );
 
-        onMouseDown && onMouseDown(e, rowIndex, columnIndex);
+        onMouseDown(e, rowIndex, columnIndex);
       },
-      [scrollLeft, scrollTop]
+      [scrollLeft, scrollTop, rowCount, columnCount]
     );
 
     /* Mouse up */
     const handleMouseUp = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
+        if (!onMouseUp) return;
         const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           e.clientX,
           e.clientY
         );
 
-        onMouseUp && onMouseUp(e, rowIndex, columnIndex);
+        onMouseUp(e, rowIndex, columnIndex);
       },
-      [scrollLeft, scrollTop]
+      [scrollLeft, scrollTop, rowCount, columnCount]
     );
 
     /* Click */
     const handleClick = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
+        if (!onClick) return;
         const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           e.clientX,
           e.clientY
         );
 
-        onClick && onClick(e, rowIndex, columnIndex);
+        onClick(e, rowIndex, columnIndex);
       },
-      [scrollLeft, scrollTop]
+      [scrollLeft, scrollTop, rowCount, columnCount]
     );
 
     /* Dbl Click */
     const handleDoubleClick = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
+        if (!onDoubleClick) return;
         const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           e.clientX,
           e.clientY
         );
 
-        onDoubleClick && onDoubleClick(e, rowIndex, columnIndex);
+        onDoubleClick(e, rowIndex, columnIndex);
       },
-      [scrollLeft, scrollTop]
+      [scrollLeft, scrollTop, rowCount, columnCount]
     );
 
     /* onMouseMove */
     const handleMouseMove = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
+        if (!onMouseMove) return;
         const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           e.clientX,
           e.clientY
         );
 
-        onMouseMove && onMouseMove(e, rowIndex, columnIndex);
+        onMouseMove(e, rowIndex, columnIndex);
       },
-      [scrollLeft, scrollTop]
+      [scrollLeft, scrollTop, rowCount, columnCount]
     );
 
     /* onMouseEnter */
     const handleMouseEnter = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
+        if (!onMouseEnter) return;
         const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           e.clientX,
           e.clientY
         );
 
-        onMouseEnter && onMouseEnter(e, rowIndex, columnIndex);
+        onMouseEnter(e, rowIndex, columnIndex);
       },
-      [scrollLeft, scrollTop]
+      [scrollLeft, scrollTop, rowCount, columnCount]
     );
 
     /* onMouseLeave */
     const handleMouseLeave = useCallback(
       (e: React.MouseEvent<HTMLElement>) => {
+        if (!onMouseLeave) return;
         const { clientX, clientY } = e;
         const { rowIndex, columnIndex } = getCellCoordsFromOffsets(
           clientX,
           clientY
         );
 
-        onMouseLeave && onMouseLeave(e, rowIndex, columnIndex);
+        onMouseLeave(e, rowIndex, columnIndex);
       },
-      [scrollLeft, scrollTop]
+      [scrollLeft, scrollTop, rowCount, columnCount]
     );
 
     return (
