@@ -4,7 +4,7 @@ import Grid, { IChildrenProps } from "./Grid";
 import useSelection from "./hooks/useSelection";
 import useEditable from "./hooks/useEditable";
 import useAutoSizer from "./hooks/useAutoSizer";
-import { Layer, Rect, Text, Group } from "react-konva";
+import { Layer, Rect, Text, Group, RegularPolygon } from "react-konva";
 import { number } from "@storybook/addon-knobs";
 
 export default {
@@ -950,6 +950,320 @@ export const EditableGrid: React.FC = () => {
         />
         {editorComponent}
       </div>
+    );
+  };
+
+  return <App />;
+};
+
+export const TreeTable: React.FC = () => {
+  const width = number("width", 900);
+  const height = number("height", 600);
+  const frozenRows = 1;
+  const frozenColumns = 1;
+  const cellStrokeColor = "#ccc";
+  const textColor = "#333";
+  const ColumnHeader = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+    data,
+    headers,
+    onToggleNode,
+    treeState,
+  }: IChildrenProps) => {
+    const column = headers[columnIndex] && headers[columnIndex].name;
+    const datapoint = data[rowIndex - frozenRows];
+    const text =
+      column && data[rowIndex - frozenRows]
+        ? data[rowIndex - frozenRows]["text"]
+        : null;
+    const hasKids = datapoint && datapoint.kids;
+    const isOpen = data[rowIndex - frozenRows]
+      ? treeState.open.includes(data[rowIndex - frozenRows].VPivot)
+      : false;
+    const depth = data[rowIndex - frozenRows]?.depth;
+    const paddingLeft = 8 + 12 * (depth || 0);
+    const arrowWidth = 8;
+    return (
+      <Group
+        onClick={() =>
+          hasKids && onToggleNode(data[rowIndex - frozenRows].VPivot, !isOpen)
+        }
+      >
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill="white"
+          stroke={cellStrokeColor}
+          strokeWidth={0.5}
+        />
+        {hasKids && (
+          <RegularPolygon
+            x={x + paddingLeft}
+            y={y + 10}
+            sides={3}
+            radius={5}
+            rotation={isOpen ? 180 : 90}
+            fill={textColor}
+          />
+        )}
+        {text && (
+          <Text
+            x={x + paddingLeft + arrowWidth}
+            y={y}
+            height={height}
+            width={width}
+            text={text}
+            verticalAlign="middle"
+            align="left"
+          />
+        )}
+      </Group>
+    );
+  };
+
+  const RowHeader = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+    headers,
+  }: IChildrenProps) => {
+    const text = headers[columnIndex] && headers[columnIndex].name; // `${rowIndex}x${columnIndex}`;
+    const [isHovered, setIsHovered] = useState(false);
+    const strokeColor = isHovered ? "black" : cellStrokeColor;
+    const fillColor = "#eee";
+    return (
+      <Group
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill={fillColor}
+          stroke={strokeColor}
+          strokeWidth={0.5}
+        />
+        {text && (
+          <>
+            {/* <RegularPolygon
+              x={x + 10}
+              y={y + 10}
+              sides={3}
+              radius={5}
+              rotation={90}
+              fill={textColor}
+            /> */}
+            <Text
+              x={x}
+              y={y}
+              height={height}
+              width={width}
+              text={text}
+              verticalAlign="middle"
+              align="center"
+            />
+          </>
+        )}
+      </Group>
+    );
+  };
+  const Cell = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+    isHovered,
+    data,
+    headers,
+    frozenRows,
+  }: IChildrenProps) => {
+    const column = headers[columnIndex] && headers[columnIndex].name;
+    const text =
+      column && data[rowIndex - frozenRows]
+        ? data[rowIndex - frozenRows][column]
+        : null;
+    const fill = isHovered ? "blue" : "white";
+    return (
+      <>
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill="white"
+          stroke={cellStrokeColor}
+          strokeWidth={0.5}
+        />
+        {text && (
+          <Text
+            x={x}
+            y={y}
+            offsetX={10}
+            height={height}
+            width={width}
+            text={text}
+            verticalAlign="middle"
+            align="right"
+          />
+        )}
+      </>
+    );
+  };
+  const EmptyCell = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+  }: IChildrenProps) => {
+    const text = `${rowIndex}x${columnIndex}`;
+    const fillColor = "#eee";
+    return (
+      <>
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill={fillColor}
+          stroke={cellStrokeColor}
+          strokeWidth={0.5}
+        />
+      </>
+    );
+  };
+  const App = () => {
+    const [treeState, setTreeState] = useState({ open: [] });
+    const initialData = [
+      {
+        VPivot: "AUD",
+        text: "AUD",
+        Delta: 0.2012312312,
+        parent: "",
+        leaf: false,
+        kids: true,
+        depth: 0,
+      },
+      {
+        VPivot: "AUD__1Y",
+        text: "1Y",
+        Delta: 12.02,
+        parent: "AUD",
+        leaf: true,
+        kids: true,
+        depth: 1,
+      },
+      {
+        VPivot: "AUD__1Y___Hello",
+        text: "Hello",
+        Delta: 12.02,
+        parent: "AUD__1Y",
+        leaf: true,
+        kids: false,
+        depth: 2,
+      },
+    ];
+
+    const headers = [
+      {
+        name: "VPivot",
+        headers: ["VPivot"],
+      },
+      {
+        name: "Delta",
+        headers: ["Delta"],
+      },
+    ];
+
+    const data = initialData.filter((item) => {
+      return item.parent === "" || treeState.open.includes(item.parent);
+    });
+    const gridRef = useRef();
+    const [hoveredCell, setHoveredCell] = useState({
+      rowIndex: 0,
+      columnIndex: 0,
+    });
+    const { selection, ...selectionProps } = useSelection({ gridRef });
+    const mergedCells = [
+      {
+        top: 0,
+        left: 1,
+        right: 2,
+        bottom: 0,
+      },
+    ];
+    const onToggleNode = useCallback((id, isOpen) => {
+      setTreeState((prev) => {
+        return {
+          ...prev,
+          open: isOpen
+            ? prev.open.concat(id)
+            : prev.open.filter((item) => item !== id),
+        };
+      });
+    }, []);
+
+    return (
+      <Grid
+        ref={gridRef}
+        width={width}
+        height={height}
+        columnCount={headers.length + 1}
+        rowCount={200}
+        selection={selection}
+        frozenRows={frozenRows}
+        frozenColumns={1}
+        // mergedCells={mergedCells}
+        columnWidth={(index) => {
+          return 150;
+        }}
+        onMouseMove={(_, rowIndex, columnIndex) =>
+          setHoveredCell({ rowIndex, columnIndex })
+        }
+        itemRenderer={(props) => {
+          if (props.rowIndex < frozenRows && props.columnIndex < frozenColumns)
+            return <EmptyCell {...props} />;
+          if (props.rowIndex < frozenRows)
+            return <RowHeader headers={headers} {...props} />;
+          if (props.columnIndex < frozenColumns)
+            return (
+              <ColumnHeader
+                treeState={treeState}
+                data={data}
+                headers={headers}
+                onToggleNode={onToggleNode}
+                {...props}
+              />
+            );
+          return (
+            <Cell
+              frozenRows={frozenRows}
+              data={data}
+              headers={headers}
+              {...props}
+            />
+          );
+        }}
+        rowHeight={(index) => {
+          return 20;
+        }}
+        {...selectionProps}
+      />
     );
   };
 
