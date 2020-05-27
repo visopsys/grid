@@ -28,7 +28,7 @@ const useSelection = (options: IOptions = {}) => {
     );
 
     /* To cater to merged Cells, get the bounds from internal fn */
-    const bounds = gridRef.current.getCellBounds(rowIndex, columnIndex);
+    const bounds = gridRef.current.getCellBounds({ rowIndex, columnIndex });
 
     /**
      * Save the initial Selection in ref
@@ -60,7 +60,7 @@ const useSelection = (options: IOptions = {}) => {
       } = gridRef.current.getCellCoordsFromOffsets(e.clientX, e.clientY);
 
       /* Get new bounds */
-      const bounds = gridRef.current.getCellBounds(rowIndex, columnIndex);
+      const bounds = gridRef.current.getCellBounds({ rowIndex, columnIndex });
 
       setSelections((prevSelection) => {
         return prevSelection.map((selection) => {

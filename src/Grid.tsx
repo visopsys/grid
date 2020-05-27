@@ -47,41 +47,6 @@ export interface IProps {
   frozenColumns: number;
   itemRenderer: (props: IChildrenProps) => React.ReactNode;
   onViewChange: (view: IView) => void;
-  // onMouseDown: (
-  //   e: React.MouseEvent<HTMLElement>,
-  //   rowIndex: number,
-  //   columnIndex: number
-  // ) => void;
-  // onMouseUp: (
-  //   e: React.MouseEvent<HTMLElement>,
-  //   rowIndex: number,
-  //   columnIndex: number
-  // ) => void;
-  // onMouseMove: (
-  //   e: React.MouseEvent<HTMLElement>,
-  //   rowIndex: number,
-  //   columnIndex: number
-  // ) => void;
-  // onMouseEnter: (
-  //   e: React.MouseEvent<HTMLElement>,
-  //   rowIndex: number,
-  //   columnIndex: number
-  // ) => void;
-  // onMouseLeave: (
-  //   e: React.MouseEvent<HTMLElement>,
-  //   rowIndex: number,
-  //   columnIndex: number
-  // ) => void;
-  // onClick: (
-  //   e: React.MouseEvent<HTMLElement>,
-  //   rowIndex: number,
-  //   columnIndex: number
-  // ) => void;
-  // onDoubleClick: (
-  //   e: React.MouseEvent<HTMLElement>,
-  //   rowIndex: number,
-  //   columnIndex: number
-  // ) => void;
 }
 
 export type TScrollCoords = {
@@ -165,7 +130,7 @@ export interface IRef {
   resetAfterIndices: (coords: ICell) => void;
   getScrollPosition: () => TScrollCoords;
   isMergedCell: (coords: ICell) => boolean;
-  getCellBounds: (rowIndex: number, columnindex: number) => IArea;
+  getCellBounds: (coords: ICell) => IArea;
   getCellCoordsFromOffsets: (x: number, y: number) => ICell;
   getCellOffsetFromCoords: (coords: ICell) => IPosition;
 }
@@ -291,7 +256,7 @@ const Grid: React.FC<IProps> = memo(
 
     /* Get top, left bounds of a cell */
     const getCellBounds = useCallback(
-      (rowIndex: number, columnIndex: number): IArea | undefined => {
+      ({ rowIndex, columnIndex }: ICell): IArea | undefined => {
         const isMerged = isMergedCell(rowIndex, columnIndex);
         if (isMerged)
           return mergedCellMap.get(cellIndentifier(rowIndex, columnIndex));
