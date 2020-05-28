@@ -804,7 +804,7 @@ GridWithFrozenColumns.story = {
 
 export const GridWithFrozenEdges: React.FC = () => {
   const frozenRows = number("frozenRows", 1);
-  const frozenColumns = number("frozenColumns", 1);
+  const frozenColumns = number("frozenColumns", 2);
   const width = number("width", 900);
   const height = number("height", 600);
   const Cell = ({
@@ -840,23 +840,32 @@ export const GridWithFrozenEdges: React.FC = () => {
       </>
     );
   };
-  return (
-    <Grid
-      width={width}
-      height={height}
-      columnCount={200}
-      rowCount={200}
-      frozenColumns={frozenColumns}
-      frozenRows={frozenRows}
-      columnWidth={(index) => {
-        return 100;
-      }}
-      rowHeight={(index) => {
-        return 20;
-      }}
-      itemRenderer={Cell}
-    />
-  );
+  const App = () => {
+    const gridRef = useRef();
+    const { selection, ...selectionProps } = useSelection({ gridRef });
+    return (
+      <Grid
+        ref={gridRef}
+        selection={selection}
+        width={width}
+        height={height}
+        columnCount={200}
+        rowCount={200}
+        frozenColumns={frozenColumns}
+        frozenRows={frozenRows}
+        columnWidth={(index) => {
+          return 100;
+        }}
+        rowHeight={(index) => {
+          return 20;
+        }}
+        itemRenderer={Cell}
+        {...selectionProps}
+      />
+    );
+  };
+
+  return <App />;
 };
 
 GridWithFrozenEdges.story = {
@@ -989,11 +998,7 @@ export const TreeTable: React.FC = () => {
     const paddingLeft = 8 + 12 * (depth || 0);
     const arrowWidth = 8;
     return (
-      <Group
-        onClick={() =>
-          hasKids && onToggleNode(data[rowIndex - frozenRows].VPivot, !isOpen)
-        }
-      >
+      <Group>
         <Rect
           x={x}
           y={y}
@@ -1011,6 +1016,10 @@ export const TreeTable: React.FC = () => {
             radius={5}
             rotation={isOpen ? 180 : 90}
             fill={textColor}
+            onClick={() =>
+              onToggleNode(data[rowIndex - frozenRows].VPivot, !isOpen)
+            }
+            hitStrokeWidth={20}
           />
         )}
         {text && (

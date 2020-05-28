@@ -699,6 +699,34 @@ const Grid: React.FC<IProps> = memo(
       []
     );
 
+    /* Find frozen column boundary */
+    const isWithinFrozenColumnBoundary = (x: number) => {
+      return (
+        frozenColumns > 0 &&
+        x <
+          getColumnOffset({
+            index: frozenColumns,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          })
+      );
+    };
+
+    /* Find frozen row boundary */
+    const isWithinFrozenRowBoundary = (y: number) => {
+      return (
+        frozenRows > 0 &&
+        y <
+          getRowOffset({
+            index: frozenRows,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          })
+      );
+    };
+
     /**
      * Get cell cordinates from current mouse x/y positions
      */
@@ -710,7 +738,7 @@ const Grid: React.FC<IProps> = memo(
           rowCount,
           columnCount,
           instanceProps: instanceProps.current,
-          offset: y + scrollTop,
+          offset: isWithinFrozenRowBoundary(y) ? y : y + scrollTop,
         });
         const columnIndex = getColumnStartIndexForOffset({
           rowHeight,
@@ -718,7 +746,7 @@ const Grid: React.FC<IProps> = memo(
           rowCount,
           columnCount,
           instanceProps: instanceProps.current,
-          offset: x + scrollLeft,
+          offset: isWithinFrozenColumnBoundary(x) ? x : x + scrollLeft,
         });
 
         return { rowIndex, columnIndex };
@@ -745,8 +773,10 @@ const Grid: React.FC<IProps> = memo(
                 {frozenIntersectionCells}
               </Group>
             </Layer>
-            <Layer listening={false} offsetY={scrollTop} offsetX={scrollLeft}>
-              {selectionAreas}
+            <Layer listening={false}>
+              <Group offsetY={scrollTop} offsetX={scrollLeft} listening={false}>
+                {selectionAreas}
+              </Group>
             </Layer>
           </Stage>
         </div>
