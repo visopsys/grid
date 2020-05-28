@@ -907,16 +907,7 @@ export const GridWithFrozenEdges: React.FC = () => {
   };
   const App = () => {
     const gridRef = useRef();
-    const initialSelections = [
-      {
-        left: 0,
-        right: 5,
-        top: 0,
-        bottom: 5,
-      },
-    ];
     const { selection, ...selectionProps } = useSelection({
-      initialSelections,
       gridRef,
     });
     return (
