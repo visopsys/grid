@@ -49,7 +49,7 @@ const useSelection = (options: IOptions = {}) => {
       if (!isSelectionMode.current || !gridRef) return;
 
       /* Get the current selection */
-      const _selectionStart = selectionStart.current as IArea;
+      const _selectionStart = selectionStart.current;
 
       /* Exit early */
       if (!_selectionStart) return;

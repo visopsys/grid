@@ -104,7 +104,6 @@ export const FullWidthGrid: React.FC = () => {
   };
   const App = () => {
     const [containerRef, { width, height }] = useMeasure();
-    console.log("width", width);
     return (
       <div
         style={{
@@ -908,7 +907,18 @@ export const GridWithFrozenEdges: React.FC = () => {
   };
   const App = () => {
     const gridRef = useRef();
-    const { selection, ...selectionProps } = useSelection({ gridRef });
+    const initialSelections = [
+      {
+        left: 0,
+        right: 5,
+        top: 0,
+        bottom: 5,
+      },
+    ];
+    const { selection, ...selectionProps } = useSelection({
+      initialSelections,
+      gridRef,
+    });
     return (
       <Grid
         ref={gridRef}

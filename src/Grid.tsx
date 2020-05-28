@@ -615,11 +615,18 @@ const Grid: React.FC<IProps> = memo(
      * Dependencies : [selections, rowStopIndex, columnStopIndex, instanceProps]
      */
     const selectionAreas = [];
+    const selectionAreasFrozenColumns = [];
+    const selectionAreasFrozenRows = [];
+    const selectionAreasIntersection = [];
     for (let i = 0; i < selections.length; i++) {
       const { top, left, right, bottom } = selections[i];
       const selectionBounds = { x: 0, y: 0, width: 0, height: 0 };
       const actualBottom = Math.min(rowStopIndex, bottom);
       const actualRight = Math.min(columnStopIndex, right);
+      const isLeftBoundFrozen = left < frozenColumns;
+      const isTopBoundFrozen = top < frozenRows;
+      const isIntersectionFrozen = top < frozenRows && left < frozenColumns;
+
       selectionBounds.y = getRowOffset({
         index: top,
         rowHeight,
@@ -652,6 +659,94 @@ const Grid: React.FC<IProps> = memo(
         }) -
         selectionBounds.x +
         getColumnWidth(actualRight, instanceProps.current);
+
+      if (isLeftBoundFrozen) {
+        const frozenColumnSelectionWidth = Math.min(
+          selectionBounds.width,
+          getColumnOffset({
+            index: frozenColumns - left,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          })
+        );
+        selectionAreasFrozenColumns.push(
+          <Rect
+            key={i}
+            stroke={selectionBorderColor}
+            x={selectionBounds.x}
+            y={selectionBounds.y}
+            width={frozenColumnSelectionWidth}
+            height={selectionBounds.height}
+            fill={selectionBackgroundColor}
+            shadowForStrokeEnabled={false}
+            listening={false}
+            hitStrokeWidth={0}
+          />
+        );
+      }
+
+      if (isTopBoundFrozen) {
+        const frozenRowSelectionHeight = Math.min(
+          selectionBounds.height,
+          getRowOffset({
+            index: frozenRows - top,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          })
+        );
+        selectionAreasFrozenRows.push(
+          <Rect
+            key={i}
+            stroke={selectionBorderColor}
+            x={selectionBounds.x}
+            y={selectionBounds.y}
+            width={selectionBounds.width}
+            height={frozenRowSelectionHeight}
+            fill={selectionBackgroundColor}
+            shadowForStrokeEnabled={false}
+            listening={false}
+            hitStrokeWidth={0}
+          />
+        );
+      }
+
+      if (isIntersectionFrozen) {
+        const frozenIntersectionSelectionHeight = Math.min(
+          selectionBounds.height,
+          getRowOffset({
+            index: frozenRows - top,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          })
+        );
+
+        const frozenIntersectionSelectionWidth = Math.min(
+          selectionBounds.width,
+          getColumnOffset({
+            index: frozenColumns - left,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          })
+        );
+        selectionAreasIntersection.push(
+          <Rect
+            key={i}
+            stroke={selectionBorderColor}
+            x={selectionBounds.x}
+            y={selectionBounds.y}
+            width={frozenIntersectionSelectionWidth}
+            height={frozenIntersectionSelectionHeight}
+            fill={selectionBackgroundColor}
+            shadowForStrokeEnabled={false}
+            listening={false}
+            hitStrokeWidth={0}
+          />
+        );
+      }
 
       selectionAreas.push(
         <Rect
@@ -763,19 +858,29 @@ const Grid: React.FC<IProps> = memo(
                 {cells}
                 {mergedCellAreas}
               </Group>
+            </Layer>
+
+            <Layer>
+              <Group offsetY={scrollTop} offsetX={scrollLeft} listening={false}>
+                {selectionAreas}
+              </Group>
               <Group offsetY={scrollTop} offsetX={0}>
                 {frozenColumnCells}
+              </Group>
+              <Group offsetY={scrollTop} offsetX={0} listening={false}>
+                {selectionAreasFrozenColumns}
               </Group>
               <Group offsetY={0} offsetX={scrollLeft}>
                 {frozenRowCells}
               </Group>
+              <Group offsetY={0} offsetX={scrollLeft} listening={false}>
+                {selectionAreasFrozenRows}
+              </Group>
               <Group offsetY={0} offsetX={0}>
                 {frozenIntersectionCells}
               </Group>
-            </Layer>
-            <Layer listening={false}>
-              <Group offsetY={scrollTop} offsetX={scrollLeft} listening={false}>
-                {selectionAreas}
+              <Group offsetY={0} offsetX={0} listening={false}>
+                {selectionAreasIntersection}
               </Group>
             </Layer>
           </Stage>
