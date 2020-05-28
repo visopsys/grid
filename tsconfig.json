@@ -5,7 +5,7 @@
     "declaration": true,
     "module": "commonjs",
     "noImplicitAny": true,
-    "target": "esnext",
+    "target": "es6",
     "moduleResolution": "node",
     "jsx": "react",
     "skipLibCheck": true,
