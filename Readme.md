@@ -1,6 +1,6 @@
 ## Declarative Canvas Grid with React Konva
 
-Canvas table grid to render large set of tabular data. Uses virtualization similar to `react-window`. 
+Canvas table grid to render large set of tabular data. Uses virtualization similar to `react-window` and [React-Konva](https://github.com/konvajs/react-konva/) for primitives such as Rect, Text, Shape etc
 
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![Build Status](https://travis-ci.org/rmdort/konva-grid.svg?branch=master)](https://travis-ci.org/rmdort/konva-grid)
 
