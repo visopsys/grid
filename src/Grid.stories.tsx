@@ -868,7 +868,7 @@ GridWithFrozenColumns.story = {
 };
 
 export const GridWithFrozenEdges: React.FC = () => {
-  const frozenRows = number("frozenRows", 1);
+  const frozenRows = number("frozenRows", 2);
   const frozenColumns = number("frozenColumns", 2);
   const width = number("width", 900);
   const height = number("height", 600);

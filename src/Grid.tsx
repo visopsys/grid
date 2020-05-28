@@ -438,12 +438,24 @@ const Grid: React.FC<IProps> = memo(
     }
 
     /* Draw merged cells */
-    const mergedCellAreas = useMemo(() => {
+    const [
+      mergedCellAreas,
+      frozenColumnMergedCellAreas,
+      frozenRowMergedCellAreas,
+      frozenIntersectionMergedCells,
+    ] = useMemo(() => {
       const areas = [];
+      const frozenColumnAreas = [];
+      const frozenRowAreas = [];
+      const frozenIntersectionCells = [];
       for (let i = 0; i < mergedCells.length; i++) {
         const { top: rowIndex, left: columnIndex, right, bottom } = mergedCells[
           i
         ];
+        const isLeftBoundFrozen = columnIndex < frozenColumns;
+        const isTopBoundFrozen = rowIndex < frozenRows;
+        const isIntersectionFrozen =
+          rowIndex < frozenRows && columnIndex < frozenColumns;
         const x = getColumnOffset({
           index: columnIndex,
           rowHeight,
@@ -471,19 +483,34 @@ const Grid: React.FC<IProps> = memo(
             instanceProps: instanceProps.current,
           }) - y;
 
-        areas.push(
-          itemRenderer({
-            x,
-            y,
-            width,
-            height,
-            rowIndex,
-            columnIndex,
-            key: itemKey({ rowIndex, columnIndex }),
-          })
-        );
+        const cellRenderer = itemRenderer({
+          x,
+          y,
+          width,
+          height,
+          rowIndex,
+          columnIndex,
+          key: itemKey({ rowIndex, columnIndex }),
+        });
+
+        if (isLeftBoundFrozen) {
+          frozenColumnAreas.push(cellRenderer);
+        }
+
+        if (isTopBoundFrozen) {
+          frozenRowAreas.push(cellRenderer);
+        }
+
+        if (isIntersectionFrozen) [frozenIntersectionCells.push(cellRenderer)];
+
+        areas.push(cellRenderer);
       }
-      return areas;
+      return [
+        areas,
+        frozenColumnAreas,
+        frozenRowAreas,
+        frozenIntersectionCells,
+      ];
     }, [
       mergedCells,
       rowStartIndex,
@@ -866,18 +893,21 @@ const Grid: React.FC<IProps> = memo(
               </Group>
               <Group offsetY={scrollTop} offsetX={0}>
                 {frozenColumnCells}
+                {frozenColumnMergedCellAreas}
               </Group>
               <Group offsetY={scrollTop} offsetX={0} listening={false}>
                 {selectionAreasFrozenColumns}
               </Group>
               <Group offsetY={0} offsetX={scrollLeft}>
                 {frozenRowCells}
+                {frozenRowMergedCellAreas}
               </Group>
               <Group offsetY={0} offsetX={scrollLeft} listening={false}>
                 {selectionAreasFrozenRows}
               </Group>
               <Group offsetY={0} offsetX={0}>
                 {frozenIntersectionCells}
+                {frozenIntersectionMergedCells}
               </Group>
               <Group offsetY={0} offsetX={0} listening={false}>
                 {selectionAreasIntersection}
