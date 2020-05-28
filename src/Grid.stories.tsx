@@ -4,6 +4,7 @@ import Grid, { IChildrenProps } from "./Grid";
 import useSelection from "./hooks/useSelection";
 import useEditable from "./hooks/useEditable";
 import useAutoSizer from "./hooks/useAutoSizer";
+import { useMeasure } from "react-use";
 import { Layer, Rect, Text, Group, RegularPolygon } from "react-konva";
 import { number } from "@storybook/addon-knobs";
 
@@ -62,6 +63,71 @@ export const BaseGrid: React.FC = () => {
           return 20;
         }}
       />
+    );
+  };
+
+  return <App />;
+};
+
+export const FullWidthGrid: React.FC = () => {
+  const Cell = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+  }: IChildrenProps) => {
+    const text = `${rowIndex}x${columnIndex}`;
+    return (
+      <>
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill="white"
+          stroke="grey"
+          strokeWidth={0.5}
+        />
+        <Text
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          text={text}
+          verticalAlign="middle"
+          align="center"
+        />
+      </>
+    );
+  };
+  const App = () => {
+    const [containerRef, { width, height }] = useMeasure();
+    console.log("width", width);
+    return (
+      <div
+        style={{
+          flex: 1,
+          width: "100%",
+          height: 600,
+        }}
+        ref={containerRef}
+      >
+        <Grid
+          width={width}
+          height={height}
+          columnCount={200}
+          rowCount={200}
+          columnWidth={(index) => {
+            return 100;
+          }}
+          itemRenderer={(props) => <Cell {...props} />}
+          rowHeight={(index) => {
+            return 20;
+          }}
+        />
+      </div>
     );
   };
 
