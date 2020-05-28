@@ -102,6 +102,7 @@ const useEditable = ({
   const [activeCell, setActiveCell] = useState<ICell | null>(null);
   const [value, setValue] = useState<string>("");
   const getValueRef = useRef(getValue);
+  const wheelingRef = useRef<number | null>(null);
   const [position, setPosition] = useState<IPosition>({
     x: 0,
     y: 0,
@@ -129,8 +130,15 @@ const useEditable = ({
     setValue(getValueRef.current<string>(activeCell) || "");
     setPosition(pos);
   }, []);
+
   /* Save scroll position to align the input */
-  const handleScroll = useCallback(setScrollPosition, []);
+  const handleScroll = useCallback((position: TScrollCoords) => {
+    if (wheelingRef.current) return;
+    wheelingRef.current = window.requestAnimationFrame(() => {
+      wheelingRef.current = null;
+      setScrollPosition(position);
+    });
+  }, []);
 
   /* Save the value */
   const handleSubmit = useCallback(() => {
