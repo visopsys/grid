@@ -1058,7 +1058,7 @@ export const TreeTable: React.FC = () => {
         : null;
     const hasKids = datapoint && datapoint.kids;
     const isOpen = data[rowIndex - frozenRows]
-      ? treeState.open.includes(data[rowIndex - frozenRows].VPivot)
+      ? treeState.open.includes(data[rowIndex - frozenRows].id)
       : false;
     const depth = data[rowIndex - frozenRows]?.depth;
     const paddingLeft = 8 + 12 * (depth || 0);
@@ -1083,7 +1083,7 @@ export const TreeTable: React.FC = () => {
             rotation={isOpen ? 180 : 90}
             fill={textColor}
             onClick={() =>
-              onToggleNode(data[rowIndex - frozenRows].VPivot, !isOpen)
+              onToggleNode(data[rowIndex - frozenRows].id, !isOpen)
             }
             hitStrokeWidth={20}
           />
@@ -1226,7 +1226,7 @@ export const TreeTable: React.FC = () => {
     const [treeState, setTreeState] = useState({ open: [] });
     const initialData = [
       {
-        VPivot: "Parent",
+        id: "Parent",
         text: "Parent",
         Aggregate: 0.2012312312,
         parent: "",
@@ -1235,7 +1235,7 @@ export const TreeTable: React.FC = () => {
         depth: 0,
       },
       {
-        VPivot: "Child",
+        id: "Parent_Child",
         text: "Child",
         Aggregate: 12.02,
         parent: "Parent",
@@ -1244,10 +1244,10 @@ export const TreeTable: React.FC = () => {
         depth: 1,
       },
       {
-        VPivot: "Grandchild",
+        id: "Parent_Child_GrandChild",
         text: "Grandchild",
         Aggregate: 12.02,
-        parent: "Child",
+        parent: "Parent_Child",
         leaf: true,
         kids: false,
         depth: 2,
@@ -1256,8 +1256,8 @@ export const TreeTable: React.FC = () => {
 
     const headers = [
       {
-        name: "VPivot",
-        headers: ["VPivot"],
+        name: "id",
+        headers: ["id"],
       },
       {
         name: "Aggregate",
@@ -1266,7 +1266,19 @@ export const TreeTable: React.FC = () => {
     ];
 
     const data = initialData.filter((item) => {
-      return item.parent === "" || treeState.open.includes(item.parent);
+      const grandParents = item.parent
+        .split("_")
+        .reduce((acc, item, index, arr) => {
+          let prev = arr[index - 1] ? arr[index - 1] + "_" : "";
+          acc.push(prev + item);
+          return acc;
+        }, []);
+      if (!item.parent) return true;
+      const isAnyParentsClosed = grandParents.some(
+        (id) => !treeState.open.includes(id)
+      );
+      if (isAnyParentsClosed) return false;
+      return treeState.open.includes(item.parent);
     });
     const gridRef = useRef();
     const [hoveredCell, setHoveredCell] = useState({
