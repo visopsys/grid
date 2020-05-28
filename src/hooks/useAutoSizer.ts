@@ -14,7 +14,7 @@ interface IProps {
   initialVisibleRows?: number;
 }
 
-interface IOut {
+interface AutoResizerResults {
   columnWidth: TItemSize;
   onViewChange: (cells: IView) => void;
 }
@@ -31,7 +31,7 @@ const useAutoSizer = ({
   gridRef,
   getValue,
   initialVisibleRows = 20,
-}: IProps) => {
+}: IProps): AutoResizerResults => {
   const autoSizer = useRef(AutoSizerCanvas());
   const [viewport, setViewport] = useState<IView>({
     rowStartIndex: 0,
@@ -39,6 +39,12 @@ const useAutoSizer = ({
     columnStartIndex: 0,
     columnStopIndex: 0,
   });
+
+  /* Update any styles, fonts if necessary */
+  useEffect(() => {
+    autoSizer.current.setFont();
+  }, []);
+
   const getValueRef = useRef(getValue);
   /* Keep it in sync */
   getValueRef.current = getValue;
@@ -74,13 +80,14 @@ const useAutoSizer = ({
 const AutoSizerCanvas = () => {
   const canvas = <HTMLCanvasElement>document.createElement("canvas");
   const context = canvas.getContext("2d");
-  context.font = "12px Arial";
   return {
     context,
     measureText: (text) => {
       return context.measureText(text);
     },
-    setFont: () => {},
+    setFont: (font: string = "12px Arial") => {
+      context.font = font;
+    },
   };
 };
 

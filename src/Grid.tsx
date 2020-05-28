@@ -891,19 +891,19 @@ const Grid: React.FC<IProps> = memo(
               <Group offsetY={scrollTop} offsetX={scrollLeft} listening={false}>
                 {selectionAreas}
               </Group>
-              <Group offsetY={scrollTop} offsetX={0}>
-                {frozenColumnCells}
-                {frozenColumnMergedCellAreas}
-              </Group>
-              <Group offsetY={scrollTop} offsetX={0} listening={false}>
-                {selectionAreasFrozenColumns}
-              </Group>
               <Group offsetY={0} offsetX={scrollLeft}>
                 {frozenRowCells}
                 {frozenRowMergedCellAreas}
               </Group>
               <Group offsetY={0} offsetX={scrollLeft} listening={false}>
                 {selectionAreasFrozenRows}
+              </Group>
+              <Group offsetY={scrollTop} offsetX={0}>
+                {frozenColumnCells}
+                {frozenColumnMergedCellAreas}
+              </Group>
+              <Group offsetY={scrollTop} offsetX={0} listening={false}>
+                {selectionAreasFrozenColumns}
               </Group>
               <Group offsetY={0} offsetX={0}>
                 {frozenIntersectionCells}
