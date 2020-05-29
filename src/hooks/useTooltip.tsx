@@ -1,20 +1,20 @@
 import React, { useCallback, useState, useMemo } from "react";
-import { ICell, TGridRef } from "../Grid";
+import { CellInterface, GridMutableRef } from "../Grid";
 
-interface IProps {
-  getTooltipComponent: (cell?: ICell | null) => React.ElementType;
-  gridRef: TGridRef;
-  getValue: <T>(cell: ICell) => T;
-  onChange: <T>(value: T, coords: ICell) => void;
+export interface TooltipOptions {
+  getTooltipComponent: (cell?: CellInterface | null) => React.ElementType;
+  gridRef: GridMutableRef;
+  getValue: <T>(cell: CellInterface) => T;
+  onChange: <T>(value: T, coords: CellInterface) => void;
 }
 
-interface IResult {
+export interface TooltipResults {
   tooltipComponent: React.ReactNode;
   onMouseMove: (e: React.MouseEvent<HTMLInputElement>) => void;
   onMouseLeave: (e: React.MouseEvent<HTMLInputElement>) => void;
 }
 
-interface TooltipProps {
+export interface TooltipProps {
   content: string;
   x: number;
   y: number;
@@ -39,14 +39,15 @@ const defaultTooltipComponent: React.FC<TooltipProps> = ({ content, x, y }) => {
     </div>
   );
 };
-const getDefaultTooltipComponent = (cell: ICell) => defaultTooltipComponent;
+const getDefaultTooltipComponent = (cell: CellInterface) =>
+  defaultTooltipComponent;
 
 const useTooltip = ({
   getValue,
   gridRef,
   getTooltipComponent = getDefaultTooltipComponent,
-}: IProps): IResult => {
-  const [activeCell, setActiveCell] = useState<ICell | null>(null);
+}: TooltipOptions): TooltipResults => {
+  const [activeCell, setActiveCell] = useState<CellInterface | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<
     Pick<TooltipProps, "x" | "y">
   >({ x: 0, y: 0 });

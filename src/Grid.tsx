@@ -10,13 +10,7 @@ import React, {
   useEffect,
   Key,
 } from "react";
-import {
-  Stage,
-  Layer,
-  Rect,
-  Group,
-  KonvaNodeComponent,
-} from "react-konva/lib/ReactKonvaCore";
+import { Stage, Layer, Rect, Group } from "react-konva/lib/ReactKonvaCore";
 import {
   getRowStartIndexForOffset,
   getRowStopIndexForStartIndex,
@@ -34,38 +28,38 @@ import {
 } from "./helpers";
 import { ShapeConfig } from "konva/types/Shape";
 
-export interface IProps {
+export interface GridProps {
   width: number;
   height: number;
   columnCount: number;
   rowCount: number;
-  rowHeight: TItemSize;
-  columnWidth: TItemSize;
+  rowHeight: ItemSizer;
+  columnWidth: ItemSizer;
   children: RenderComponent;
   scrollbarSize: number;
   estimatedColumnWidth?: number;
   estimatedRowHeight?: number;
-  onScroll: ({ scrollLeft, scrollTop }: TScrollCoords) => void;
+  onScroll: ({ scrollLeft, scrollTop }: ScrollCoords) => void;
   showScrollbar: boolean;
   selectionBackgroundColor: string;
   selectionBorderColor: string;
-  selections: IArea[];
-  mergedCells: IArea[];
+  selections: AreaProps[];
+  mergedCells: AreaProps[];
   frozenRows: number;
   frozenColumns: number;
-  itemRenderer: (props: IChildrenProps) => React.ReactNode;
-  selectionRenderer: (props: ISelectionProps) => React.ReactNode;
-  onViewChange: (view: IView) => void;
+  itemRenderer: (props: RendererProps) => React.ReactNode;
+  selectionRenderer: (props: SelectionProps) => React.ReactNode;
+  onViewChange: (view: ViewPortProps) => void;
 }
 
-interface ISelectionProps extends ShapeConfig {}
+export interface SelectionProps extends ShapeConfig {}
 
-export type TScrollCoords = {
+export type ScrollCoords = {
   scrollTop: number;
   scrollLeft: number;
 };
 
-export type TForceUpdate = {
+export type ForceUpdateType = {
   shouldForceUpdate: boolean;
 };
 
@@ -86,7 +80,7 @@ const defaultProps = {
   mergedCells: [],
   frozenRows: 0,
   frozenColumns: 0,
-  selectionRenderer: (props: ISelectionProps) => {
+  selectionRenderer: (props: SelectionProps) => {
     return (
       <Rect
         shadowForStrokeEnabled={false}
@@ -98,67 +92,67 @@ const defaultProps = {
   },
 };
 
-export type RenderComponent = React.FC<IChildrenProps>;
-export interface IPosition {
+export type RenderComponent = React.FC<RendererProps>;
+export interface CellPosition {
   x: number;
   y: number;
   width: number;
   height: number;
 }
-export interface IChildrenProps extends ICell, ShapeConfig {
+export interface RendererProps extends CellInterface, ShapeConfig {
   key: string;
 }
 
-export type TItemSize = (index?: number) => number;
+export type ItemSizer = (index?: number) => number;
 
-export interface IArea {
+export interface AreaProps {
   top: number;
   bottom: number;
   left: number;
   right: number;
 }
 
-export interface ICell {
+export interface CellInterface {
   rowIndex: number;
   columnIndex: number;
 }
 
-export interface IView {
+export interface ViewPortProps {
   rowStartIndex: number;
   rowStopIndex: number;
   columnStartIndex: number;
   columnStopIndex: number;
 }
 
-export interface IInstanceProps {
-  columnMetadataMap: TCellMetaDataMap;
-  rowMetadataMap: TCellMetaDataMap;
+export interface InstanceInterface {
+  columnMetadataMap: CellMetaDataMap;
+  rowMetadataMap: CellMetaDataMap;
   lastMeasuredColumnIndex: number;
   lastMeasuredRowIndex: number;
   estimatedRowHeight: number;
   estimatedColumnWidth: number;
 }
 
-export type TCellMetaDataMap = Record<number, TCellMetaData>;
-export type TCellMetaData = {
+export type CellMetaDataMap = Record<number, CellMetaData>;
+export type CellMetaData = {
   offset: number;
   size: number;
 };
 
-export interface IRef {
-  scrollTo: (scrollPosition: TScrollCoords) => void;
+export interface GridRef {
+  scrollTo: (scrollPosition: ScrollCoords) => void;
   stage: typeof Stage;
-  resetAfterIndices: (coords: ICell) => void;
-  getScrollPosition: () => TScrollCoords;
-  isMergedCell: (coords: ICell) => boolean;
-  getCellBounds: (coords: ICell) => IArea;
-  getCellCoordsFromOffset: (x: number, y: number) => ICell;
-  getCellOffsetFromCoords: (coords: ICell) => IPosition;
+  resetAfterIndices: (coords: CellInterface) => void;
+  getScrollPosition: () => ScrollCoords;
+  isMergedCell: (coords: CellInterface) => boolean;
+  getCellBounds: (coords: CellInterface) => AreaProps;
+  getCellCoordsFromOffset: (x: number, y: number) => CellInterface;
+  getCellOffsetFromCoords: (coords: CellInterface) => CellPosition;
 }
 
-export type TGridRef = React.MutableRefObject<IRef>;
+export type GridMutableRef = React.MutableRefObject<GridRef>;
 
-export type MergedCellMap = Map<string, IArea>;
+export type MergedCellMap = Map<string, AreaProps>;
 
 const DEFAULT_ESTIMATED_ITEM_SIZE = 50;
 
@@ -166,7 +160,7 @@ const DEFAULT_ESTIMATED_ITEM_SIZE = 50;
  * Grid component using React Konva
  * @param props
  */
-const Grid: React.FC<IProps> = memo(
+const Grid: React.FC<GridProps> = memo(
   forwardRef((props, forwardedRef) => {
     const {
       width: containerWidth,
@@ -204,7 +198,7 @@ const Grid: React.FC<IProps> = memo(
         getCellOffsetFromCoords,
       };
     });
-    const instanceProps = useRef<IInstanceProps>({
+    const instanceProps = useRef<InstanceInterface>({
       columnMetadataMap: {},
       rowMetadataMap: {},
       lastMeasuredColumnIndex: -1,
@@ -233,7 +227,7 @@ const Grid: React.FC<IProps> = memo(
         columnIndex,
         rowIndex,
         shouldForceUpdate = true,
-      }: ICell & TForceUpdate) => {
+      }: CellInterface & ForceUpdateType) => {
         if (typeof columnIndex === "number") {
           instanceProps.current.lastMeasuredColumnIndex = Math.min(
             instanceProps.current.lastMeasuredColumnIndex,
@@ -278,7 +272,7 @@ const Grid: React.FC<IProps> = memo(
 
     /* Get top, left bounds of a cell */
     const getCellBounds = useCallback(
-      ({ rowIndex, columnIndex }: ICell): IArea | undefined => {
+      ({ rowIndex, columnIndex }: CellInterface): AreaProps | undefined => {
         const isMerged = isMergedCell(rowIndex, columnIndex);
         if (isMerged)
           return mergedCellMap.get(cellIndentifier(rowIndex, columnIndex));
@@ -287,7 +281,7 @@ const Grid: React.FC<IProps> = memo(
           left: columnIndex,
           right: columnIndex,
           bottom: rowIndex,
-        } as IArea;
+        } as AreaProps;
       },
       [mergedCellMap]
     );
@@ -314,7 +308,7 @@ const Grid: React.FC<IProps> = memo(
 
     /* Scroll based on left, top position */
     const scrollTo = useCallback(
-      ({ scrollTop, scrollLeft }: TScrollCoords) => {
+      ({ scrollTop, scrollLeft }: ScrollCoords) => {
         /* If scrollbar is visible, lets update it which triggers a state change */
         if (showScrollbar) {
           if (horizontalScrollRef.current)
@@ -806,7 +800,7 @@ const Grid: React.FC<IProps> = memo(
      * Get cell offset position from rowIndex, columnIndex
      */
     const getCellOffsetFromCoords = useCallback(
-      ({ rowIndex, columnIndex }: ICell): IPosition => {
+      ({ rowIndex, columnIndex }: CellInterface): CellPosition => {
         const width = getColumnWidth(columnIndex, instanceProps.current);
         const x = getColumnOffset({
           index: columnIndex,
@@ -864,7 +858,7 @@ const Grid: React.FC<IProps> = memo(
      * Get cell cordinates from current mouse x/y positions
      */
     const getCellCoordsFromOffset = useCallback(
-      (x: number, y: number): ICell => {
+      (x: number, y: number): CellInterface => {
         const rowIndex = getRowStartIndexForOffset({
           rowHeight,
           columnWidth,

@@ -6,17 +6,22 @@ import React, {
   useRef,
   useEffect,
 } from "react";
-import { IView, TGridRef, ICell, TItemSize } from "./../Grid";
+import {
+  ViewPortProps,
+  GridMutableRef,
+  CellInterface,
+  ItemSizer,
+} from "./../Grid";
 
 interface IProps {
-  gridRef: TGridRef;
-  getValue: <T>(cell: ICell) => T;
+  gridRef: GridMutableRef;
+  getValue: <T>(cell: CellInterface) => T;
   initialVisibleRows?: number;
 }
 
 interface AutoResizerResults {
-  columnWidth: TItemSize;
-  onViewChange: (cells: IView) => void;
+  columnWidth: ItemSizer;
+  onViewChange: (cells: ViewPortProps) => void;
 }
 
 /**
@@ -33,7 +38,7 @@ const useAutoSizer = ({
   initialVisibleRows = 20,
 }: IProps): AutoResizerResults => {
   const autoSizer = useRef(AutoSizerCanvas());
-  const [viewport, setViewport] = useState<IView>({
+  const [viewport, setViewport] = useState<ViewPortProps>({
     rowStartIndex: 0,
     rowStopIndex: 0,
     columnStartIndex: 0,
@@ -66,7 +71,7 @@ const useAutoSizer = ({
     [viewport, initialVisibleRows]
   );
 
-  const handleViewChange = useCallback((cells: IView) => {
+  const handleViewChange = useCallback((cells: ViewPortProps) => {
     setViewport(cells);
   }, []);
 

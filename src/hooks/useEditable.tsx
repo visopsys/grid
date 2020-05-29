@@ -5,27 +5,32 @@ import React, {
   useState,
   useMemo,
 } from "react";
-import { ICell, TScrollCoords, IPosition, TGridRef } from "../Grid";
+import {
+  CellInterface,
+  ScrollCoords,
+  CellPosition,
+  GridMutableRef,
+} from "../Grid";
 
-interface IProps {
-  getEditor: (cell: ICell | null) => React.ElementType;
-  gridRef: TGridRef;
-  getValue: <T>(cell: ICell) => T;
-  onChange: <T>(value: T, coords: ICell) => void;
+export interface UseEditableOptions {
+  getEditor: (cell: CellInterface | null) => React.ElementType;
+  gridRef: GridMutableRef;
+  getValue: <T>(cell: CellInterface) => T;
+  onChange: <T>(value: T, coords: CellInterface) => void;
 }
 
-interface IEditable {
+export interface EditableResults {
   editorComponent: React.ReactNode;
   onDoubleClick: (e: React.MouseEvent<HTMLInputElement>) => void;
-  onScroll: (props: TScrollCoords) => void;
+  onScroll: (props: ScrollCoords) => void;
 }
 
-interface EditorProps extends ICell {
+export interface EditorProps extends CellInterface {
   onChange: <T>(value: T) => void;
   onSubmit: () => void;
   onHide: () => void;
-  scrollPosition: TScrollCoords;
-  position: IPosition;
+  scrollPosition: ScrollCoords;
+  position: CellPosition;
 }
 
 /**
@@ -81,7 +86,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
   );
 };
 
-const getDefaultEditor = (cell: ICell | null) => DefaultEditor;
+const getDefaultEditor = (cell: CellInterface | null) => DefaultEditor;
 
 /**
  * Hook to make grid editable
@@ -92,17 +97,17 @@ const useEditable = ({
   gridRef,
   getValue,
   onChange,
-}: IProps): IEditable => {
-  const [activeCell, setActiveCell] = useState<ICell | null>(null);
+}: UseEditableOptions): EditableResults => {
+  const [activeCell, setActiveCell] = useState<CellInterface | null>(null);
   const [value, setValue] = useState<string>("");
   const getValueRef = useRef(getValue);
-  const [position, setPosition] = useState<IPosition>({
+  const [position, setPosition] = useState<CellPosition>({
     x: 0,
     y: 0,
     width: 0,
     height: 0,
   });
-  const [scrollPosition, setScrollPosition] = useState<TScrollCoords>({
+  const [scrollPosition, setScrollPosition] = useState<ScrollCoords>({
     scrollLeft: 0,
     scrollTop: 0,
   });

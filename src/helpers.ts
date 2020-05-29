@@ -1,5 +1,11 @@
 // Utilities extracted from https://github.com/bvaughn/react-window
-import { TItemSize, IInstanceProps, IArea, ICell, TCellMetaData } from "./Grid";
+import {
+  ItemSizer,
+  InstanceInterface,
+  AreaProps,
+  CellInterface,
+  CellMetaData,
+} from "./Grid";
 
 type ItemType = "row" | "column";
 
@@ -9,9 +15,9 @@ export interface IItemMetaData {
   index: number;
   rowCount: number;
   columnCount: number;
-  rowHeight: TItemSize;
-  columnWidth: TItemSize;
-  instanceProps: IInstanceProps;
+  rowHeight: ItemSizer;
+  columnWidth: ItemSizer;
+  instanceProps: InstanceInterface;
 }
 
 export const getRowStartIndexForOffset = ({
@@ -134,7 +140,7 @@ export const getColumnStopIndexForStartIndex = ({
   return stopIndex;
 };
 
-export const getBoundedCells = (area: IArea | null | undefined) => {
+export const getBoundedCells = (area: AreaProps | null | undefined) => {
   const cells = new Set();
   if (!area) return cells;
   const { top, bottom, left, right } = area;
@@ -146,7 +152,7 @@ export const getBoundedCells = (area: IArea | null | undefined) => {
   return cells;
 };
 
-export const itemKey = ({ rowIndex, columnIndex }: ICell) =>
+export const itemKey = ({ rowIndex, columnIndex }: CellInterface) =>
   `${rowIndex}:${columnIndex}`;
 
 export const getRowOffset = ({
@@ -179,13 +185,16 @@ export const getColumnOffset = ({
   }).offset;
 };
 
-export const getRowHeight = (index: number, instanceProps: IInstanceProps) => {
+export const getRowHeight = (
+  index: number,
+  instanceProps: InstanceInterface
+) => {
   return instanceProps.rowMetadataMap[index].size;
 };
 
 export const getColumnWidth = (
   index: number,
-  instanceProps: IInstanceProps
+  instanceProps: InstanceInterface
 ) => {
   return instanceProps.columnMetadataMap[index].size;
 };
@@ -201,7 +210,7 @@ export const getItemMetadata = ({
   rowHeight,
   columnWidth,
   instanceProps,
-}: IGetItemMetadata): TCellMetaData => {
+}: IGetItemMetadata): CellMetaData => {
   let itemMetadataMap, itemSize, lastMeasuredIndex;
   if (itemType === "column") {
     itemMetadataMap = instanceProps.columnMetadataMap;
@@ -370,7 +379,7 @@ const findNearestItemExponentialSearch = ({
 export const getEstimatedTotalHeight = (
   rowCount: number,
   estimatedRowHeight: number,
-  instanceProps: IInstanceProps
+  instanceProps: InstanceInterface
 ) => {
   let totalSizeOfMeasuredRows = 0;
   let { lastMeasuredRowIndex, rowMetadataMap } = instanceProps;
@@ -395,7 +404,7 @@ export const getEstimatedTotalHeight = (
 export const getEstimatedTotalWidth = (
   columnCount: number,
   estimatedColumnWidth: number,
-  instanceProps: IInstanceProps
+  instanceProps: InstanceInterface
 ) => {
   let totalSizeOfMeasuredRows = 0;
   let { lastMeasuredColumnIndex, columnMetadataMap } = instanceProps;

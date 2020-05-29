@@ -1,19 +1,19 @@
 import React, { useState, useCallback, useRef } from "react";
-import { IArea, TGridRef } from "./../Grid";
+import { AreaProps, GridMutableRef } from "./../Grid";
 
-interface IOptions {
-  gridRef?: TGridRef;
-  initialSelections?: IArea[];
+export interface UseSelectionOptions {
+  gridRef?: GridMutableRef;
+  initialSelections?: AreaProps[];
 }
 
 /**
  * useSelection hook to enable selection in datagrid
  * @param initialSelection
  */
-const useSelection = (options: IOptions = {}) => {
+const useSelection = (options: UseSelectionOptions = {}) => {
   const { gridRef, initialSelections = [] } = options;
-  const [selections, setSelections] = useState<IArea[]>(initialSelections);
-  const selectionStart = useRef<IArea>();
+  const [selections, setSelections] = useState<AreaProps[]>(initialSelections);
+  const selectionStart = useRef<AreaProps>();
   const isSelectionMode = useRef<boolean>();
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     /* Exit early if grid is not initialized */
