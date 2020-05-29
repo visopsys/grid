@@ -4,8 +4,6 @@ import React, {
   useRef,
   useState,
   useMemo,
-  RefAttributes,
-  DependencyList,
 } from "react";
 import { ICell, TScrollCoords, IPosition, TGridRef } from "../Grid";
 
@@ -131,15 +129,6 @@ const useEditable = ({
     setPosition(pos);
   }, []);
 
-  /* Save scroll position to align the input */
-  const handleScroll = useCallback((position: TScrollCoords) => {
-    if (wheelingRef.current) return;
-    wheelingRef.current = window.requestAnimationFrame(() => {
-      wheelingRef.current = null;
-      setScrollPosition(position);
-    });
-  }, []);
-
   /* Save the value */
   const handleSubmit = useCallback(() => {
     if (!activeCell) return;
@@ -167,7 +156,7 @@ const useEditable = ({
   return {
     editorComponent,
     onDoubleClick: handleDoubleClick,
-    onScroll: handleScroll,
+    onScroll: setScrollPosition,
   };
 };
 
