@@ -22,7 +22,7 @@ const useSelection = (options: IOptions = {}) => {
     /* Activate selection mode */
     isSelectionMode.current = true;
 
-    const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffsets(
+    const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
       e.clientX,
       e.clientY
     );
@@ -54,10 +54,10 @@ const useSelection = (options: IOptions = {}) => {
       /* Exit early */
       if (!_selectionStart) return;
 
-      const {
-        rowIndex,
-        columnIndex,
-      } = gridRef.current.getCellCoordsFromOffsets(e.clientX, e.clientY);
+      const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
+        e.clientX,
+        e.clientY
+      );
 
       /* Get new bounds */
       const bounds = gridRef.current.getCellBounds({ rowIndex, columnIndex });

@@ -54,7 +54,7 @@ export interface IProps {
   frozenRows: number;
   frozenColumns: number;
   itemRenderer: (props: IChildrenProps) => React.ReactNode;
-  selectionRenderer: (props: ISelectionProps) => React.ReactNode; //KonvaNodeComponent<Shape<ShapeConfig>>;
+  selectionRenderer: (props: ISelectionProps) => React.ReactNode;
   onViewChange: (view: IView) => void;
 }
 
@@ -152,7 +152,7 @@ export interface IRef {
   getScrollPosition: () => TScrollCoords;
   isMergedCell: (coords: ICell) => boolean;
   getCellBounds: (coords: ICell) => IArea;
-  getCellCoordsFromOffsets: (x: number, y: number) => ICell;
+  getCellCoordsFromOffset: (x: number, y: number) => ICell;
   getCellOffsetFromCoords: (coords: ICell) => IPosition;
 }
 
@@ -200,7 +200,7 @@ const Grid: React.FC<IProps> = memo(
         getScrollPosition,
         isMergedCell,
         getCellBounds,
-        getCellCoordsFromOffsets,
+        getCellCoordsFromOffset,
         getCellOffsetFromCoords,
       };
     });
@@ -863,7 +863,7 @@ const Grid: React.FC<IProps> = memo(
     /**
      * Get cell cordinates from current mouse x/y positions
      */
-    const getCellCoordsFromOffsets = useCallback(
+    const getCellCoordsFromOffset = useCallback(
       (x: number, y: number): ICell => {
         const rowIndex = getRowStartIndexForOffset({
           rowHeight,

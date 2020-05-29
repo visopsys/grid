@@ -1,9 +1,9 @@
 // @ts-nocheck
 import React, { useRef, useState, useCallback, useEffect } from "react";
-import Grid, { IChildrenProps } from "./Grid";
-import useSelection from "./hooks/useSelection";
-import useEditable from "./hooks/useEditable";
-import useAutoSizer from "./hooks/useAutoSizer";
+import Grid, { IChildrenProps } from "./../src/Grid";
+import useSelection from "./../src/hooks/useSelection";
+import useEditable from "./../src/hooks/useEditable";
+import useAutoSizer from "./../src/hooks/useAutoSizer";
 import { useMeasure } from "react-use";
 import { Layer, Rect, Text, Group, RegularPolygon } from "react-konva";
 import { number } from "@storybook/addon-knobs";
