@@ -116,14 +116,6 @@ export const TreeTable: React.FC = () => {
         />
         {text && (
           <>
-            {/* <RegularPolygon
-              x={x + 10}
-              y={y + 10}
-              sides={3}
-              radius={5}
-              rotation={90}
-              fill={textColor}
-            /> */}
             <Text
               x={x}
               y={y}

@@ -15,12 +15,8 @@ interface IProps {
 }
 
 interface IEditable {
-  editorComponent: JSX.Element | null;
-  onDoubleClick: (
-    e: React.MouseEvent<HTMLInputElement>,
-    rowIndex: number,
-    columnIndex: number
-  ) => void;
+  editorComponent: React.ReactNode;
+  onDoubleClick: (e: React.MouseEvent<HTMLInputElement>) => void;
   onScroll: (props: TScrollCoords) => void;
 }
 
@@ -100,7 +96,6 @@ const useEditable = ({
   const [activeCell, setActiveCell] = useState<ICell | null>(null);
   const [value, setValue] = useState<string>("");
   const getValueRef = useRef(getValue);
-  const wheelingRef = useRef<number | null>(null);
   const [position, setPosition] = useState<IPosition>({
     x: 0,
     y: 0,

@@ -166,9 +166,10 @@ const gridRef = useRef()
 const stage = gridRef.current.stage
 ````
 
+
 ## Storybook
 
-Examples can be found as stories in `Grid.stories.tsx`. To run storybook, enter the following commands
+Examples can be found in `stories` directory. To run storybook, enter the following commands
 
 ```bash
 yarn
