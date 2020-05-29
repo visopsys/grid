@@ -52,7 +52,7 @@ export interface GridProps {
 }
 
 type RefAttribute = {
-  ref?: React.Ref<GridRef>;
+  ref?: React.MutableRefObject<GridRef>;
 };
 
 export interface SelectionProps extends ShapeConfig {}
