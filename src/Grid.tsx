@@ -8,8 +8,15 @@ import React, {
   useReducer,
   memo,
   useEffect,
+  Key,
 } from "react";
-import { Stage, Layer, Rect, Group } from "react-konva/lib/ReactKonvaCore";
+import {
+  Stage,
+  Layer,
+  Rect,
+  Group,
+  KonvaNodeComponent,
+} from "react-konva/lib/ReactKonvaCore";
 import {
   getRowStartIndexForOffset,
   getRowStopIndexForStartIndex,
@@ -25,6 +32,7 @@ import {
   getBoundedCells,
   cellIndentifier,
 } from "./helpers";
+import { ShapeConfig } from "konva/types/Shape";
 
 export interface IProps {
   width: number;
@@ -46,8 +54,11 @@ export interface IProps {
   frozenRows: number;
   frozenColumns: number;
   itemRenderer: (props: IChildrenProps) => React.ReactNode;
+  selectionRenderer: (props: ISelectionProps) => React.ReactNode; //KonvaNodeComponent<Shape<ShapeConfig>>;
   onViewChange: (view: IView) => void;
 }
+
+interface ISelectionProps extends ShapeConfig {}
 
 export type TScrollCoords = {
   scrollTop: number;
@@ -75,6 +86,16 @@ const defaultProps = {
   mergedCells: [],
   frozenRows: 0,
   frozenColumns: 0,
+  selectionRenderer: (props: ISelectionProps) => {
+    return (
+      <Rect
+        shadowForStrokeEnabled={false}
+        listening={false}
+        hitStrokeWidth={0}
+        {...props}
+      />
+    );
+  },
 };
 
 export type RenderComponent = React.FC<IChildrenProps>;
@@ -84,7 +105,7 @@ export interface IPosition {
   width: number;
   height: number;
 }
-export interface IChildrenProps extends IPosition, ICell {
+export interface IChildrenProps extends ICell, ShapeConfig {
   key: string;
 }
 
@@ -167,6 +188,7 @@ const Grid: React.FC<IProps> = memo(
       itemRenderer,
       mergedCells,
       onViewChange,
+      selectionRenderer,
       ...rest
     } = props;
     /* Expose some methods in ref */
@@ -698,18 +720,15 @@ const Grid: React.FC<IProps> = memo(
           })
         );
         selectionAreasFrozenColumns.push(
-          <Rect
-            key={i}
-            stroke={selectionBorderColor}
-            x={selectionBounds.x}
-            y={selectionBounds.y}
-            width={frozenColumnSelectionWidth}
-            height={selectionBounds.height}
-            fill={selectionBackgroundColor}
-            shadowForStrokeEnabled={false}
-            listening={false}
-            hitStrokeWidth={0}
-          />
+          selectionRenderer({
+            key: i,
+            stroke: selectionBorderColor,
+            fill: selectionBackgroundColor,
+            x: selectionBounds.x,
+            y: selectionBounds.y,
+            width: frozenColumnSelectionWidth,
+            height: selectionBounds.height,
+          })
         );
       }
 
@@ -724,18 +743,15 @@ const Grid: React.FC<IProps> = memo(
           })
         );
         selectionAreasFrozenRows.push(
-          <Rect
-            key={i}
-            stroke={selectionBorderColor}
-            x={selectionBounds.x}
-            y={selectionBounds.y}
-            width={selectionBounds.width}
-            height={frozenRowSelectionHeight}
-            fill={selectionBackgroundColor}
-            shadowForStrokeEnabled={false}
-            listening={false}
-            hitStrokeWidth={0}
-          />
+          selectionRenderer({
+            key: i,
+            stroke: selectionBorderColor,
+            fill: selectionBackgroundColor,
+            x: selectionBounds.x,
+            y: selectionBounds.y,
+            width: selectionBounds.width,
+            height: frozenRowSelectionHeight,
+          })
         );
       }
 
@@ -759,35 +775,30 @@ const Grid: React.FC<IProps> = memo(
             instanceProps: instanceProps.current,
           })
         );
+
         selectionAreasIntersection.push(
-          <Rect
-            key={i}
-            stroke={selectionBorderColor}
-            x={selectionBounds.x}
-            y={selectionBounds.y}
-            width={frozenIntersectionSelectionWidth}
-            height={frozenIntersectionSelectionHeight}
-            fill={selectionBackgroundColor}
-            shadowForStrokeEnabled={false}
-            listening={false}
-            hitStrokeWidth={0}
-          />
+          selectionRenderer({
+            key: i,
+            stroke: selectionBorderColor,
+            fill: selectionBackgroundColor,
+            x: selectionBounds.x,
+            y: selectionBounds.y,
+            width: frozenIntersectionSelectionWidth,
+            height: frozenIntersectionSelectionHeight,
+          })
         );
       }
 
       selectionAreas.push(
-        <Rect
-          key={i}
-          stroke={selectionBorderColor}
-          x={selectionBounds.x}
-          y={selectionBounds.y}
-          width={selectionBounds.width}
-          height={selectionBounds.height}
-          fill={selectionBackgroundColor}
-          shadowForStrokeEnabled={false}
-          listening={false}
-          hitStrokeWidth={0}
-        />
+        selectionRenderer({
+          key: i,
+          stroke: selectionBorderColor,
+          fill: selectionBackgroundColor,
+          x: selectionBounds.x,
+          y: selectionBounds.y,
+          width: selectionBounds.width,
+          height: selectionBounds.height,
+        })
       );
     }
 
