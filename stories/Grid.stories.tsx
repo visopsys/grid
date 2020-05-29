@@ -1073,7 +1073,7 @@ export const WithTooltip: React.FC = () => {
     const { tooltipComponent, ...tooltipProps } = useTooltip({
       gridRef,
       getValue: ({ rowIndex, columnIndex }) => {
-        return `${rowIndex}, ${columnIndex}`;
+        return `You are at: ${rowIndex}, ${columnIndex}`;
       },
     });
     return (

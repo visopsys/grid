@@ -1,5 +1,6 @@
-import React, { useRef, useCallback, useState, useMemo } from "react";
-import { ICell, TScrollCoords, IPosition, TGridRef } from "../Grid";
+import React, { useCallback, useState, useMemo } from "react";
+import { ICell, TGridRef } from "../Grid";
+
 interface IProps {
   getTooltipComponent: (cell?: ICell | null) => React.ElementType;
   gridRef: TGridRef;
@@ -34,7 +35,7 @@ const defaultTooltipComponent: React.FC<TooltipProps> = ({ content, x, y }) => {
         color: "white",
       }}
     >
-      Hello world {content}
+      {content}
     </div>
   );
 };
@@ -58,6 +59,7 @@ const useTooltip = ({
   const tooltipComponent = showTooltip ? (
     <Tooltip content={content} x={tooltipPosition.x} y={tooltipPosition.y} />
   ) : null;
+
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
@@ -81,9 +83,9 @@ const useTooltip = ({
   );
 
   const handleMouseLeave = useCallback((e) => {
-    // console.log(e.currentTarget)
     setActiveCell(null);
   }, []);
+
   return {
     tooltipComponent,
     onMouseMove: handleMouseMove,
