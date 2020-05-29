@@ -78,7 +78,7 @@ const defaultProps = {
   columnCount: 200,
   rowHeight: defaultRowHeight,
   columnWidth: defaultColumnWidth,
-  scrollbarSize: 17,
+  scrollbarSize: 13,
   showScrollbar: true,
   selectionBackgroundColor: "rgb(14, 101, 235, 0.1)",
   selectionBorderColor: "#1a73e8",
@@ -336,7 +336,7 @@ const Grid: React.FC<IProps> = memo(
       let dy = deltaY;
 
       if (deltaMode === 1) {
-        dy = dy * 17;
+        dy = dy * scrollbarSize;
       }
       if (!horizontalScrollRef.current || !verticalScrollRef.current) return;
       const x = horizontalScrollRef.current?.scrollLeft;
