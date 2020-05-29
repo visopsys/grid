@@ -1,9 +1,9 @@
 import React, { useCallback, useState, useMemo } from "react";
-import { CellInterface, GridMutableRef } from "../Grid";
+import { CellInterface, GridRef } from "../Grid";
 
 export interface TooltipOptions {
   getTooltipComponent: (cell?: CellInterface | null) => React.ElementType;
-  gridRef: GridMutableRef;
+  gridRef: React.MutableRefObject<GridRef>;
   getValue: <T>(cell: CellInterface) => T;
   onChange: <T>(value: T, coords: CellInterface) => void;
 }
@@ -39,8 +39,7 @@ const defaultTooltipComponent: React.FC<TooltipProps> = ({ content, x, y }) => {
     </div>
   );
 };
-const getDefaultTooltipComponent = (cell: CellInterface) =>
-  defaultTooltipComponent;
+const getDefaultTooltipComponent = () => defaultTooltipComponent;
 
 const useTooltip = ({
   getValue,

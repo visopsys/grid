@@ -1,11 +1,11 @@
 {
   "name": "react-konva-grid",
   "description": "Canvas grid to render large set of tabular data with virtualization.",
-  "version": "2.2.6",
+  "version": "2.2.7",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -b",
+    "build": "rimraf dist && tsc -b",
     "check:types": "tsc --noEmit",
     "storybook": "start-storybook -p 9002",
     "build-storybook": "build-storybook -c .storybook -o .out",
@@ -64,6 +64,7 @@
     "prettier": "^2.0.5",
     "react-docgen-typescript-loader": "^3.7.2",
     "react-use": "^15.1.0",
+    "rimraf": "^3.0.2",
     "typescript": "^3.9.3"
   }
 }

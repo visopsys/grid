@@ -29,28 +29,31 @@ import {
 import { ShapeConfig } from "konva/types/Shape";
 
 export interface GridProps {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   columnCount: number;
   rowCount: number;
-  rowHeight: ItemSizer;
-  columnWidth: ItemSizer;
-  children: RenderComponent;
-  scrollbarSize: number;
+  rowHeight?: ItemSizer;
+  columnWidth?: ItemSizer;
+  scrollbarSize?: number;
   estimatedColumnWidth?: number;
   estimatedRowHeight?: number;
-  onScroll: ({ scrollLeft, scrollTop }: ScrollCoords) => void;
-  showScrollbar: boolean;
-  selectionBackgroundColor: string;
-  selectionBorderColor: string;
-  selections: AreaProps[];
-  mergedCells: AreaProps[];
-  frozenRows: number;
-  frozenColumns: number;
+  onScroll?: ({ scrollLeft, scrollTop }: ScrollCoords) => void;
+  showScrollbar?: boolean;
+  selectionBackgroundColor?: string;
+  selectionBorderColor?: string;
+  selections?: AreaProps[];
+  mergedCells?: AreaProps[];
+  frozenRows?: number;
+  frozenColumns?: number;
   itemRenderer: (props: RendererProps) => React.ReactNode;
-  selectionRenderer: (props: SelectionProps) => React.ReactNode;
-  onViewChange: (view: ViewPortProps) => void;
+  selectionRenderer?: (props: SelectionProps) => React.ReactNode;
+  onViewChange?: (view: ViewPortProps) => void;
 }
+
+type RefAttribute = {
+  ref?: React.Ref<GridRef>;
+};
 
 export interface SelectionProps extends ShapeConfig {}
 
@@ -65,31 +68,15 @@ export type ForceUpdateType = {
 
 const defaultRowHeight = () => 20;
 const defaultColumnWidth = () => 100;
-const defaultProps = {
-  width: 800,
-  height: 800,
-  rowCount: 200,
-  columnCount: 200,
-  rowHeight: defaultRowHeight,
-  columnWidth: defaultColumnWidth,
-  scrollbarSize: 13,
-  showScrollbar: true,
-  selectionBackgroundColor: "rgb(14, 101, 235, 0.1)",
-  selectionBorderColor: "#1a73e8",
-  selections: [],
-  mergedCells: [],
-  frozenRows: 0,
-  frozenColumns: 0,
-  selectionRenderer: (props: SelectionProps) => {
-    return (
-      <Rect
-        shadowForStrokeEnabled={false}
-        listening={false}
-        hitStrokeWidth={0}
-        {...props}
-      />
-    );
-  },
+const defaultSelectionRenderer = (props: SelectionProps) => {
+  return (
+    <Rect
+      shadowForStrokeEnabled={false}
+      listening={false}
+      hitStrokeWidth={0}
+      {...props}
+    />
+  );
 };
 
 export type RenderComponent = React.FC<RendererProps>;
@@ -99,11 +86,11 @@ export interface CellPosition {
   width: number;
   height: number;
 }
-export interface RendererProps extends CellInterface, ShapeConfig {
-  key: string;
+export interface RendererProps extends CellInterface, CellPosition {
+  key: Key;
 }
 
-export type ItemSizer = (index?: number) => number;
+export type ItemSizer = (index: number) => number;
 
 export interface AreaProps {
   top: number;
@@ -139,18 +126,16 @@ export type CellMetaData = {
   size: number;
 };
 
-export interface GridRef {
+export type GridRef = {
   scrollTo: (scrollPosition: ScrollCoords) => void;
-  stage: typeof Stage;
-  resetAfterIndices: (coords: CellInterface) => void;
+  stage: typeof Stage | null;
+  resetAfterIndices: (coords: CellInterface & ForceUpdateType) => void;
   getScrollPosition: () => ScrollCoords;
   isMergedCell: (coords: CellInterface) => boolean;
   getCellBounds: (coords: CellInterface) => AreaProps;
   getCellCoordsFromOffset: (x: number, y: number) => CellInterface;
   getCellOffsetFromCoords: (coords: CellInterface) => CellPosition;
-}
-
-export type GridMutableRef = React.MutableRefObject<GridRef>;
+};
 
 export type MergedCellMap = Map<string, AreaProps>;
 
@@ -160,31 +145,32 @@ const DEFAULT_ESTIMATED_ITEM_SIZE = 50;
  * Grid component using React Konva
  * @param props
  */
-const Grid: React.FC<GridProps> = memo(
-  forwardRef((props, forwardedRef) => {
+const Grid: React.FC<GridProps & RefAttribute> = memo(
+  forwardRef<GridRef, GridProps>((props, forwardedRef) => {
     const {
-      width: containerWidth,
-      height: containerHeight,
+      width: containerWidth = 800,
+      height: containerHeight = 600,
       estimatedColumnWidth,
       estimatedRowHeight,
-      rowHeight,
-      columnWidth,
-      rowCount,
-      columnCount,
-      scrollbarSize,
+      rowHeight = defaultRowHeight,
+      columnWidth = defaultColumnWidth,
+      rowCount = 0,
+      columnCount = 0,
+      scrollbarSize = 13,
       onScroll,
-      showScrollbar,
-      selectionBackgroundColor,
-      selectionBorderColor,
-      selections,
-      frozenRows,
-      frozenColumns,
+      showScrollbar = true,
+      selectionBackgroundColor = "rgb(14, 101, 235, 0.1)",
+      selectionBorderColor = "#1a73e8",
+      selections = [],
+      frozenRows = 0,
+      frozenColumns = 0,
       itemRenderer,
-      mergedCells,
+      mergedCells = [],
       onViewChange,
-      selectionRenderer,
+      selectionRenderer = defaultSelectionRenderer,
       ...rest
     } = props;
+
     /* Expose some methods in ref */
     useImperativeHandle(forwardedRef, () => {
       return {
@@ -198,6 +184,7 @@ const Grid: React.FC<GridProps> = memo(
         getCellOffsetFromCoords,
       };
     });
+
     const instanceProps = useRef<InstanceInterface>({
       columnMetadataMap: {},
       rowMetadataMap: {},
@@ -264,7 +251,7 @@ const Grid: React.FC<GridProps> = memo(
 
     /* Check if a cell is part of a merged cell */
     const isMergedCell = useCallback(
-      (rowIndex: number, columnIndex: number) => {
+      ({ rowIndex, columnIndex }: CellInterface) => {
         return mergedCellMap.has(cellIndentifier(rowIndex, columnIndex));
       },
       [mergedCellMap]
@@ -272,10 +259,12 @@ const Grid: React.FC<GridProps> = memo(
 
     /* Get top, left bounds of a cell */
     const getCellBounds = useCallback(
-      ({ rowIndex, columnIndex }: CellInterface): AreaProps | undefined => {
-        const isMerged = isMergedCell(rowIndex, columnIndex);
+      ({ rowIndex, columnIndex }: CellInterface): AreaProps => {
+        const isMerged = isMergedCell({ rowIndex, columnIndex });
         if (isMerged)
-          return mergedCellMap.get(cellIndentifier(rowIndex, columnIndex));
+          return mergedCellMap.get(
+            cellIndentifier(rowIndex, columnIndex)
+          ) as AreaProps;
         return {
           top: rowIndex,
           left: columnIndex,
@@ -420,7 +409,7 @@ const Grid: React.FC<GridProps> = memo(
           /* Skip frozen columns */
           if (
             columnIndex < frozenColumns ||
-            isMergedCell(rowIndex, columnIndex)
+            isMergedCell({ rowIndex, columnIndex })
           ) {
             continue;
           }
@@ -968,7 +957,5 @@ const Grid: React.FC<GridProps> = memo(
     );
   })
 );
-
-Grid.defaultProps = defaultProps;
 
 export default Grid;

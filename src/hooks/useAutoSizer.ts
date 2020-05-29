@@ -1,20 +1,8 @@
-import React, {
-  useCallback,
-  useMemo,
-  DependencyList,
-  useState,
-  useRef,
-  useEffect,
-} from "react";
-import {
-  ViewPortProps,
-  GridMutableRef,
-  CellInterface,
-  ItemSizer,
-} from "./../Grid";
+import React, { useCallback, useState, useRef, useEffect } from "react";
+import { ViewPortProps, GridRef, CellInterface, ItemSizer } from "./../Grid";
 
 interface IProps {
-  gridRef: GridMutableRef;
+  gridRef: React.MutableRefObject<GridRef>;
   getValue: <T>(cell: CellInterface) => T;
   initialVisibleRows?: number;
 }
@@ -61,9 +49,14 @@ const useAutoSizer = ({
       let start = rowStartIndex;
       let maxWidth = 0;
       while (start < visibleRows) {
-        const value = getValueRef.current({ rowIndex: start, columnIndex });
-        const { width } = autoSizer.current.measureText(value);
-        if (width > maxWidth) maxWidth = width + 10;
+        const value: string = getValueRef.current({
+          rowIndex: start,
+          columnIndex,
+        });
+        const metrics = autoSizer.current.measureText(value);
+        if (metrics) {
+          if (metrics.width > maxWidth) maxWidth = metrics.width + 10;
+        }
         start++;
       }
       return Math.max(20, maxWidth);
@@ -87,11 +80,11 @@ const AutoSizerCanvas = () => {
   const context = canvas.getContext("2d");
   return {
     context,
-    measureText: (text) => {
-      return context.measureText(text);
+    measureText: (text: string) => {
+      return context?.measureText(text);
     },
     setFont: (font: string = "12px Arial") => {
-      context.font = font;
+      if (context) context.font = font;
     },
   };
 };

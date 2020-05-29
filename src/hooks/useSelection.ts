@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useRef } from "react";
-import { AreaProps, GridMutableRef } from "./../Grid";
+import { AreaProps, GridRef } from "./../Grid";
 
 export interface UseSelectionOptions {
-  gridRef?: GridMutableRef;
+  gridRef?: React.MutableRefObject<GridRef>;
   initialSelections?: AreaProps[];
 }
 

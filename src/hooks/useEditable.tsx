@@ -5,16 +5,11 @@ import React, {
   useState,
   useMemo,
 } from "react";
-import {
-  CellInterface,
-  ScrollCoords,
-  CellPosition,
-  GridMutableRef,
-} from "../Grid";
+import { CellInterface, ScrollCoords, CellPosition, GridRef } from "../Grid";
 
 export interface UseEditableOptions {
   getEditor: (cell: CellInterface | null) => React.ElementType;
-  gridRef: GridMutableRef;
+  gridRef: React.MutableRefObject<GridRef>;
   getValue: <T>(cell: CellInterface) => T;
   onChange: <T>(value: T, coords: CellInterface) => void;
 }
