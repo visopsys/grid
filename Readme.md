@@ -46,13 +46,13 @@ Konva grid will work in any browser that supports [react](https://github.com/fac
 
 ## Integrations
 
-Konva Grid is a pure renderer, which can work with many third-party table plugins
+Konva Grid is a pure renderer, that will work with many third-party table plugins
 
 1. React-table
 
     [https://github.com/rmdort/konva-grid/tree/master/examples/react-table](https://github.com/rmdort/konva-grid/tree/master/examples/react-table)
 
-    Works alongside with [react-table](https://github.com/tannerlinsley/react-table) to display grouped headings, frozen rows and columns
+    Uses [react-table](https://github.com/tannerlinsley/react-table) to create grouped headings and rows, and display on Konva Grid
 
 *More examples coming soon.*
 
