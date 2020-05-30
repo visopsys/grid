@@ -29,26 +29,90 @@ import {
 import { ShapeConfig } from "konva/types/Shape";
 
 export interface GridProps {
+  /**
+   * Width of the grid
+   */
   width?: number;
+  /**
+   * Height of the grid
+   */
   height?: number;
+  /**
+   * No of columns in the grid
+   */
   columnCount: number;
+  /**
+   * No of rows in the grid
+   */
   rowCount: number;
+  /**
+   * Should return height of a row at an index
+   */
   rowHeight?: ItemSizer;
+  /**
+   * Should return width of a column at an index
+   */
   columnWidth?: ItemSizer;
+  /**
+   * Size of the scrollbar. Default is 13
+   */
   scrollbarSize?: number;
+  /**
+   * Helps in lazy grid width calculation
+   */
   estimatedColumnWidth?: number;
+  /**
+   * Helps in lazy grid height calculation
+   */
   estimatedRowHeight?: number;
+  /**
+   * Called when user scrolls the grid
+   */
   onScroll?: ({ scrollLeft, scrollTop }: ScrollCoords) => void;
+  /**
+   * Show scrollbars on the left and right of the grid
+   */
   showScrollbar?: boolean;
+  /**
+   * Background of selection
+   */
   selectionBackgroundColor?: string;
+  /**
+   * Border color of selected area
+   */
   selectionBorderColor?: string;
+  /**
+   * Array of selected cell areas
+   */
   selections?: AreaProps[];
+  /**
+   * Array of merged cells
+   */
   mergedCells?: AreaProps[];
+  /**
+   * Number of frozen rows
+   */
   frozenRows?: number;
+  /**
+   * Number of frozen columns
+   */
   frozenColumns?: number;
+  /**
+   * Cell renderer. Must be a Konva Component eg: Group, Rect etc
+   */
   itemRenderer: (props: RendererProps) => React.ReactNode;
+  /**
+   * Allow users to customize selected cells design
+   */
   selectionRenderer?: (props: SelectionProps) => React.ReactNode;
+  /**
+   * Fired when scroll viewport changes
+   */
   onViewChange?: (view: ViewPortProps) => void;
+  /**
+   * Called right before a row is being rendered.
+   * Will be called for frozen cells and merged cells
+   */
   onBeforeRenderRow?: (rowIndex: number) => void;
 }
 
