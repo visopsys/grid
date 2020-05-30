@@ -15,7 +15,7 @@ import isEqual from "react-fast-compare";
 
 function number2Alpha(i) {
   return (
-    (i >= 26 ? idOf(((i / 26) >> 0) - 1) : "") +
+    (i >= 26 ? number2Alpha(((i / 26) >> 0) - 1) : "") +
     "abcdefghijklmnopqrstuvwxyz"[i % 26 >> 0]
   );
 }
