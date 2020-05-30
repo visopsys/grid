@@ -49,6 +49,7 @@ export interface GridProps {
   itemRenderer: (props: RendererProps) => React.ReactNode;
   selectionRenderer?: (props: SelectionProps) => React.ReactNode;
   onViewChange?: (view: ViewPortProps) => void;
+  onBeforeRenderRow?: (rowIndex: number) => void;
 }
 
 type RefAttribute = {
@@ -168,6 +169,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       mergedCells = [],
       onViewChange,
       selectionRenderer = defaultSelectionRenderer,
+      onBeforeRenderRow,
       ...rest
     } = props;
 
@@ -401,12 +403,18 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         if (rowIndex < frozenRows) {
           continue;
         }
+        /**
+         * Do any pre-processing of the row before being renderered.
+         * Useful for `react-table` to call `prepareRow(row)`
+         */
+        onBeforeRenderRow && onBeforeRenderRow(rowIndex);
+
         for (
           let columnIndex = columnStartIndex;
           columnIndex <= columnStopIndex;
           columnIndex++
         ) {
-          /* Skip frozen columns */
+          /* Skip frozen columns and merged cells */
           if (
             columnIndex < frozenColumns ||
             isMergedCell({ rowIndex, columnIndex })
@@ -531,11 +539,22 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       rowIndex < Math.min(columnStopIndex, frozenRows);
       rowIndex++
     ) {
+      /**
+       * Do any pre-processing of the row before being renderered.
+       * Useful for `react-table` to call `prepareRow(row)`
+       */
+      onBeforeRenderRow && onBeforeRenderRow(rowIndex);
+
       for (
         let columnIndex = columnStartIndex;
         columnIndex <= columnStopIndex;
         columnIndex++
       ) {
+        /* Skip merged cells columns */
+        if (isMergedCell({ rowIndex, columnIndex })) {
+          continue;
+        }
+
         const width = getColumnWidth(columnIndex, instanceProps.current);
         const x = getColumnOffset({
           index: columnIndex,
@@ -550,6 +569,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           columnWidth,
           instanceProps: instanceProps.current,
         });
+
         frozenRowCells.push(
           itemRenderer({
             x,
@@ -566,12 +586,23 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
     /* Draw frozen columns */
     const frozenColumnCells = [];
-    for (
-      let columnIndex = 0;
-      columnIndex < Math.min(columnStopIndex, frozenColumns);
-      columnIndex++
-    ) {
-      for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
+    for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
+      /**
+       * Do any pre-processing of the row before being renderered.
+       * Useful for `react-table` to call `prepareRow(row)`
+       */
+      onBeforeRenderRow && onBeforeRenderRow(rowIndex);
+
+      for (
+        let columnIndex = 0;
+        columnIndex < Math.min(columnStopIndex, frozenColumns);
+        columnIndex++
+      ) {
+        /* Skip merged cells columns */
+        if (isMergedCell({ rowIndex, columnIndex })) {
+          continue;
+        }
+
         const width = getColumnWidth(columnIndex, instanceProps.current);
         const x = getColumnOffset({
           index: columnIndex,
@@ -607,11 +638,22 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       rowIndex < Math.min(rowStopIndex, frozenRows);
       rowIndex++
     ) {
+      /**
+       * Do any pre-processing of the row before being renderered.
+       * Useful for `react-table` to call `prepareRow(row)`
+       */
+      onBeforeRenderRow && onBeforeRenderRow(rowIndex);
+
       for (
         let columnIndex = 0;
         columnIndex < Math.min(columnStopIndex, frozenColumns);
         columnIndex++
       ) {
+        /* Skip merged cells columns */
+        if (isMergedCell({ rowIndex, columnIndex })) {
+          continue;
+        }
+
         const width = getColumnWidth(columnIndex, instanceProps.current);
         const x = getColumnOffset({
           index: columnIndex,

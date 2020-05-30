@@ -114,6 +114,7 @@ This is the list of props that are meant to be used to customise the `konva-grid
 | mergedCells | false | Array | Array of merged cell areas | []|
 | frozenRows | false | number | No of frozen rows | 0 |
 | frozenColumns | false | number | No of frozen columns | 0 |
+| onBeforeRenderRow | false | Function | Called right before a row is rendered, useful for `react-table` | null |
 
 ## Methods
 
