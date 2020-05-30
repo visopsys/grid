@@ -36,7 +36,6 @@ const Cell = memo((props: RendererProps) => {
       <Text
         x={x}
         y={y}
-        onClick={() => console.log("called")}
         width={width}
         height={height}
         text={value}
