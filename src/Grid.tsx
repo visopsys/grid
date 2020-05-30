@@ -25,6 +25,7 @@ import {
   getEstimatedTotalWidth,
   getBoundedCells,
   cellIndentifier,
+  throttle,
 } from "./helpers";
 import { ShapeConfig } from "konva/types/Shape";
 
@@ -105,6 +106,10 @@ export interface GridProps {
    * Snap to column when scrolling
    */
   snapToColumn?: boolean;
+  /**
+   * Scroll throttle wait timeout
+   */
+  scrollThrottleTimeout?: number;
   /**
    * Cell renderer. Must be a Konva Component eg: Group, Rect etc
    */
@@ -199,6 +204,18 @@ export type CellMetaData = {
   size: number;
 };
 
+export interface SnapRowProps {
+  rowStartIndex: number;
+  rowCount: number;
+  deltaY: number;
+}
+
+export interface SnapColumnProps {
+  columnStartIndex: number;
+  columnCount: number;
+  deltaX: number;
+}
+
 export type GridRef = {
   scrollTo: (scrollPosition: ScrollCoords) => void;
   stage: typeof Stage | null;
@@ -241,6 +258,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       mergedCells = [],
       snapToRow = false,
       snapToColumn = false,
+      scrollThrottleTimeout = 100,
       onViewChange,
       selectionRenderer = defaultSelectionRenderer,
       onBeforeRenderRow,
@@ -276,7 +294,56 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const [_, forceRender] = useReducer((s) => s + 1, 0);
     const [scrollTop, setScrollTop] = useState<number>(0);
     const [scrollLeft, setScrollLeft] = useState<number>(0);
+    /**
+     * Snaps vertical scrollbar to the next/prev visible row
+     */
+    const snapToRowFn = useCallback(
+      ({ rowStartIndex, rowCount, deltaY }: SnapRowProps) => {
+        if (!verticalScrollRef.current) return;
+        if (deltaY !== 0) {
+          const nextRowIndex =
+            deltaY < 0
+              ? // User is scrolling up
+                Math.max(0, rowStartIndex)
+              : Math.min(rowStartIndex, rowCount - 1);
+          const rowHeight = getRowHeight(nextRowIndex, instanceProps.current);
+          verticalScrollRef.current.scrollTop +=
+            (deltaY < 0 ? -1 : 1) * rowHeight;
+        }
+      },
+      []
+    );
+    /**
+     * Snaps horizontal scrollbar to the next/prev visible column
+     */
+    const snapToColumnFn = useCallback(
+      ({ columnStartIndex, columnCount, deltaX }: SnapColumnProps) => {
+        if (!horizontalScrollRef.current) return;
+        if (deltaX !== 0) {
+          const nextColumnIndex =
+            deltaX < 0
+              ? Math.max(0, columnStartIndex)
+              : Math.min(columnStartIndex, columnCount - 1);
+          const columnWidth = getColumnWidth(
+            nextColumnIndex,
+            instanceProps.current
+          );
+          horizontalScrollRef.current.scrollLeft +=
+            (deltaX < 0 ? -1 : 1) * columnWidth;
+        }
+      },
+      []
+    );
+    const snapToRowThrottler = useRef(
+      throttle(snapToRowFn, scrollThrottleTimeout)
+    );
+    const snapToColumnThrottler = useRef(
+      throttle(snapToColumnFn, scrollThrottleTimeout)
+    );
 
+    /**
+     * Imperatively get the current scroll position
+     */
     const getScrollPosition = useCallback(() => {
       return {
         scrollTop,
@@ -442,26 +509,54 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     /**
      * Fired when user tries to scroll the canvas
      */
-    const handleWheel = useCallback((event: React.WheelEvent) => {
-      if (wheelingRef.current) return;
-      const { deltaX, deltaY, deltaMode } = event.nativeEvent;
-      let dx = deltaX;
-      let dy = deltaY;
 
-      if (deltaMode === 1) {
-        dy = dy * scrollbarSize;
-      }
-      if (!horizontalScrollRef.current || !verticalScrollRef.current) return;
-      const x = horizontalScrollRef.current?.scrollLeft;
-      const y = verticalScrollRef.current?.scrollTop;
-      wheelingRef.current = window.requestAnimationFrame(() => {
-        wheelingRef.current = null;
-        if (horizontalScrollRef.current)
-          horizontalScrollRef.current.scrollLeft = x + dx;
-        if (verticalScrollRef.current)
-          verticalScrollRef.current.scrollTop = y + dy;
-      });
-    }, []);
+    const handleWheel = useCallback(
+      (event: React.WheelEvent) => {
+        const { deltaX, deltaY, deltaMode } = event.nativeEvent;
+        /* If snaps are active */
+        if (snapToRow || snapToColumn) {
+          snapToRow &&
+            snapToRowThrottler.current({
+              deltaY,
+              rowStartIndex,
+              rowCount,
+            });
+          snapToColumn &&
+            snapToColumnThrottler.current({
+              deltaX,
+              columnStartIndex,
+              columnCount,
+            });
+          return;
+        }
+        /* Scroll natively */
+        if (wheelingRef.current) return;
+        let dx = deltaX;
+        let dy = deltaY;
+
+        if (deltaMode === 1) {
+          dy = dy * scrollbarSize;
+        }
+        if (!horizontalScrollRef.current || !verticalScrollRef.current) return;
+        const x = horizontalScrollRef.current?.scrollLeft;
+        const y = verticalScrollRef.current?.scrollTop;
+        wheelingRef.current = window.requestAnimationFrame(() => {
+          wheelingRef.current = null;
+          if (horizontalScrollRef.current)
+            horizontalScrollRef.current.scrollLeft = x + dx;
+          if (verticalScrollRef.current)
+            verticalScrollRef.current.scrollTop = y + dy;
+        });
+      },
+      [
+        rowStartIndex,
+        columnStartIndex,
+        rowCount,
+        columnCount,
+        snapToRow,
+        snapToColumn,
+      ]
+    );
 
     /* Callback when visible rows or columns have changed */
     useEffect(() => {

@@ -430,3 +430,23 @@ export const cellIndentifier = (
   rowIndex: number,
   columnIndex: number
 ): string => [rowIndex, columnIndex].toString();
+
+/**
+ * @desc Throttle fn
+ * @param func function
+ * @param limit Delay in milliseconds
+ */
+export function throttle(func: Function, limit: number): Function {
+  let inThrottle: boolean;
+
+  return function (this: any): any {
+    const args = arguments;
+    const context = this;
+
+    if (!inThrottle) {
+      inThrottle = true;
+      func.apply(context, args);
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
