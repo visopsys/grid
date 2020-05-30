@@ -1,0 +1,44 @@
+<style>
+  body, html {
+    margin: 0;
+    overflow: hidden;
+  }
+  body {
+    display: flex;
+  }
+  #root, .Container, .Container-Sheet {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+  }
+  .Container {
+    flex-direction: column;
+  }
+  .Tabs {
+    height: 54px;
+    background: #ddd;
+    padding: 0 12px;
+  }
+  .Tabs-Button {
+    background: #ddd;
+    border: none;
+    padding: 12px 16px;
+    box-shadow: 0 1px 2px 1px rgba(0,0,0,0.2);
+    margin-left: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  .Tabs-Button:hover {
+    opacity: 0.6;
+  }
+  .Tabs-Button-Active {
+    background: white;
+  }
+  .Tabs-Button-Active:hover { opacity: 1;}
+  .Tabs-Add {
+    background-color: transparent;
+    box-shadow: none;
+  }
+</style>
+<div id="root"></div>
+<script src="./src/index.tsx"></script>

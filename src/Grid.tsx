@@ -344,9 +344,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     /* Handle vertical scroll */
     const handleScroll = useCallback(
       (e) => {
-        setScrollTop(e.target.scrollTop);
+        const { scrollTop } = e.target;
+        setScrollTop(scrollTop);
         /* Scroll callbacks */
-        onScroll && onScroll({ scrollTop: e.target.scrollTop, scrollLeft });
+        onScroll && onScroll({ scrollTop, scrollLeft });
       },
       [scrollLeft]
     );
@@ -354,9 +355,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     /* Handle horizontal scroll */
     const handleScrollLeft = useCallback(
       (e) => {
-        setScrollLeft(e.target.scrollLeft);
+        const { scrollLeft } = e.target;
+        setScrollLeft(scrollLeft);
         /* Scroll callbacks */
-        onScroll && onScroll({ scrollLeft: e.target.scrollLeft, scrollTop });
+        onScroll && onScroll({ scrollLeft, scrollTop });
       },
       [scrollTop]
     );
@@ -975,11 +977,20 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       },
       [scrollLeft, scrollTop, rowCount, columnCount]
     );
-
+    /**
+     * Prevents drawing hit region when scrolling
+     */
+    const isScrolling = !!wheelingRef.current;
+    const listenToEvents = !isScrolling;
     return (
       <div style={{ position: "relative", width: containerWidth }}>
         <div onWheel={handleWheel} tabIndex={-1} {...rest}>
-          <Stage width={containerWidth} height={containerHeight} ref={stageRef}>
+          <Stage
+            width={containerWidth}
+            height={containerHeight}
+            ref={stageRef}
+            listening={listenToEvents}
+          >
             <Layer>
               <Group offsetY={scrollTop} offsetX={scrollLeft}>
                 {cells}

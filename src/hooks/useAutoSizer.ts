@@ -3,7 +3,7 @@ import { ViewPortProps, GridRef, CellInterface, ItemSizer } from "./../Grid";
 
 interface IProps {
   gridRef: React.MutableRefObject<GridRef>;
-  getValue: <T>(cell: CellInterface) => T;
+  getValue: (cell: CellInterface) => any;
   initialVisibleRows?: number;
 }
 

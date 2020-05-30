@@ -8,10 +8,10 @@ import React, {
 import { CellInterface, ScrollCoords, CellPosition, GridRef } from "../Grid";
 
 export interface UseEditableOptions {
-  getEditor: (cell: CellInterface | null) => React.ElementType;
+  getEditor?: (cell: CellInterface | null) => React.ElementType;
   gridRef: React.MutableRefObject<GridRef>;
-  getValue: <T>(cell: CellInterface) => T;
-  onChange: <T>(value: T, coords: CellInterface) => void;
+  getValue: (cell: CellInterface) => any;
+  onChange?: (value: string, coords: CellInterface) => void;
 }
 
 export interface EditableResults {
@@ -21,7 +21,7 @@ export interface EditableResults {
 }
 
 export interface EditorProps extends CellInterface {
-  onChange: <T>(value: T) => void;
+  onChange: (value: string) => void;
   onSubmit: () => void;
   onHide: () => void;
   scrollPosition: ScrollCoords;
@@ -67,7 +67,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         outline: "none",
       }}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-        onChange<string>(e.target.value)
+        onChange(e.target.value)
       }
       onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
         // Enter key
@@ -120,7 +120,7 @@ const useEditable = ({
     if (!gridRef.current) return;
     const pos = gridRef.current.getCellOffsetFromCoords(activeCell);
     setActiveCell(activeCell);
-    setValue(getValueRef.current<string>(activeCell) || "");
+    setValue(getValueRef.current(activeCell) || "");
     setPosition(pos);
   }, []);
 

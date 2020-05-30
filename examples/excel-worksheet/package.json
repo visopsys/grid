@@ -1,0 +1,28 @@
+{
+  "name": "excel-worksheet",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "dependencies": {
+    "parcel-bundler": "^1.12.4",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-fast-compare": "^3.2.0",
+    "react-konva": "^16.13.0-3",
+    "react-konva-grid": "^2.3.3",
+    "react-use": "^15.1.0"
+  },
+  "alias": {
+    "react": "./node_modules/react",
+    "react-dom": "./node_modules/react-dom",
+    "react-konva": "./node_modules/react-konva",
+    "konva": "./node_modules/konva"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.1"
+  }
+}
