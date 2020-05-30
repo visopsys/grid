@@ -98,6 +98,14 @@ export interface GridProps {
    */
   frozenColumns?: number;
   /**
+   * Snap to row when scrolling
+   */
+  snapToRow?: boolean;
+  /**
+   * Snap to column when scrolling
+   */
+  snapToColumn?: boolean;
+  /**
    * Cell renderer. Must be a Konva Component eg: Group, Rect etc
    */
   itemRenderer: (props: RendererProps) => React.ReactNode;
@@ -231,6 +239,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       frozenColumns = 0,
       itemRenderer,
       mergedCells = [],
+      snapToRow = false,
+      snapToColumn = false,
       onViewChange,
       selectionRenderer = defaultSelectionRenderer,
       onBeforeRenderRow,
@@ -341,66 +351,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       [mergedCellMap]
     );
 
-    /* Handle vertical scroll */
-    const handleScroll = useCallback(
-      (e) => {
-        const { scrollTop } = e.target;
-        setScrollTop(scrollTop);
-        /* Scroll callbacks */
-        onScroll && onScroll({ scrollTop, scrollLeft });
-      },
-      [scrollLeft]
-    );
-
-    /* Handle horizontal scroll */
-    const handleScrollLeft = useCallback(
-      (e) => {
-        const { scrollLeft } = e.target;
-        setScrollLeft(scrollLeft);
-        /* Scroll callbacks */
-        onScroll && onScroll({ scrollLeft, scrollTop });
-      },
-      [scrollTop]
-    );
-
-    /* Scroll based on left, top position */
-    const scrollTo = useCallback(
-      ({ scrollTop, scrollLeft }: ScrollCoords) => {
-        /* If scrollbar is visible, lets update it which triggers a state change */
-        if (showScrollbar) {
-          if (horizontalScrollRef.current)
-            horizontalScrollRef.current.scrollLeft = scrollLeft;
-          if (verticalScrollRef.current)
-            verticalScrollRef.current.scrollTop = scrollTop;
-        } else {
-          scrollLeft !== void 0 && setScrollLeft(scrollLeft);
-          scrollTop !== void 0 && setScrollTop(scrollTop);
-        }
-      },
-      [showScrollbar]
-    );
-
-    const handleWheel = useCallback((event: React.WheelEvent) => {
-      if (wheelingRef.current) return;
-      const { deltaX, deltaY, deltaMode } = event.nativeEvent;
-      let dx = deltaX;
-      let dy = deltaY;
-
-      if (deltaMode === 1) {
-        dy = dy * scrollbarSize;
-      }
-      if (!horizontalScrollRef.current || !verticalScrollRef.current) return;
-      const x = horizontalScrollRef.current?.scrollLeft;
-      const y = verticalScrollRef.current?.scrollTop;
-      wheelingRef.current = window.requestAnimationFrame(() => {
-        wheelingRef.current = null;
-        if (horizontalScrollRef.current)
-          horizontalScrollRef.current.scrollLeft = x + dx;
-        if (verticalScrollRef.current)
-          verticalScrollRef.current.scrollTop = y + dy;
-      });
-    }, []);
-
     const rowStartIndex = getRowStartIndexForOffset({
       rowHeight,
       columnWidth,
@@ -449,6 +399,86 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       instanceProps.current.estimatedColumnWidth,
       instanceProps.current
     );
+
+    /* Handle vertical scroll */
+    const handleScroll = useCallback(
+      (e) => {
+        var { scrollTop } = e.target;
+        if (snapToRow) {
+          /* Get the height of the next row */
+          var nextRowHeight = getRowHeight(
+            Math.min(rowStartIndex + 1, rowCount - 1),
+            instanceProps.current
+          );
+          scrollTop = Math.round(scrollTop / nextRowHeight) * nextRowHeight;
+        }
+        setScrollTop(scrollTop);
+        /* Scroll callbacks */
+        onScroll && onScroll({ scrollTop, scrollLeft });
+      },
+      [scrollLeft, rowStartIndex, snapToRow, rowCount]
+    );
+
+    /* Handle horizontal scroll */
+    const handleScrollLeft = useCallback(
+      (e) => {
+        var { scrollLeft } = e.target;
+        if (snapToColumn) {
+          /* Get the height of the next row */
+          var nextColumnWidth = getColumnWidth(
+            Math.min(columnStartIndex + 1, columnCount - 1),
+            instanceProps.current
+          );
+          scrollLeft =
+            Math.round(scrollLeft / nextColumnWidth) * nextColumnWidth;
+        }
+        setScrollLeft(scrollLeft);
+        /* Scroll callbacks */
+        onScroll && onScroll({ scrollLeft, scrollTop });
+      },
+      [scrollTop, columnStartIndex, snapToColumn, columnCount]
+    );
+
+    /* Scroll based on left, top position */
+    const scrollTo = useCallback(
+      ({ scrollTop, scrollLeft }: ScrollCoords) => {
+        /* If scrollbar is visible, lets update it which triggers a state change */
+        if (showScrollbar) {
+          if (horizontalScrollRef.current)
+            horizontalScrollRef.current.scrollLeft = scrollLeft;
+          if (verticalScrollRef.current)
+            verticalScrollRef.current.scrollTop = scrollTop;
+        } else {
+          scrollLeft !== void 0 && setScrollLeft(scrollLeft);
+          scrollTop !== void 0 && setScrollTop(scrollTop);
+        }
+      },
+      [showScrollbar]
+    );
+
+    /**
+     * Fired when user tries to scroll the canvas
+     */
+    const handleWheel = useCallback((event: React.WheelEvent) => {
+      if (wheelingRef.current) return;
+      const { deltaX, deltaY, deltaMode } = event.nativeEvent;
+      let dx = deltaX;
+      let dy = deltaY;
+
+      if (deltaMode === 1) {
+        dy = dy * scrollbarSize;
+      }
+      if (!horizontalScrollRef.current || !verticalScrollRef.current) return;
+      const x = horizontalScrollRef.current?.scrollLeft;
+      const y = verticalScrollRef.current?.scrollTop;
+      wheelingRef.current = window.requestAnimationFrame(() => {
+        wheelingRef.current = null;
+        if (horizontalScrollRef.current)
+          horizontalScrollRef.current.scrollLeft = x + dx;
+        if (verticalScrollRef.current)
+          verticalScrollRef.current.scrollTop = y + dy;
+      });
+    }, []);
 
     /* Callback when visible rows or columns have changed */
     useEffect(() => {
