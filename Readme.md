@@ -44,6 +44,18 @@ npm install react-konva-grid --save
 
 Konva grid will work in any browser that supports [react](https://github.com/facebook/react/), [konva](https://konvajs.org/) and canvas element.
 
+## Integrations
+
+Konva Grid is a pure renderer, which can work with many third-party table plugins
+
+1. React-table
+
+    [https://github.com/rmdort/konva-grid/tree/master/examples/react-table](https://github.com/rmdort/konva-grid/tree/master/examples/react-table)
+
+    Works alongside with [react-table](https://github.com/tannerlinsley/react-table) to display grouped headings, frozen rows and columns
+
+*More examples coming soon.*
+
 ## Usage
 
 ```js
