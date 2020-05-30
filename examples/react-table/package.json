@@ -11,15 +11,8 @@
     "namor": "^2.0.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-konva": "^16.13.0-3",
     "react-konva-grid": "^2.3.0",
     "react-table": "^7.1.0"
-  },
-  "alias": {
-    "react": "./node_modules/react",
-    "react-dom": "./node_modules/react-dom",
-    "react-konva": "./node_modules/react-konva",
-    "konva": "./node_modules/konva"
   },
   "devDependencies": {
     "@babel/core": "^7.10.1",
