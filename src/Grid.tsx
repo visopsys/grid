@@ -403,40 +403,23 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     /* Handle vertical scroll */
     const handleScroll = useCallback(
       (e) => {
-        var { scrollTop } = e.target;
-        if (snapToRow) {
-          /* Get the height of the next row */
-          var nextRowHeight = getRowHeight(
-            Math.min(rowStartIndex + 1, rowCount - 1),
-            instanceProps.current
-          );
-          scrollTop = Math.round(scrollTop / nextRowHeight) * nextRowHeight;
-        }
+        const { scrollTop } = e.target;
         setScrollTop(scrollTop);
         /* Scroll callbacks */
         onScroll && onScroll({ scrollTop, scrollLeft });
       },
-      [scrollLeft, rowStartIndex, snapToRow, rowCount]
+      [scrollLeft]
     );
 
     /* Handle horizontal scroll */
     const handleScrollLeft = useCallback(
       (e) => {
-        var { scrollLeft } = e.target;
-        if (snapToColumn) {
-          /* Get the height of the next row */
-          var nextColumnWidth = getColumnWidth(
-            Math.min(columnStartIndex + 1, columnCount - 1),
-            instanceProps.current
-          );
-          scrollLeft =
-            Math.round(scrollLeft / nextColumnWidth) * nextColumnWidth;
-        }
+        const { scrollLeft } = e.target;
         setScrollLeft(scrollLeft);
         /* Scroll callbacks */
         onScroll && onScroll({ scrollLeft, scrollTop });
       },
-      [scrollTop, columnStartIndex, snapToColumn, columnCount]
+      [scrollTop]
     );
 
     /* Scroll based on left, top position */
