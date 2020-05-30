@@ -44,15 +44,19 @@ npm install react-konva-grid --save
 
 Konva grid will work in any browser that supports [react](https://github.com/facebook/react/), [konva](https://konvajs.org/) and canvas element.
 
-## Integrations
+## Integrations/Examples
 
 Konva Grid is a pure renderer, that will work with many third-party table plugins
 
-1. React-table
+#### 1. React-table
 
-    [https://github.com/rmdort/konva-grid/tree/master/examples/react-table](https://github.com/rmdort/konva-grid/tree/master/examples/react-table)
+[https://github.com/rmdort/konva-grid/tree/master/examples/react-table](https://github.com/rmdort/konva-grid/tree/master/examples/react-table)
 
-    Uses [react-table](https://github.com/tannerlinsley/react-table) to create grouped headings and rows, and display on Konva Grid
+Uses [react-table](https://github.com/tannerlinsley/react-table) to create grouped headings and rows, and display on Konva Grid
+
+#### 2. Excel worksheet
+
+[https://github.com/rmdort/konva-grid/tree/master/examples/excel-worksheet](https://github.com/rmdort/konva-grid/tree/master/examples/excel-worksheet)
 
 *More examples coming soon.*
 
