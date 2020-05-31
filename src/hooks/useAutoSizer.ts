@@ -55,7 +55,8 @@ const useAutoSizer = ({
         });
         const metrics = autoSizer.current.measureText(value);
         if (metrics) {
-          if (metrics.width > maxWidth) maxWidth = metrics.width + 10;
+          if (metrics.width > maxWidth)
+            maxWidth = Math.ceil(metrics.width) + 10;
         }
         start++;
       }
