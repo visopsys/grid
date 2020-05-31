@@ -5,7 +5,6 @@ import { Group, Rect, Text } from "react-konva/lib/ReactKonvaCore";
 export interface CellProps extends RendererProps {
   value?: string;
   textColor?: string;
-  textAlign?: string;
   textOffsetX?: number;
 }
 
@@ -23,11 +22,10 @@ const Cell: React.FC<CellProps> = (props) => {
     fill = "white",
     strokeWidth = 0.5,
     stroke = "#aaa",
-    align = "left",
+    align = "center",
     verticalAlign = "middle",
     textColor = "#333",
     textOffsetX = 0,
-    textAlign = "center",
   } = props;
   return (
     <Group>
@@ -48,8 +46,8 @@ const Cell: React.FC<CellProps> = (props) => {
         text={value}
         fill={textColor}
         offsetX={textOffsetX}
-        verticalAlign="middle"
-        align={textAlign}
+        verticalAlign={verticalAlign}
+        align={align}
       />
     </Group>
   );

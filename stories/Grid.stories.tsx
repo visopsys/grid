@@ -17,38 +17,6 @@ export default {
 export const BaseGrid: React.FC = () => {
   const width = number("width", 900);
   const height = number("height", 600);
-  const Cell = ({
-    rowIndex,
-    columnIndex,
-    x,
-    y,
-    width,
-    height,
-  }: IChildrenProps) => {
-    const text = `${rowIndex}x${columnIndex}`;
-    return (
-      <>
-        <Rect
-          x={x}
-          y={y}
-          height={height}
-          width={width}
-          fill="white"
-          stroke="grey"
-          strokeWidth={0.5}
-        />
-        <Text
-          x={x}
-          y={y}
-          height={height}
-          width={width}
-          text={text}
-          verticalAlign="middle"
-          align="center"
-        />
-      </>
-    );
-  };
   const App = () => {
     return (
       <Grid
