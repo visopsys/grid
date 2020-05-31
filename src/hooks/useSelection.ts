@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef } from "react";
 import { AreaProps, GridRef } from "./../Grid";
-import { throttle } from "./../helpers";
 
 export interface UseSelectionOptions {
   gridRef?: React.MutableRefObject<GridRef>;
@@ -77,9 +76,6 @@ const useSelection = (options: UseSelectionOptions = {}) => {
     },
     [isSelectionMode]
   );
-  /* Throttle mousemove */
-  const mouseMoveThrottler = useRef(throttle(handleMouseMove, 100));
-
   /**
    * Mouse up handler
    */
@@ -91,7 +87,7 @@ const useSelection = (options: UseSelectionOptions = {}) => {
   return {
     selections,
     onMouseDown: handleMouseDown,
-    onMouseMove: mouseMoveThrottler.current,
+    onMouseMove: handleMouseMove,
     onMouseUp: handleMouseUp,
   };
 };
