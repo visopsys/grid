@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useRef, useState, useCallback } from "react";
-import Grid, { IChildrenProps } from "./../src/Grid";
+import Grid, { IChildrenProps, Cell as DefaultCell } from "./../src/";
 import useSelection from "./../src/hooks/useSelection";
 import useEditable from "./../src/hooks/useEditable";
 import useAutoSizer from "./../src/hooks/useAutoSizer";
@@ -59,7 +59,12 @@ export const BaseGrid: React.FC = () => {
         columnWidth={(index) => {
           return 100;
         }}
-        itemRenderer={(props) => <Cell {...props} />}
+        itemRenderer={(props) => (
+          <DefaultCell
+            {...props}
+            value={`${props.rowIndex}:${props.columnIndex}`}
+          />
+        )}
         rowHeight={(index) => {
           return 20;
         }}

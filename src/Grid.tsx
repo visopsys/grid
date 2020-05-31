@@ -28,6 +28,7 @@ import {
   throttle,
 } from "./helpers";
 import { ShapeConfig } from "konva/types/Shape";
+import { CellRenderer as defaultItemRenderer } from "./Cell";
 
 export interface GridProps {
   /**
@@ -154,13 +155,12 @@ const defaultSelectionRenderer = (props: SelectionProps) => {
 };
 
 export type RenderComponent = React.FC<RendererProps>;
-export interface CellPosition {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-export interface RendererProps extends CellInterface, CellPosition {
+export interface CellPosition
+  extends Pick<ShapeConfig, "x" | "y" | "width" | "height"> {}
+export interface RendererProps
+  extends CellInterface,
+    CellPosition,
+    ShapeConfig {
   key: Key;
 }
 
@@ -251,7 +251,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       selections = [],
       frozenRows = 0,
       frozenColumns = 0,
-      itemRenderer,
+      itemRenderer = defaultItemRenderer,
       mergedCells = [],
       snap = false,
       scrollThrottleTimeout = 100,
