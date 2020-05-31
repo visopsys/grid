@@ -9,7 +9,7 @@ import { Rect, Text, Group, RegularPolygon } from "react-konva";
 import { number } from "@storybook/addon-knobs";
 
 export default {
-  title: "Grid/Treetable",
+  title: "Treetable",
   component: Grid,
 };
 

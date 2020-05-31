@@ -139,7 +139,7 @@ export type ScrollCoords = {
 };
 
 const defaultRowHeight = () => 20;
-const defaultColumnWidth = () => 100;
+const defaultColumnWidth = () => 60;
 const defaultSelectionRenderer = (props: SelectionProps) => {
   return (
     <Rect

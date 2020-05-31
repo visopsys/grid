@@ -71,12 +71,11 @@ const useAutoSizer = ({
       let start = rowStartIndex;
       let maxWidth = minColumnWidth;
       while (start < visibleRows) {
-        const value: string =
+        const value =
           getValueRef.current({
             rowIndex: start,
             columnIndex,
           }) ?? null;
-
         if (value !== null) {
           const metrics = autoSizer.current.measureText(value);
           if (metrics) {

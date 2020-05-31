@@ -1,18 +1,18 @@
-import React from "react";
+import React, { memo } from "react";
 import { RendererProps } from "./Grid";
 import { Group, Rect, Text } from "react-konva/lib/ReactKonvaCore";
 
 export interface CellProps extends RendererProps {
   value?: string;
   textColor?: string;
-  textOffsetX?: number;
+  padding?: number;
 }
 
 /**
  * Default cell component
  * @param props
  */
-const Cell: React.FC<CellProps> = (props) => {
+const Cell: React.FC<CellProps> = memo((props) => {
   const {
     x,
     y,
@@ -25,7 +25,7 @@ const Cell: React.FC<CellProps> = (props) => {
     align = "center",
     verticalAlign = "middle",
     textColor = "#333",
-    textOffsetX = 0,
+    padding = 0,
     fontFamily = "Arial, sans-serif",
     fontSize = 12,
   } = props;
@@ -47,15 +47,15 @@ const Cell: React.FC<CellProps> = (props) => {
         width={width}
         text={value}
         fill={textColor}
-        offsetX={textOffsetX}
         verticalAlign={verticalAlign}
         align={align}
         fontFamily={fontFamily}
         fontSize={fontSize}
+        padding={padding}
       />
     </Group>
   );
-};
+});
 
 /**
  * Default CellRenderer

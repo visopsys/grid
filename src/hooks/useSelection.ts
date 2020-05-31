@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
 import { AreaProps, GridRef } from "./../Grid";
+import { throttle } from "./../helpers";
 
 export interface UseSelectionOptions {
   gridRef?: React.MutableRefObject<GridRef>;
@@ -15,6 +16,7 @@ const useSelection = (options: UseSelectionOptions = {}) => {
   const [selections, setSelections] = useState<AreaProps[]>(initialSelections);
   const selectionStart = useRef<AreaProps>();
   const isSelectionMode = useRef<boolean>();
+
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     /* Exit early if grid is not initialized */
     if (!gridRef || !gridRef.current) return;
@@ -75,6 +77,8 @@ const useSelection = (options: UseSelectionOptions = {}) => {
     },
     [isSelectionMode]
   );
+  /* Throttle mousemove */
+  const mouseMoveThrottler = useRef(throttle(handleMouseMove, 100));
 
   /**
    * Mouse up handler
@@ -87,7 +91,7 @@ const useSelection = (options: UseSelectionOptions = {}) => {
   return {
     selections,
     onMouseDown: handleMouseDown,
-    onMouseMove: handleMouseMove,
+    onMouseMove: mouseMoveThrottler.current,
     onMouseUp: handleMouseUp,
   };
 };
