@@ -79,14 +79,14 @@ const App = () => {
       height={800}
       rowHeight={(rowIndex) => 20}
       columnWidth={(columnIndex) => 100}
-      itemRenderer={(props) => 
+      itemRenderer={(props) => (
         <Cell
           {...props}
           value={
             data[[props.rowIndex, props.columnIndex]]
           }
         />
-      }
+      )}
     />
   )
 }
