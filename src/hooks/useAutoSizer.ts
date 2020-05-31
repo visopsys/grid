@@ -10,6 +10,7 @@ interface IProps {
   cellSpacing?: number;
   timeout?: number;
   resizeOnScroll?: boolean;
+  font?: string;
 }
 
 interface AutoResizerResults {
@@ -32,14 +33,16 @@ const useAutoSizer = ({
   minColumnWidth = 40,
   timeout = 300,
   resizeOnScroll = true,
+  font = "12px Arial",
 }: IProps): AutoResizerResults => {
-  const autoSizer = useRef(AutoSizerCanvas());
+  const autoSizer = useRef(AutoSizerCanvas(font));
   const [viewport, setViewport] = useState<ViewPortProps>({
     rowStartIndex: 0,
     rowStopIndex: 0,
     columnStartIndex: 0,
     columnStopIndex: 0,
   });
+  const isMounted = useRef(false);
   const debounceResizer = useRef(
     debounce(
       ({ rowIndex, columnIndex }: CellInterface) =>
@@ -48,10 +51,14 @@ const useAutoSizer = ({
     )
   );
 
+  useEffect(() => {
+    isMounted.current = true;
+  }, []);
+
   /* Update any styles, fonts if necessary */
   useEffect(() => {
-    autoSizer.current.setFont();
-  }, []);
+    autoSizer.current.setFont(font);
+  }, [font]);
 
   const getValueRef = useRef(getValue);
   /* Keep it in sync */
@@ -86,16 +93,23 @@ const useAutoSizer = ({
 
   const handleViewChange = useCallback(
     (cells: ViewPortProps) => {
-      if (!resizeOnScroll) return;
+      if (
+        !resizeOnScroll ||
+        (cells.rowStartIndex === viewport.rowStartIndex &&
+          cells.columnStartIndex === viewport.columnStartIndex)
+      )
+        return;
       setViewport(cells);
       if (gridRef.current) {
+        /* During first mount, column width is calculated. Do not re-calculate */
+        if (!isMounted.current) return;
         debounceResizer.current({
           rowIndex: cells.rowStartIndex,
           columnIndex: cells.columnStartIndex,
         });
       }
     },
-    [resizeOnScroll]
+    [resizeOnScroll, viewport]
   );
 
   return {
@@ -105,7 +119,7 @@ const useAutoSizer = ({
 };
 
 /* Canvas element */
-const AutoSizerCanvas = (defaultFont = "12px Arial") => {
+const AutoSizerCanvas = (defaultFont: string) => {
   const canvas = <HTMLCanvasElement>document.createElement("canvas");
   const context = canvas.getContext("2d");
   const setFont = (font: string = defaultFont) => {

@@ -138,10 +138,6 @@ export type ScrollCoords = {
   scrollLeft: number;
 };
 
-export type ForceUpdateType = {
-  shouldForceUpdate?: boolean;
-};
-
 const defaultRowHeight = () => 20;
 const defaultColumnWidth = () => 100;
 const defaultSelectionRenderer = (props: SelectionProps) => {
@@ -217,7 +213,10 @@ export interface SnapColumnProps {
 export type GridRef = {
   scrollTo: (scrollPosition: ScrollCoords) => void;
   stage: typeof Stage | null;
-  resetAfterIndices: (coords: CellInterface & ForceUpdateType) => void;
+  resetAfterIndices: (
+    coords: CellInterface,
+    shouldForceUpdate?: boolean
+  ) => void;
   getScrollPosition: () => ScrollCoords;
   isMergedCell: (coords: CellInterface) => boolean;
   getCellBounds: (coords: CellInterface) => AreaProps;
@@ -356,11 +355,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
     /* Redraw grid imperatively */
     const resetAfterIndices = useCallback(
-      ({
-        columnIndex,
-        rowIndex,
-        shouldForceUpdate = true,
-      }: CellInterface & ForceUpdateType) => {
+      (
+        { columnIndex, rowIndex }: CellInterface,
+        shouldForceUpdate: boolean = true
+      ) => {
         if (typeof columnIndex === "number") {
           instanceProps.current.lastMeasuredColumnIndex = Math.min(
             instanceProps.current.lastMeasuredColumnIndex,
