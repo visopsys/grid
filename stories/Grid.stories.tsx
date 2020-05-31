@@ -222,6 +222,7 @@ export const AutoSizer: React.FC = () => {
     });
     return (
       <Grid
+        ref={gridRef}
         width={width}
         height={height}
         columnCount={200}

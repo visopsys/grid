@@ -26,6 +26,8 @@ const Cell: React.FC<CellProps> = (props) => {
     verticalAlign = "middle",
     textColor = "#333",
     textOffsetX = 0,
+    fontFamily = "Arial, sans-serif",
+    fontSize = 12,
   } = props;
   return (
     <Group>
@@ -48,6 +50,8 @@ const Cell: React.FC<CellProps> = (props) => {
         offsetX={textOffsetX}
         verticalAlign={verticalAlign}
         align={align}
+        fontFamily={fontFamily}
+        fontSize={fontSize}
       />
     </Group>
   );

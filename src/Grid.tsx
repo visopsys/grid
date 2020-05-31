@@ -130,6 +130,7 @@ type RefAttribute = {
   ref?: React.MutableRefObject<GridRef>;
 };
 
+export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 export interface SelectionProps extends ShapeConfig {}
 
 export type ScrollCoords = {
@@ -138,7 +139,7 @@ export type ScrollCoords = {
 };
 
 export type ForceUpdateType = {
-  shouldForceUpdate: boolean;
+  shouldForceUpdate?: boolean;
 };
 
 const defaultRowHeight = () => 20;
