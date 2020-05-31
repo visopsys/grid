@@ -128,8 +128,7 @@ This is the list of props that are meant to be used to customise the `konva-grid
 | selectionBorderColor | false | string | Border color of bounding box of selected cells | rgba(66, 133, 244, 1) |
 | selections | false | Array | Array of selected cell areas | []|
 | mergedCells | false | Array | Array of merged cell areas | []|
-| snapToRow | false | boolean | Snaps to the next row as you scroll | false |
-| snapToColumn | false | boolean | Snaps to the next column as you scroll | false |
+| snap | false | boolean | Snaps to the next row or column as you scroll | false |
 | frozenRows | false | number | No of frozen rows | 0 |
 | frozenColumns | false | number | No of frozen columns | 0 |
 | onBeforeRenderRow | false | Function | Called right before a row is rendered, useful for `react-table` | null |

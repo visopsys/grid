@@ -99,13 +99,9 @@ export interface GridProps {
    */
   frozenColumns?: number;
   /**
-   * Snap to row when scrolling
+   * Snap to row and column when scrolling
    */
-  snapToRow?: boolean;
-  /**
-   * Snap to column when scrolling
-   */
-  snapToColumn?: boolean;
+  snap?: boolean;
   /**
    * Scroll throttle wait timeout
    */
@@ -214,6 +210,7 @@ export interface SnapColumnProps {
   columnStartIndex: number;
   columnCount: number;
   deltaX: number;
+  frozenColumns: number;
 }
 
 export type GridRef = {
@@ -256,8 +253,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       frozenColumns = 0,
       itemRenderer,
       mergedCells = [],
-      snapToRow = false,
-      snapToColumn = false,
+      snap = false,
       scrollThrottleTimeout = 100,
       onViewChange,
       selectionRenderer = defaultSelectionRenderer,
@@ -305,7 +301,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             deltaY < 0
               ? // User is scrolling up
                 Math.max(0, rowStartIndex)
-              : Math.min(rowStartIndex, rowCount - 1);
+              : Math.min(rowStartIndex + frozenRows, rowCount - 1);
+          /* TODO: Fix bug when frozenRowHeight > minRow height, which causes rowStartIndex to be 1 even after a scroll */
           const rowHeight = getRowHeight(nextRowIndex, instanceProps.current);
           verticalScrollRef.current.scrollTop +=
             (deltaY < 0 ? -1 : 1) * rowHeight;
@@ -317,13 +314,18 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      * Snaps horizontal scrollbar to the next/prev visible column
      */
     const snapToColumnFn = useCallback(
-      ({ columnStartIndex, columnCount, deltaX }: SnapColumnProps) => {
+      ({
+        columnStartIndex,
+        columnCount,
+        deltaX,
+        frozenColumns,
+      }: SnapColumnProps) => {
         if (!horizontalScrollRef.current) return;
         if (deltaX !== 0) {
           const nextColumnIndex =
             deltaX < 0
               ? Math.max(0, columnStartIndex)
-              : Math.min(columnStartIndex, columnCount - 1);
+              : Math.min(columnStartIndex + frozenColumns, columnCount - 1);
           const columnWidth = getColumnWidth(
             nextColumnIndex,
             instanceProps.current
@@ -514,19 +516,19 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       (event: React.WheelEvent) => {
         const { deltaX, deltaY, deltaMode } = event.nativeEvent;
         /* If snaps are active */
-        if (snapToRow || snapToColumn) {
-          snapToRow &&
-            snapToRowThrottler.current({
-              deltaY,
-              rowStartIndex,
-              rowCount,
-            });
-          snapToColumn &&
-            snapToColumnThrottler.current({
-              deltaX,
-              columnStartIndex,
-              columnCount,
-            });
+        if (snap) {
+          snapToRowThrottler.current({
+            deltaY,
+            rowStartIndex,
+            rowCount,
+            frozenRows,
+          });
+          snapToColumnThrottler.current({
+            deltaX,
+            columnStartIndex,
+            columnCount,
+            frozenColumns,
+          });
           return;
         }
         /* Scroll natively */
@@ -553,8 +555,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnStartIndex,
         rowCount,
         columnCount,
-        snapToRow,
-        snapToColumn,
+        snap,
+        frozenColumns,
+        frozenRows,
       ]
     );
 

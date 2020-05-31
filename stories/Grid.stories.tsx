@@ -70,6 +70,67 @@ export const BaseGrid: React.FC = () => {
   return <App />;
 };
 
+export const BaseGridSnap: React.FC = () => {
+  const width = number("width", 900);
+  const height = number("height", 600);
+  const Cell = ({
+    rowIndex,
+    columnIndex,
+    x,
+    y,
+    width,
+    height,
+  }: IChildrenProps) => {
+    const text = `${rowIndex}x${columnIndex}`;
+    return (
+      <>
+        <Rect
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          fill="white"
+          stroke="grey"
+          strokeWidth={0.5}
+        />
+        <Text
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          text={text}
+          verticalAlign="middle"
+          align="center"
+        />
+      </>
+    );
+  };
+  const App = () => {
+    return (
+      <Grid
+        width={width}
+        height={height}
+        columnCount={200}
+        rowCount={200}
+        columnWidth={(index) => {
+          return 100;
+        }}
+        snap
+        itemRenderer={(props) => <Cell {...props} />}
+        rowHeight={(index) => {
+          return 20;
+        }}
+      />
+    );
+  };
+
+  return <App />;
+};
+
+BaseGridSnap.story = {
+  name: "Autosnap",
+};
+
 export const FullWidthGrid: React.FC = () => {
   const Cell = ({
     rowIndex,
