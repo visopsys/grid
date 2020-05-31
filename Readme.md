@@ -63,36 +63,12 @@ Uses [react-table](https://github.com/tannerlinsley/react-table) to create group
 ## Usage
 
 ```js
-import { Grid } from 'react-konva-grid'
+import { Grid, Cell } from 'react-konva-grid'
 import { Group, Text, Rect } from 'react-konva'
 
 const App = () => {
   const data = {
     [[1, 2]]: 'Hello world'
-  }
-  const Cell = ({ rowIndex, columnIndex, x, y, width, height, key }) => {
-    const text = data[[rowIndex, columnIndex]] || `${rowIndex}x${columnIndex}`
-    return (
-      <Group key={key}>
-        <Rect
-          x={x}
-          y={y}
-          height={height}
-          width={width}
-          fill="white"
-          stroke="grey"
-        />
-        <Text
-          x={x}
-          y={y}
-          height={height}
-          width={width}
-          text={text}
-          verticalAlign="middle"
-          align="center"
-        />
-      </Group>
-    )
   }
 
   return (
@@ -103,7 +79,14 @@ const App = () => {
       height={800}
       rowHeight={(rowIndex) => 20}
       columnWidth={(columnIndex) => 100}
-      itemRenderer={Cell}
+      itemRenderer={(props) => 
+        <Cell
+          {...props}
+          value={
+            data[[props.rowIndex, props.columnIndex]]
+          }
+        />
+      }
     />
   )
 }
