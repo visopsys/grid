@@ -534,6 +534,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
     const scrollToItem = useCallback(
       ({ rowIndex, columnIndex }: CellInterface) => {
+        const frozenColumnOffset = getColumnOffset({
+          index: frozenColumns,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
         const newScrollLeft = getOffsetForColumnAndAlignment({
           index: columnIndex,
           containerHeight,
@@ -545,8 +551,15 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           scrollOffset: scrollLeft,
           instanceProps: instanceProps.current,
           scrollbarSize,
+          frozenOffset: frozenColumnOffset,
         });
 
+        const frozenRowOffset = getRowOffset({
+          index: frozenRows,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
         const newScrollTop = getOffsetForRowAndAlignment({
           index: rowIndex,
           containerHeight,
@@ -558,6 +571,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           scrollOffset: scrollTop,
           instanceProps: instanceProps.current,
           scrollbarSize,
+          frozenOffset: frozenRowOffset,
         });
 
         scrollTo({
@@ -573,6 +587,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         scrollbarSize,
         scrollLeft,
         scrollTop,
+        frozenRows,
+        frozenColumns,
       ]
     );
 

@@ -479,6 +479,7 @@ export interface AlignmentProps extends Omit<IItemMetaData, "offset"> {
   align?: Align;
   scrollOffset: number;
   scrollbarSize: number;
+  frozenOffset: number;
 }
 
 export const getOffsetForIndexAndAlignment = ({
@@ -494,6 +495,7 @@ export const getOffsetForIndexAndAlignment = ({
   scrollOffset,
   instanceProps,
   scrollbarSize,
+  frozenOffset = 0,
 }: AlignmentProps): number => {
   const size = itemType === "column" ? containerWidth : containerHeight;
   const itemMetadata = getItemMetadata({
@@ -513,7 +515,7 @@ export const getOffsetForIndexAndAlignment = ({
 
   const maxOffset = Math.max(
     0,
-    Math.min(estimatedTotalSize - size, itemMetadata.offset)
+    Math.min(estimatedTotalSize - size, itemMetadata.offset - frozenOffset)
   );
   const minOffset = Math.max(
     0,
@@ -538,14 +540,18 @@ export const getOffsetForIndexAndAlignment = ({
     case Align.auto:
     default:
       if (scrollOffset >= minOffset && scrollOffset <= maxOffset) {
+        console.log("called");
         return scrollOffset;
       } else if (minOffset > maxOffset) {
+        console.log("called 2");
         // Because we only take into account the scrollbar size when calculating minOffset
         // this value can be larger than maxOffset when at the end of the list
         return minOffset;
       } else if (scrollOffset < minOffset) {
+        console.log("called 3");
         return minOffset;
       } else {
+        console.log("called 4");
         return maxOffset;
       }
   }
