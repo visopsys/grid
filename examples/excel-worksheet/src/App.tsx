@@ -117,6 +117,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
   const autoSizerProps = useAutoSizer({
     gridRef,
     getValue,
+    minColumnWidth: 60,
   });
   const frozenColumns = 1;
   const frozenRows = 1;
