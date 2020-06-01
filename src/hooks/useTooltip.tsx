@@ -2,10 +2,9 @@ import React, { useCallback, useState, useMemo } from "react";
 import { CellInterface, GridRef } from "../Grid";
 
 export interface TooltipOptions {
-  getTooltipComponent: (cell?: CellInterface | null) => React.ElementType;
+  getTooltipComponent?: (cell?: CellInterface | null) => React.ElementType;
   gridRef: React.MutableRefObject<GridRef>;
-  getValue: <T>(cell: CellInterface) => T;
-  onChange: <T>(value: T, coords: CellInterface) => void;
+  getValue: (cell: CellInterface) => any;
 }
 
 export interface TooltipResults {

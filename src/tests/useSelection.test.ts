@@ -1,5 +1,5 @@
 import { renderHook, act } from "@testing-library/react-hooks";
-import useSelection from "./useSelection";
+import useSelection from "./../hooks/useSelection";
 
 describe("useSelection", () => {
   it("is a function", () => {
