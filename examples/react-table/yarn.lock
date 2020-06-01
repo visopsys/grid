@@ -4249,7 +4249,7 @@ react-is@^16.8.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
-react-konva-grid@^2.4.3:
+react-konva-grid@latest:
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/react-konva-grid/-/react-konva-grid-2.4.3.tgz#c8b79d528f77d8b8bb343cd29f107442cc1cc836"
   integrity sha512-56C0jJme6NiKY0fQvGa9foAwObR5lTbdIgadsrz/ib2vKwrXj8ML6kerKlJm/xi8PxL5Od3YGGe0zyoZiJKO9Q==
