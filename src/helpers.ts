@@ -540,18 +540,14 @@ export const getOffsetForIndexAndAlignment = ({
     case Align.auto:
     default:
       if (scrollOffset >= minOffset && scrollOffset <= maxOffset) {
-        console.log("called");
         return scrollOffset;
       } else if (minOffset > maxOffset) {
-        console.log("called 2");
         // Because we only take into account the scrollbar size when calculating minOffset
         // this value can be larger than maxOffset when at the end of the list
         return minOffset;
       } else if (scrollOffset < minOffset) {
-        console.log("called 3");
         return minOffset;
       } else {
-        console.log("called 4");
         return maxOffset;
       }
   }

@@ -176,27 +176,30 @@ const useSelection = (options?: UseSelectionOptions) => {
     gridRef.current.scrollToItem({ rowIndex, columnIndex });
   };
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    const modify = e.nativeEvent.shiftKey;
-    switch (e.nativeEvent.which) {
-      case 39:
-        keyNavigate(Direction.Right, modify);
-        break;
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const modify = e.nativeEvent.shiftKey;
+      switch (e.nativeEvent.which) {
+        case 39:
+          keyNavigate(Direction.Right, modify);
+          break;
 
-      case 37:
-        keyNavigate(Direction.Left, modify);
-        break;
+        case 37:
+          keyNavigate(Direction.Left, modify);
+          break;
 
-      // Up
-      case 38:
-        keyNavigate(Direction.Up, modify);
-        break;
+        // Up
+        case 38:
+          keyNavigate(Direction.Up, modify);
+          break;
 
-      case 40:
-        keyNavigate(Direction.Down, modify);
-        break;
-    }
-  }, []);
+        case 40:
+          keyNavigate(Direction.Down, modify);
+          break;
+      }
+    },
+    [rowCount, columnCount]
+  );
 
   return {
     selections,
