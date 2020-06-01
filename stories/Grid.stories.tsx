@@ -1156,3 +1156,73 @@ export const WithTooltip: React.FC = () => {
 
   return <App />;
 };
+
+export const GridWithContextMenu: React.FC = () => {
+  const width = number("width", 900);
+  const height = number("height", 600);
+  const ContextMenu = ({ left, top, rowIndex, columnIndex }) => {
+    return (
+      <div
+        style={{
+          left,
+          top,
+          position: "absolute",
+          padding: 8,
+          background: "white",
+          boxShadow: "0 1px 2px 3px rgba(0,0,0,0.2)",
+        }}
+      >
+        <div>
+          You selected {rowIndex}: {columnIndex}
+        </div>
+        <a href="#" style={{ display: "block", padding: 8 }}>
+          Hide column
+        </a>
+      </div>
+    );
+  };
+  const App = () => {
+    const gridRef = useRef();
+    const [contextMenuPostion, setContextMenuPosition] = useState(null);
+    return (
+      <div style={{ position: "relative" }}>
+        <Grid
+          ref={gridRef}
+          onContextMenu={(e) => {
+            const {
+              rowIndex,
+              columnIndex,
+            } = gridRef.current.getCellCoordsFromOffset(e.clientX, e.clientY);
+            setContextMenuPosition({
+              left: e.clientX + 10,
+              top: e.clientY + 10,
+              rowIndex,
+              columnIndex,
+            });
+            e.preventDefault();
+          }}
+          onMouseDown={() => setContextMenuPosition(null)}
+          width={width}
+          height={height}
+          columnCount={200}
+          rowCount={200}
+          columnWidth={(index) => {
+            return 100;
+          }}
+          itemRenderer={(props) => (
+            <DefaultCell
+              {...props}
+              value={`${props.rowIndex}:${props.columnIndex}`}
+            />
+          )}
+          rowHeight={(index) => {
+            return 20;
+          }}
+        />
+        {contextMenuPostion && <ContextMenu {...contextMenuPostion} />}
+      </div>
+    );
+  };
+
+  return <App />;
+};
