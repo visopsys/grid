@@ -114,6 +114,8 @@ This is the list of props that are meant to be used to customise the `konva-grid
 | snap | false | boolean | Snaps to the next row or column as you scroll | false |
 | frozenRows | false | number | No of frozen rows | 0 |
 | frozenColumns | false | number | No of frozen columns | 0 |
+| showFrozenShadow| false | boolean | Show shadow in frozen columns/rows | true |
+| shadowSettings| false | object | Customize shadow of frozen columns/rows | true |
 | onBeforeRenderRow | false | Function | Called right before a row is rendered, useful for `react-table` | null |
 
 ## Methods

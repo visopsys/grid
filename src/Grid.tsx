@@ -10,7 +10,13 @@ import React, {
   useEffect,
   Key,
 } from "react";
-import { Stage, Layer, Rect, Group } from "react-konva/lib/ReactKonvaCore";
+import {
+  Stage,
+  Layer,
+  Rect,
+  Group,
+  Line,
+} from "react-konva/lib/ReactKonvaCore";
 import {
   getRowStartIndexForOffset,
   getRowStopIndexForStartIndex,
@@ -105,6 +111,14 @@ export interface GridProps {
    * Snap to row and column when scrolling
    */
   snap?: boolean;
+  /**
+   * Show shadow as you scroll for frozen rows and columns
+   */
+  showFrozenShadow?: boolean;
+  /**
+   * Shadow settings
+   */
+  shadowSettings?: ShapeConfig;
   /**
    * Scroll throttle wait timeout
    */
@@ -230,6 +244,13 @@ export type GridRef = {
 export type MergedCellMap = Map<string, AreaProps>;
 
 const DEFAULT_ESTIMATED_ITEM_SIZE = 50;
+const defaultShadowSettings: ShapeConfig = {
+  stroke: "#000",
+  shadowColor: "black",
+  shadowBlur: 5,
+  shadowOpacity: 0.4,
+  shadowOffsetX: 2,
+};
 
 /**
  * Grid component using React Konva
@@ -261,6 +282,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       onViewChange,
       selectionRenderer = defaultSelectionRenderer,
       onBeforeRenderRow,
+      showFrozenShadow = true,
+      shadowSettings = defaultShadowSettings,
       ...rest
     } = props;
 
@@ -853,6 +876,60 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       }
     }
 
+    /**
+     * Frozen column shadow
+     */
+    const frozenColumnShadow = useMemo(() => {
+      if (showFrozenShadow == false || frozenColumns === 0 || scrollLeft === 0)
+        return null;
+      const frozenColumnLineX = getColumnOffset({
+        index: frozenColumns,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      return (
+        <Line
+          points={[frozenColumnLineX, 0, frozenColumnLineX, containerHeight]}
+          offsetX={1}
+          {...shadowSettings}
+        />
+      );
+    }, [
+      shadowSettings,
+      showFrozenShadow,
+      frozenColumns,
+      containerHeight,
+      scrollLeft,
+    ]);
+
+    /**
+     * Frozen row shadow
+     */
+    const frozenRowShadow = useMemo(() => {
+      if (showFrozenShadow === false || frozenRows === 0 || scrollTop === 0)
+        return null;
+      const frozenRowLineY = getRowOffset({
+        index: frozenRows,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      return (
+        <Line
+          points={[0, frozenRowLineY, containerWidth, frozenRowLineY]}
+          offsetY={1}
+          {...shadowSettings}
+        />
+      );
+    }, [
+      shadowSettings,
+      showFrozenShadow,
+      frozenRows,
+      containerWidth,
+      scrollTop,
+    ]);
+
     /* Draw frozen intersection cells */
     const frozenIntersectionCells = [];
     for (
@@ -1158,6 +1235,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               <Group offsetY={scrollTop} offsetX={scrollLeft} listening={false}>
                 {selectionAreas}
               </Group>
+              {frozenColumnShadow}
+              {frozenRowShadow}
               <Group offsetY={0} offsetX={scrollLeft}>
                 {frozenRowCells}
                 {frozenRowMergedCellAreas}
