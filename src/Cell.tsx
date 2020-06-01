@@ -1,11 +1,13 @@
 import React, { memo } from "react";
 import { RendererProps } from "./Grid";
 import { Group, Rect, Text } from "react-konva/lib/ReactKonvaCore";
+import { KonvaEventObject } from "konva/types/Node";
 
 export interface CellProps extends RendererProps {
   value?: string;
   textColor?: string;
   padding?: number;
+  onClick?: (e: KonvaEventObject<MouseEvent>) => void;
 }
 
 /**
@@ -25,12 +27,14 @@ const Cell: React.FC<CellProps> = memo((props) => {
     align = "center",
     verticalAlign = "middle",
     textColor = "#333",
-    padding = 0,
+    padding = 5,
     fontFamily = "Arial, sans-serif",
     fontSize = 12,
+    onClick,
+    children,
   } = props;
   return (
-    <Group>
+    <Group onClick={onClick}>
       <Rect
         x={x}
         y={y}
@@ -53,6 +57,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
         fontSize={fontSize}
         padding={padding}
       />
+      {children}
     </Group>
   );
 });

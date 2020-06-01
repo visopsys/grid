@@ -712,86 +712,68 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     }
 
     /* Draw merged cells */
-    const [
-      mergedCellAreas,
-      frozenColumnMergedCellAreas,
-      frozenRowMergedCellAreas,
-      frozenIntersectionMergedCells,
-    ] = useMemo(() => {
-      const areas = [];
-      const frozenColumnAreas = [];
-      const frozenRowAreas = [];
-      const frozenIntersectionCells = [];
-      for (let i = 0; i < mergedCells.length; i++) {
-        const { top: rowIndex, left: columnIndex, right, bottom } = mergedCells[
-          i
-        ];
-        const isLeftBoundFrozen = columnIndex < frozenColumns;
-        const isTopBoundFrozen = rowIndex < frozenRows;
-        const isIntersectionFrozen =
-          rowIndex < frozenRows && columnIndex < frozenColumns;
-        const x = getColumnOffset({
-          index: columnIndex,
-          rowHeight,
-          columnWidth,
-          instanceProps: instanceProps.current,
-        });
-        const y = getRowOffset({
-          index: rowIndex,
-          rowHeight,
-          columnWidth,
-          instanceProps: instanceProps.current,
-        });
-        const width =
-          getColumnOffset({
-            index: right + 1,
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current,
-          }) - x;
-        const height =
-          getRowOffset({
-            index: bottom + 1,
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current,
-          }) - y;
-
-        const cellRenderer = itemRenderer({
-          x,
-          y,
-          width,
-          height,
-          rowIndex,
-          columnIndex,
-          key: itemKey({ rowIndex, columnIndex }),
-        });
-
-        if (isLeftBoundFrozen) {
-          frozenColumnAreas.push(cellRenderer);
-        }
-
-        if (isTopBoundFrozen) {
-          frozenRowAreas.push(cellRenderer);
-        }
-
-        if (isIntersectionFrozen) [frozenIntersectionCells.push(cellRenderer)];
-
-        areas.push(cellRenderer);
-      }
-      return [
-        areas,
-        frozenColumnAreas,
-        frozenRowAreas,
-        frozenIntersectionCells,
+    const mergedCellAreas = [];
+    const frozenColumnMergedCellAreas = [];
+    const frozenRowMergedCellAreas = [];
+    const frozenIntersectionMergedCells = [];
+    for (let i = 0; i < mergedCells.length; i++) {
+      const { top: rowIndex, left: columnIndex, right, bottom } = mergedCells[
+        i
       ];
-    }, [
-      mergedCells,
-      rowStartIndex,
-      rowStopIndex,
-      columnStartIndex,
-      columnStopIndex,
-    ]);
+      const isLeftBoundFrozen = columnIndex < frozenColumns;
+      const isTopBoundFrozen = rowIndex < frozenRows;
+      const isIntersectionFrozen =
+        rowIndex < frozenRows && columnIndex < frozenColumns;
+      const x = getColumnOffset({
+        index: columnIndex,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      const y = getRowOffset({
+        index: rowIndex,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      const width =
+        getColumnOffset({
+          index: right + 1,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        }) - x;
+      const height =
+        getRowOffset({
+          index: bottom + 1,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        }) - y;
+
+      const cellRenderer = itemRenderer({
+        x,
+        y,
+        width,
+        height,
+        rowIndex,
+        columnIndex,
+        key: itemKey({ rowIndex, columnIndex }),
+      });
+
+      if (isLeftBoundFrozen) {
+        frozenColumnMergedCellAreas.push(cellRenderer);
+      }
+
+      if (isTopBoundFrozen) {
+        frozenRowMergedCellAreas.push(cellRenderer);
+      }
+
+      if (isIntersectionFrozen)
+        frozenIntersectionMergedCells.push(cellRenderer);
+
+      mergedCellAreas.push(cellRenderer);
+    }
 
     /* Draw frozen rows */
     const frozenRowCells = [];
