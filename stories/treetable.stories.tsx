@@ -265,7 +265,13 @@ export const TreeTable: React.FC = () => {
       rowIndex: 0,
       columnIndex: 0,
     });
-    const { selection, ...selectionProps } = useSelection({ gridRef });
+    const rowCount = data.length + frozenRows;
+    const columnCount = headers.length + 1;
+    const { selection, ...selectionProps } = useSelection({
+      gridRef,
+      rowCount,
+      columnCount,
+    });
     const mergedCells = [
       {
         top: 0,
@@ -296,8 +302,8 @@ export const TreeTable: React.FC = () => {
         ref={gridRef}
         width={width}
         height={height}
-        columnCount={headers.length + 1}
-        rowCount={data.length + frozenRows}
+        columnCount={columnCount}
+        rowCount={rowCount}
         selection={selection}
         frozenRows={frozenRows}
         frozenColumns={1}

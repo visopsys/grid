@@ -1,21 +1,80 @@
 import React, { useState, useCallback, useRef } from "react";
-import { AreaProps, GridRef } from "./../Grid";
+import { AreaProps, CellInterface, GridRef } from "./../Grid";
 
 export interface UseSelectionOptions {
   gridRef?: React.MutableRefObject<GridRef>;
   initialSelections?: AreaProps[];
+  columnCount: number;
+  rowCount: number;
+}
+
+const defaultOptions = {
+  initialSelection: [],
+  columnCount: 0,
+  rowCount: 0,
+};
+
+enum Direction {
+  Up = "UP",
+  Down = "DOWN",
+  Left = "LEFT",
+  Right = "RIGHT",
 }
 
 /**
  * useSelection hook to enable selection in datagrid
  * @param initialSelection
  */
-const useSelection = (options: UseSelectionOptions = {}) => {
-  const { gridRef, initialSelections = [] } = options;
+const useSelection = (options: UseSelectionOptions = defaultOptions) => {
+  const { gridRef, initialSelections = [], columnCount, rowCount } = options;
   const [selections, setSelections] = useState<AreaProps[]>(initialSelections);
-  const selectionStart = useRef<AreaProps>();
+  const selectionStart = useRef<CellInterface>();
+  const selectionEnd = useRef<CellInterface>();
   const isSelectionMode = useRef<boolean>();
 
+  /* New selection */
+  const newSelection = (coords: CellInterface) => {
+    selectionStart.current = coords;
+    selectionEnd.current = coords;
+    const selection = selectionFromStartEnd(coords, coords);
+    if (!selection) return;
+    setSelections([selection]);
+  };
+
+  /* selection object from start, end */
+  const selectionFromStartEnd = (start: CellInterface, end: CellInterface) => {
+    if (!gridRef) return null;
+    const boundsStart = gridRef.current.getCellBounds(start);
+    const boundsEnd = gridRef.current.getCellBounds(end);
+    return {
+      top: Math.min(boundsStart.top, boundsEnd.top),
+      bottom: Math.max(boundsStart.bottom, boundsEnd.bottom),
+      left: Math.min(boundsStart.left, boundsEnd.left),
+      right: Math.max(boundsStart.right, boundsEnd.right),
+    };
+  };
+
+  /* Modify current selection */
+  const modifySelection = (coords: CellInterface) => {
+    if (!selectionStart.current) return;
+    selectionEnd.current = coords;
+    const selection = selectionFromStartEnd(selectionStart.current, coords);
+    if (!selection) return;
+    setSelections([selection]);
+  };
+
+  /* Adds a new selection, CMD key */
+  const appendSelection = (coords: CellInterface) => {
+    selectionStart.current = coords;
+    selectionEnd.current = coords;
+    const selection = selectionFromStartEnd(coords, coords);
+    if (!selection) return;
+    setSelections((prev) => [...prev, selection]);
+  };
+
+  /**
+   * Triggers a new selection start
+   */
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     /* Exit early if grid is not initialized */
     if (!gridRef || !gridRef.current) return;
@@ -28,17 +87,26 @@ const useSelection = (options: UseSelectionOptions = {}) => {
       e.clientY
     );
 
-    /* To cater to merged Cells, get the bounds from internal fn */
-    const bounds = gridRef.current.getCellBounds({ rowIndex, columnIndex });
-
     /**
      * Save the initial Selection in ref
      * so we can adjust the bounds in mousemove
      */
-    selectionStart.current = bounds;
+    const coords = { rowIndex, columnIndex };
 
-    /* Add selection to state */
-    setSelections([bounds]);
+    /* Shift key */
+    if (e.nativeEvent.shiftKey) {
+      modifySelection(coords);
+      return;
+    }
+
+    /* Command  or Control key */
+    if (e.nativeEvent.metaKey || e.nativeEvent.ctrlKey) {
+      appendSelection(coords);
+      return;
+    }
+
+    /* Trigger new selection */
+    newSelection(coords);
   }, []);
 
   /**
@@ -47,32 +115,14 @@ const useSelection = (options: UseSelectionOptions = {}) => {
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       /* Exit if user is not in selection mode */
-      if (!isSelectionMode.current || !gridRef) return;
-
-      /* Get the current selection */
-      const _selectionStart = selectionStart.current;
-
-      /* Exit early */
-      if (!_selectionStart) return;
+      if (!isSelectionMode.current || !gridRef || !selectionEnd.current) return;
 
       const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
         e.clientX,
         e.clientY
       );
 
-      /* Get new bounds */
-      const bounds = gridRef.current.getCellBounds({ rowIndex, columnIndex });
-
-      setSelections((prevSelection) => {
-        return prevSelection.map((selection) => {
-          return {
-            top: Math.min(bounds.top, _selectionStart.top),
-            bottom: Math.max(bounds.bottom, _selectionStart.bottom),
-            left: Math.min(bounds.left, _selectionStart.left),
-            right: Math.max(bounds.right, _selectionStart.right),
-          };
-        });
-      });
+      modifySelection({ rowIndex, columnIndex });
     },
     [isSelectionMode]
   );
@@ -84,11 +134,77 @@ const useSelection = (options: UseSelectionOptions = {}) => {
     isSelectionMode.current = false;
   }, []);
 
+  /**
+   * Navigate selection using keyboard
+   * @param direction
+   * @param modify
+   */
+  const keyNavigate = (direction: Direction, modify?: boolean) => {
+    if (!selectionEnd.current || !gridRef) return;
+    var { rowIndex, columnIndex } = selectionEnd.current;
+    const isMergedCell = gridRef?.current.isMergedCell({
+      rowIndex,
+      columnIndex,
+    });
+    const bounds = gridRef.current.getCellBounds({ rowIndex, columnIndex });
+
+    switch (direction) {
+      case Direction.Up:
+        if (isMergedCell) rowIndex = bounds.top;
+        rowIndex = Math.max(rowIndex - 1, 0);
+        break;
+
+      case Direction.Down:
+        if (isMergedCell) rowIndex = bounds.bottom;
+        rowIndex = Math.min(rowIndex + 1, rowCount - 1);
+        break;
+
+      case Direction.Left:
+        if (isMergedCell) columnIndex = bounds.left;
+        columnIndex = Math.max(columnIndex - 1, 0);
+        break;
+
+      case Direction.Right:
+        if (isMergedCell) columnIndex = bounds.right;
+        columnIndex = Math.min(columnIndex + 1, columnCount - 1);
+        break;
+    }
+
+    if (modify) {
+      modifySelection({ rowIndex, columnIndex });
+    } else {
+      newSelection({ rowIndex, columnIndex });
+    }
+  };
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const modify = e.nativeEvent.shiftKey;
+    switch (e.nativeEvent.which) {
+      case 39:
+        keyNavigate(Direction.Right, modify);
+        break;
+
+      case 37:
+        keyNavigate(Direction.Left, modify);
+        break;
+
+      // Up
+      case 38:
+        keyNavigate(Direction.Up, modify);
+        break;
+
+      case 40:
+        keyNavigate(Direction.Down, modify);
+        break;
+    }
+  }, []);
+
   return {
     selections,
     onMouseDown: handleMouseDown,
     onMouseMove: handleMouseMove,
     onMouseUp: handleMouseUp,
+    onKeyDown: handleKeyDown,
   };
 };
 

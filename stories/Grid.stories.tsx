@@ -295,7 +295,13 @@ export const MergedCells: React.FC = () => {
       },
     ];
     const gridRef = useRef();
-    const { selection, ...selectionProps } = useSelection({ gridRef });
+    const rowCount = 200;
+    const columnCount = 200;
+    const { selection, ...selectionProps } = useSelection({
+      gridRef,
+      rowCount,
+      columnCount,
+    });
     return (
       <Grid
         width={width}
@@ -367,9 +373,13 @@ export const BaseGridWithSelection: React.FC = () => {
   };
   const App = () => {
     const gridRef = useRef();
+    const rowCount = 200;
+    const columnCount = 200;
     const { selections, ...selectionProps } = useSelection({
       initialSelections,
       gridRef,
+      rowCount,
+      columnCount,
     });
     return (
       <Grid
@@ -943,8 +953,12 @@ export const GridWithFrozenEdges: React.FC = () => {
   };
   const App = () => {
     const gridRef = useRef();
+    const rowCount = 200;
+    const columnCount = 200;
     const { selection, ...selectionProps } = useSelection({
       gridRef,
+      rowCount,
+      columnCount,
     });
     return (
       <Grid
@@ -1017,12 +1031,18 @@ export const EditableGrid: React.FC = () => {
       [[30, 4]]: "lorem asd asd as das dasd asd as da sdasdasda",
       [[2, 15]]: "lorem asd asd as das dasd asd as da sdasdasda",
     });
+    const rowCount = 200;
+    const columnCount = 200;
     const gridRef = useRef(null);
     const getCellValue = useCallback(
       ({ rowIndex, columnIndex }) => data[[rowIndex, columnIndex]],
       [data]
     );
-    const { selections, ...selectionProps } = useSelection({ gridRef });
+    const { selections, ...selectionProps } = useSelection({
+      gridRef,
+      rowCount,
+      columnCount,
+    });
     const { editorComponent, ...editableProps } = useEditable({
       gridRef,
       getValue: getCellValue,

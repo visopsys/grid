@@ -56,7 +56,13 @@ export const TickingGrid = () => {
     },
     [data]
   );
-  const { selections, ...selectionProps } = useSelection({ gridRef });
+  const rowCount = 200;
+  const columnCount = 200;
+  const { selections, ...selectionProps } = useSelection({
+    gridRef,
+    rowCount,
+    columnCount,
+  });
   // const autoSizerProps = useAutoSizer({ gridRef, getValue, minColumnWidth: 40 })
   return (
     <Grid
@@ -70,8 +76,8 @@ export const TickingGrid = () => {
           })}
         />
       )}
-      rowCount={100}
-      columnCount={100}
+      rowCount={rowCount}
+      columnCount={columnCount}
       selections={selections}
       {...selectionProps}
       // {...autoSizerProps}

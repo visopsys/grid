@@ -1,7 +1,7 @@
 {
   "name": "react-konva-grid",
-  "description": "Canvas grid to render large set of tabular data with virtualization.",
-  "version": "2.4.2",
+  "description": "Declarative React Canvas Grid primitive for Data table, Pivot table, Excel Worksheets",
+  "version": "2.4.3",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
