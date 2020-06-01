@@ -92,7 +92,13 @@ const Sheet = ({ data, onChange, name, isActive }) => {
   if (!isActive) return null;
   const gridRef = useRef<GridRef>();
   const [containerRef, { width, height }] = useMeasure();
-  const { selections, ...selectionProps } = useSelection({ gridRef });
+  const rowCount = 1000;
+  const columnCount = 1000;
+  const { selections, ...selectionProps } = useSelection({
+    gridRef,
+    rowCount,
+    columnCount,
+  });
   const getValue = useCallback(
     ({ rowIndex, columnIndex }) => {
       return data[[rowIndex, columnIndex]];
@@ -125,8 +131,8 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         height={height}
         ref={gridRef}
         selections={selections}
-        columnCount={1000}
-        rowCount={1000}
+        columnCount={columnCount}
+        rowCount={rowCount}
         itemRenderer={(props) => {
           if (props.rowIndex < frozenRows) {
             return <Header {...props} />;

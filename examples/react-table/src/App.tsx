@@ -80,14 +80,20 @@ export default function App() {
     });
   });
   const gridRef = useRef<GridRef>(null);
-  const { selections, ...selectionProps } = useSelection({ gridRef });
+  const rowCount = rows.length;
+  const columnCount = visibleColumns.length;
+  const { selections, ...selectionProps } = useSelection({
+    gridRef,
+    rowCount,
+    columnCount,
+  });
   return (
     <div className="App">
       <Grid
         ref={gridRef}
         selections={selections}
-        columnCount={visibleColumns.length}
-        rowCount={rows.length}
+        columnCount={columnCount}
+        rowCount={rowCount}
         rowHeight={() => 20}
         columnWidth={() => 100}
         mergedCells={mergedCells}
