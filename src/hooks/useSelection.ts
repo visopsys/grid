@@ -6,6 +6,7 @@ export interface UseSelectionOptions {
   initialSelections: AreaProps[];
   columnCount?: number;
   rowCount?: number;
+  newSelection: (coords: CellInterface) => void;
 }
 
 enum Direction {
@@ -13,6 +14,17 @@ enum Direction {
   Down = "DOWN",
   Left = "LEFT",
   Right = "RIGHT",
+}
+
+export enum SelectionKeys {
+  Right = 39,
+  Left = 37,
+  Up = 38,
+  Down = 40,
+  Enter = 13,
+  Escape = 27,
+  Tab = 9,
+  Meta = 91,
 }
 
 /**
@@ -180,21 +192,31 @@ const useSelection = (options?: UseSelectionOptions) => {
     (e: React.KeyboardEvent) => {
       const modify = e.nativeEvent.shiftKey;
       switch (e.nativeEvent.which) {
-        case 39:
+        case SelectionKeys.Right:
           keyNavigate(Direction.Right, modify);
           break;
 
-        case 37:
+        case SelectionKeys.Left:
           keyNavigate(Direction.Left, modify);
           break;
 
         // Up
-        case 38:
+        case SelectionKeys.Up:
           keyNavigate(Direction.Up, modify);
           break;
 
-        case 40:
+        case SelectionKeys.Enter:
+        case SelectionKeys.Down:
           keyNavigate(Direction.Down, modify);
+          break;
+
+        case SelectionKeys.Tab:
+          if (modify) {
+            keyNavigate(Direction.Left);
+          } else {
+            keyNavigate(Direction.Right);
+          }
+          e.preventDefault();
           break;
       }
     },
@@ -207,6 +229,7 @@ const useSelection = (options?: UseSelectionOptions) => {
     onMouseMove: handleMouseMove,
     onMouseUp: handleMouseUp,
     onKeyDown: handleKeyDown,
+    newSelection,
   };
 };
 

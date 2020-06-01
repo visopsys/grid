@@ -88,13 +88,15 @@ const useAutoSizer = ({
 
   const handleViewChange = useCallback(
     (cells: ViewPortProps) => {
+      /* Update viewport cells */
+      setViewport(cells);
+      /* Check if viewport has changed */
       if (
         !resizeOnScroll ||
         (cells.rowStartIndex === viewport.rowStartIndex &&
           cells.columnStartIndex === viewport.columnStartIndex)
       )
         return;
-      setViewport(cells);
       if (gridRef.current) {
         /* During first mount, column width is calculated. Do not re-calculate */
         if (!isMounted.current) return;

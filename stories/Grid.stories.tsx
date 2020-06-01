@@ -1039,7 +1039,7 @@ export const EditableGrid: React.FC = () => {
       ({ rowIndex, columnIndex }) => data[[rowIndex, columnIndex]],
       [data]
     );
-    const { selections, ...selectionProps } = useSelection({
+    const { selections, newSelection, ...selectionProps } = useSelection({
       gridRef,
       rowCount,
       columnCount,
@@ -1047,9 +1047,13 @@ export const EditableGrid: React.FC = () => {
     const { editorComponent, ...editableProps } = useEditable({
       gridRef,
       getValue: getCellValue,
-      onChange: (value, { rowIndex, columnIndex }) => {
+      selections,
+      onSubmit: (value, { rowIndex, columnIndex }, nextActiveCell) => {
         setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value }));
         gridRef.current.resetAfterIndices({ rowIndex, columnIndex }, false);
+        gridRef.current.focus();
+        /* Select the next cell */
+        newSelection(nextActiveCell);
       },
     });
     const autoSizerProps = useAutoSizer({
@@ -1077,9 +1081,13 @@ export const EditableGrid: React.FC = () => {
           rowHeight={(index) => {
             return 20;
           }}
-          {...editableProps}
           {...selectionProps}
+          {...editableProps}
           {...autoSizerProps}
+          onKeyDown={(...args) => {
+            selectionProps.onKeyDown(...args);
+            editableProps.onKeyDown(...args);
+          }}
         />
         {editorComponent}
       </div>

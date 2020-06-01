@@ -239,6 +239,7 @@ export type GridRef = {
   getCellCoordsFromOffset: (x: number, y: number) => CellInterface;
   getCellOffsetFromCoords: (coords: CellInterface) => CellPosition;
   scrollToItem: (coords: CellInterface) => void;
+  focus: () => void;
 };
 
 export type MergedCellMap = Map<string, AreaProps>;
@@ -299,6 +300,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         getCellBounds,
         getCellCoordsFromOffset,
         getCellOffsetFromCoords,
+        focus: () => containerRef.current?.focus(),
       };
     });
 
@@ -311,6 +313,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       estimatedRowHeight: estimatedRowHeight || DEFAULT_ESTIMATED_ITEM_SIZE,
     });
     const stageRef = useRef(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const verticalScrollRef = useRef<HTMLDivElement>(null);
     const wheelingRef = useRef<number | null>(null);
     const horizontalScrollRef = useRef<HTMLDivElement>(null);
@@ -337,6 +340,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       },
       []
     );
+
     /**
      * Snaps horizontal scrollbar to the next/prev visible column
      */
@@ -1215,7 +1219,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const listenToEvents = !isScrolling;
     return (
       <div style={{ position: "relative", width: containerWidth }}>
-        <div onWheel={handleWheel} tabIndex={-1} {...rest}>
+        <div onWheel={handleWheel} tabIndex={1} ref={containerRef} {...rest}>
           <Stage
             width={containerWidth}
             height={containerHeight}
