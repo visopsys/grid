@@ -351,15 +351,8 @@ export const TreeTable: React.FC = () => {
 
 export const ExpandCollapseRows = () => {
   const App = () => {
-    const rowCount = 10;
-    const columnCount = 5;
     const frozenRows = 1;
     const gridRef = useRef();
-    const { selections, ...selectionProps } = useSelection({
-      gridRef,
-      rowCount,
-      columnCount,
-    });
     const [open, toggleOpen] = useState([]);
     const headers = [
       {
@@ -409,6 +402,13 @@ export const ExpandCollapseRows = () => {
     ].filter((row) => {
       if (row.parentId) return open.includes(row.parentId);
       return true;
+    });
+    const rowCount = data.length + frozenRows;
+    const columnCount = headers.length;
+    const { selections, ...selectionProps } = useSelection({
+      gridRef,
+      rowCount,
+      columnCount,
     });
     const mergedCells = data.reduce((acc, row, index) => {
       if (row.parentId) {
