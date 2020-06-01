@@ -141,6 +141,7 @@ const useSelection = (options?: UseSelectionOptions) => {
       rowIndex,
       columnIndex,
     });
+
     const bounds = gridRef.current.getCellBounds({ rowIndex, columnIndex });
 
     switch (direction) {
@@ -170,6 +171,9 @@ const useSelection = (options?: UseSelectionOptions) => {
     } else {
       newSelection({ rowIndex, columnIndex });
     }
+
+    /* Keep the item in view */
+    gridRef.current.scrollToItem({ rowIndex, columnIndex });
   };
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {

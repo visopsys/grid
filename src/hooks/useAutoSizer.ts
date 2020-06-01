@@ -60,10 +60,6 @@ const useAutoSizer = ({
     autoSizer.current.setFont(font);
   }, [font]);
 
-  const getValueRef = useRef(getValue);
-  /* Keep it in sync */
-  getValueRef.current = getValue;
-
   const getColumnWidth = useCallback(
     (columnIndex: number) => {
       const { rowStartIndex, rowStopIndex } = viewport;
@@ -72,7 +68,7 @@ const useAutoSizer = ({
       let maxWidth = minColumnWidth;
       while (start < visibleRows) {
         const value =
-          getValueRef.current({
+          getValue({
             rowIndex: start,
             columnIndex,
           }) ?? null;
@@ -87,7 +83,7 @@ const useAutoSizer = ({
       }
       return maxWidth;
     },
-    [viewport, initialVisibleRows]
+    [viewport, getValue, initialVisibleRows]
   );
 
   const handleViewChange = useCallback(

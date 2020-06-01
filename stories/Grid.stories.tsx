@@ -1001,7 +1001,7 @@ export const EditableGrid: React.FC = () => {
     height,
     value,
   }: IChildrenProps) => {
-    const text = value || `${rowIndex}x${columnIndex}`;
+    const text = value;
     return (
       <>
         <Rect
@@ -1028,6 +1028,7 @@ export const EditableGrid: React.FC = () => {
   const App = () => {
     const [data, setData] = useState({
       [[1, 2]]: "Hello",
+      [[1, 3]]: "World",
       [[30, 4]]: "lorem asd asd as das dasd asd as da sdasdasda",
       [[2, 15]]: "lorem asd asd as das dasd asd as da sdasdasda",
     });

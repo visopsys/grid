@@ -95,7 +95,6 @@ const useEditable = ({
 }: UseEditableOptions): EditableResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(null);
   const [value, setValue] = useState<string>("");
-  const getValueRef = useRef(getValue);
   const [position, setPosition] = useState<CellPosition>({
     x: 0,
     y: 0,
@@ -107,22 +106,22 @@ const useEditable = ({
     scrollTop: 0,
   });
 
-  /* Update the valueref when dependencies change */
-  getValueRef.current = getValue;
-
   /* Activate edit mode */
-  const handleDoubleClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
-    const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
-      e.clientX,
-      e.clientY
-    );
-    const activeCell = { rowIndex, columnIndex };
-    if (!gridRef.current) return;
-    const pos = gridRef.current.getCellOffsetFromCoords(activeCell);
-    setActiveCell(activeCell);
-    setValue(getValueRef.current(activeCell) || "");
-    setPosition(pos);
-  }, []);
+  const handleDoubleClick = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
+        e.clientX,
+        e.clientY
+      );
+      const activeCell = { rowIndex, columnIndex };
+      if (!gridRef.current) return;
+      const pos = gridRef.current.getCellOffsetFromCoords(activeCell);
+      setActiveCell(activeCell);
+      setValue(getValue(activeCell) || "");
+      setPosition(pos);
+    },
+    [getValue]
+  );
 
   /* Save the value */
   const handleSubmit = useCallback(() => {

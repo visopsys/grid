@@ -27,20 +27,17 @@ describe("getBoundedCells", () => {
 describe("getEstimatedTotalWidth", () => {
   it("returns estimated width during initial load", () => {
     const columnCount = 200;
-    const estimatedColumnWidth = 30;
     const instanceProps = {
       lastMeasuredColumnIndex: -1,
       columnMetadataMap: {},
+      estimatedColumnWidth: 30,
     };
 
-    expect(
-      getEstimatedTotalWidth(columnCount, estimatedColumnWidth, instanceProps)
-    ).toBe(6000);
+    expect(getEstimatedTotalWidth(columnCount, instanceProps)).toBe(6000);
   });
 
   it("returns correct width", () => {
     const columnCount = 200;
-    const estimatedColumnWidth = 30;
     const instanceProps = {
       lastMeasuredColumnIndex: 1,
       columnMetadataMap: {
@@ -53,31 +50,27 @@ describe("getEstimatedTotalWidth", () => {
           size: 70,
         },
       },
+      estimatedColumnWidth: 30,
     };
 
-    expect(
-      getEstimatedTotalWidth(columnCount, estimatedColumnWidth, instanceProps)
-    ).toBe(6030);
+    expect(getEstimatedTotalWidth(columnCount, instanceProps)).toBe(6030);
   });
 });
 
 describe("getEstimatedTotalHeight", () => {
   it("returns estimated height during initial load", () => {
     const rowCount = 200;
-    const estimatedRowHeight = 30;
     const instanceProps = {
       lastMeasuredRowIndex: -1,
       rowMetadataMap: {},
+      estimatedRowHeight: 30,
     };
 
-    expect(
-      getEstimatedTotalHeight(rowCount, estimatedRowHeight, instanceProps)
-    ).toBe(6000);
+    expect(getEstimatedTotalHeight(rowCount, instanceProps)).toBe(6000);
   });
 
   it("returns correct height after load", () => {
     const rowCount = 200;
-    const estimatedRowHeight = 30;
     const instanceProps = {
       lastMeasuredRowIndex: 0,
       rowMetadataMap: {
@@ -90,10 +83,9 @@ describe("getEstimatedTotalHeight", () => {
           size: 70,
         },
       },
+      estimatedRowHeight: 30,
     };
 
-    expect(
-      getEstimatedTotalHeight(rowCount, estimatedRowHeight, instanceProps)
-    ).toBe(5990);
+    expect(getEstimatedTotalHeight(rowCount, instanceProps)).toBe(5990);
   });
 });

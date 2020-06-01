@@ -26,6 +26,8 @@ import {
   getBoundedCells,
   cellIndentifier,
   throttle,
+  getOffsetForColumnAndAlignment,
+  getOffsetForRowAndAlignment,
 } from "./helpers";
 import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
@@ -222,6 +224,7 @@ export type GridRef = {
   getCellBounds: (coords: CellInterface) => AreaProps;
   getCellCoordsFromOffset: (x: number, y: number) => CellInterface;
   getCellOffsetFromCoords: (coords: CellInterface) => CellPosition;
+  scrollToItem: (coords: CellInterface) => void;
 };
 
 export type MergedCellMap = Map<string, AreaProps>;
@@ -265,6 +268,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     useImperativeHandle(forwardedRef, () => {
       return {
         scrollTo,
+        scrollToItem,
         stage: stageRef.current,
         resetAfterIndices,
         getScrollPosition,
@@ -459,12 +463,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
     const estimatedTotalHeight = getEstimatedTotalHeight(
       rowCount,
-      instanceProps.current.estimatedRowHeight,
       instanceProps.current
     );
     const estimatedTotalWidth = getEstimatedTotalWidth(
       columnCount,
-      instanceProps.current.estimatedColumnWidth,
       instanceProps.current
     );
 
@@ -505,6 +507,50 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         }
       },
       [showScrollbar]
+    );
+
+    const scrollToItem = useCallback(
+      ({ rowIndex, columnIndex }: CellInterface) => {
+        const newScrollLeft = getOffsetForColumnAndAlignment({
+          index: columnIndex,
+          containerHeight,
+          containerWidth,
+          columnCount,
+          columnWidth,
+          rowCount,
+          rowHeight,
+          scrollOffset: scrollLeft,
+          instanceProps: instanceProps.current,
+          scrollbarSize,
+        });
+
+        const newScrollTop = getOffsetForRowAndAlignment({
+          index: rowIndex,
+          containerHeight,
+          containerWidth,
+          columnCount,
+          columnWidth,
+          rowCount,
+          rowHeight,
+          scrollOffset: scrollTop,
+          instanceProps: instanceProps.current,
+          scrollbarSize,
+        });
+
+        scrollTo({
+          scrollLeft: newScrollLeft,
+          scrollTop: newScrollTop,
+        });
+      },
+      [
+        containerHeight,
+        containerWidth,
+        rowCount,
+        columnCount,
+        scrollbarSize,
+        scrollLeft,
+        scrollTop,
+      ]
     );
 
     /**

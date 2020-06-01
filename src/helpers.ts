@@ -7,7 +7,20 @@ import {
   CellMetaData,
 } from "./Grid";
 
-type ItemType = "row" | "column";
+// type ItemType = "row" | "column";
+
+enum Align {
+  start = "start",
+  end = "end",
+  center = "center",
+  auto = "auto",
+  smart = "smart",
+}
+
+enum ItemType {
+  row = "row",
+  column = "column",
+}
 
 export interface IItemMetaData {
   itemType: ItemType;
@@ -29,7 +42,7 @@ export const getRowStartIndexForOffset = ({
   offset,
 }: Omit<IItemMetaData, "index" | "itemType">): number => {
   return findNearestItem({
-    itemType: "row",
+    itemType: ItemType.row,
     rowHeight,
     columnWidth,
     rowCount,
@@ -55,7 +68,7 @@ export const getRowStopIndexForStartIndex = ({
   instanceProps,
 }: IRowStopIndex): number => {
   const itemMetadata = getItemMetadata({
-    itemType: "row",
+    itemType: ItemType.row,
     rowHeight,
     columnWidth,
     index: startIndex,
@@ -69,7 +82,7 @@ export const getRowStopIndexForStartIndex = ({
   while (stopIndex < rowCount - 1 && offset < maxOffset) {
     stopIndex++;
     offset += getItemMetadata({
-      itemType: "row",
+      itemType: ItemType.row,
       rowHeight,
       columnWidth,
       index: stopIndex,
@@ -89,7 +102,7 @@ export const getColumnStartIndexForOffset = ({
   offset,
 }: Omit<IItemMetaData, "index" | "itemType">): number => {
   return findNearestItem({
-    itemType: "column",
+    itemType: ItemType.column,
     rowHeight,
     columnWidth,
     rowCount,
@@ -115,7 +128,7 @@ export const getColumnStopIndexForStartIndex = ({
   columnCount,
 }: IColumnStopIndex): number => {
   const itemMetadata = getItemMetadata({
-    itemType: "column",
+    itemType: ItemType.column,
     index: startIndex,
     rowHeight,
     columnWidth,
@@ -129,7 +142,7 @@ export const getColumnStopIndexForStartIndex = ({
   while (stopIndex < columnCount - 1 && offset < maxOffset) {
     stopIndex++;
     offset += getItemMetadata({
-      itemType: "column",
+      itemType: ItemType.column,
       rowHeight,
       columnWidth,
       index: stopIndex,
@@ -162,7 +175,7 @@ export const getRowOffset = ({
   instanceProps,
 }: Omit<IGetItemMetadata, "itemType">): number => {
   return getItemMetadata({
-    itemType: "row",
+    itemType: ItemType.row,
     index,
     rowHeight,
     columnWidth,
@@ -177,7 +190,7 @@ export const getColumnOffset = ({
   instanceProps,
 }: Omit<IGetItemMetadata, "itemType">): number => {
   return getItemMetadata({
-    itemType: "column",
+    itemType: ItemType.column,
     index,
     rowHeight,
     columnWidth,
@@ -378,9 +391,9 @@ const findNearestItemExponentialSearch = ({
 
 export const getEstimatedTotalHeight = (
   rowCount: number,
-  estimatedRowHeight: number,
   instanceProps: InstanceInterface
 ) => {
+  const { estimatedRowHeight } = instanceProps;
   let totalSizeOfMeasuredRows = 0;
   let { lastMeasuredRowIndex, rowMetadataMap } = instanceProps;
 
@@ -403,9 +416,9 @@ export const getEstimatedTotalHeight = (
 
 export const getEstimatedTotalWidth = (
   columnCount: number,
-  estimatedColumnWidth: number,
   instanceProps: InstanceInterface
 ) => {
+  const { estimatedColumnWidth } = instanceProps;
   let totalSizeOfMeasuredRows = 0;
   let { lastMeasuredColumnIndex, columnMetadataMap } = instanceProps;
   // Edge case check for when the number of items decreases while a scroll is in progress.
@@ -459,3 +472,99 @@ export function debounce<T extends Function>(cb: T, wait = 20) {
   };
   return <T>(<any>callable);
 }
+
+export interface AlignmentProps extends Omit<IItemMetaData, "offset"> {
+  containerHeight: number;
+  containerWidth: number;
+  align?: Align;
+  scrollOffset: number;
+  scrollbarSize: number;
+}
+
+export const getOffsetForIndexAndAlignment = ({
+  itemType,
+  containerHeight,
+  containerWidth,
+  rowHeight,
+  columnWidth,
+  columnCount,
+  rowCount,
+  index,
+  align = Align.smart,
+  scrollOffset,
+  instanceProps,
+  scrollbarSize,
+}: AlignmentProps): number => {
+  const size = itemType === "column" ? containerWidth : containerHeight;
+  const itemMetadata = getItemMetadata({
+    itemType,
+    rowHeight,
+    columnWidth,
+    index,
+    instanceProps,
+  });
+
+  // Get estimated total size after ItemMetadata is computed,
+  // To ensure it reflects actual measurements instead of just estimates.
+  const estimatedTotalSize =
+    itemType === "column"
+      ? getEstimatedTotalWidth(columnCount, instanceProps)
+      : getEstimatedTotalHeight(rowCount, instanceProps);
+
+  const maxOffset = Math.max(
+    0,
+    Math.min(estimatedTotalSize - size, itemMetadata.offset)
+  );
+  const minOffset = Math.max(
+    0,
+    itemMetadata.offset - size + scrollbarSize + itemMetadata.size
+  );
+
+  if (align === Align.smart) {
+    if (scrollOffset >= minOffset - size && scrollOffset <= maxOffset + size) {
+      align = Align.auto;
+    } else {
+      align = Align.center;
+    }
+  }
+
+  switch (align) {
+    case Align.start:
+      return maxOffset;
+    case Align.end:
+      return minOffset;
+    case Align.center:
+      return Math.round(minOffset + (maxOffset - minOffset) / 2);
+    case Align.auto:
+    default:
+      if (scrollOffset >= minOffset && scrollOffset <= maxOffset) {
+        return scrollOffset;
+      } else if (minOffset > maxOffset) {
+        // Because we only take into account the scrollbar size when calculating minOffset
+        // this value can be larger than maxOffset when at the end of the list
+        return minOffset;
+      } else if (scrollOffset < minOffset) {
+        return minOffset;
+      } else {
+        return maxOffset;
+      }
+  }
+};
+
+export const getOffsetForColumnAndAlignment = (
+  props: Omit<AlignmentProps, "itemType">
+) => {
+  return getOffsetForIndexAndAlignment({
+    itemType: ItemType.column,
+    ...props,
+  });
+};
+
+export const getOffsetForRowAndAlignment = (
+  props: Omit<AlignmentProps, "itemType">
+) => {
+  return getOffsetForIndexAndAlignment({
+    itemType: ItemType.row,
+    ...props,
+  });
+};
