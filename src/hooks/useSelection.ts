@@ -3,16 +3,10 @@ import { AreaProps, CellInterface, GridRef } from "./../Grid";
 
 export interface UseSelectionOptions {
   gridRef?: React.MutableRefObject<GridRef>;
-  initialSelections?: AreaProps[];
-  columnCount: number;
-  rowCount: number;
+  initialSelections: AreaProps[];
+  columnCount?: number;
+  rowCount?: number;
 }
-
-const defaultOptions = {
-  initialSelection: [],
-  columnCount: 0,
-  rowCount: 0,
-};
 
 enum Direction {
   Up = "UP",
@@ -25,8 +19,9 @@ enum Direction {
  * useSelection hook to enable selection in datagrid
  * @param initialSelection
  */
-const useSelection = (options: UseSelectionOptions = defaultOptions) => {
-  const { gridRef, initialSelections = [], columnCount, rowCount } = options;
+const useSelection = (options?: UseSelectionOptions) => {
+  const { gridRef, initialSelections = [], columnCount = 0, rowCount = 0 } =
+    options || {};
   const [selections, setSelections] = useState<AreaProps[]>(initialSelections);
   const selectionStart = useRef<CellInterface>();
   const selectionEnd = useRef<CellInterface>();

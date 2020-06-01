@@ -30,7 +30,7 @@ const useAutoSizer = ({
   getValue,
   initialVisibleRows = 20,
   cellSpacing = 10,
-  minColumnWidth = 40,
+  minColumnWidth = 60,
   timeout = 300,
   resizeOnScroll = true,
   font = "12px Arial",
