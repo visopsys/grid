@@ -66,14 +66,16 @@ export const createBox = ({
   return (
     <>
       {lines}
-      <Rect
-        fill={fill}
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        {...commonProps}
-      />
+      {fill && (
+        <Rect
+          fill={fill}
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          {...commonProps}
+        />
+      )}
     </>
   );
 };

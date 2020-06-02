@@ -129,9 +129,13 @@ export interface GridProps {
    */
   scrollThrottleTimeout?: number;
   /**
+   * Cell styles for border
+   */
+  borderStyles?: StylingProps;
+  /**
    * Cell renderer. Must be a Konva Component eg: Group, Rect etc
    */
-  itemRenderer: (props: RendererProps) => React.ReactNode;
+  itemRenderer?: (props: RendererProps) => React.ReactNode;
   /**
    * Allow users to customize selected cells design
    */
@@ -245,6 +249,12 @@ export type GridRef = {
 
 export type MergedCellMap = Map<string, AreaProps>;
 
+export type StylingProps = AreaStyle[];
+export interface AreaStyle {
+  bounds: AreaProps;
+  style: ShapeConfig;
+}
+
 const DEFAULT_ESTIMATED_ITEM_SIZE = 50;
 const defaultShadowSettings: ShapeConfig = {
   stroke: "#000",
@@ -292,6 +302,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       onBeforeRenderRow,
       showFrozenShadow = true,
       shadowSettings = defaultShadowSettings,
+      borderStyles = [],
       ...rest
     } = props;
 
@@ -1268,6 +1279,54 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       },
       [scrollLeft, scrollTop, rowCount, columnCount]
     );
+
+    const borderStylesCells = useMemo(() => {
+      const borderStyleCells = [];
+      for (let i = 0; i < borderStyles.length; i++) {
+        const { bounds, style } = borderStyles[i];
+        const { top, right, bottom, left } = bounds;
+
+        const x = getColumnOffset({
+          index: left,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
+        const y = getRowOffset({
+          index: top,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
+        const width =
+          getColumnOffset({
+            index: Math.min(columnCount - 1, right + 1),
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          }) - x;
+        const height =
+          getRowOffset({
+            index: Math.min(rowCount - 1, bottom + 1),
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          }) - y;
+
+        borderStyleCells.push(
+          createBox({
+            x,
+            y,
+            width,
+            height,
+            ...style,
+          })
+        );
+      }
+
+      return borderStyleCells;
+    }, [borderStyles, columnStopIndex, rowStopIndex, columnCount, rowCount]);
+
     /**
      * Prevents drawing hit region when scrolling
      */
@@ -1291,6 +1350,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
             <Layer>
               <Group offsetY={scrollTop} offsetX={scrollLeft} listening={false}>
+                {borderStylesCells}
                 {selectionAreas}
               </Group>
               {frozenColumnShadow}

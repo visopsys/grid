@@ -3,10 +3,18 @@ import { AreaProps, CellInterface, GridRef } from "./../Grid";
 
 export interface UseSelectionOptions {
   gridRef?: React.MutableRefObject<GridRef>;
-  initialSelections: AreaProps[];
+  initialSelections?: AreaProps[];
   columnCount?: number;
   rowCount?: number;
+}
+
+export interface SelectionResults {
   newSelection: (coords: CellInterface) => void;
+  selections: AreaProps[];
+  onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseUp: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
 }
 
 enum Direction {
@@ -35,7 +43,7 @@ export enum DeleteKeys {
  * useSelection hook to enable selection in datagrid
  * @param initialSelection
  */
-const useSelection = (options?: UseSelectionOptions) => {
+const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const { gridRef, initialSelections = [], columnCount = 0, rowCount = 0 } =
     options || {};
   const [selections, setSelections] = useState<AreaProps[]>(initialSelections);
