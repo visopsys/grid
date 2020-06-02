@@ -21,10 +21,14 @@ export enum SelectionKeys {
   Left = 37,
   Up = 38,
   Down = 40,
-  Enter = 13,
   Escape = 27,
   Tab = 9,
   Meta = 91,
+}
+
+export enum DeleteKeys {
+  Delete = 9,
+  BackSpace = 8,
 }
 
 /**
@@ -205,7 +209,6 @@ const useSelection = (options?: UseSelectionOptions) => {
           keyNavigate(Direction.Up, modify);
           break;
 
-        case SelectionKeys.Enter:
         case SelectionKeys.Down:
           keyNavigate(Direction.Down, modify);
           break;

@@ -12,7 +12,7 @@ import {
   GridRef,
   AreaProps,
 } from "../Grid";
-import { SelectionKeys } from "./useSelection";
+import { SelectionKeys, DeleteKeys } from "./useSelection";
 
 export interface UseEditableOptions {
   getEditor?: (cell: CellInterface | null) => React.ElementType;
@@ -24,6 +24,7 @@ export interface UseEditableOptions {
     coords: CellInterface,
     nextCoords?: CellInterface
   ) => void;
+  onDelete: (selections: AreaProps[]) => void;
   selections: AreaProps[];
 }
 
@@ -85,7 +86,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
       }
       onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
         // Enter key
-        if (e.which === SelectionKeys.Enter) {
+        if (e.which === 13) {
           onSubmit && onSubmit();
         }
 
@@ -116,6 +117,7 @@ const useEditable = ({
   getValue,
   onChange,
   onSubmit,
+  onDelete,
   selections,
 }: UseEditableOptions): EditableResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(null);
@@ -153,15 +155,23 @@ const useEditable = ({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>) => {
+      const keyCode = e.nativeEvent.keyCode;
       if (
-        e.nativeEvent.which in SelectionKeys ||
+        keyCode in SelectionKeys ||
         e.nativeEvent.ctrlKey ||
         e.nativeEvent.shiftKey
       )
         return;
 
       const { top: rowIndex, left: columnIndex } = selections[0];
-      const initialValue = e.nativeEvent.key;
+
+      if (keyCode === DeleteKeys.Delete || keyCode === DeleteKeys.BackSpace) {
+        return onDelete(selections);
+      }
+      const initialValue =
+        keyCode === 13 // Enter key
+          ? undefined
+          : e.nativeEvent.key;
       makeEditable({ rowIndex, columnIndex }, initialValue);
     },
     [selections]
@@ -207,7 +217,7 @@ const useEditable = ({
   const editorComponent = activeCell ? (
     <Editor
       value={value}
-      onChange={setValue}
+      onChange={handleChange}
       onSubmit={handleSubmit}
       position={position}
       scrollPosition={scrollPosition}

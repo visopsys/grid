@@ -1048,6 +1048,21 @@ export const EditableGrid: React.FC = () => {
       gridRef,
       getValue: getCellValue,
       selections,
+      onDelete: (selections) => {
+        const newValues = selections.reduce((acc, sel) => {
+          for (let i = sel.top; i <= sel.bottom; i++) {
+            for (let j = sel.left; j <= sel.right; j++) {
+              acc[[i, j]] = "";
+            }
+          }
+          return acc;
+        }, {});
+        setData((prev) => ({ ...prev, ...newValues }));
+        gridRef.current.resetAfterIndices(
+          { rowIndex: selections[0].top, columnIndex: selections[0].left },
+          false
+        );
+      },
       onSubmit: (value, { rowIndex, columnIndex }, nextActiveCell) => {
         setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value }));
         gridRef.current.resetAfterIndices({ rowIndex, columnIndex }, false);
