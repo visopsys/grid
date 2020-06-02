@@ -82,7 +82,7 @@ const useAutoSizer = ({
         resizeStrategy === ResizeStrategy.full
           ? (rowCount as number)
           : rowStopIndex || initialVisibleRows;
-      let start = rowStartIndex;
+      let start = resizeStrategy === ResizeStrategy.full ? 0 : rowStartIndex;
       let maxWidth = minColumnWidth;
       while (start < visibleRows) {
         const value =
