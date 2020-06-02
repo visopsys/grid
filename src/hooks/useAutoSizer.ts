@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { ViewPortProps, GridRef, CellInterface, ItemSizer } from "./../Grid";
 import { debounce } from "./../helpers";
+import invariant from "tiny-invariant";
 
 interface IProps {
   gridRef: React.MutableRefObject<GridRef>;
@@ -11,6 +12,13 @@ interface IProps {
   timeout?: number;
   resizeOnScroll?: boolean;
   font?: string;
+  resizeStrategy?: ResizeStrategy;
+  rowCount?: number;
+}
+
+enum ResizeStrategy {
+  "lazy" = "lazy",
+  "full" = "full",
 }
 
 interface AutoResizerResults {
@@ -32,9 +40,16 @@ const useAutoSizer = ({
   cellSpacing = 10,
   minColumnWidth = 60,
   timeout = 300,
+  resizeStrategy = ResizeStrategy.lazy,
+  rowCount,
   resizeOnScroll = true,
   font = "12px Arial",
 }: IProps): AutoResizerResults => {
+  invariant(
+    !(resizeStrategy === ResizeStrategy.full && rowCount === void 0),
+    "Row count should be specified if resize stragtegy is full"
+  );
+
   const autoSizer = useRef(AutoSizerCanvas(font));
   const [viewport, setViewport] = useState<ViewPortProps>({
     rowStartIndex: 0,
@@ -63,7 +78,10 @@ const useAutoSizer = ({
   const getColumnWidth = useCallback(
     (columnIndex: number) => {
       const { rowStartIndex, rowStopIndex } = viewport;
-      const visibleRows = rowStopIndex || initialVisibleRows;
+      const visibleRows =
+        resizeStrategy === ResizeStrategy.full
+          ? (rowCount as number)
+          : rowStopIndex || initialVisibleRows;
       let start = rowStartIndex;
       let maxWidth = minColumnWidth;
       while (start < visibleRows) {
@@ -90,8 +108,10 @@ const useAutoSizer = ({
     (cells: ViewPortProps) => {
       /* Update viewport cells */
       setViewport(cells);
+
       /* Check if viewport has changed */
       if (
+        resizeStrategy === ResizeStrategy.full ||
         !resizeOnScroll ||
         (cells.rowStartIndex === viewport.rowStartIndex &&
           cells.columnStartIndex === viewport.columnStartIndex)
@@ -106,7 +126,7 @@ const useAutoSizer = ({
         });
       }
     },
-    [resizeOnScroll, viewport]
+    [resizeOnScroll, viewport, resizeStrategy]
   );
 
   return {

@@ -142,7 +142,7 @@ export interface GridProps {
   onBeforeRenderRow?: (rowIndex: number) => void;
 }
 
-type RefAttribute = {
+export type RefAttribute = {
   ref?: React.MutableRefObject<GridRef>;
 };
 
@@ -152,19 +152,6 @@ export interface SelectionProps extends ShapeConfig {}
 export type ScrollCoords = {
   scrollTop: number;
   scrollLeft: number;
-};
-
-const defaultRowHeight = () => 20;
-const defaultColumnWidth = () => 60;
-const defaultSelectionRenderer = (props: SelectionProps) => {
-  return (
-    <Rect
-      shadowForStrokeEnabled={false}
-      listening={false}
-      hitStrokeWidth={0}
-      {...props}
-    />
-  );
 };
 
 export type RenderComponent = React.FC<RendererProps>;
@@ -191,6 +178,11 @@ export interface CellInterface {
   columnIndex: number;
 }
 
+export interface OptionalCellInterface {
+  rowIndex?: number;
+  columnIndex?: number;
+}
+
 export interface ViewPortProps {
   rowStartIndex: number;
   rowStopIndex: number;
@@ -205,6 +197,8 @@ export interface InstanceInterface {
   lastMeasuredRowIndex: number;
   estimatedRowHeight: number;
   estimatedColumnWidth: number;
+  recalcColumnIndexes: number[];
+  recalcRowIndexes: number[];
 }
 
 export type CellMetaDataMap = Record<number, CellMetaData>;
@@ -240,6 +234,8 @@ export type GridRef = {
   getCellOffsetFromCoords: (coords: CellInterface) => CellPosition;
   scrollToItem: (coords: CellInterface) => void;
   focus: () => void;
+  resizeColumns: (indexes: number[]) => void;
+  resizeRows: (indexes: number[]) => void;
 };
 
 export type MergedCellMap = Map<string, AreaProps>;
@@ -251,6 +247,18 @@ const defaultShadowSettings: ShapeConfig = {
   shadowBlur: 5,
   shadowOpacity: 0.4,
   shadowOffsetX: 2,
+};
+const defaultRowHeight = () => 20;
+const defaultColumnWidth = () => 60;
+const defaultSelectionRenderer = (props: SelectionProps) => {
+  return (
+    <Rect
+      shadowForStrokeEnabled={false}
+      listening={false}
+      hitStrokeWidth={0}
+      {...props}
+    />
+  );
 };
 
 /**
@@ -301,6 +309,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         getCellCoordsFromOffset,
         getCellOffsetFromCoords,
         focus: () => containerRef.current?.focus(),
+        resizeColumns,
+        resizeRows,
       };
     });
 
@@ -311,6 +321,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       lastMeasuredRowIndex: -1,
       estimatedColumnWidth: estimatedColumnWidth || DEFAULT_ESTIMATED_ITEM_SIZE,
       estimatedRowHeight: estimatedRowHeight || DEFAULT_ESTIMATED_ITEM_SIZE,
+      recalcColumnIndexes: [],
+      recalcRowIndexes: [],
     });
     const stageRef = useRef(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -387,7 +399,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     /* Redraw grid imperatively */
     const resetAfterIndices = useCallback(
       (
-        { columnIndex, rowIndex }: CellInterface,
+        { columnIndex, rowIndex }: OptionalCellInterface,
         shouldForceUpdate: boolean = true
       ) => {
         if (typeof columnIndex === "number") {
@@ -402,11 +414,40 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             rowIndex - 1
           );
         }
-
         if (shouldForceUpdate) forceRender();
       },
       []
     );
+
+    /**
+     * Resize one or more columns
+     */
+    const resizeColumns = useCallback((indexes: number[]) => {
+      const leftMost = Math.min(...indexes);
+      resetAfterIndices({ columnIndex: leftMost }, false);
+      instanceProps.current.recalcColumnIndexes = indexes;
+      forceRender();
+    }, []);
+
+    /* Always reset after a render: TODO: Find a better way */
+    useEffect(() => {
+      if (instanceProps.current.recalcColumnIndexes.length) {
+        instanceProps.current.recalcColumnIndexes.length = 0;
+      }
+      if (instanceProps.current.recalcRowIndexes.length) {
+        instanceProps.current.recalcRowIndexes.length = 0;
+      }
+    });
+
+    /**
+     * Resize one or more rows
+     */
+    const resizeRows = useCallback((indexes: number[]) => {
+      const topMost = Math.min(...indexes);
+      resetAfterIndices({ rowIndex: topMost }, false);
+      instanceProps.current.recalcRowIndexes = indexes;
+      forceRender();
+    }, []);
 
     /**
      * Create a map of merged cells

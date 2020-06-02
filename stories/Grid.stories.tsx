@@ -734,8 +734,8 @@ export const DataGridResize: React.FC = () => {
           [columnIndex]: newWidth,
         };
       });
-      gridRef.current.resetAfterIndices({ columnIndex });
-      mainGridRef.current.resetAfterIndices({ columnIndex });
+      gridRef.current.resizeColumns([columnIndex]);
+      mainGridRef.current.resizeColumns([columnIndex]);
     };
     return (
       <div style={{ display: "flex", flexDirection: "column" }}>
@@ -1031,6 +1031,7 @@ export const EditableGrid: React.FC = () => {
       [[1, 3]]: "World",
       [[30, 4]]: "lorem asd asd as das dasd asd as da sdasdasda",
       [[2, 15]]: "lorem asd asd as das dasd asd as da sdasdasda",
+      [[100, 80]]: "asdhasd asd asd asd as dasdas",
     });
     const rowCount = 200;
     const columnCount = 200;
@@ -1065,7 +1066,7 @@ export const EditableGrid: React.FC = () => {
       },
       onSubmit: (value, { rowIndex, columnIndex }, nextActiveCell) => {
         setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value }));
-        gridRef.current.resetAfterIndices({ rowIndex, columnIndex }, false);
+        gridRef.current.resizeColumns([columnIndex]);
         gridRef.current.focus();
         /* Select the next cell */
         newSelection(nextActiveCell);
@@ -1074,6 +1075,8 @@ export const EditableGrid: React.FC = () => {
     const autoSizerProps = useAutoSizer({
       gridRef,
       getValue: getCellValue,
+      resizeStrategy: "full",
+      rowCount,
     });
     return (
       <div style={{ position: "relative" }}>
