@@ -94,7 +94,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
   const [containerRef, { width, height }] = useMeasure();
   const rowCount = 1000;
   const columnCount = 1000;
-  const { selections, ...selectionProps } = useSelection({
+  const { selections, newSelection, ...selectionProps } = useSelection({
     gridRef,
     rowCount,
     columnCount,
@@ -108,10 +108,31 @@ const Sheet = ({ data, onChange, name, isActive }) => {
   const { editorComponent, ...editableProps } = useEditable({
     gridRef,
     getValue,
-    onChange: (value, { rowIndex, columnIndex }) => {
-      onChange(name, value, { rowIndex, columnIndex });
-      /* Update widths of visible cells */
+    selections,
+    onDelete: (selections) => {
+      const newValues = selections.reduce((acc, sel) => {
+        for (let i = sel.top; i <= sel.bottom; i++) {
+          for (let j = sel.left; j <= sel.right; j++) {
+            acc[[i, j]] = "";
+          }
+        }
+        return acc;
+      }, {});
+      onChange(name, newValues);
+      gridRef.current.resetAfterIndices(
+        { rowIndex: selections[0].top, columnIndex: selections[0].left },
+        false
+      );
+    },
+    onSubmit: (value, { rowIndex, columnIndex }, nextActiveCell) => {
+      const changes = {
+        [[rowIndex, columnIndex]]: value,
+      };
+      onChange(name, changes);
       gridRef.current.resetAfterIndices({ rowIndex, columnIndex }, false);
+      gridRef.current.focus();
+      /* Select the next cell */
+      newSelection(nextActiveCell);
     },
   });
   const autoSizerProps = useAutoSizer({
@@ -157,6 +178,10 @@ const Sheet = ({ data, onChange, name, isActive }) => {
           if (columnIndex === 0) return 40;
           return autoSizerProps.columnWidth(columnIndex);
         }}
+        onKeyDown={(...args) => {
+          selectionProps.onKeyDown(...args);
+          editableProps.onKeyDown(...args);
+        }}
       />
       {editorComponent}
     </div>
@@ -175,7 +200,7 @@ const defaultSheets = [
 const App = () => {
   const [activeSheet, setActiveSheet] = useState(0);
   const [sheets, setSheets] = useState(defaultSheets);
-  const handleChange = useCallback((name, value, { rowIndex, columnIndex }) => {
+  const handleChange = useCallback((name, changes) => {
     setSheets((prev) => {
       return prev.map((cur) => {
         if (cur.name === name) {
@@ -183,7 +208,7 @@ const App = () => {
             ...cur,
             cells: {
               ...cur.cells,
-              [[rowIndex, columnIndex]]: value,
+              ...changes,
             },
           };
         }
