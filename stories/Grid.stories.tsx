@@ -1029,6 +1029,7 @@ export const EditableGrid: React.FC = () => {
     const [data, setData] = useState({
       [[1, 2]]: "Hello",
       [[1, 3]]: "World",
+      [[2, 3]]: "Cannot be edited",
       [[30, 4]]: "lorem asd asd as das dasd asd as da sdasdasda",
       [[2, 15]]: "lorem asd asd as das dasd asd as da sdasdasda",
       [[100, 80]]: "asdhasd asd asd asd as dasdas",
@@ -1060,6 +1061,10 @@ export const EditableGrid: React.FC = () => {
         }, {});
         setData((prev) => ({ ...prev, ...newValues }));
         gridRef.current.resizeColumns([selections[0].left]);
+      },
+      onBeforeEdit: ({ rowIndex, columnIndex }) => {
+        if (rowIndex === 2 && columnIndex === 3) return false;
+        return true;
       },
       onSubmit: (value, { rowIndex, columnIndex }, nextActiveCell) => {
         setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value }));

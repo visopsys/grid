@@ -26,6 +26,7 @@ export interface UseEditableOptions {
   ) => void;
   onDelete: (selections: AreaProps[]) => void;
   selections: AreaProps[];
+  onBeforeEdit?: (coords: CellInterface) => boolean;
 }
 
 export interface EditableResults {
@@ -119,6 +120,7 @@ const useEditable = ({
   onSubmit,
   onDelete,
   selections,
+  onBeforeEdit,
 }: UseEditableOptions): EditableResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(null);
   const [value, setValue] = useState<string>("");
@@ -135,6 +137,8 @@ const useEditable = ({
 
   const makeEditable = (coords: CellInterface, initialValue?: string) => {
     if (!gridRef.current) return;
+    /* Call on before edit */
+    if (onBeforeEdit && !onBeforeEdit(coords)) return;
     const pos = gridRef.current.getCellOffsetFromCoords(coords);
     setActiveCell(coords);
     setValue(initialValue || getValue(coords) || "");

@@ -37,6 +37,7 @@ import {
 } from "./helpers";
 import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
+import { createBox } from "./utils";
 
 export interface GridProps {
   /**
@@ -91,6 +92,10 @@ export interface GridProps {
    * Border color of selected area
    */
   selectionBorderColor?: string;
+  /**
+   * Stroke width of the selection
+   */
+  selectionStrokeWidth?: number;
   /**
    * Array of selected cell areas
    */
@@ -251,14 +256,7 @@ const defaultShadowSettings: ShapeConfig = {
 const defaultRowHeight = () => 20;
 const defaultColumnWidth = () => 60;
 const defaultSelectionRenderer = (props: SelectionProps) => {
-  return (
-    <Rect
-      shadowForStrokeEnabled={false}
-      listening={false}
-      hitStrokeWidth={0}
-      {...props}
-    />
-  );
+  return createBox({ ...props, strokeWidth: 2, strokeBoxWidth: 0 });
 };
 
 /**
@@ -281,6 +279,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       showScrollbar = true,
       selectionBackgroundColor = "rgb(14, 101, 235, 0.1)",
       selectionBorderColor = "#1a73e8",
+      selectionStrokeWidth = 2,
       selections = [],
       frozenRows = 0,
       frozenColumns = 0,
@@ -1095,6 +1094,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             y: selectionBounds.y,
             width: frozenColumnSelectionWidth,
             height: selectionBounds.height,
+            strokeRightWidth:
+              frozenColumnSelectionWidth === selectionBounds.width
+                ? selectionStrokeWidth
+                : 0,
           })
         );
       }
@@ -1118,6 +1121,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             y: selectionBounds.y,
             width: selectionBounds.width,
             height: frozenRowSelectionHeight,
+            strokeBottomWidth:
+              frozenRowSelectionHeight === selectionBounds.height
+                ? selectionStrokeWidth
+                : 0,
           })
         );
       }
@@ -1152,6 +1159,14 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             y: selectionBounds.y,
             width: frozenIntersectionSelectionWidth,
             height: frozenIntersectionSelectionHeight,
+            strokeBottomWidth:
+              frozenIntersectionSelectionHeight === selectionBounds.height
+                ? selectionStrokeWidth
+                : 0,
+            strokeRightWidth:
+              frozenIntersectionSelectionWidth === selectionBounds.width
+                ? selectionStrokeWidth
+                : 0,
           })
         );
       }
