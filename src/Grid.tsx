@@ -420,36 +420,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     );
 
     /**
-     * Resize one or more columns
-     */
-    const resizeColumns = useCallback((indexes: number[]) => {
-      const leftMost = Math.min(...indexes);
-      resetAfterIndices({ columnIndex: leftMost }, false);
-      instanceProps.current.recalcColumnIndexes = indexes;
-      forceRender();
-    }, []);
-
-    /* Always reset after a render: TODO: Find a better way */
-    useEffect(() => {
-      if (instanceProps.current.recalcColumnIndexes.length) {
-        instanceProps.current.recalcColumnIndexes.length = 0;
-      }
-      if (instanceProps.current.recalcRowIndexes.length) {
-        instanceProps.current.recalcRowIndexes.length = 0;
-      }
-    });
-
-    /**
-     * Resize one or more rows
-     */
-    const resizeRows = useCallback((indexes: number[]) => {
-      const topMost = Math.min(...indexes);
-      resetAfterIndices({ rowIndex: topMost }, false);
-      instanceProps.current.recalcRowIndexes = indexes;
-      forceRender();
-    }, []);
-
-    /**
      * Create a map of merged cells
      * [rowIndex, columnindex] => [parentRowIndex, parentColumnIndex]
      */
@@ -537,6 +507,36 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       columnCount,
       instanceProps.current
     );
+
+    /**
+     * Resize one or more columns
+     */
+    const resizeColumns = useCallback((indexes: number[]) => {
+      const leftMost = Math.min(...indexes);
+      resetAfterIndices({ columnIndex: leftMost }, false);
+      instanceProps.current.recalcColumnIndexes = indexes;
+      forceRender();
+    }, []);
+
+    /**
+     * Resize one or more rows
+     */
+    const resizeRows = useCallback((indexes: number[]) => {
+      const topMost = Math.min(...indexes);
+      resetAfterIndices({ rowIndex: topMost }, false);
+      instanceProps.current.recalcRowIndexes = indexes;
+      forceRender();
+    }, []);
+
+    /* Always if the viewport changes */
+    useEffect(() => {
+      if (instanceProps.current.recalcColumnIndexes.length) {
+        instanceProps.current.recalcColumnIndexes.length = 0;
+      }
+      if (instanceProps.current.recalcRowIndexes.length) {
+        instanceProps.current.recalcRowIndexes.length = 0;
+      }
+    }, [rowStopIndex, columnStopIndex]);
 
     /* Handle vertical scroll */
     const handleScroll = useCallback(

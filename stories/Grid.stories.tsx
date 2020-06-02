@@ -1059,10 +1059,7 @@ export const EditableGrid: React.FC = () => {
           return acc;
         }, {});
         setData((prev) => ({ ...prev, ...newValues }));
-        gridRef.current.resetAfterIndices(
-          { rowIndex: selections[0].top, columnIndex: selections[0].left },
-          false
-        );
+        gridRef.current.resizeColumns([selections[0].left]);
       },
       onSubmit: (value, { rowIndex, columnIndex }, nextActiveCell) => {
         setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value }));
