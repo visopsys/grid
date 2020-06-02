@@ -1,4 +1,6 @@
-## React Table and Konva Grid
+## Zustand
+
+Zustand is a tiny state management library. You can use zustand or `React.memo` to reduce cell re-rendering
 
 You can:
 
