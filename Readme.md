@@ -58,6 +58,10 @@ Uses [react-table](https://github.com/tannerlinsley/react-table) to create group
 
 [https://github.com/rmdort/konva-grid/tree/master/examples/excel-worksheet](https://github.com/rmdort/konva-grid/tree/master/examples/excel-worksheet)
 
+#### 3. Zustand - More control over cell level re-rendering
+
+[https://github.com/rmdort/konva-grid/tree/master/examples/zustand](https://github.com/rmdort/konva-grid/tree/master/examples/zustand)
+
 *More examples coming soon.*
 
 ## Usage
