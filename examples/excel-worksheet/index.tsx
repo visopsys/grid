@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { useRef, useState, useCallback, useEffect, memo } from "react";
+import ReactDOM from "react-dom";
 import {
   Grid,
   RendererProps,
@@ -8,10 +9,13 @@ import {
   useAutoSizer,
   GridRef,
   CellInterface,
+  Cell,
 } from "react-konva-grid";
 import { Group, Rect, Text } from "react-konva";
 import { useMeasure } from "react-use";
 import isEqual from "react-fast-compare";
+const FormulaParser = require("hot-formula-parser").Parser;
+const parser = new FormulaParser();
 
 function number2Alpha(i) {
   return (
@@ -19,32 +23,6 @@ function number2Alpha(i) {
     "abcdefghijklmnopqrstuvwxyz"[i % 26 >> 0]
   );
 }
-
-const Cell = memo((props: RendererProps) => {
-  const { x, y, width, height, rowIndex, columnIndex, key, value } = props;
-  return (
-    <React.Fragment>
-      <Rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        fill="white"
-        stroke="#ddd"
-        strokeWidth={1}
-      />
-      <Text
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        text={value}
-        verticalAlign="middle"
-        offsetX={-5}
-      />
-    </React.Fragment>
-  );
-}, isEqual);
 
 const Header = memo((props: RendererProps) => {
   const {
@@ -64,33 +42,13 @@ const Header = memo((props: RendererProps) => {
     : columnHeader
     ? rowIndex
     : number2Alpha(columnIndex - 1).toUpperCase();
-  return (
-    <React.Fragment>
-      <Rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        fill="#eee"
-        stroke="#bbb"
-        strokeWidth={1}
-      />
-      <Text
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        text={text}
-        verticalAlign="middle"
-        align="center"
-      />
-    </React.Fragment>
-  );
+  return <Cell {...props} value={text} fill="#eee" stroke="#bbb" />;
 }, isEqual);
 
 const Sheet = ({ data, onChange, name, isActive }) => {
   if (!isActive) return null;
   const gridRef = useRef<GridRef>();
+  const getValueRef = useRef();
   const [containerRef, { width, height }] = useMeasure();
   const rowCount = 1000;
   const columnCount = 1000;
@@ -105,6 +63,20 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     },
     [data]
   );
+  getValueRef.current = getValue;
+  useEffect(() => {
+    parser.on("callCellValue", (cellCoord, done) => {
+      let value = getValueRef.current({
+        rowIndex: cellCoord.row.index + 1,
+        columnIndex: cellCoord.column.index + 1,
+      });
+      const isFormula = value && value.toString().startsWith("=");
+      if (isFormula) {
+        value = parser.parse(value.substr(1)).result;
+      }
+      done(value);
+    });
+  }, []);
   const { editorComponent, ...editableProps } = useEditable({
     gridRef,
     getValue,
@@ -138,6 +110,8 @@ const Sheet = ({ data, onChange, name, isActive }) => {
   const autoSizerProps = useAutoSizer({
     gridRef,
     getValue,
+    resizeStrategy: "full",
+    rowCount,
     minColumnWidth: 60,
   });
   const frozenColumns = 1;
@@ -163,9 +137,15 @@ const Sheet = ({ data, onChange, name, isActive }) => {
           if (props.columnIndex < frozenColumns) {
             return <Header {...props} columnHeader />;
           }
+          let value = data[[props.rowIndex, props.columnIndex]];
+          const isFormula = value && value.toString().startsWith("=");
+          if (isFormula) {
+            value = parser.parse(value.substr(1)).result;
+          }
           return (
             <Cell
-              value={data[[props.rowIndex, props.columnIndex].toString()]}
+              value={value}
+              fill={isFormula ? "#ffc" : "white"}
               {...props}
             />
           );
@@ -195,6 +175,9 @@ const defaultSheets = [
     cells: {
       "1,1": "Hello",
       "1,2": "World",
+      "1,3": "=SUM(2,2)",
+      "1,4": "=SUM(B2, 4)",
+      "2,2": 10,
     },
   },
 ];
@@ -266,4 +249,4 @@ const Tabs = ({ sheets, onAdd, active, onActive }) => {
   );
 };
 
-export default App;
+ReactDOM.render(<App />, document.getElementById("root"));

@@ -46,7 +46,7 @@ export const TickingGrid = () => {
       });
       /* Refresh grid sizes, works with autosizer */
       // gridRef.current.resetAfterIndices({rowIndex:0, columnIndex:0}, false)
-    }, 100);
+    }, 20);
 
     return () => clearInterval(interval);
   }, []);
