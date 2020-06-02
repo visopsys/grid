@@ -155,6 +155,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         selections={selections}
         columnCount={columnCount}
         rowCount={rowCount}
+        scrollThrottleTimeout={50}
         itemRenderer={(props) => {
           if (props.rowIndex < frozenRows) {
             return <Header {...props} />;
