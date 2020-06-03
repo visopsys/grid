@@ -125,7 +125,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
       ref={containerRef}
     >
       <Grid
-        snap
+        // snap
         width={width}
         height={height}
         ref={gridRef}

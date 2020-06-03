@@ -10,13 +10,7 @@ import React, {
   useEffect,
   Key,
 } from "react";
-import {
-  Stage,
-  Layer,
-  Rect,
-  Group,
-  Line,
-} from "react-konva/lib/ReactKonvaCore";
+import { Stage, Layer, Group, Line } from "react-konva/lib/ReactKonvaCore";
 import {
   getRowStartIndexForOffset,
   getRowStopIndexForStartIndex,

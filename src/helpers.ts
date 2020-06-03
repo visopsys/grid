@@ -480,6 +480,26 @@ export function debounce<T extends Function>(cb: T, wait = 20) {
   return <T>(<any>callable);
 }
 
+export function rafThrottle(callback: Function) {
+  var active = false; // a simple flag
+  var evt: any; // to keep track of the last event
+  var handler = function () {
+    // fired only when screen has refreshed
+    active = false; // release our flag
+    callback(evt);
+  };
+  return function handleEvent(e: any) {
+    // the actual event handler
+    evt = e; // save our event at each call
+    evt && evt.persist();
+    if (!active) {
+      // only if we weren't already doing it
+      active = true; // raise the flag
+      requestAnimationFrame(handler); // wait for next screen refresh
+    }
+  };
+}
+
 export interface AlignmentProps extends Omit<IItemMetaData, "offset"> {
   containerHeight: number;
   containerWidth: number;
