@@ -17,11 +17,6 @@
     "react-konva-grid": "^2.5.7",
     "react-use": "^15.1.0"
   },
-  "alias": {
-    "react": "./node_modules/react",
-    "react-dom": "./node_modules/react-dom",
-    "react-konva": "./node_modules/react-konva"
-  },
   "devDependencies": {
     "@babel/core": "^7.10.1"
   }
