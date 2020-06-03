@@ -24,6 +24,7 @@ export const createBox = ({
   strokeRightWidth = strokeWidth,
   strokeBottomWidth = strokeWidth,
   strokeLeftWidth = strokeWidth,
+  key,
 }: BoxProps) => {
   const commonProps = {
     perfectDrawEnabled: false,
@@ -64,7 +65,7 @@ export const createBox = ({
   ];
 
   return (
-    <>
+    <React.Fragment key={key}>
       {lines}
       {fill && (
         <Rect
@@ -76,6 +77,6 @@ export const createBox = ({
           {...commonProps}
         />
       )}
-    </>
+    </React.Fragment>
   );
 };

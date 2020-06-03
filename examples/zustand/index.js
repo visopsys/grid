@@ -51,6 +51,7 @@ const App = () => {
   const { editorComponent, ...editableProps } = useEditable({
     gridRef,
     getValue,
+    selections,
     onSubmit: (value, { rowIndex, columnIndex }) => {
       const changes = {
         [[rowIndex, columnIndex]]: value,
@@ -63,6 +64,8 @@ const App = () => {
   const autoSizerProps = useAutoSizer({
     gridRef,
     getValue,
+    rowCount,
+    resizeStrategy: "full",
   });
   return (
     <div style={{ position: "relative" }}>

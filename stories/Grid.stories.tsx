@@ -1077,7 +1077,7 @@ export const EditableGrid: React.FC = () => {
     const autoSizerProps = useAutoSizer({
       gridRef,
       getValue: getCellValue,
-      resizeStrategy: "full",
+      resizeStrategy: "lazy",
       rowCount,
     });
     return (

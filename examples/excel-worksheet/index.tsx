@@ -32,9 +32,9 @@ const Header = memo((props: RendererProps) => {
     height,
     rowIndex,
     columnIndex,
-    key,
     value,
     columnHeader,
+    isActive,
   } = props;
   const isCorner = rowIndex === columnIndex;
   const text = isCorner
@@ -42,7 +42,9 @@ const Header = memo((props: RendererProps) => {
     : columnHeader
     ? rowIndex
     : number2Alpha(columnIndex - 1).toUpperCase();
-  return <Cell {...props} value={text} fill="#eee" stroke="#bbb" />;
+
+  const fill = isActive ? "lightblue" : "#eee";
+  return <Cell {...props} value={text} fill={fill} stroke="#bbb" />;
 }, isEqual);
 
 const Sheet = ({ data, onChange, name, isActive }) => {
@@ -102,7 +104,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
       };
       onChange(name, changes);
       gridRef.current.resetAfterIndices({ rowIndex, columnIndex }, false);
-      gridRef.current.focus();
+
       /* Select the next cell */
       newSelection(nextActiveCell);
     },
@@ -114,6 +116,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     rowCount,
     minColumnWidth: 60,
   });
+  const activeCell = selections.length ? selections[0] : null;
   const frozenColumns = 1;
   const frozenRows = 1;
   return (
@@ -122,7 +125,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
       ref={containerRef}
     >
       <Grid
-        snap
+        // snap
         width={width}
         height={height}
         ref={gridRef}
@@ -132,10 +135,31 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         scrollThrottleTimeout={50}
         itemRenderer={(props) => {
           if (props.rowIndex < frozenRows) {
-            return <Header {...props} />;
+            return (
+              <Header
+                {...props}
+                key={props.key}
+                isActive={
+                  activeCell &&
+                  props.columnIndex >= activeCell.left &&
+                  props.columnIndex <= activeCell.right
+                }
+              />
+            );
           }
           if (props.columnIndex < frozenColumns) {
-            return <Header {...props} columnHeader />;
+            return (
+              <Header
+                {...props}
+                key={props.key}
+                columnHeader
+                isActive={
+                  activeCell &&
+                  props.rowIndex >= activeCell.top &&
+                  props.rowIndex <= activeCell.bottom
+                }
+              />
+            );
           }
           let value = data[[props.rowIndex, props.columnIndex]];
           const isFormula = value && value.toString().startsWith("=");
@@ -147,6 +171,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
               value={value}
               fill={isFormula ? "#ffc" : "white"}
               {...props}
+              key={props.key}
             />
           );
         }}

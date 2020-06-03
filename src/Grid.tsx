@@ -245,6 +245,7 @@ export type GridRef = {
   focus: () => void;
   resizeColumns: (indexes: number[]) => void;
   resizeRows: (indexes: number[]) => void;
+  getViewPort: () => ViewPortProps;
 };
 
 export type MergedCellMap = Map<string, AreaProps>;
@@ -321,6 +322,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         focus: () => containerRef.current?.focus(),
         resizeColumns,
         resizeRows,
+        getViewPort,
       };
     });
 
@@ -547,6 +549,16 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         instanceProps.current.recalcRowIndexes.length = 0;
       }
     }, [rowStopIndex, columnStopIndex]);
+
+    /* Get current view port of the grid */
+    const getViewPort = useCallback((): ViewPortProps => {
+      return {
+        rowStartIndex,
+        rowStopIndex,
+        columnStartIndex,
+        columnStopIndex,
+      };
+    }, [rowStartIndex, rowStopIndex, columnStartIndex, columnStopIndex]);
 
     /* Handle vertical scroll */
     const handleScroll = useCallback(
@@ -1342,7 +1354,11 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             listening={listenToEvents}
           >
             <Layer>
-              <Group offsetY={scrollTop} offsetX={scrollLeft}>
+              <Group
+                offsetY={scrollTop}
+                offsetX={scrollLeft}
+                perfectDrawEnabled={false}
+              >
                 {cells}
                 {mergedCellAreas}
               </Group>
@@ -1389,6 +1405,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 right: 0,
                 top: 0,
                 width: scrollbarSize,
+                willChange: "transform",
               }}
               onScroll={handleScroll}
               ref={verticalScrollRef}
@@ -1409,6 +1426,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 left: 0,
                 width: containerWidth,
                 height: scrollbarSize,
+                willChange: "transform",
               }}
               onScroll={handleScrollLeft}
               ref={horizontalScrollRef}

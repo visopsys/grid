@@ -19,6 +19,7 @@ export interface UseEditableOptions {
   gridRef: React.MutableRefObject<GridRef>;
   getValue: (cell: CellInterface) => any;
   onChange?: (value: string, coords: CellInterface) => void;
+  onCancel?: () => void;
   onSubmit?: (
     value: string,
     coords: CellInterface,
@@ -118,8 +119,9 @@ const useEditable = ({
   getValue,
   onChange,
   onSubmit,
+  onCancel,
   onDelete,
-  selections,
+  selections = [],
   onBeforeEdit,
 }: UseEditableOptions): EditableResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(null);
@@ -167,6 +169,9 @@ const useEditable = ({
       )
         return;
 
+      /* If user has not made any selection yet */
+      if (!selections.length) return;
+
       const { top: rowIndex, left: columnIndex } = selections[0];
 
       if (keyCode === DeleteKeys.Delete || keyCode === DeleteKeys.BackSpace) {
@@ -198,6 +203,8 @@ const useEditable = ({
 
       onSubmit && onSubmit(value, activeCell, nextActiveCell);
       setActiveCell(null);
+      /* Keep the focus */
+      gridRef.current.focus();
     },
     [value, activeCell]
   );
@@ -214,6 +221,9 @@ const useEditable = ({
   /* When the input is blurred out */
   const handleHide = useCallback(() => {
     setActiveCell(null);
+    onCancel && onCancel();
+    /* Keep the focus back in the grid */
+    gridRef.current.focus();
   }, []);
 
   /* Editor */
