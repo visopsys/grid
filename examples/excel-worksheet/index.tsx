@@ -114,7 +114,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     getValue,
     resizeStrategy: "full",
     rowCount,
-    minColumnWidth: 60,
+    minColumnWidth: 100,
   });
   const activeCell = selections.length ? selections[0] : null;
   const frozenColumns = 1;
@@ -125,7 +125,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
       ref={containerRef}
     >
       <Grid
-        // snap
+        snap
         width={width}
         height={height}
         ref={gridRef}
