@@ -148,16 +148,11 @@ export interface GridProps {
   /**
    * Custom grid overlays
    */
-  children: (props: ChildrenProps) => React.ReactNode;
+  children: (props: ScrollCoords) => React.ReactNode;
   /**
    * Props that can be injected to Konva stage
    */
   stageProps?: Omit<StageConfig, "container">;
-}
-
-export interface ChildrenProps {
-  x: number;
-  y: number;
 }
 
 export type RefAttribute = {
@@ -1412,8 +1407,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             </Layer>
             {children &&
               children({
-                x: -scrollLeft,
-                y: -scrollTop,
+                scrollLeft,
+                scrollTop,
               })}
           </Stage>
         </div>

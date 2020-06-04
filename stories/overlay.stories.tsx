@@ -23,8 +23,8 @@ const Resizable = ({ scrollTop, scrollLeft, isSelected, onSelect }) => {
     width: 100,
     height: 100,
   });
-  const x = dimensions.x + scrollLeft;
-  const y = dimensions.y + scrollTop;
+  const x = dimensions.x - scrollLeft;
+  const y = dimensions.y - scrollTop;
   return (
     <>
       <Rect
@@ -35,8 +35,8 @@ const Resizable = ({ scrollTop, scrollLeft, isSelected, onSelect }) => {
           setDimensions((prev) => {
             return {
               ...prev,
-              x: e.target.x() - scrollLeft,
-              y: e.target.y() - scrollTop,
+              x: e.target.x() + scrollLeft,
+              y: e.target.y() + scrollTop,
             };
           });
         }}
@@ -96,12 +96,12 @@ export const CanvasOverlay = () => {
           onMouseDown: handleMouseDown,
         }}
       >
-        {({ x, y }) => {
+        {({ scrollTop, scrollLeft }) => {
           return (
             <Layer>
               <Resizable
-                scrollTop={y}
-                scrollLeft={x}
+                scrollTop={scrollTop}
+                scrollLeft={scrollLeft}
                 isSelected={isSelected}
                 onSelect={() => {
                   setIsSelected(true);
