@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Layer, Group, Transformer, Rect } from "react-konva";
+import React, { useEffect, useState, useRef, useReducer } from "react";
+import { Layer, Group, Image, Transformer, Rect } from "react-konva";
 import Grid from "./../src";
 
 // More info https://konvajs.org/docs/react/Transformer.html
@@ -114,4 +114,78 @@ export const CanvasOverlay = () => {
     );
   };
   return <App />;
+};
+
+const ChartJSLayer = () => {
+  const canvasRef = useRef(null);
+  const [_, forceRender] = useReducer((s) => s + 1, 0);
+  const width = 600;
+  const height = 400;
+  useEffect(() => {
+    canvasRef.current = document.createElement("canvas");
+    canvasRef.current.width = width;
+    canvasRef.current.height = height;
+    /* We need to append it to dom. ChartJS does not allow rendering on offscreen canvas */
+    document.body.appendChild(canvasRef.current);
+
+    const ctx = canvasRef.current.getContext("2d");
+    var chart = new Chart(ctx, {
+      // The type of chart we want to create
+      type: "bar",
+
+      // The data for our dataset
+      data: {
+        labels: [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+        ],
+        datasets: [
+          {
+            label: "My First dataset",
+            backgroundColor: "rgb(255, 99, 132)",
+            borderColor: "rgb(255, 99, 132)",
+            data: [0, 10, 5, 2, 20, 30, 45],
+          },
+        ],
+      },
+      options: {
+        animation: false,
+      },
+    });
+    document.body.removeChild(canvasRef.current);
+    forceRender();
+  }, []);
+
+  if (!canvasRef.current) return null;
+  return (
+    <Image
+      image={canvasRef.current}
+      draggable
+      fill="white"
+      stroke="#aaa"
+      x={100}
+      y={100}
+      width={width}
+      height={height}
+    />
+  );
+};
+
+export const ChartJs = () => {
+  return (
+    <Grid rowCount={100} columnCount={100}>
+      {({ scrollTop, scrollLeft }) => {
+        return (
+          <Layer>
+            <ChartJSLayer />
+          </Layer>
+        );
+      }}
+    </Grid>
+  );
 };
