@@ -9,6 +9,8 @@ export enum KeyCodes {
   Delete = 9,
   BackSpace = 8,
   Enter = 13,
+  A = 65,
+  SPACE = 32,
 }
 
 export enum Direction {

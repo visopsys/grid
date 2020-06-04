@@ -43,8 +43,8 @@ const Header = memo((props: RendererProps) => {
     ? rowIndex
     : number2Alpha(columnIndex - 1).toUpperCase();
 
-  const fill = isActive ? "lightblue" : "#eee";
-  return <Cell {...props} value={text} fill={fill} stroke="#bbb" />;
+  const fill = isActive ? "#E9EAED" : "#F8F9FA";
+  return <Cell {...props} value={text} fill={fill} stroke="#999" />;
 }, isEqual);
 
 const Sheet = ({ data, onChange, name, isActive }) => {
@@ -132,6 +132,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         selections={selections}
         columnCount={columnCount}
         rowCount={rowCount}
+        rowHeight={() => 22}
         scrollThrottleTimeout={50}
         itemRenderer={(props) => {
           if (props.rowIndex < frozenRows) {
@@ -170,6 +171,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
             <Cell
               value={value}
               fill={isFormula ? "#ffc" : "white"}
+              stroke="#ccc"
               {...props}
               key={props.key}
             />
@@ -181,7 +183,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         {...editableProps}
         {...autoSizerProps}
         columnWidth={(columnIndex) => {
-          if (columnIndex === 0) return 40;
+          if (columnIndex === 0) return 46;
           return autoSizerProps.columnWidth(columnIndex);
         }}
         onKeyDown={(...args) => {

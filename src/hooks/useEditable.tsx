@@ -189,7 +189,8 @@ const useEditable = ({
       if (
         isSelectionKey(keyCode) ||
         e.nativeEvent.ctrlKey ||
-        e.nativeEvent.shiftKey
+        e.nativeEvent.shiftKey ||
+        e.nativeEvent.metaKey
       )
         return;
 
@@ -199,6 +200,7 @@ const useEditable = ({
       const { top: rowIndex, left: columnIndex } = selections[0];
 
       if (keyCode === KeyCodes.Delete || keyCode === KeyCodes.BackSpace) {
+        // TODO: onbefore  delete
         return onDelete(selections);
       }
       const initialValue =

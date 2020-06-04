@@ -31,10 +31,10 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const isSelectionMode = useRef<boolean>();
 
   /* New selection */
-  const newSelection = (coords: CellInterface) => {
-    selectionStart.current = coords;
-    selectionEnd.current = coords;
-    const selection = selectionFromStartEnd(coords, coords);
+  const newSelection = (start: CellInterface, end: CellInterface = start) => {
+    selectionStart.current = start;
+    selectionEnd.current = end;
+    const selection = selectionFromStartEnd(start, end);
     if (!selection) return;
     setSelections([selection]);
   };
@@ -179,29 +179,73 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     gridRef.current.scrollToItem({ rowIndex, columnIndex });
   };
 
+  // ⌘A or ⌘+Shift+Space
+  const selectAll = () => {
+    newSelection(
+      { rowIndex: 0, columnIndex: 0 },
+      { rowIndex: rowCount - 1, columnIndex: columnCount - 1 }
+    );
+  };
+
+  // Shift+Space
+  const selectColumn = () => {
+    if (!selectionEnd.current || !selectionStart.current) return;
+    newSelection(
+      { rowIndex: 0, columnIndex: selectionStart.current.columnIndex },
+      { rowIndex: rowCount - 1, columnIndex: selectionEnd.current.columnIndex }
+    );
+  };
+
+  // Shift+Space
+  const selectRow = () => {
+    if (!selectionEnd.current || !selectionStart.current) return;
+    newSelection(
+      { rowIndex: selectionStart.current.rowIndex, columnIndex: 0 },
+      { rowIndex: selectionEnd.current.rowIndex, columnIndex: columnCount - 1 }
+    );
+  };
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      const modify = e.nativeEvent.shiftKey;
+      const isShiftKey = e.nativeEvent.shiftKey;
+      const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
       switch (e.nativeEvent.which) {
         case KeyCodes.Right:
-          keyNavigate(Direction.Right, modify);
+          keyNavigate(Direction.Right, isShiftKey);
           break;
 
         case KeyCodes.Left:
-          keyNavigate(Direction.Left, modify);
+          keyNavigate(Direction.Left, isShiftKey);
           break;
 
         // Up
         case KeyCodes.Up:
-          keyNavigate(Direction.Up, modify);
+          keyNavigate(Direction.Up, isShiftKey);
           break;
 
         case KeyCodes.Down:
-          keyNavigate(Direction.Down, modify);
+          keyNavigate(Direction.Down, isShiftKey);
+          break;
+
+        case KeyCodes.A:
+          // Select All
+          if (isMetaKey) {
+            selectAll();
+          }
+          break;
+
+        case KeyCodes.SPACE:
+          if (isMetaKey && isShiftKey) {
+            selectAll();
+          } else if (isMetaKey) {
+            selectColumn();
+          } else if (isShiftKey) {
+            selectRow();
+          }
           break;
 
         case KeyCodes.Tab:
-          if (modify) {
+          if (isShiftKey) {
             keyNavigate(Direction.Left);
           } else {
             keyNavigate(Direction.Right);
