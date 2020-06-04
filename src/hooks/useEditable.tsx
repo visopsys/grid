@@ -81,6 +81,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         margin: 0,
         boxSizing: "border-box",
         border: "1px #1a73e8 solid",
+        boxShadow: "0 2px 6px 2px rgba(60,64,67,.15)",
         outline: "none",
       }}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

@@ -32,6 +32,8 @@ import {
 import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
 import { createBox } from "./utils";
+import invariant from "tiny-invariant";
+import { StageConfig } from "konva/types/Stage";
 
 export interface GridProps {
   /**
@@ -143,6 +145,19 @@ export interface GridProps {
    * Will be called for frozen cells and merged cells
    */
   onBeforeRenderRow?: (rowIndex: number) => void;
+  /**
+   * Custom grid overlays
+   */
+  children: (props: ChildrenProps) => React.ReactNode;
+  /**
+   * Props that can be injected to Konva stage
+   */
+  stageProps?: Omit<StageConfig, "container">;
+}
+
+export interface ChildrenProps {
+  x: number;
+  y: number;
 }
 
 export type RefAttribute = {
@@ -298,8 +313,15 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       showFrozenShadow = true,
       shadowSettings = defaultShadowSettings,
       borderStyles = [],
+      children,
+      stageProps,
       ...rest
     } = props;
+
+    invariant(
+      !(children && typeof children !== "function"),
+      "Children should be a function"
+    );
 
     /* Expose some methods in ref */
     useImperativeHandle(forwardedRef, () => {
@@ -1346,6 +1368,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             height={containerHeight}
             ref={stageRef}
             listening={listenToEvents}
+            {...stageProps}
           >
             <Layer>
               <Group
@@ -1387,6 +1410,11 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 {selectionAreasIntersection}
               </Group>
             </Layer>
+            {children &&
+              children({
+                x: -scrollLeft,
+                y: -scrollTop,
+              })}
           </Stage>
         </div>
         {showScrollbar ? (
