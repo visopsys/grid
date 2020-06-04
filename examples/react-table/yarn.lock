@@ -4242,13 +4242,14 @@ react-is@^16.8.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
-react-konva-grid@^2.5.1:
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/react-konva-grid/-/react-konva-grid-2.5.1.tgz#000608db0016e2481ffc25f63bc356f81962c83e"
-  integrity sha512-/KM04z5bDHeLWQDTKDwaXlKoXJ5ujOCUQvGX6NC6CyHnY3P38ClVi/8tevBAk/Sk5Ch+5QkAZ0AIsyjaVPbVJw==
+react-konva-grid@^2.6.2:
+  version "2.6.2"
+  resolved "https://registry.yarnpkg.com/react-konva-grid/-/react-konva-grid-2.6.2.tgz#fd8f5c1b1116d16f35056253765163bc83d5d0d6"
+  integrity sha512-5rBf1ZgcCaZ1sR0xP1VZ8JBKyfhhp/H0Dy9jujeCqzQMVbqGfynGPOzQKk917prl/iqfumFHjCj1mNynFnHx2Q==
   dependencies:
     konva "^6.0.0"
     react-konva "^16.13.0-3"
+    tiny-invariant "^1.1.0"
 
 react-konva@^16.13.0-3:
   version "16.13.0-3"
@@ -4986,6 +4987,11 @@ tiny-inflate@^1.0.0:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/tiny-inflate/-/tiny-inflate-1.0.3.tgz#122715494913a1805166aaf7c93467933eea26c4"
   integrity sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==
+
+tiny-invariant@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/tiny-invariant/-/tiny-invariant-1.1.0.tgz#634c5f8efdc27714b7f386c35e6760991d230875"
+  integrity sha512-ytxQvrb1cPc9WBEI/HSeYYoGD0kWnGEOR8RY6KomWLBVhqz0RgTwVO9dLrGz7dC+nN9llyI7OKAgRq8Vq4ZBSw==
 
 to-arraybuffer@^1.0.0:
   version "1.0.1"
