@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useState, useRef, useReducer } from "react";
 import { Layer, Group, Image, Transformer, Rect } from "react-konva";
 import Grid from "./../src";

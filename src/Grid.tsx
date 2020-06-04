@@ -28,6 +28,9 @@ import {
   throttle,
   getOffsetForColumnAndAlignment,
   getOffsetForRowAndAlignment,
+  requestTimeout,
+  cancelTimeout,
+  TimeoutID,
 } from "./helpers";
 import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
@@ -167,6 +170,10 @@ export type ScrollCoords = {
   scrollLeft: number;
 };
 
+export interface ScrollState extends ScrollCoords {
+  isScrolling: boolean;
+}
+
 export type RenderComponent = React.FC<RendererProps>;
 export interface CellPosition
   extends Pick<ShapeConfig, "x" | "y" | "width" | "height"> {}
@@ -273,6 +280,7 @@ const defaultColumnWidth = () => 60;
 const defaultSelectionRenderer = (props: SelectionProps) => {
   return createBox({ ...props, strokeWidth: 2, strokeBoxWidth: 0 });
 };
+const RESET_SCROLL_EVENTS_DEBOUNCE_INTERVAL = 150;
 
 /**
  * Grid component using React Konva
@@ -353,8 +361,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const wheelingRef = useRef<number | null>(null);
     const horizontalScrollRef = useRef<HTMLDivElement>(null);
     const [_, forceRender] = useReducer((s) => s + 1, 0);
-    const [scrollTop, setScrollTop] = useState<number>(0);
-    const [scrollLeft, setScrollLeft] = useState<number>(0);
+    const [scrollState, setScrollState] = useState<ScrollState>({
+      scrollTop: 0,
+      scrollLeft: 0,
+      isScrolling: false,
+    });
+    const { scrollTop, scrollLeft, isScrolling } = scrollState;
     /**
      * Snaps vertical scrollbar to the next/prev visible row
      */
@@ -571,13 +583,49 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       };
     }, [rowStartIndex, rowStopIndex, columnStartIndex, columnStopIndex]);
 
+    /**
+     * When the grid is scrolling,
+     * 1. Stage does not listen to any mouse events
+     * 2. Div container does not listen to pointer events
+     */
+    const resetIsScrollingTimeoutID = useRef<TimeoutID | null>(null);
+    const resetIsScrollingDebounced = useCallback(() => {
+      if (resetIsScrollingTimeoutID.current !== null) {
+        cancelTimeout(resetIsScrollingTimeoutID.current);
+      }
+      resetIsScrollingTimeoutID.current = requestTimeout(
+        resetIsScrolling,
+        RESET_SCROLL_EVENTS_DEBOUNCE_INTERVAL
+      );
+    }, []);
+    /* Reset isScrolling */
+    const resetIsScrolling = useCallback(() => {
+      resetIsScrollingTimeoutID.current = null;
+
+      setScrollState((prev) => {
+        return {
+          ...prev,
+          isScrolling: false,
+        };
+      });
+    }, []);
+
     /* Handle vertical scroll */
     const handleScroll = useCallback(
       (e) => {
         const { scrollTop } = e.target;
-        setScrollTop(scrollTop);
+
+        setScrollState((prev) => ({
+          ...prev,
+          isScrolling: true,
+          scrollTop,
+        }));
+
         /* Scroll callbacks */
         onScroll && onScroll({ scrollTop, scrollLeft });
+
+        /* Reset isScrolling if required */
+        resetIsScrollingDebounced();
       },
       [scrollLeft]
     );
@@ -586,9 +634,16 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const handleScrollLeft = useCallback(
       (e) => {
         const { scrollLeft } = e.target;
-        setScrollLeft(scrollLeft);
+        setScrollState((prev) => ({
+          ...prev,
+          isScrolling: true,
+          scrollLeft,
+        }));
         /* Scroll callbacks */
         onScroll && onScroll({ scrollLeft, scrollTop });
+
+        /* Reset isScrolling if required */
+        resetIsScrollingDebounced();
       },
       [scrollTop]
     );
@@ -603,8 +658,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           if (verticalScrollRef.current)
             verticalScrollRef.current.scrollTop = scrollTop;
         } else {
-          scrollLeft !== void 0 && setScrollLeft(scrollLeft);
-          scrollTop !== void 0 && setScrollTop(scrollTop);
+          setScrollState((prev) => {
+            return {
+              ...prev,
+              scrollLeft: scrollLeft == void 0 ? prev.scrollLeft : scrollLeft,
+              scrollTop: scrollTop == void 0 ? prev.scrollTop : scrollTop,
+            };
+          });
         }
       },
       [showScrollbar]
@@ -1353,7 +1413,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     /**
      * Prevents drawing hit region when scrolling
      */
-    const isScrolling = !!wheelingRef.current;
     const listenToEvents = !isScrolling;
     return (
       <div style={{ position: "relative", width: containerWidth }}>
