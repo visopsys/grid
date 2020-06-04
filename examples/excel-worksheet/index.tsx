@@ -106,7 +106,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
       gridRef.current.resetAfterIndices({ rowIndex, columnIndex }, false);
 
       /* Select the next cell */
-      newSelection(nextActiveCell);
+      if (nextActiveCell) newSelection(nextActiveCell);
     },
   });
   const autoSizerProps = useAutoSizer({
