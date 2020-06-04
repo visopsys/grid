@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
 import { AreaProps, CellInterface, GridRef } from "./../Grid";
+import { KeyCodes, Direction } from "./../types";
 
 export interface UseSelectionOptions {
   gridRef?: React.MutableRefObject<GridRef>;
@@ -15,28 +16,6 @@ export interface SelectionResults {
   onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void;
   onMouseUp: (e: React.MouseEvent<HTMLDivElement>) => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
-}
-
-enum Direction {
-  Up = "UP",
-  Down = "DOWN",
-  Left = "LEFT",
-  Right = "RIGHT",
-}
-
-export enum SelectionKeys {
-  Right = 39,
-  Left = 37,
-  Up = 38,
-  Down = 40,
-  Escape = 27,
-  Tab = 9,
-  Meta = 91,
-}
-
-export enum DeleteKeys {
-  Delete = 9,
-  BackSpace = 8,
 }
 
 /**
@@ -204,24 +183,24 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     (e: React.KeyboardEvent) => {
       const modify = e.nativeEvent.shiftKey;
       switch (e.nativeEvent.which) {
-        case SelectionKeys.Right:
+        case KeyCodes.Right:
           keyNavigate(Direction.Right, modify);
           break;
 
-        case SelectionKeys.Left:
+        case KeyCodes.Left:
           keyNavigate(Direction.Left, modify);
           break;
 
         // Up
-        case SelectionKeys.Up:
+        case KeyCodes.Up:
           keyNavigate(Direction.Up, modify);
           break;
 
-        case SelectionKeys.Down:
+        case KeyCodes.Down:
           keyNavigate(Direction.Down, modify);
           break;
 
-        case SelectionKeys.Tab:
+        case KeyCodes.Tab:
           if (modify) {
             keyNavigate(Direction.Left);
           } else {

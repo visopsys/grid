@@ -12,7 +12,7 @@ import {
   GridRef,
   AreaProps,
 } from "../Grid";
-import { SelectionKeys, DeleteKeys } from "./useSelection";
+import { KeyCodes } from "./../types";
 
 export interface UseEditableOptions {
   getEditor?: (cell: CellInterface | null) => React.ElementType;
@@ -39,9 +39,9 @@ export interface EditableResults {
 
 export interface EditorProps extends CellInterface {
   onChange: (value: string) => void;
-  onSubmit: (sourceKey?: SelectionKeys) => void;
-  onNext: () => void;
-  onHide: () => void;
+  onSubmit?: (sourceKey?: KeyCodes) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onEscape?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   scrollPosition: ScrollCoords;
   position: CellPosition;
 }
@@ -56,12 +56,15 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     columnIndex,
     onChange,
     onSubmit,
+    onBlur,
+    onEscape,
     scrollPosition,
     position,
-    onHide,
+
     ...rest
   } = props;
   const inputRef = useRef<HTMLInputElement>(null);
+  const escapePressedRef = useRef(false);
   useEffect(() => {
     if (!inputRef.current) return;
     inputRef.current.focus();
@@ -88,21 +91,29 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         onChange(e.target.value)
       }
       onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+        escapePressedRef.current = false;
         // Enter key
-        if (e.which === 13) {
+        if (e.which === KeyCodes.Enter) {
           onSubmit && onSubmit();
         }
 
-        if (e.which === SelectionKeys.Escape) {
-          onHide();
+        if (e.which === KeyCodes.Escape) {
+          escapePressedRef.current = true;
+          onEscape && onEscape(e);
         }
 
-        if (e.which === SelectionKeys.Tab) {
+        if (e.which === KeyCodes.Tab) {
           e.preventDefault();
-          onSubmit && onSubmit(SelectionKeys.Tab);
+          onSubmit && onSubmit(KeyCodes.Tab);
         }
       }}
-      onBlur={() => onHide()}
+      onBlur={(e) => {
+        /* If the user has pressed Escape key, do not call onBlur,
+           Since we are any hiding the input
+         */
+        if (escapePressedRef.current) return;
+        onBlur && onBlur(e);
+      }}
       {...rest}
     />
   );
@@ -160,11 +171,23 @@ const useEditable = ({
     [getValue]
   );
 
+  const isSelectionKey = (keyCode: number) => {
+    return [
+      KeyCodes.Right,
+      KeyCodes.Left,
+      KeyCodes.Up,
+      KeyCodes.Down,
+      KeyCodes.Meta,
+      KeyCodes.Escape,
+      KeyCodes.Tab,
+    ].includes(keyCode);
+  };
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>) => {
       const keyCode = e.nativeEvent.keyCode;
       if (
-        keyCode in SelectionKeys ||
+        isSelectionKey(keyCode) ||
         e.nativeEvent.ctrlKey ||
         e.nativeEvent.shiftKey
       )
@@ -175,11 +198,11 @@ const useEditable = ({
 
       const { top: rowIndex, left: columnIndex } = selections[0];
 
-      if (keyCode === DeleteKeys.Delete || keyCode === DeleteKeys.BackSpace) {
+      if (keyCode === KeyCodes.Delete || keyCode === KeyCodes.BackSpace) {
         return onDelete(selections);
       }
       const initialValue =
-        keyCode === 13 // Enter key
+        keyCode === KeyCodes.Enter // Enter key
           ? undefined
           : e.nativeEvent.key;
       makeEditable({ rowIndex, columnIndex }, initialValue);
@@ -189,10 +212,10 @@ const useEditable = ({
 
   /* Save the value */
   const handleSubmit = useCallback(
-    (sourceKey: SelectionKeys) => {
+    (sourceKey: KeyCodes) => {
       if (!activeCell) return;
       const nextActiveCell =
-        sourceKey === SelectionKeys.Tab
+        sourceKey === KeyCodes.Tab
           ? {
               rowIndex: activeCell.rowIndex,
               columnIndex: activeCell.columnIndex + 1,
@@ -220,12 +243,22 @@ const useEditable = ({
   );
 
   /* When the input is blurred out */
-  const handleHide = useCallback(() => {
+  const handleHide = useCallback(
+    (e) => {
+      setActiveCell(null);
+      onCancel && onCancel();
+      /* Keep the focus back in the grid */
+      gridRef.current.focus();
+    },
+    [activeCell]
+  );
+
+  /* Update value onBlur */
+  const handleBlur = useCallback(() => {
+    if (!activeCell) return;
+    onSubmit && onSubmit(value, activeCell);
     setActiveCell(null);
-    onCancel && onCancel();
-    /* Keep the focus back in the grid */
-    gridRef.current.focus();
-  }, []);
+  }, [value, activeCell]);
 
   /* Editor */
   const Editor = useMemo(() => getEditor(activeCell), [activeCell]);
@@ -234,9 +267,10 @@ const useEditable = ({
       value={value}
       onChange={handleChange}
       onSubmit={handleSubmit}
+      onBlur={handleBlur}
+      onEscape={handleHide}
       position={position}
       scrollPosition={scrollPosition}
-      onHide={handleHide}
     />
   ) : null;
   return {

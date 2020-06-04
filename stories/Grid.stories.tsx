@@ -1060,7 +1060,11 @@ export const EditableGrid: React.FC = () => {
           return acc;
         }, {});
         setData((prev) => ({ ...prev, ...newValues }));
-        gridRef.current.resizeColumns([selections[0].left]);
+        /* If user has selected multiple areas to delete */
+        gridRef.current.resetAfterIndices(
+          { columnIndex: selections[0].left },
+          true
+        );
       },
       onBeforeEdit: ({ rowIndex, columnIndex }) => {
         if (rowIndex === 2 && columnIndex === 3) return false;
@@ -1071,7 +1075,7 @@ export const EditableGrid: React.FC = () => {
         gridRef.current.resizeColumns([columnIndex]);
         gridRef.current.focus();
         /* Select the next cell */
-        newSelection(nextActiveCell);
+        if (nextActiveCell) newSelection(nextActiveCell);
       },
     });
     const autoSizerProps = useAutoSizer({
