@@ -180,7 +180,10 @@ const Sheet = ({ data, onChange, name, isActive }) => {
               <Header
                 {...props}
                 key={props.key}
-                isActive={selectionArea.cols.includes(props.columnIndex)}
+                isActive={
+                  activeCell?.columnIndex === props.columnIndex ||
+                  selectionArea.cols.includes(props.columnIndex)
+                }
               />
             );
           }
@@ -190,7 +193,10 @@ const Sheet = ({ data, onChange, name, isActive }) => {
                 {...props}
                 key={props.key}
                 columnHeader
-                isActive={selectionArea.rows.includes(props.rowIndex)}
+                isActive={
+                  activeCell?.rowIndex === props.rowIndex ||
+                  selectionArea.rows.includes(props.rowIndex)
+                }
               />
             );
           }
