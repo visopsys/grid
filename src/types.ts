@@ -11,6 +11,7 @@ export enum KeyCodes {
   Enter = 13,
   A = 65,
   SPACE = 32,
+  ALT = 18,
 }
 
 export enum Direction {

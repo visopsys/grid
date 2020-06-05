@@ -198,8 +198,11 @@ const useEditable = ({
       if (
         isSelectionKey(keyCode) ||
         e.nativeEvent.ctrlKey ||
-        (e.nativeEvent.shiftKey && e.nativeEvent.key === "Shift") ||
-        e.nativeEvent.metaKey
+        (e.nativeEvent.shiftKey &&
+          (e.nativeEvent.key === "Shift" ||
+            e.nativeEvent.which === KeyCodes.SPACE)) ||
+        e.nativeEvent.metaKey ||
+        e.nativeEvent.which === KeyCodes.ALT
       )
         return;
 

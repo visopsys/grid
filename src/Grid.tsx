@@ -1411,7 +1411,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       const cell = selectionRenderer({
         stroke: selectionBorderColor,
         strokeWidth: activeCellStrokeWidth,
-        fill: selectionBackgroundColor,
+        fill: "transparent",
         x: x,
         y: y,
         width: width,
