@@ -181,7 +181,8 @@ const Sheet = ({ data, onChange, name, isActive }) => {
                 {...props}
                 key={props.key}
                 isActive={
-                  activeCell?.columnIndex === props.columnIndex ||
+                  (activeCell &&
+                    activeCell.columnIndex === props.columnIndex) ||
                   selectionArea.cols.includes(props.columnIndex)
                 }
               />
@@ -194,7 +195,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
                 key={props.key}
                 columnHeader
                 isActive={
-                  activeCell?.rowIndex === props.rowIndex ||
+                  (activeCell && activeCell.rowIndex === props.rowIndex) ||
                   selectionArea.rows.includes(props.rowIndex)
                 }
               />
