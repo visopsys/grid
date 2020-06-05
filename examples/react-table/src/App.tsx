@@ -82,7 +82,7 @@ export default function App() {
   const gridRef = useRef<GridRef>(null);
   const rowCount = rows.length;
   const columnCount = visibleColumns.length;
-  const { selections, ...selectionProps } = useSelection({
+  const { selections, activeCell, ...selectionProps } = useSelection({
     gridRef,
     rowCount,
     columnCount,
@@ -92,6 +92,7 @@ export default function App() {
       <Grid
         ref={gridRef}
         selections={selections}
+        activeCell={activeCell}
         columnCount={columnCount}
         rowCount={rowCount}
         rowHeight={() => 20}

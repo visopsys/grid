@@ -5,6 +5,7 @@ import { KeyCodes, Direction } from "./../types";
 export interface UseSelectionOptions {
   gridRef?: React.MutableRefObject<GridRef>;
   initialSelections?: SelectionArea[];
+  initialActiveCell: CellInterface | null;
   columnCount?: number;
   rowCount?: number;
 }
@@ -20,18 +21,18 @@ export interface SelectionResults {
   onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
 }
 
-const initialActiveCell = {
-  rowIndex: 3,
-  columnIndex: 3,
-};
-
 /**
  * useSelection hook to enable selection in datagrid
  * @param initialSelection
  */
 const useSelection = (options?: UseSelectionOptions): SelectionResults => {
-  const { gridRef, initialSelections = [], columnCount = 0, rowCount = 0 } =
-    options || {};
+  const {
+    gridRef,
+    initialActiveCell = null,
+    initialSelections = [],
+    columnCount = 0,
+    rowCount = 0,
+  } = options || {};
   const [activeCell, setActiveCell] = useState<CellInterface | null>(
     initialActiveCell
   );

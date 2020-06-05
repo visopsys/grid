@@ -88,14 +88,15 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     gridRef,
     getValue,
     selections,
+    activeCell,
     onDelete: (activeCell, selections) => {
       /**
        * It can be a range of just one cell
        */
       if (selections.length) {
-        const newValues = selections.reduce((acc, sel) => {
-          for (let i = sel.top; i <= sel.bottom; i++) {
-            for (let j = sel.left; j <= sel.right; j++) {
+        const newValues = selections.reduce((acc, { bounds }) => {
+          for (let i = bounds.top; i <= bounds.bottom; i++) {
+            for (let j = bounds.left; j <= bounds.right; j++) {
               acc[[i, j]] = "";
             }
           }
@@ -103,7 +104,10 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         }, {});
         onChange(name, newValues);
         gridRef.current.resetAfterIndices(
-          { rowIndex: selections[0].top, columnIndex: selections[0].left },
+          {
+            rowIndex: selections[0].bounds.top,
+            columnIndex: selections[0].bounds.left,
+          },
           false
         );
       } else {
@@ -134,7 +138,6 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     rowCount,
     minColumnWidth: 100,
   });
-  const activeCell = selections.length ? selections[0] : null;
   const frozenColumns = 1;
   const frozenRows = 1;
   return (
