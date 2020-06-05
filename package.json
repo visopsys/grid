@@ -1,7 +1,7 @@
 {
   "name": "react-konva-grid",
   "description": "Declarative React Canvas Grid primitive for Data table, Pivot table, Excel Worksheets",
-  "version": "2.6.6",
+  "version": "2.6.7",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
