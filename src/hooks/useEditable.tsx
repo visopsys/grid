@@ -40,7 +40,7 @@ export interface EditableResults {
 
 export interface EditorProps extends CellInterface {
   onChange: (value: string) => void;
-  onSubmit?: (sourceKey?: KeyCodes) => void;
+  onSubmit?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onEscape?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   scrollPosition: ScrollCoords;
@@ -95,7 +95,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         escapePressedRef.current = false;
         // Enter key
         if (e.which === KeyCodes.Enter) {
-          onSubmit && onSubmit();
+          onSubmit && onSubmit(e);
         }
 
         if (e.which === KeyCodes.Escape) {
@@ -105,7 +105,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
 
         if (e.which === KeyCodes.Tab) {
           e.preventDefault();
-          onSubmit && onSubmit(KeyCodes.Tab);
+          onSubmit && onSubmit(e);
         }
       }}
       onBlur={(e) => {
@@ -224,18 +224,20 @@ const useEditable = ({
 
   /* Save the value */
   const handleSubmit = useCallback(
-    (sourceKey: KeyCodes) => {
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (!activeCell) return;
-      const nextActiveCell =
-        sourceKey === KeyCodes.Tab
-          ? {
-              rowIndex: activeCell.rowIndex,
-              columnIndex: activeCell.columnIndex + 1,
-            }
-          : {
-              rowIndex: activeCell.rowIndex + 1,
-              columnIndex: activeCell.columnIndex,
-            };
+      const isTabKeyPressed = e.which === KeyCodes.Tab;
+      const shiftKey = e.shiftKey;
+      const nextIndex = shiftKey ? -1 : 1;
+      const nextActiveCell = isTabKeyPressed
+        ? {
+            rowIndex: activeCell.rowIndex,
+            columnIndex: activeCell.columnIndex + nextIndex,
+          }
+        : {
+            rowIndex: activeCell.rowIndex + 1,
+            columnIndex: activeCell.columnIndex,
+          };
 
       onSubmit && onSubmit(value, activeCell, nextActiveCell);
       /* Show editor */
