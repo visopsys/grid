@@ -10,6 +10,7 @@ import {
   GridRef,
   CellInterface,
   Cell,
+  getBoundedCells,
 } from "react-konva-grid";
 import { Group, Rect, Text } from "react-konva";
 import { useMeasure } from "react-use";
@@ -57,7 +58,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
   const {
     activeCell,
     selections,
-    newSelection,
+    setActiveCell,
     ...selectionProps
   } = useSelection({
     gridRef,
@@ -128,7 +129,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
       gridRef.current.resetAfterIndices({ rowIndex, columnIndex }, false);
 
       /* Select the next cell */
-      if (nextActiveCell) newSelection(nextActiveCell);
+      if (nextActiveCell) setActiveCell(nextActiveCell);
     },
   });
   const autoSizerProps = useAutoSizer({
@@ -138,6 +139,18 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     rowCount,
     minColumnWidth: 100,
   });
+  const selectionArea = selections.reduce(
+    (acc, { bounds }) => {
+      for (let i = bounds.left; i <= bounds.right; i++) {
+        acc.cols.push(i);
+      }
+      for (let i = bounds.top; i <= bounds.bottom; i++) {
+        acc.rows.push(i);
+      }
+      return acc;
+    },
+    { rows: [], cols: [] }
+  );
   const frozenColumns = 1;
   const frozenRows = 1;
   return (
@@ -162,11 +175,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
               <Header
                 {...props}
                 key={props.key}
-                isActive={
-                  activeCell &&
-                  props.columnIndex >= activeCell.left &&
-                  props.columnIndex <= activeCell.right
-                }
+                isActive={selectionArea.cols.includes(props.columnIndex)}
               />
             );
           }
@@ -176,11 +185,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
                 {...props}
                 key={props.key}
                 columnHeader
-                isActive={
-                  activeCell &&
-                  props.rowIndex >= activeCell.top &&
-                  props.rowIndex <= activeCell.bottom
-                }
+                isActive={selectionArea.rows.includes(props.rowIndex)}
               />
             );
           }
