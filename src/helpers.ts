@@ -5,6 +5,7 @@ import {
   AreaProps,
   CellInterface,
   CellMetaData,
+  SelectionProps,
 } from "./Grid";
 
 // type ItemType = "row" | "column";
@@ -633,3 +634,11 @@ export function requestTimeout(callback: Function, delay: number): TimeoutID {
 
   return timeoutID;
 }
+
+// export function getNextCellInSelectionBounds (selections: SelectionProps, activeCell: CellInterface) {
+//   let nextCell
+//   for (let i = 0; i <= selections.length; i++) {
+//     const { bounds } = selections[i]
+//     const { top, left, right, bottom } = bounds
+//   }
+// }

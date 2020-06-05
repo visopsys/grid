@@ -98,7 +98,12 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         const newValues = selections.reduce((acc, { bounds }) => {
           for (let i = bounds.top; i <= bounds.bottom; i++) {
             for (let j = bounds.left; j <= bounds.right; j++) {
-              acc[[i, j]] = "";
+              if (
+                getValueRef.current({ rowIndex: i, columnIndex: j }) !==
+                undefined
+              ) {
+                acc[[i, j]] = "";
+              }
             }
           }
           return acc;

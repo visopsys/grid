@@ -326,6 +326,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
           break;
 
         case KeyCodes.Tab:
+          /* TODO Cycle through the selections if selections.length > 0 */
           if (isShiftKey) {
             keyNavigate(Direction.Left);
           } else {
@@ -335,7 +336,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
           break;
       }
     },
-    [rowCount, columnCount, activeCell]
+    [rowCount, columnCount, activeCell, selections]
   );
 
   return {
