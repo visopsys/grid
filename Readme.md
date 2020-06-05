@@ -21,6 +21,7 @@ Canvas table grid to render large set of tabular data. Uses virtualization simil
 - :white_square_button: Merge rows and columns
 - :hand: Resizable headers
 - :deciduous_tree: Create Tree tables
+- :musical_keyboard: Keyboard accessible
 - :hammer_and_wrench: Fully typed API written in TypeScript
 - :muscle: Highly customizable using [react-konva](https://github.com/konvajs/react-konva/)
 
@@ -113,6 +114,9 @@ This is the list of props that are meant to be used to customise the `konva-grid
 | showScrollbar | false | boolean | Always show scrollbar | true |
 | selectionBackgroundColor | false | string | Background color of selected cells | rgba(66, 133, 244, 0.3) |
 | selectionBorderColor | false | string | Border color of bounding box of selected cells | rgba(66, 133, 244, 1) |
+| selectionStrokeWidth | false |  number | Border width of selection | 1 |
+| activeCellStrokeWidth | false |  number | Border width of activeCell | 2 |
+| activeCell | false | { rowIndex, columnIndex } | Recently active cell that user has clicked | null |
 | selections | false | Array | Array of selected cell areas | []|
 | mergedCells | false | Array | Array of merged cell areas | []|
 | snap | false | boolean | Snaps to the next row or column as you scroll | false |
@@ -121,6 +125,8 @@ This is the list of props that are meant to be used to customise the `konva-grid
 | showFrozenShadow| false | boolean | Show shadow in frozen columns/rows | true |
 | shadowSettings| false | object | Customize shadow of frozen columns/rows | true |
 | onBeforeRenderRow | false | Function | Called right before a row is rendered, useful for `react-table` | null |
+| stageProps | false | Object | Konva stage props | null |
+| children | false | Function | Inject React Konva shapes using children | null
 
 ## Methods
 
