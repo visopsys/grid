@@ -159,7 +159,7 @@ export interface GridProps {
   /**
    * Custom grid overlays
    */
-  children: (props: ScrollCoords) => React.ReactNode;
+  children?: (props: ScrollCoords) => React.ReactNode;
   /**
    * Props that can be injected to Konva stage
    */

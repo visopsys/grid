@@ -5,7 +5,7 @@ import { KeyCodes, Direction } from "./../types";
 export interface UseSelectionOptions {
   gridRef?: React.MutableRefObject<GridRef>;
   initialSelections?: SelectionArea[];
-  initialActiveCell: CellInterface | null;
+  initialActiveCell?: CellInterface | null;
   columnCount?: number;
   rowCount?: number;
 }
