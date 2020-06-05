@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { RendererProps } from "./Grid";
 import { Group, Rect, Text } from "react-konva";
 import { KonvaEventObject } from "konva/types/Node";

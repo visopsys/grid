@@ -161,6 +161,10 @@ export interface GridProps {
    */
   children?: (props: ScrollCoords) => React.ReactNode;
   /**
+   * Allows users to Wrap stage children in Top level Context
+   */
+  wrapper?: (children: React.ReactNode) => React.ReactNode;
+  /**
    * Props that can be injected to Konva stage
    */
   stageProps?: Omit<StageConfig, "container">;
@@ -337,6 +341,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       borderStyles = [],
       children,
       stageProps,
+      wrapper = (children: React.ReactNode): React.ReactNode => children,
       ...rest
     } = props;
 
@@ -1509,6 +1514,60 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      * Prevents drawing hit region when scrolling
      */
     const listenToEvents = !isScrolling;
+    const stageChildren = (
+      <>
+        <Layer>
+          <Group
+            offsetY={scrollTop}
+            offsetX={scrollLeft}
+            perfectDrawEnabled={false}
+          >
+            {cells}
+            {mergedCellAreas}
+          </Group>
+        </Layer>
+
+        <Layer>
+          <Group offsetY={scrollTop} offsetX={scrollLeft} listening={false}>
+            {borderStylesCells}
+            {selectionAreas}
+            {activeCellSelection}
+          </Group>
+          {frozenColumnShadow}
+          {frozenRowShadow}
+          <Group offsetY={0} offsetX={scrollLeft}>
+            {frozenRowCells}
+            {frozenRowMergedCellAreas}
+          </Group>
+          <Group offsetY={0} offsetX={scrollLeft} listening={false}>
+            {selectionAreasFrozenRows}
+            {activeCellSelectionFrozenRow}
+          </Group>
+          <Group offsetY={scrollTop} offsetX={0}>
+            {frozenColumnCells}
+            {frozenColumnMergedCellAreas}
+          </Group>
+          <Group offsetY={scrollTop} offsetX={0} listening={false}>
+            {selectionAreasFrozenColumns}
+            {activeCellSelectionFrozenColumn}
+          </Group>
+          <Group offsetY={0} offsetX={0}>
+            {frozenIntersectionCells}
+            {frozenIntersectionMergedCells}
+          </Group>
+          <Group offsetY={0} offsetX={0} listening={false}>
+            {selectionAreasIntersection}
+            {activeCellSelectionFrozenIntersection}
+          </Group>
+        </Layer>
+        {children && typeof children === "function"
+          ? children({
+              scrollLeft,
+              scrollTop,
+            })
+          : null}
+      </>
+    );
     return (
       <div style={{ position: "relative", width: containerWidth }}>
         <div onWheel={handleWheel} tabIndex={1} ref={containerRef} {...rest}>
@@ -1519,55 +1578,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             listening={listenToEvents}
             {...stageProps}
           >
-            <Layer>
-              <Group
-                offsetY={scrollTop}
-                offsetX={scrollLeft}
-                perfectDrawEnabled={false}
-              >
-                {cells}
-                {mergedCellAreas}
-              </Group>
-            </Layer>
-
-            <Layer>
-              <Group offsetY={scrollTop} offsetX={scrollLeft} listening={false}>
-                {borderStylesCells}
-                {selectionAreas}
-                {activeCellSelection}
-              </Group>
-              {frozenColumnShadow}
-              {frozenRowShadow}
-              <Group offsetY={0} offsetX={scrollLeft}>
-                {frozenRowCells}
-                {frozenRowMergedCellAreas}
-              </Group>
-              <Group offsetY={0} offsetX={scrollLeft} listening={false}>
-                {selectionAreasFrozenRows}
-                {activeCellSelectionFrozenRow}
-              </Group>
-              <Group offsetY={scrollTop} offsetX={0}>
-                {frozenColumnCells}
-                {frozenColumnMergedCellAreas}
-              </Group>
-              <Group offsetY={scrollTop} offsetX={0} listening={false}>
-                {selectionAreasFrozenColumns}
-                {activeCellSelectionFrozenColumn}
-              </Group>
-              <Group offsetY={0} offsetX={0}>
-                {frozenIntersectionCells}
-                {frozenIntersectionMergedCells}
-              </Group>
-              <Group offsetY={0} offsetX={0} listening={false}>
-                {selectionAreasIntersection}
-                {activeCellSelectionFrozenIntersection}
-              </Group>
-            </Layer>
-            {children &&
-              children({
-                scrollLeft,
-                scrollTop,
-              })}
+            {wrapper(stageChildren)}
           </Stage>
         </div>
         {showScrollbar ? (

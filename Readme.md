@@ -24,6 +24,7 @@ Canvas table grid to render large set of tabular data. Uses virtualization simil
 - :musical_keyboard: Keyboard accessible
 - :page_with_curl: Pagination sync/async
 - :hammer_and_wrench: Fully typed API written in TypeScript
+- :rainbow: Full Theming and Context Support
 - :muscle: Highly customizable using [react-konva](https://github.com/konvajs/react-konva/)
 
 ### Why another canvas grid library
@@ -128,6 +129,7 @@ This is the list of props that are meant to be used to customise the `konva-grid
 | onBeforeRenderRow | false | Function | Called right before a row is rendered, useful for `react-table` | null |
 | stageProps | false | Object | Konva stage props | null |
 | children | false | Function | Inject React Konva shapes using children | null
+| wrapper | false | Function | Inject custom context using a wrapper | (children) => children |
 
 ## Methods
 
@@ -180,6 +182,41 @@ const gridRef = useRef()
 const stage = gridRef.current.stage
 ````
 
+## Passing Contexts
+
+React Konva uses `react-reconciler` to create a custom React renderer. Which means Top Level Context is not available inside the canvas. We provide a simple `wrapper` prop to pass Context to the Grid
+
+```js
+const ThemeContext = React.createContext({})
+const theme = { color: 'yellow' }
+<Grid
+  wrapper={(children) => {
+    return (
+      <ThemeContext.Provider value={theme}>
+        {children}
+      </ThemContext.Provider>
+    )
+  }}
+/>
+```
+
+This will let you use ThemeContext is any of the React Konva components. To access theme inside `Cell`, you could do
+
+```js
+const Cell = ({ x, y, width, height }) => {
+  const theme = useContext(ThemeContext)
+
+  return (
+    <Rect
+      fill={theme.color}
+      x={x}
+      y={y}
+      width={width}
+      height={height}
+    >
+  )
+}
+```
 
 ## Storybook
 
