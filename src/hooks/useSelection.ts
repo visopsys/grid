@@ -1,22 +1,29 @@
 import React, { useState, useCallback, useRef } from "react";
-import { AreaProps, CellInterface, GridRef } from "./../Grid";
+import { SelectionArea, AreaProps, CellInterface, GridRef } from "./../Grid";
 import { KeyCodes, Direction } from "./../types";
 
 export interface UseSelectionOptions {
   gridRef?: React.MutableRefObject<GridRef>;
-  initialSelections?: AreaProps[];
+  initialSelections?: SelectionArea[];
   columnCount?: number;
   rowCount?: number;
 }
 
 export interface SelectionResults {
+  activeCell: CellInterface | null;
   newSelection: (coords: CellInterface) => void;
-  selections: AreaProps[];
+  setActiveCell: (coords: CellInterface | null) => void;
+  selections: SelectionArea[];
   onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
   onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void;
   onMouseUp: (e: React.MouseEvent<HTMLDivElement>) => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
 }
+
+const initialActiveCell = {
+  rowIndex: 3,
+  columnIndex: 3,
+};
 
 /**
  * useSelection hook to enable selection in datagrid
@@ -25,7 +32,12 @@ export interface SelectionResults {
 const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const { gridRef, initialSelections = [], columnCount = 0, rowCount = 0 } =
     options || {};
-  const [selections, setSelections] = useState<AreaProps[]>(initialSelections);
+  const [activeCell, setActiveCell] = useState<CellInterface | null>(
+    initialActiveCell
+  );
+  const [selections, setSelections] = useState<SelectionArea[]>(
+    initialSelections
+  );
   const selectionStart = useRef<CellInterface>();
   const selectionEnd = useRef<CellInterface>();
   const isSelectionMode = useRef<boolean>();
@@ -34,9 +46,10 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const newSelection = (start: CellInterface, end: CellInterface = start) => {
     selectionStart.current = start;
     selectionEnd.current = end;
-    const selection = selectionFromStartEnd(start, end);
-    if (!selection) return;
-    setSelections([selection]);
+    const bounds = selectionFromStartEnd(start, end);
+    if (!bounds) return;
+    setActiveCell({ rowIndex: bounds.top, columnIndex: bounds.left });
+    setSelections([]);
   };
 
   /* selection object from start, end */
@@ -53,21 +66,42 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   };
 
   /* Modify current selection */
-  const modifySelection = (coords: CellInterface) => {
+  const modifySelection = (coords: CellInterface, setInProgress?: boolean) => {
     if (!selectionStart.current) return;
     selectionEnd.current = coords;
-    const selection = selectionFromStartEnd(selectionStart.current, coords);
-    if (!selection) return;
-    setSelections([selection]);
+    const bounds = selectionFromStartEnd(selectionStart.current, coords);
+    if (!bounds) return;
+
+    /**
+     * 1. Multiple selections on mousedown/mousemove
+     * 2. Move the activeCell to newly selection. Done by appendSelection
+     */
+    setSelections((prevSelection) => {
+      const len = prevSelection.length;
+      if (!len) {
+        return [{ bounds, inProgress: setInProgress ? true : false }];
+      }
+      return prevSelection.map((sel, i) => {
+        if (len - 1 === i) {
+          return {
+            ...sel,
+            bounds,
+            inProgress: setInProgress ? true : false,
+          };
+        }
+        return sel;
+      });
+    });
   };
 
   /* Adds a new selection, CMD key */
   const appendSelection = (coords: CellInterface) => {
     selectionStart.current = coords;
     selectionEnd.current = coords;
-    const selection = selectionFromStartEnd(coords, coords);
-    if (!selection) return;
-    setSelections((prev) => [...prev, selection]);
+    const bounds = selectionFromStartEnd(coords, coords);
+    if (!bounds) return;
+    setActiveCell({ rowIndex: bounds.top, columnIndex: bounds.left });
+    setSelections((prev) => [...prev, { bounds }]);
   };
 
   /**
@@ -120,9 +154,18 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         e.clientY
       );
 
-      modifySelection({ rowIndex, columnIndex });
+      /**
+       * If the user is moving across the Active Cell, lets not add it to selection
+       */
+      if (
+        activeCell?.rowIndex === rowIndex &&
+        activeCell?.columnIndex === columnIndex
+      )
+        return;
+
+      modifySelection({ rowIndex, columnIndex }, true);
     },
-    [isSelectionMode]
+    [activeCell]
   );
   /**
    * Mouse up handler
@@ -130,6 +173,20 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const handleMouseUp = useCallback(() => {
     /* Reset selection mode */
     isSelectionMode.current = false;
+
+    /* Update last selection */
+    setSelections((prevSelection) => {
+      const len = prevSelection.length;
+      return prevSelection.map((sel, i) => {
+        if (len - 1 === i) {
+          return {
+            ...sel,
+            inProgress: false,
+          };
+        }
+        return sel;
+      });
+    });
   }, []);
 
   /**
@@ -137,72 +194,95 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
    * @param direction
    * @param modify
    */
-  const keyNavigate = (direction: Direction, modify?: boolean) => {
-    if (!selectionEnd.current || !gridRef) return;
-    var { rowIndex, columnIndex } = selectionEnd.current;
-    const isMergedCell = gridRef?.current.isMergedCell({
-      rowIndex,
-      columnIndex,
-    });
+  const keyNavigate = useCallback(
+    (direction: Direction, modify?: boolean) => {
+      if (
+        !selectionStart.current ||
+        !selectionEnd.current ||
+        !gridRef ||
+        !activeCell
+      )
+        return;
+      var { rowIndex, columnIndex } = modify
+        ? selectionEnd.current
+        : activeCell;
+      const isMergedCell = gridRef?.current.isMergedCell({
+        rowIndex,
+        columnIndex,
+      });
 
-    const bounds = gridRef.current.getCellBounds({ rowIndex, columnIndex });
+      const bounds = gridRef.current.getCellBounds({ rowIndex, columnIndex });
 
-    switch (direction) {
-      case Direction.Up:
-        if (isMergedCell) rowIndex = bounds.top;
-        rowIndex = Math.max(rowIndex - 1, 0);
-        break;
+      switch (direction) {
+        case Direction.Up:
+          if (isMergedCell) rowIndex = bounds.top;
+          rowIndex = Math.max(rowIndex - 1, 0);
+          break;
 
-      case Direction.Down:
-        if (isMergedCell) rowIndex = bounds.bottom;
-        rowIndex = Math.min(rowIndex + 1, rowCount - 1);
-        break;
+        case Direction.Down:
+          if (isMergedCell) rowIndex = bounds.bottom;
+          rowIndex = Math.min(rowIndex + 1, rowCount - 1);
+          break;
 
-      case Direction.Left:
-        if (isMergedCell) columnIndex = bounds.left;
-        columnIndex = Math.max(columnIndex - 1, 0);
-        break;
+        case Direction.Left:
+          if (isMergedCell) columnIndex = bounds.left;
+          columnIndex = Math.max(columnIndex - 1, 0);
+          break;
 
-      case Direction.Right:
-        if (isMergedCell) columnIndex = bounds.right;
-        columnIndex = Math.min(columnIndex + 1, columnCount - 1);
-        break;
-    }
+        case Direction.Right:
+          if (isMergedCell) columnIndex = bounds.right;
+          columnIndex = Math.min(columnIndex + 1, columnCount - 1);
+          break;
+      }
 
-    if (modify) {
-      modifySelection({ rowIndex, columnIndex });
-    } else {
-      newSelection({ rowIndex, columnIndex });
-    }
+      const scrollToCell = modify
+        ? selectionEnd.current.rowIndex === rowIndex
+          ? { columnIndex }
+          : { rowIndex }
+        : { rowIndex, columnIndex };
 
-    /* Keep the item in view */
-    gridRef.current.scrollToItem({ rowIndex, columnIndex });
-  };
+      if (modify) {
+        modifySelection({ rowIndex, columnIndex });
+      } else {
+        newSelection({ rowIndex, columnIndex });
+      }
+
+      /* Keep the item in view */
+      gridRef.current.scrollToItem(scrollToCell);
+    },
+    [activeCell]
+  );
 
   // ⌘A or ⌘+Shift+Space
   const selectAll = () => {
-    newSelection(
-      { rowIndex: 0, columnIndex: 0 },
-      { rowIndex: rowCount - 1, columnIndex: columnCount - 1 }
-    );
+    selectionStart.current = { rowIndex: 0, columnIndex: 0 };
+    modifySelection({ rowIndex: rowCount - 1, columnIndex: columnCount - 1 });
   };
 
   // Shift+Space
   const selectColumn = () => {
     if (!selectionEnd.current || !selectionStart.current) return;
-    newSelection(
-      { rowIndex: 0, columnIndex: selectionStart.current.columnIndex },
-      { rowIndex: rowCount - 1, columnIndex: selectionEnd.current.columnIndex }
-    );
+    selectionStart.current = {
+      rowIndex: 0,
+      columnIndex: selectionStart.current.columnIndex,
+    };
+    modifySelection({
+      rowIndex: rowCount - 1,
+      columnIndex: selectionEnd.current.columnIndex,
+    });
   };
 
   // Shift+Space
   const selectRow = () => {
     if (!selectionEnd.current || !selectionStart.current) return;
-    newSelection(
-      { rowIndex: selectionStart.current.rowIndex, columnIndex: 0 },
-      { rowIndex: selectionEnd.current.rowIndex, columnIndex: columnCount - 1 }
-    );
+    selectionStart.current = {
+      rowIndex: selectionStart.current.rowIndex,
+      columnIndex: 0,
+    };
+    modifySelection({
+      rowIndex: selectionEnd.current.rowIndex,
+      columnIndex: columnCount - 1,
+    });
   };
 
   const handleKeyDown = useCallback(
@@ -254,16 +334,18 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
           break;
       }
     },
-    [rowCount, columnCount]
+    [rowCount, columnCount, activeCell]
   );
 
   return {
+    activeCell,
     selections,
     onMouseDown: handleMouseDown,
     onMouseMove: handleMouseMove,
     onMouseUp: handleMouseUp,
     onKeyDown: handleKeyDown,
     newSelection,
+    setActiveCell,
   };
 };
 

@@ -54,7 +54,12 @@ const Sheet = ({ data, onChange, name, isActive }) => {
   const [containerRef, { width, height }] = useMeasure();
   const rowCount = 1000;
   const columnCount = 1000;
-  const { selections, newSelection, ...selectionProps } = useSelection({
+  const {
+    activeCell,
+    selections,
+    newSelection,
+    ...selectionProps
+  } = useSelection({
     gridRef,
     rowCount,
     columnCount,
@@ -83,20 +88,33 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     gridRef,
     getValue,
     selections,
-    onDelete: (selections) => {
-      const newValues = selections.reduce((acc, sel) => {
-        for (let i = sel.top; i <= sel.bottom; i++) {
-          for (let j = sel.left; j <= sel.right; j++) {
-            acc[[i, j]] = "";
+    onDelete: (activeCell, selections) => {
+      /**
+       * It can be a range of just one cell
+       */
+      if (selections.length) {
+        const newValues = selections.reduce((acc, sel) => {
+          for (let i = sel.top; i <= sel.bottom; i++) {
+            for (let j = sel.left; j <= sel.right; j++) {
+              acc[[i, j]] = "";
+            }
           }
-        }
-        return acc;
-      }, {});
-      onChange(name, newValues);
-      gridRef.current.resetAfterIndices(
-        { rowIndex: selections[0].top, columnIndex: selections[0].left },
-        false
-      );
+          return acc;
+        }, {});
+        onChange(name, newValues);
+        gridRef.current.resetAfterIndices(
+          { rowIndex: selections[0].top, columnIndex: selections[0].left },
+          false
+        );
+      } else {
+        setData((prev) => {
+          return {
+            ...prev,
+            [[activeCell.rowIndex, activeCell.columnIndex]]: "",
+          };
+        });
+        gridRef.current.resetAfterIndices(activeCell);
+      }
     },
     onSubmit: (value, { rowIndex, columnIndex }, nextActiveCell) => {
       const changes = {
@@ -126,6 +144,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     >
       <Grid
         // snap
+        activeCell={activeCell}
         width={width}
         height={height}
         ref={gridRef}

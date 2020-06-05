@@ -84,6 +84,10 @@ export interface GridProps {
    */
   showScrollbar?: boolean;
   /**
+   * Currently active cell
+   */
+  activeCell?: CellInterface;
+  /**
    * Background of selection
    */
   selectionBackgroundColor?: string;
@@ -98,7 +102,7 @@ export interface GridProps {
   /**
    * Array of selected cell areas
    */
-  selections?: AreaProps[];
+  selections?: SelectionArea[];
   /**
    * Array of merged cells
    */
@@ -170,6 +174,11 @@ export type ScrollCoords = {
   scrollLeft: number;
 };
 
+export type OptionalScrollCoords = {
+  scrollTop?: number;
+  scrollLeft?: number;
+};
+
 export interface ScrollState extends ScrollCoords {
   isScrolling: boolean;
 }
@@ -186,6 +195,10 @@ export interface RendererProps
 
 export type ItemSizer = (index: number) => number;
 
+export interface SelectionArea {
+  bounds: AreaProps;
+  inProgress?: boolean;
+}
 export interface AreaProps {
   top: number;
   bottom: number;
@@ -252,7 +265,7 @@ export type GridRef = {
   getCellBounds: (coords: CellInterface) => AreaProps;
   getCellCoordsFromOffset: (x: number, y: number) => CellInterface;
   getCellOffsetFromCoords: (coords: CellInterface) => CellPosition;
-  scrollToItem: (coords: CellInterface) => void;
+  scrollToItem: (coords: OptionalCellInterface) => void;
   focus: () => void;
   resizeColumns: (indexes: number[]) => void;
   resizeRows: (indexes: number[]) => void;
@@ -278,7 +291,7 @@ const defaultShadowSettings: ShapeConfig = {
 const defaultRowHeight = () => 20;
 const defaultColumnWidth = () => 60;
 const defaultSelectionRenderer = (props: SelectionProps) => {
-  return createBox({ ...props, strokeWidth: 2, strokeBoxWidth: 0 });
+  return createBox({ strokeWidth: 1, strokeBoxWidth: 0, ...props });
 };
 const RESET_SCROLL_EVENTS_DEBOUNCE_INTERVAL = 150;
 
@@ -303,6 +316,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       selectionBackgroundColor = "rgb(14, 101, 235, 0.1)",
       selectionBorderColor = "#1a73e8",
       selectionStrokeWidth = 2,
+      activeCell,
       selections = [],
       frozenRows = 0,
       frozenColumns = 0,
@@ -650,12 +664,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
     /* Scroll based on left, top position */
     const scrollTo = useCallback(
-      ({ scrollTop, scrollLeft }: ScrollCoords) => {
+      ({ scrollTop, scrollLeft }: OptionalScrollCoords) => {
         /* If scrollbar is visible, lets update it which triggers a state change */
         if (showScrollbar) {
-          if (horizontalScrollRef.current)
+          if (horizontalScrollRef.current && scrollLeft !== void 0)
             horizontalScrollRef.current.scrollLeft = scrollLeft;
-          if (verticalScrollRef.current)
+          if (verticalScrollRef.current && scrollTop !== void 0)
             verticalScrollRef.current.scrollTop = scrollTop;
         } else {
           setScrollState((prev) => {
@@ -671,26 +685,28 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     );
 
     const scrollToItem = useCallback(
-      ({ rowIndex, columnIndex }: CellInterface) => {
+      ({ rowIndex, columnIndex }: OptionalCellInterface) => {
         const frozenColumnOffset = getColumnOffset({
           index: frozenColumns,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
         });
-        const newScrollLeft = getOffsetForColumnAndAlignment({
-          index: columnIndex,
-          containerHeight,
-          containerWidth,
-          columnCount,
-          columnWidth,
-          rowCount,
-          rowHeight,
-          scrollOffset: scrollLeft,
-          instanceProps: instanceProps.current,
-          scrollbarSize,
-          frozenOffset: frozenColumnOffset,
-        });
+        const newScrollLeft = columnIndex
+          ? getOffsetForColumnAndAlignment({
+              index: columnIndex,
+              containerHeight,
+              containerWidth,
+              columnCount,
+              columnWidth,
+              rowCount,
+              rowHeight,
+              scrollOffset: scrollLeft,
+              instanceProps: instanceProps.current,
+              scrollbarSize,
+              frozenOffset: frozenColumnOffset,
+            })
+          : void 0;
 
         const frozenRowOffset = getRowOffset({
           index: frozenRows,
@@ -698,19 +714,21 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           columnWidth,
           instanceProps: instanceProps.current,
         });
-        const newScrollTop = getOffsetForRowAndAlignment({
-          index: rowIndex,
-          containerHeight,
-          containerWidth,
-          columnCount,
-          columnWidth,
-          rowCount,
-          rowHeight,
-          scrollOffset: scrollTop,
-          instanceProps: instanceProps.current,
-          scrollbarSize,
-          frozenOffset: frozenRowOffset,
-        });
+        const newScrollTop = rowIndex
+          ? getOffsetForRowAndAlignment({
+              index: rowIndex,
+              containerHeight,
+              containerWidth,
+              columnCount,
+              columnWidth,
+              rowCount,
+              rowHeight,
+              scrollOffset: scrollTop,
+              instanceProps: instanceProps.current,
+              scrollbarSize,
+              frozenOffset: frozenRowOffset,
+            })
+          : void 0;
 
         scrollTo({
           scrollLeft: newScrollLeft,
@@ -1117,25 +1135,83 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       }
     }
 
+    const activeCellSelection = [];
+    if (activeCell) {
+      const { rowIndex, columnIndex } = activeCell;
+      const bounds = getCellBounds(activeCell);
+      const { top, left, right, bottom } = bounds;
+      const actualBottom = Math.min(rowStopIndex, bottom);
+      const actualRight = Math.min(columnStopIndex, right);
+      const y = getRowOffset({
+        index: top,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      const height =
+        getRowOffset({
+          index: actualBottom,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        }) -
+        y +
+        getRowHeight(actualBottom, instanceProps.current);
+
+      const x = getColumnOffset({
+        index: left,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+
+      const width =
+        getColumnOffset({
+          index: actualRight,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        }) -
+        x +
+        getColumnWidth(actualRight, instanceProps.current);
+
+      activeCellSelection.push(
+        selectionRenderer({
+          stroke: selectionBorderColor,
+          strokeWidth: 2,
+          fill: selectionBackgroundColor,
+          x: x,
+          y: y,
+          width: width,
+          height: height,
+        })
+      );
+    }
+
     /**
      * Convert selections to area
      * Removed useMemo as changes to lastMeasureRowIndex, lastMeasuredColumnIndex,
      * does not trigger useMemo
      * Dependencies : [selections, rowStopIndex, columnStopIndex, instanceProps]
      */
+
     const selectionAreas = [];
     const selectionAreasFrozenColumns = [];
     const selectionAreasFrozenRows = [];
     const selectionAreasIntersection = [];
     for (let i = 0; i < selections.length; i++) {
-      const { top, left, right, bottom } = selections[i];
+      const { bounds, inProgress } = selections[i];
+      const { top, left, right, bottom } = bounds;
       const selectionBounds = { x: 0, y: 0, width: 0, height: 0 };
       const actualBottom = Math.min(rowStopIndex, bottom);
       const actualRight = Math.min(columnStopIndex, right);
       const isLeftBoundFrozen = left < frozenColumns;
       const isTopBoundFrozen = top < frozenRows;
       const isIntersectionFrozen = top < frozenRows && left < frozenColumns;
-
+      const styles = {
+        stroke: inProgress ? "transparent" : selectionBorderColor,
+        fill: selectionBackgroundColor,
+      };
       selectionBounds.y = getRowOffset({
         index: top,
         rowHeight,
@@ -1181,9 +1257,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         );
         selectionAreasFrozenColumns.push(
           selectionRenderer({
+            ...styles,
             key: i,
-            stroke: selectionBorderColor,
-            fill: selectionBackgroundColor,
             x: selectionBounds.x,
             y: selectionBounds.y,
             width: frozenColumnSelectionWidth,
@@ -1208,9 +1283,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         );
         selectionAreasFrozenRows.push(
           selectionRenderer({
+            ...styles,
             key: i,
-            stroke: selectionBorderColor,
-            fill: selectionBackgroundColor,
             x: selectionBounds.x,
             y: selectionBounds.y,
             width: selectionBounds.width,
@@ -1246,9 +1320,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
         selectionAreasIntersection.push(
           selectionRenderer({
+            ...styles,
             key: i,
-            stroke: selectionBorderColor,
-            fill: selectionBackgroundColor,
             x: selectionBounds.x,
             y: selectionBounds.y,
             width: frozenIntersectionSelectionWidth,
@@ -1267,9 +1340,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
       selectionAreas.push(
         selectionRenderer({
+          ...styles,
           key: i,
-          stroke: selectionBorderColor,
-          fill: selectionBackgroundColor,
           x: selectionBounds.x,
           y: selectionBounds.y,
           width: selectionBounds.width,
@@ -1357,8 +1429,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           instanceProps: instanceProps.current,
           offset: isWithinFrozenColumnBoundary(x) ? x : x + scrollLeft,
         });
+        /* To be compatible with merged cells */
+        const bounds = getCellBounds({ rowIndex, columnIndex });
 
-        return { rowIndex, columnIndex };
+        return { rowIndex: bounds.top, columnIndex: bounds.left };
       },
       [scrollLeft, scrollTop, rowCount, columnCount]
     );
@@ -1439,6 +1513,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               <Group offsetY={scrollTop} offsetX={scrollLeft} listening={false}>
                 {borderStylesCells}
                 {selectionAreas}
+                {activeCellSelection}
               </Group>
               {frozenColumnShadow}
               {frozenRowShadow}

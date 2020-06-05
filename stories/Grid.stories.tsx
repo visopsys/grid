@@ -7,7 +7,7 @@ import useAutoSizer from "./../src/hooks/useAutoSizer";
 import useTooltip from "./../src/hooks/useTooltip";
 import { useMeasure } from "react-use";
 import { Rect, Text, Group, RegularPolygon } from "react-konva";
-import { number } from "@storybook/addon-knobs";
+import { number, select } from "@storybook/addon-knobs";
 
 export default {
   title: "Grid",
@@ -331,10 +331,12 @@ export const BaseGridWithSelection: React.FC = () => {
   const height = number("height", 600);
   const initialSelections = [
     {
-      top: 2,
-      right: 3,
-      left: 2,
-      bottom: 20,
+      bounds: {
+        top: 2,
+        right: 3,
+        left: 2,
+        bottom: 20,
+      },
     },
   ];
 
@@ -375,7 +377,7 @@ export const BaseGridWithSelection: React.FC = () => {
     const gridRef = useRef();
     const rowCount = 200;
     const columnCount = 200;
-    const { selections, ...selectionProps } = useSelection({
+    const { selections, activeCell, ...selectionProps } = useSelection({
       initialSelections,
       gridRef,
       rowCount,
@@ -386,6 +388,7 @@ export const BaseGridWithSelection: React.FC = () => {
         width={width}
         height={height}
         selections={selections}
+        activeCell={activeCell}
         columnCount={200}
         rowCount={200}
         ref={gridRef}
@@ -1041,7 +1044,12 @@ export const EditableGrid: React.FC = () => {
       ({ rowIndex, columnIndex }) => data[[rowIndex, columnIndex]],
       [data]
     );
-    const { selections, newSelection, ...selectionProps } = useSelection({
+    const {
+      activeCell,
+      selections,
+      setActiveCell,
+      ...selectionProps
+    } = useSelection({
       gridRef,
       rowCount,
       columnCount,
@@ -1050,21 +1058,37 @@ export const EditableGrid: React.FC = () => {
       gridRef,
       getValue: getCellValue,
       selections,
-      onDelete: (selections) => {
-        const newValues = selections.reduce((acc, sel) => {
-          for (let i = sel.top; i <= sel.bottom; i++) {
-            for (let j = sel.left; j <= sel.right; j++) {
-              acc[[i, j]] = "";
+      activeCell,
+      onDelete: (activeCell, selections) => {
+        if (selections.length) {
+          const newValues = selections.reduce((acc, { bounds: sel }) => {
+            for (let i = sel.top; i <= sel.bottom; i++) {
+              for (let j = sel.left; j <= sel.right; j++) {
+                acc[[i, j]] = "";
+              }
             }
-          }
-          return acc;
-        }, {});
-        setData((prev) => ({ ...prev, ...newValues }));
-        /* If user has selected multiple areas to delete */
-        gridRef.current.resetAfterIndices(
-          { columnIndex: selections[0].left },
-          true
-        );
+            return acc;
+          }, {});
+          setData((prev) => ({ ...prev, ...newValues }));
+          const selectionBounds = selections[0].bounds;
+          // console.log('selectionBounds', selectionBounds)
+          /* If user has selected multiple areas to delete */
+          gridRef.current.resetAfterIndices(
+            {
+              columnIndex: selectionBounds.left,
+              rowIndex: selectionBounds.top,
+            },
+            true
+          );
+        } else if (activeCell) {
+          setData((prev) => {
+            return {
+              ...prev,
+              [[activeCell.rowIndex, activeCell.columnIndex]]: "",
+            };
+          });
+          gridRef.current.resetAfterIndices(activeCell);
+        }
       },
       onBeforeEdit: ({ rowIndex, columnIndex }) => {
         if (rowIndex === 2 && columnIndex === 3) return false;
@@ -1075,7 +1099,9 @@ export const EditableGrid: React.FC = () => {
         gridRef.current.resizeColumns([columnIndex]);
         gridRef.current.focus();
         /* Select the next cell */
-        if (nextActiveCell) newSelection(nextActiveCell);
+        if (nextActiveCell) {
+          setActiveCell(nextActiveCell);
+        }
       },
     });
     const autoSizerProps = useAutoSizer({
@@ -1092,6 +1118,7 @@ export const EditableGrid: React.FC = () => {
           columnCount={200}
           rowCount={200}
           ref={gridRef}
+          activeCell={activeCell}
           selections={selections}
           columnWidth={(index) => {
             return 100;

@@ -10,7 +10,7 @@ import {
   ScrollCoords,
   CellPosition,
   GridRef,
-  AreaProps,
+  SelectionArea,
 } from "../Grid";
 import { KeyCodes } from "./../types";
 
@@ -25,8 +25,9 @@ export interface UseEditableOptions {
     coords: CellInterface,
     nextCoords?: CellInterface
   ) => void;
-  onDelete: (selections: AreaProps[]) => void;
-  selections: AreaProps[];
+  onDelete?: (activeCell: CellInterface, selections: SelectionArea[]) => void;
+  selections: SelectionArea[];
+  activeCell: CellInterface | null;
   onBeforeEdit?: (coords: CellInterface) => boolean;
 }
 
@@ -134,9 +135,10 @@ const useEditable = ({
   onCancel,
   onDelete,
   selections = [],
+  activeCell,
   onBeforeEdit,
 }: UseEditableOptions): EditableResults => {
-  const [activeCell, setActiveCell] = useState<CellInterface | null>(null);
+  const [isEditorShown, setShowEditor] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
   const [position, setPosition] = useState<CellPosition>({
     x: 0,
@@ -144,17 +146,24 @@ const useEditable = ({
     width: 0,
     height: 0,
   });
+  const currentActiveCellRef = useRef<CellInterface | null>(null);
   const [scrollPosition, setScrollPosition] = useState<ScrollCoords>({
     scrollLeft: 0,
     scrollTop: 0,
   });
+  const showEditor = () => setShowEditor(true);
+  const hideEditor = () => {
+    setShowEditor(false);
+    currentActiveCellRef.current = null;
+  };
 
   const makeEditable = (coords: CellInterface, initialValue?: string) => {
     if (!gridRef.current) return;
     /* Call on before edit */
     if (onBeforeEdit && !onBeforeEdit(coords)) return;
+    currentActiveCellRef.current = coords;
     const pos = gridRef.current.getCellOffsetFromCoords(coords);
-    setActiveCell(coords);
+    showEditor();
     setValue(initialValue || getValue(coords) || "");
     setPosition(pos);
   };
@@ -195,13 +204,14 @@ const useEditable = ({
         return;
 
       /* If user has not made any selection yet */
-      if (!selections.length) return;
+      if (!activeCell) return;
 
-      const { top: rowIndex, left: columnIndex } = selections[0];
+      const { rowIndex, columnIndex } = activeCell;
 
       if (keyCode === KeyCodes.Delete || keyCode === KeyCodes.BackSpace) {
         // TODO: onbefore  delete
-        return onDelete(selections);
+        onDelete && onDelete(activeCell, selections);
+        return;
       }
       const initialValue =
         keyCode === KeyCodes.Enter // Enter key
@@ -209,7 +219,7 @@ const useEditable = ({
           : e.nativeEvent.key;
       makeEditable({ rowIndex, columnIndex }, initialValue);
     },
-    [selections]
+    [selections, activeCell]
   );
 
   /* Save the value */
@@ -228,7 +238,8 @@ const useEditable = ({
             };
 
       onSubmit && onSubmit(value, activeCell, nextActiveCell);
-      setActiveCell(null);
+      /* Show editor */
+      hideEditor();
       /* Keep the focus */
       gridRef.current.focus();
     },
@@ -245,26 +256,37 @@ const useEditable = ({
   );
 
   /* When the input is blurred out */
-  const handleHide = useCallback(
-    (e) => {
-      setActiveCell(null);
-      onCancel && onCancel();
-      /* Keep the focus back in the grid */
-      gridRef.current.focus();
-    },
-    [activeCell]
-  );
+  const handleHide = useCallback((e) => {
+    hideEditor();
+    onCancel && onCancel();
+    /* Keep the focus back in the grid */
+    gridRef.current.focus();
+  }, []);
+
+  const handleScroll = useCallback((scrollPos: ScrollCoords) => {
+    setScrollPosition(scrollPos);
+  }, []);
 
   /* Update value onBlur */
-  const handleBlur = useCallback(() => {
-    if (!activeCell) return;
-    onSubmit && onSubmit(value, activeCell);
-    setActiveCell(null);
-  }, [value, activeCell]);
+  const handleBlur = useCallback(
+    (e) => {
+      if (!currentActiveCellRef.current) return;
+      /**
+       * Event callstack
+       * mouseDown => sets the activeCell
+       * onBlur => reads the new activeCell, which is wrong.
+       * Thats the reason by storing the active cell in Ref internally
+       */
+
+      onSubmit && onSubmit(value, currentActiveCellRef.current);
+      hideEditor();
+    },
+    [value]
+  );
 
   /* Editor */
   const Editor = useMemo(() => getEditor(activeCell), [activeCell]);
-  const editorComponent = activeCell ? (
+  const editorComponent = isEditorShown ? (
     <Editor
       value={value}
       onChange={handleChange}
@@ -278,7 +300,7 @@ const useEditable = ({
   return {
     editorComponent,
     onDoubleClick: handleDoubleClick,
-    onScroll: setScrollPosition,
+    onScroll: handleScroll,
     onKeyDown: handleKeyDown,
   };
 };
