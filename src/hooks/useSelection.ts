@@ -175,6 +175,8 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     /* Reset selection mode */
     isSelectionMode.current = false;
 
+    if (!selections.length) return;
+
     /* Update last selection */
     setSelections((prevSelection) => {
       const len = prevSelection.length;
@@ -188,7 +190,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         return sel;
       });
     });
-  }, []);
+  }, [selections]);
 
   /**
    * Navigate selection using keyboard
@@ -260,7 +262,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     modifySelection({ rowIndex: rowCount - 1, columnIndex: columnCount - 1 });
   };
 
-  // Shift+Space
+  // Ctrl+Space
   const selectColumn = () => {
     if (!selectionEnd.current || !selectionStart.current) return;
     selectionStart.current = {

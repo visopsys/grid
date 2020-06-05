@@ -100,6 +100,10 @@ export interface GridProps {
    */
   selectionStrokeWidth?: number;
   /**
+   * Active Cell Stroke width
+   */
+  activeCellStrokeWidth?: number;
+  /**
    * Array of selected cell areas
    */
   selections?: SelectionArea[];
@@ -315,7 +319,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       showScrollbar = true,
       selectionBackgroundColor = "rgb(14, 101, 235, 0.1)",
       selectionBorderColor = "#1a73e8",
-      selectionStrokeWidth = 2,
+      selectionStrokeWidth = 1,
+      activeCellStrokeWidth = 2,
       activeCell,
       selections = [],
       frozenRows = 0,
@@ -1135,59 +1140,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       }
     }
 
-    const activeCellSelection = [];
-    if (activeCell) {
-      const { rowIndex, columnIndex } = activeCell;
-      const bounds = getCellBounds(activeCell);
-      const { top, left, right, bottom } = bounds;
-      const actualBottom = Math.min(rowStopIndex, bottom);
-      const actualRight = Math.min(columnStopIndex, right);
-      const y = getRowOffset({
-        index: top,
-        rowHeight,
-        columnWidth,
-        instanceProps: instanceProps.current,
-      });
-      const height =
-        getRowOffset({
-          index: actualBottom,
-          rowHeight,
-          columnWidth,
-          instanceProps: instanceProps.current,
-        }) -
-        y +
-        getRowHeight(actualBottom, instanceProps.current);
-
-      const x = getColumnOffset({
-        index: left,
-        rowHeight,
-        columnWidth,
-        instanceProps: instanceProps.current,
-      });
-
-      const width =
-        getColumnOffset({
-          index: actualRight,
-          rowHeight,
-          columnWidth,
-          instanceProps: instanceProps.current,
-        }) -
-        x +
-        getColumnWidth(actualRight, instanceProps.current);
-
-      activeCellSelection.push(
-        selectionRenderer({
-          stroke: selectionBorderColor,
-          strokeWidth: 2,
-          fill: selectionBackgroundColor,
-          x: x,
-          y: y,
-          width: width,
-          height: height,
-        })
-      );
-    }
-
     /**
      * Convert selections to area
      * Removed useMemo as changes to lastMeasureRowIndex, lastMeasuredColumnIndex,
@@ -1409,6 +1361,75 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     };
 
     /**
+     * Renders active cell
+     */
+    let activeCellSelection = null;
+    let activeCellSelectionFrozenColumn = null;
+    let activeCellSelectionFrozenRow = null;
+    let activeCellSelectionFrozenIntersection = null;
+    if (activeCell) {
+      const bounds = getCellBounds(activeCell);
+      const { top, left, right, bottom } = bounds;
+      const actualBottom = Math.min(rowStopIndex, bottom);
+      const actualRight = Math.min(columnStopIndex, right);
+      const isInFrozenColumn = left < frozenColumns;
+      const isInFrozenRow = top < frozenRows;
+      const isInFrozenIntersection = isInFrozenRow && isInFrozenColumn;
+      const y = getRowOffset({
+        index: top,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      const height =
+        getRowOffset({
+          index: actualBottom,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        }) -
+        y +
+        getRowHeight(actualBottom, instanceProps.current);
+
+      const x = getColumnOffset({
+        index: left,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+
+      const width =
+        getColumnOffset({
+          index: actualRight,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        }) -
+        x +
+        getColumnWidth(actualRight, instanceProps.current);
+
+      const cell = selectionRenderer({
+        stroke: selectionBorderColor,
+        strokeWidth: activeCellStrokeWidth,
+        fill: selectionBackgroundColor,
+        x: x,
+        y: y,
+        width: width,
+        height: height,
+      });
+
+      if (isInFrozenIntersection) {
+        activeCellSelectionFrozenIntersection = cell;
+      } else if (isInFrozenRow) {
+        activeCellSelectionFrozenRow = cell;
+      } else if (isInFrozenColumn) {
+        activeCellSelectionFrozenColumn = cell;
+      } else {
+        activeCellSelection = cell;
+      }
+    }
+
+    /**
      * Get cell cordinates from current mouse x/y positions
      */
     const getCellCoordsFromOffset = useCallback(
@@ -1523,6 +1544,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               </Group>
               <Group offsetY={0} offsetX={scrollLeft} listening={false}>
                 {selectionAreasFrozenRows}
+                {activeCellSelectionFrozenRow}
               </Group>
               <Group offsetY={scrollTop} offsetX={0}>
                 {frozenColumnCells}
@@ -1530,6 +1552,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               </Group>
               <Group offsetY={scrollTop} offsetX={0} listening={false}>
                 {selectionAreasFrozenColumns}
+                {activeCellSelectionFrozenColumn}
               </Group>
               <Group offsetY={0} offsetX={0}>
                 {frozenIntersectionCells}
@@ -1537,6 +1560,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               </Group>
               <Group offsetY={0} offsetX={0} listening={false}>
                 {selectionAreasIntersection}
+                {activeCellSelectionFrozenIntersection}
               </Group>
             </Layer>
             {children &&
