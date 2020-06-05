@@ -1,14 +1,14 @@
-import React, { useCallback, useState, useMemo } from "react";
+import React, { useCallback, useState, useMemo, isValidElement } from "react";
 import { CellInterface, GridRef } from "../Grid";
 
 export interface TooltipOptions {
-  getTooltipComponent?: (cell?: CellInterface | null) => React.ElementType;
+  component?: React.FC<TooltipProps> | React.ComponentClass<TooltipProps>;
   gridRef: React.MutableRefObject<GridRef>;
   getValue: (cell: CellInterface) => any;
 }
 
 export interface TooltipResults {
-  tooltipComponent: React.ReactNode;
+  tooltipComponent: React.ReactElement | null;
   onMouseMove: (e: React.MouseEvent<HTMLInputElement>) => void;
   onMouseLeave: (e: React.MouseEvent<HTMLInputElement>) => void;
 }
@@ -18,7 +18,7 @@ export interface TooltipProps {
   x: number;
   y: number;
 }
-const defaultTooltipComponent: React.FC<TooltipProps> = ({ content, x, y }) => {
+const DefaultTooltipComponent: React.FC<TooltipProps> = ({ content, x, y }) => {
   const offset = 10;
   return (
     <div
@@ -38,12 +38,11 @@ const defaultTooltipComponent: React.FC<TooltipProps> = ({ content, x, y }) => {
     </div>
   );
 };
-const getDefaultTooltipComponent = () => defaultTooltipComponent;
 
 const useTooltip = ({
   getValue,
   gridRef,
-  getTooltipComponent = getDefaultTooltipComponent,
+  component: Component = DefaultTooltipComponent,
 }: TooltipOptions): TooltipResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<
@@ -54,10 +53,12 @@ const useTooltip = ({
     [activeCell]
   );
   const showTooltip = activeCell && content !== null;
-  const Tooltip = useMemo(() => getTooltipComponent(activeCell), [activeCell]);
-  const tooltipComponent = showTooltip ? (
-    <Tooltip content={content} x={tooltipPosition.x} y={tooltipPosition.y} />
-  ) : null;
+  const tooltipProps: TooltipProps = {
+    content,
+    x: tooltipPosition.x,
+    y: tooltipPosition.y,
+  };
+  const tooltipComponent = showTooltip ? <Component {...tooltipProps} /> : null;
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {

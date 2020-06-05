@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, isValidElement } from "react";
 
 export interface PaginationProps {
   pageSize: number;
   initialCurrentPage?: number;
   total: number;
   onChange?: (page: number) => void;
-  component?: React.ReactNode;
+  component?:
+    | React.FC<PaginationComponentProps>
+    | React.ComponentClass<PaginationComponentProps>;
 }
+
+type PaginationComponentProps = Omit<PaginationResults, "paginationComponent">;
 
 export interface PaginationResults {
   currentPage: number;
@@ -25,7 +29,13 @@ export interface PaginationResults {
  * @param props
  */
 const usePagination = (props: PaginationProps): PaginationResults => {
-  const { initialCurrentPage = 1, pageSize = 10, total = 0, onChange } = props;
+  const {
+    initialCurrentPage = 1,
+    pageSize = 10,
+    total = 0,
+    onChange,
+    component = PaginationComponent,
+  } = props;
   const [currentPage, setCurrentPage] = useState<number>(initialCurrentPage);
   const totalPages = Math.ceil(total / pageSize);
   const nextPage = () =>
@@ -39,7 +49,7 @@ const usePagination = (props: PaginationProps): PaginationResults => {
     onChange && onChange(currentPage);
   }, [currentPage]);
 
-  const pageProps: Omit<PaginationResults, "paginationComponent"> = {
+  const pageProps = {
     currentPage,
     totalPages,
     nextPage,
@@ -50,10 +60,7 @@ const usePagination = (props: PaginationProps): PaginationResults => {
     pageSize,
   };
 
-  const paginationComponent = React.createElement(
-    PaginationComponent,
-    pageProps
-  );
+  const paginationComponent = React.createElement(component, pageProps);
 
   return {
     paginationComponent,
@@ -61,10 +68,7 @@ const usePagination = (props: PaginationProps): PaginationResults => {
   };
 };
 
-const PaginationComponent: React.FC<Omit<
-  PaginationResults,
-  "paginationComponent"
->> = ({
+const PaginationComponent: React.FC<PaginationComponentProps> = ({
   currentPage,
   goToFirst,
   goToLast,
