@@ -117,12 +117,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
           false
         );
       } else {
-        setData((prev) => {
-          return {
-            ...prev,
-            [[activeCell.rowIndex, activeCell.columnIndex]]: "",
-          };
-        });
+        onChange(name, { [[activeCell.rowIndex, activeCell.columnIndex]]: "" });
         gridRef.current.resetAfterIndices(activeCell);
       }
     },
