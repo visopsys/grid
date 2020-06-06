@@ -8,24 +8,26 @@ export default {
 
 const darkTheme = {
   cellColor: "#ccc",
-  cellBackground: "#333",
+  cellBackground: "#181E20",
+  cellOddBackground: "#444",
 };
 const lightTheme = {
   cellColor: "#333",
   cellBackground: "white",
+  cellOddBackground: "#eee",
 };
 const ThemeContext = createContext(lightTheme);
 
 export const ThemedGrid = () => {
   const rowCount = 100;
   const columnCount = 100;
-  const [theme, setTheme] = useState(lightTheme);
-  const switchTheme = () => {
-    setTheme((prev) => {
-      return prev === lightTheme ? darkTheme : lightTheme;
-    });
-  };
   const App = () => {
+    const [theme, setTheme] = useState(lightTheme);
+    const switchTheme = () => {
+      setTheme((prev) => {
+        return prev === lightTheme ? darkTheme : lightTheme;
+      });
+    };
     return (
       <>
         <button type="button" onClick={switchTheme}>
@@ -56,11 +58,13 @@ export const ThemedGrid = () => {
 
 const ThemedCell = (props) => {
   const theme = useContext(ThemeContext);
+  const fill =
+    props.rowIndex % 2 === 0 ? theme.cellBackground : theme.cellOddBackground;
   return (
     <Cell
       {...props}
       value={`${props.rowIndex} x ${props.columnIndex}`}
-      fill={theme.cellBackground}
+      fill={fill}
       textColor={theme.cellColor}
     />
   );
