@@ -13,6 +13,7 @@ export interface UseSelectionOptions {
 export interface SelectionResults {
   activeCell: CellInterface | null;
   newSelection: (coords: CellInterface) => void;
+  setSelections: (selection: SelectionArea[]) => void;
   setActiveCell: (coords: CellInterface | null) => void;
   selections: SelectionArea[];
   onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
@@ -349,6 +350,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     onMouseUp: handleMouseUp,
     onKeyDown: handleKeyDown,
     newSelection,
+    setSelections,
     setActiveCell,
   };
 };

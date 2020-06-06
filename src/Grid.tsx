@@ -264,6 +264,7 @@ export interface SnapColumnProps {
 export type GridRef = {
   scrollTo: (scrollPosition: ScrollCoords) => void;
   stage: typeof Stage | null;
+  container: HTMLDivElement | null;
   resetAfterIndices: (
     coords: CellInterface,
     shouldForceUpdate?: boolean
@@ -356,6 +357,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         scrollTo,
         scrollToItem,
         stage: stageRef.current,
+        container: containerRef.current,
         resetAfterIndices,
         getScrollPosition,
         isMergedCell,
@@ -1570,7 +1572,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     );
     return (
       <div style={{ position: "relative", width: containerWidth }}>
-        <div onWheel={handleWheel} tabIndex={1} ref={containerRef} {...rest}>
+        <div onWheel={handleWheel} tabIndex={0} ref={containerRef} {...rest}>
           <Stage
             width={containerWidth}
             height={containerHeight}

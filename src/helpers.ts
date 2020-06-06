@@ -5,10 +5,8 @@ import {
   AreaProps,
   CellInterface,
   CellMetaData,
-  SelectionProps,
+  SelectionArea,
 } from "./Grid";
-
-// type ItemType = "row" | "column";
 
 enum Align {
   start = "start",
@@ -635,10 +633,35 @@ export function requestTimeout(callback: Function, delay: number): TimeoutID {
   return timeoutID;
 }
 
-// export function getNextCellInSelectionBounds (selections: SelectionProps, activeCell: CellInterface) {
-//   let nextCell
-//   for (let i = 0; i <= selections.length; i++) {
-//     const { bounds } = selections[i]
-//     const { top, left, right, bottom } = bounds
-//   }
-// }
+export const selectionFromActiveCell = (
+  activeCell: CellInterface | null
+): SelectionArea[] => {
+  if (!activeCell) return [];
+  return [
+    {
+      bounds: {
+        top: activeCell.rowIndex,
+        left: activeCell.columnIndex,
+        bottom: activeCell.rowIndex,
+        right: activeCell.columnIndex,
+      },
+    },
+  ];
+};
+
+export const prepareClipboardData = (rows: string[][]): [string, string] => {
+  const html = ["<table>"];
+  const csv: string[] = [];
+  rows.forEach((row) => {
+    html.push("<tr>");
+    const csvRow: string[] = [];
+    row.forEach((cell) => {
+      html.push(`<td>${cell}</td>`);
+      csvRow.push(`"${cell.replace(/"/g, '""')}"`);
+    });
+    csv.push(csvRow.join(","));
+    html.push("</tr>");
+  });
+  html.push("</table>");
+  return [html.join(""), csv.join("\n")];
+};
