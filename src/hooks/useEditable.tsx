@@ -147,6 +147,7 @@ const useEditable = ({
     height: 0,
   });
   const currentActiveCellRef = useRef<CellInterface | null>(null);
+  const initialActiveCell = useRef<CellInterface>();
   const [scrollPosition, setScrollPosition] = useState<ScrollCoords>({
     scrollLeft: 0,
     scrollTop: 0,
@@ -238,11 +239,23 @@ const useEditable = ({
             columnIndex: activeCell.columnIndex + nextIndex,
           }
         : {
-            rowIndex: activeCell.rowIndex + 1,
-            columnIndex: activeCell.columnIndex,
+            rowIndex:
+              (initialActiveCell.current?.rowIndex || activeCell.rowIndex) + 1,
+            columnIndex:
+              initialActiveCell.current?.columnIndex || activeCell.columnIndex,
           };
 
       onSubmit && onSubmit(value, activeCell, nextActiveCell);
+
+      /* Set previous key */
+      if (isTabKeyPressed && !initialActiveCell.current) {
+        initialActiveCell.current = activeCell;
+      }
+      if (e.which === KeyCodes.Enter) {
+        /* Move to the next row + cell */
+        initialActiveCell.current = undefined;
+      }
+
       /* Show editor */
       hideEditor();
       /* Keep the focus */
