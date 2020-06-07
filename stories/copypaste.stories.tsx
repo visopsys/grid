@@ -45,7 +45,8 @@ export const Default = () => {
       onPaste: (rows, activeCell) => {
         const { rowIndex, columnIndex } = activeCell;
         const endRowIndex = rowIndex + rows.length - 1;
-        const endColumnIndex = columnIndex + rows[0].length - 1;
+        const endColumnIndex =
+          columnIndex + (rows.length && rows[0].length - 1);
         const changes = {};
         for (const [i, row] of rows.entries()) {
           for (const [j, cell] of row.entries()) {

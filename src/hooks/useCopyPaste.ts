@@ -89,7 +89,7 @@ const useCopyPaste = ({
 
   const handlePaste = (e: ClipboardEvent) => {
     const { items } = e.clipboardData;
-    const mimeTypes = [MimeType.csv, MimeType.plain];
+    const mimeTypes = [MimeType.html, MimeType.csv, MimeType.plain];
     let type;
     let value;
     for (type of mimeTypes) {
@@ -104,14 +104,24 @@ const useCopyPaste = ({
     if (/^text\/html/.test(type)) {
       const domparser = new DOMParser();
       const doc = domparser.parseFromString(value, type);
-      const tableRows = doc.querySelectorAll("tr");
-      for (const tableRow of tableRows) {
-        const row = [];
-        const cells = tableRow.querySelectorAll("td");
-        for (const cell of cells) {
-          row.push(cell.textContent);
+      const supportedNodes = "table, p, h1, h2, h3, h4, h5, h6";
+      const nodes = doc.querySelectorAll(supportedNodes);
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        if (node.nodeName === "TABLE") {
+          const tableRows = doc.querySelectorAll("tr");
+          for (const tableRow of tableRows) {
+            const row = [];
+            const cells = tableRow.querySelectorAll("td");
+            for (const cell of cells) {
+              row.push(cell.textContent);
+            }
+            rows.push(row);
+          }
+        } else {
+          // Single nodes
+          rows.push([node.textContent]);
         }
-        rows.push(row);
       }
     } else {
       const values = value.split("\n");
@@ -123,7 +133,6 @@ const useCopyPaste = ({
         rows.push(row);
       }
     }
-
     onPaste && onPaste(rows, selectionRef.current.activeCell);
   };
 
