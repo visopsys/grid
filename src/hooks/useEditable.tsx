@@ -12,7 +12,8 @@ import {
   GridRef,
   SelectionArea,
 } from "../Grid";
-import { KeyCodes } from "./../types";
+import { KeyCodes, Movement } from "./../types";
+import { findNextCellWithinBounds } from "../helpers";
 
 export interface UseEditableOptions {
   getEditor?: (cell: CellInterface | null) => React.ElementType;
@@ -36,13 +37,14 @@ export interface EditableResults {
   onDoubleClick: (e: React.MouseEvent<HTMLInputElement>) => void;
   onScroll: (props: ScrollCoords) => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export interface EditorProps extends CellInterface {
   onChange: (value: string) => void;
   onSubmit?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  onEscape?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onCancel?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   scrollPosition: ScrollCoords;
   position: CellPosition;
 }
@@ -58,14 +60,12 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     onChange,
     onSubmit,
     onBlur,
-    onEscape,
+    onCancel,
     scrollPosition,
     position,
-
     ...rest
   } = props;
   const inputRef = useRef<HTMLInputElement>(null);
-  const escapePressedRef = useRef(false);
   useEffect(() => {
     if (!inputRef.current) return;
     inputRef.current.focus();
@@ -92,15 +92,13 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         onChange(e.target.value)
       }
       onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-        escapePressedRef.current = false;
         // Enter key
         if (e.which === KeyCodes.Enter) {
           onSubmit && onSubmit(e);
         }
 
         if (e.which === KeyCodes.Escape) {
-          escapePressedRef.current = true;
-          onEscape && onEscape(e);
+          onCancel && onCancel(e);
         }
 
         if (e.which === KeyCodes.Tab) {
@@ -108,13 +106,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
           onSubmit && onSubmit(e);
         }
       }}
-      onBlur={(e) => {
-        /* If the user has pressed Escape key, do not call onBlur,
-           Since we are any hiding the input
-         */
-        if (escapePressedRef.current) return;
-        onBlur && onBlur(e);
-      }}
+      onBlur={onBlur}
       {...rest}
     />
   );
@@ -158,6 +150,19 @@ const useEditable = ({
     currentActiveCellRef.current = null;
   };
 
+  useEffect(() => {
+    if (!currentActiveCellRef.current) return;
+    /**
+     * Active cell has changed, but submit has not been clicked - currentActiveCellRef
+     */
+    onSubmit && onSubmit(value, currentActiveCellRef.current);
+  }, [activeCell]);
+
+  /**
+   * Make a cell editable
+   * @param coords
+   * @param initialValue
+   */
   const makeEditable = (coords: CellInterface, initialValue?: string) => {
     if (!gridRef.current) return;
     /* Call on before edit */
@@ -233,7 +238,7 @@ const useEditable = ({
       const isTabKeyPressed = e.which === KeyCodes.Tab;
       const shiftKey = e.shiftKey;
       const nextIndex = shiftKey ? -1 : 1;
-      const nextActiveCell = isTabKeyPressed
+      let nextActiveCell = isTabKeyPressed
         ? {
             rowIndex: activeCell.rowIndex,
             columnIndex: activeCell.columnIndex + nextIndex,
@@ -245,8 +250,6 @@ const useEditable = ({
               initialActiveCell.current?.columnIndex || activeCell.columnIndex,
           };
 
-      onSubmit && onSubmit(value, activeCell, nextActiveCell);
-
       /* Set previous key */
       if (isTabKeyPressed && !initialActiveCell.current) {
         initialActiveCell.current = activeCell;
@@ -254,15 +257,34 @@ const useEditable = ({
       if (e.which === KeyCodes.Enter) {
         /* Move to the next row + cell */
         initialActiveCell.current = undefined;
+
+        /* If user has selected some cells and active cell is within this selection */
+        if (selections.length && activeCell && gridRef) {
+          const { bounds } = selections[0];
+          const activeCellBounds = gridRef.current.getCellBounds(activeCell);
+          const nextCell = findNextCellWithinBounds(
+            activeCellBounds,
+            bounds,
+            Movement.downwards
+          );
+          if (nextCell) nextActiveCell = nextCell;
+        }
       }
+
+      /* Save the new value */
+      onSubmit && onSubmit(value, activeCell, nextActiveCell);
 
       /* Show editor */
       hideEditor();
       /* Keep the focus */
       gridRef.current.focus();
     },
-    [value, activeCell]
+    [value, selections, activeCell]
   );
+
+  const handleMouseDown = useCallback(() => {
+    initialActiveCell.current = undefined;
+  }, []);
 
   const handleChange = useCallback(
     (value: string) => {
@@ -285,23 +307,6 @@ const useEditable = ({
     setScrollPosition(scrollPos);
   }, []);
 
-  /* Update value onBlur */
-  const handleBlur = useCallback(
-    (e) => {
-      if (!currentActiveCellRef.current) return;
-      /**
-       * Event callstack
-       * mouseDown => sets the activeCell
-       * onBlur => reads the new activeCell, which is wrong.
-       * Thats the reason by storing the active cell in Ref internally
-       */
-
-      onSubmit && onSubmit(value, currentActiveCellRef.current);
-      hideEditor();
-    },
-    [value]
-  );
-
   /* Editor */
   const Editor = useMemo(() => getEditor(activeCell), [activeCell]);
   const editorComponent = isEditorShown ? (
@@ -309,8 +314,8 @@ const useEditable = ({
       value={value}
       onChange={handleChange}
       onSubmit={handleSubmit}
-      onBlur={handleBlur}
-      onEscape={handleHide}
+      onBlur={hideEditor}
+      onCancel={handleHide}
       position={position}
       scrollPosition={scrollPosition}
     />
@@ -320,6 +325,7 @@ const useEditable = ({
     onDoubleClick: handleDoubleClick,
     onScroll: handleScroll,
     onKeyDown: handleKeyDown,
+    onMouseDown: handleMouseDown,
   };
 };
 

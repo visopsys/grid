@@ -21,3 +21,9 @@ export enum Direction {
   Left = "LEFT",
   Right = "RIGHT",
 }
+
+export enum Movement {
+  forwards = "forwards",
+  backwards = "backwards",
+  downwards = "downwards",
+}

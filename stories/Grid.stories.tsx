@@ -1139,6 +1139,10 @@ export const EditableGrid: React.FC = () => {
             selectionProps.onKeyDown(...args);
             editableProps.onKeyDown(...args);
           }}
+          onMouseDown={(...args) => {
+            selectionProps.onMouseDown(...args);
+            editableProps.onMouseDown(...args);
+          }}
         />
         {editorComponent}
       </div>

@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef } from "react";
-import { SelectionArea, AreaProps, CellInterface, GridRef } from "./../Grid";
-import { KeyCodes, Direction } from "./../types";
+import { SelectionArea, CellInterface, GridRef } from "./../Grid";
+import { findNextCellWithinBounds } from "./../helpers";
+import { KeyCodes, Direction, Movement } from "./../types";
 
 export interface UseSelectionOptions {
   gridRef?: React.MutableRefObject<GridRef>;
@@ -21,6 +22,8 @@ export interface SelectionResults {
   onMouseUp: (e: React.MouseEvent<HTMLDivElement>) => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
 }
+
+const EMPTY_SELECTION: SelectionArea[] = [];
 
 /**
  * useSelection hook to enable selection in datagrid
@@ -51,7 +54,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     const bounds = selectionFromStartEnd(start, end);
     if (!bounds) return;
     setActiveCell({ rowIndex: bounds.top, columnIndex: bounds.left });
-    setSelections([]);
+    setSelections(EMPTY_SELECTION);
   };
 
   /* selection object from start, end */
@@ -329,11 +332,25 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
           break;
 
         case KeyCodes.Tab:
-          /* TODO Cycle through the selections if selections.length > 0 */
-          if (isShiftKey) {
-            keyNavigate(Direction.Left);
+          /* Cycle through the selections if selections.length > 0 */
+          if (selections.length && activeCell && gridRef) {
+            const { bounds } = selections[0];
+            const activeCellBounds = gridRef.current.getCellBounds(activeCell);
+            const direction = isShiftKey
+              ? Movement.backwards
+              : Movement.forwards;
+            const nextCell = findNextCellWithinBounds(
+              activeCellBounds,
+              bounds,
+              direction
+            );
+            if (nextCell) setActiveCell(nextCell);
           } else {
-            keyNavigate(Direction.Right);
+            if (isShiftKey) {
+              keyNavigate(Direction.Left);
+            } else {
+              keyNavigate(Direction.Right);
+            }
           }
           e.preventDefault();
           break;

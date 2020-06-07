@@ -7,6 +7,7 @@ import {
   CellMetaData,
   SelectionArea,
 } from "./Grid";
+import { Movement } from "./types";
 
 enum Align {
   start = "start",
@@ -664,4 +665,58 @@ export const prepareClipboardData = (rows: string[][]): [string, string] => {
   });
   html.push("</table>");
   return [html.join(""), csv.join("\n")];
+};
+
+/**
+ * Cycles active cell within selecton bounds
+ * @param activeCellBounds
+ * @param selectionBounds
+ * @param direction
+ */
+export const findNextCellWithinBounds = (
+  activeCellBounds: AreaProps,
+  selectionBounds: AreaProps,
+  direction: string = Movement.forwards
+): CellInterface | null => {
+  let rowIndex, columnIndex;
+  let nextActiveCell: CellInterface | null = null;
+  if (direction === Movement.forwards) {
+    rowIndex = activeCellBounds.top;
+    columnIndex = activeCellBounds.left + 1;
+    if (columnIndex > selectionBounds.right) {
+      rowIndex = rowIndex + 1;
+      columnIndex = selectionBounds.left;
+      if (rowIndex > selectionBounds.bottom) {
+        rowIndex = selectionBounds.top;
+      }
+    }
+    nextActiveCell = { rowIndex, columnIndex };
+  }
+  if (direction === Movement.backwards) {
+    rowIndex = activeCellBounds.bottom;
+    columnIndex = activeCellBounds.left - 1;
+    if (columnIndex < selectionBounds.left) {
+      rowIndex = rowIndex - 1;
+      columnIndex = selectionBounds.right;
+      if (rowIndex < selectionBounds.top) {
+        rowIndex = selectionBounds.bottom;
+      }
+    }
+    nextActiveCell = { rowIndex, columnIndex };
+  }
+
+  if (direction === Movement.downwards) {
+    rowIndex = activeCellBounds.bottom + 1;
+    columnIndex = activeCellBounds.left;
+    if (rowIndex > selectionBounds.bottom) {
+      columnIndex = activeCellBounds.left + 1;
+      rowIndex = selectionBounds.top;
+      if (columnIndex > selectionBounds.right) {
+        columnIndex = selectionBounds.left;
+      }
+    }
+    nextActiveCell = { rowIndex, columnIndex };
+  }
+
+  return nextActiveCell;
 };
