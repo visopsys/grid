@@ -676,7 +676,7 @@ export const prepareClipboardData = (rows: string[][]): [string, string] => {
 export const findNextCellWithinBounds = (
   activeCellBounds: AreaProps,
   selectionBounds: AreaProps,
-  direction: string = Movement.forwards
+  direction: Movement = Movement.forwards
 ): CellInterface | null => {
   let rowIndex, columnIndex;
   let nextActiveCell: CellInterface | null = null;

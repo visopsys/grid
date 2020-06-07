@@ -8,7 +8,10 @@ interface CopyProps {
   activeCell?: CellInterface | null;
   getValue: (cell: CellInterface) => any;
   gridRef: React.MutableRefObject<GridRef>;
-  onPaste?: (rows: string[][], activeCell: CellInterface) => void;
+  onPaste?: (
+    rows: (string | null)[][],
+    activeCell: CellInterface | null
+  ) => void;
 }
 
 enum MimeType {
@@ -78,22 +81,23 @@ const useCopyPaste = ({
         rows.push(row);
       }
       const [html, csv] = prepareClipboardData(rows);
-      e.clipboardData.setData(MimeType.html, html);
-      e.clipboardData.setData(MimeType.plain, csv);
-      e.clipboardData.setData(MimeType.csv, csv);
-      e.clipboardData.setData(MimeType.json, JSON.stringify(rows));
+      e.clipboardData?.setData(MimeType.html, html);
+      e.clipboardData?.setData(MimeType.plain, csv);
+      e.clipboardData?.setData(MimeType.csv, csv);
+      e.clipboardData?.setData(MimeType.json, JSON.stringify(rows));
       e.preventDefault();
     },
     [currentSelections]
   );
 
   const handlePaste = (e: ClipboardEvent) => {
-    const { items } = e.clipboardData;
+    const items = e.clipboardData?.items;
+    if (!items) return;
     const mimeTypes = [MimeType.html, MimeType.csv, MimeType.plain];
     let type;
     let value;
     for (type of mimeTypes) {
-      value = e.clipboardData.getData(type);
+      value = e.clipboardData?.getData(type);
       if (value) break;
     }
     if (!type || !value) {
@@ -103,7 +107,7 @@ const useCopyPaste = ({
     const rows = [];
     if (/^text\/html/.test(type)) {
       const domparser = new DOMParser();
-      const doc = domparser.parseFromString(value, type);
+      const doc = domparser.parseFromString(value, type as SupportedType);
       const supportedNodes = "table, p, h1, h2, h3, h4, h5, h6";
       const nodes = doc.querySelectorAll(supportedNodes);
       for (let i = 0; i < nodes.length; i++) {
