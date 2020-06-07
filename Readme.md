@@ -1,7 +1,9 @@
 ## Declarative Canvas Grid with React Konva
 
 <p align="center">
+  <br />
   <img src='logo.png' width='200' />
+  <br />
 </p>
 
 Canvas table grid to render large set of tabular data. Uses virtualization similar to `react-window` and [React-Konva](https://github.com/konvajs/react-konva/) for primitives such as Rect, Text, Shape etc
