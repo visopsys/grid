@@ -616,6 +616,11 @@ export function cancelTimeout(timeoutID: TimeoutID) {
   cancelAnimationFrame(timeoutID.id);
 }
 
+/**
+ * Create a throttler based on RAF
+ * @param callback
+ * @param delay
+ */
 export function requestTimeout(callback: Function, delay: number): TimeoutID {
   const start = now();
 
@@ -661,6 +666,10 @@ export const numberToAlphabet = (i: number): string => {
   ).toUpperCase();
 };
 
+/**
+ * Convert selections to html and csv data
+ * @param rows
+ */
 export const prepareClipboardData = (rows: string[][]): [string, string] => {
   const html = ["<table>"];
   const csv: string[] = [];

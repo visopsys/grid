@@ -1,23 +1,59 @@
-import React, { useState, useCallback, useRef, MouseEvent } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { SelectionArea, CellInterface, GridRef } from "./../Grid";
 import { findNextCellWithinBounds, Align } from "./../helpers";
 import { KeyCodes, Direction, Movement } from "./../types";
 
 export interface UseSelectionOptions {
+  /**
+   * Access grid functions
+   */
   gridRef?: React.MutableRefObject<GridRef>;
+  /**
+   * Initial selections
+   */
   initialSelections?: SelectionArea[];
+  /**
+   * Option to set 0,0 as initially selected cell
+   */
   initialActiveCell?: CellInterface | null;
+  /**
+   * No of columns in the grid
+   */
   columnCount?: number;
+  /**
+   * No of rows in the grid
+   */
   rowCount?: number;
 }
 
 export interface SelectionResults {
+  /**
+   * Active selected cell
+   */
   activeCell: CellInterface | null;
+  /**
+   * Use this to invoke a new selection. All old selection will be cleared
+   */
   newSelection: (coords: CellInterface) => void;
+  /**
+   * Use this to update selections without clearning old selection.
+   */
   setSelections: (selection: SelectionArea[]) => void;
+  /**
+   * Set the currently active cell
+   */
   setActiveCell: (coords: CellInterface | null) => void;
+  /**
+   * Array of all selection bounds
+   */
   selections: SelectionArea[];
+  /**
+   * Handler for mousedown, use to set activeCell
+   */
   onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
+  /**
+   * Used to move selections based on pressed key
+   */
   onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
 }
 
@@ -374,7 +410,6 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
           break;
 
         case KeyCodes.A:
-          // Select All
           if (isMetaKey) {
             selectAll();
           }

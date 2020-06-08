@@ -3,26 +3,66 @@ import { ViewPortProps, GridRef, CellInterface, ItemSizer } from "./../Grid";
 import { debounce } from "./../helpers";
 import invariant from "tiny-invariant";
 
-interface IProps {
+export interface IProps {
+  /**
+   * Used to access grid functions
+   */
   gridRef: React.MutableRefObject<GridRef>;
+  /**
+   * Value getter for a cell
+   */
   getValue: (cell: CellInterface) => any;
+  /**
+   * Visible rows when the grid is first visible, Since we do not know how many rows  can fit
+   */
   initialVisibleRows?: number;
+  /**
+   * Restrict column width by this number
+   */
   minColumnWidth?: number;
+  /**
+   * Cell padding, used for width calculation
+   */
   cellSpacing?: number;
+  /**
+   * Scroll timeout
+   */
   timeout?: number;
+  /**
+   * Calculate width and resize the grid on scroll
+   */
   resizeOnScroll?: boolean;
+  /**
+   * Font used to calculate width
+   */
   font?: string;
+  /**
+   * Strategy used to calculate column width
+   * lazy = visible rows
+   * full = all rows
+   *
+   * columns are always lazy
+   */
   resizeStrategy?: ResizeStrategy;
+  /**
+   * No of rows in teh grid
+   */
   rowCount?: number;
 }
 
-enum ResizeStrategy {
+export enum ResizeStrategy {
   "lazy" = "lazy",
   "full" = "full",
 }
 
-interface AutoResizerResults {
+export interface AutoResizerResults {
+  /**
+   * Column width function consumed by the grid
+   */
   columnWidth: ItemSizer;
+  /**
+   * Callback when viewport is changed
+   */
   onViewChange: (cells: ViewPortProps) => void;
 }
 

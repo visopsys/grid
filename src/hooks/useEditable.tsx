@@ -16,44 +16,115 @@ import { KeyCodes, Movement, Direction } from "./../types";
 import { findNextCellWithinBounds } from "../helpers";
 
 export interface UseEditableOptions {
+  /**
+   * Inject custom editors based on a cell
+   */
   getEditor?: (cell: CellInterface | null) => React.ElementType;
+  /**
+   * Access grid methods
+   */
   gridRef: React.MutableRefObject<GridRef>;
+  /**
+   * Value getter
+   */
   getValue: (cell: CellInterface) => any;
+  /**
+   * Callback when user cancels editing
+   */
   onCancel?: (e?: React.KeyboardEvent<HTMLInputElement>) => void;
+  /**
+   * Callback when user changes a value in editor
+   */
   onChange: (value: string, activeCell: CellInterface) => void;
+  /**
+   * Callback when user submits a value. Use this to update state
+   */
   onSubmit?: (
     value: string,
     activeCell: CellInterface,
     nextActiveCell?: CellInterface | null
   ) => void;
+  /**
+   * Callback when user selects an area and presses delete key
+   */
   onDelete?: (activeCell: CellInterface, selections: SelectionArea[]) => void;
+  /**
+   * Currently selected cells, injected by useSelection
+   */
   selections: SelectionArea[];
+  /**
+   * Active selected cell. This can change, if the user is in formula mode
+   */
   activeCell: CellInterface | null;
+  /**
+   * Callback fired before editing. Can be used to prevent editing. Do not use it, Can be removed in next release.
+   */
   onBeforeEdit?: (coords: CellInterface) => boolean;
 }
 
 export interface EditableResults {
+  /**
+   * Editor component that can be injected
+   */
   editorComponent: React.ReactNode;
+  /**
+   * Double click listener, activates the grid
+   */
   onDoubleClick: (e: React.MouseEvent<HTMLInputElement>) => void;
+  /**
+   * OnScroll listener to align the editor
+   */
   onScroll: (props: ScrollCoords) => void;
+  /**
+   * Key down listeners
+   */
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  /**
+   * Mouse down listener which triggers Blur event on the editors
+   */
   onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export interface EditorProps extends CellInterface {
+  /**
+   * Currently selected bounds, useful for fomulas
+   */
   selections: SelectionArea[];
+  /**
+   * Initial value of the cell
+   */
   value?: string;
+  /**
+   * Callback when a value has changed.
+   */
   onChange: (value: string, activeCell: CellInterface) => void;
+  /**
+   * Callback to submit the value back to data store
+   */
   onSubmit?: (
     value: string,
     activeCell: CellInterface,
     nextActiveCell?: CellInterface | null
   ) => void;
+  /**
+   * On Cancel callbacks. Hides the editor
+   */
   onCancel?: (e?: React.KeyboardEvent<HTMLInputElement>) => void;
-  scrollPosition: ScrollCoords;
+  /**
+   * Cell position, x, y, width and height
+   */
   position: CellPosition;
+  /**
+   * Currently active cell, based on selection
+   */
   activeCell: CellInterface;
+  /**
+   * Currrently edited cell
+   */
   cell: CellInterface;
+  /**
+   * Next cell that should receive focus
+   */
   nextFocusableCell: (
     activeCell: CellInterface,
     direction?: Direction
@@ -71,7 +142,6 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     onChange,
     onSubmit,
     onCancel,
-    scrollPosition,
     position,
     cell,
     nextFocusableCell,
@@ -299,10 +369,7 @@ const useEditable = ({
     (
       value: string,
       activeCell: CellInterface,
-      nextActiveCell: CellInterface = nextFocusableCell(
-        activeCell,
-        Direction.Down
-      )
+      nextActiveCell?: CellInterface
     ) => {
       /**
        * Hide the editor first, so that we can handle onBlur events
