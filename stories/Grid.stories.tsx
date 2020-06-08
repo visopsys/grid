@@ -1030,7 +1030,14 @@ export const EditableGrid: React.FC = () => {
     );
   };
   const SelectEditor: React.FC<EditorProps> = (props) => {
-    const { position, onSubmit, value, activeCell, nextFocusableCell } = props;
+    const {
+      position,
+      onSubmit,
+      value,
+      activeCell,
+      nextFocusableCell,
+      onBlur,
+    } = props;
     return (
       <div
         style={{
@@ -1044,6 +1051,8 @@ export const EditableGrid: React.FC = () => {
         <select
           style={{ width: "100%" }}
           autoFocus
+          value={value}
+          onBlur={onBlur}
           value={value}
           onChange={(e) => {
             onSubmit(

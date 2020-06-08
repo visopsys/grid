@@ -41,6 +41,7 @@ export interface EditableResults {
 }
 
 export interface EditorProps extends CellInterface {
+  value?: string;
   onChange: (value: string, activeCell: CellInterface) => void;
   onSubmit?: (
     value: string,
@@ -75,11 +76,13 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     ...rest
   } = props;
   const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
   return (
     <input
       type="text"
       ref={inputRef}
-      autoFocus
       style={{
         position: "absolute",
         top: position.y,
@@ -176,8 +179,8 @@ const useEditable = ({
     if (onBeforeEdit && !onBeforeEdit(coords)) return;
     currentActiveCellRef.current = coords;
     const pos = gridRef.current.getCellOffsetFromCoords(coords);
-    showEditor();
     setValue(initialValue || getValue(coords) || "");
+    showEditor();
     setPosition(pos);
   };
 
@@ -296,7 +299,11 @@ const useEditable = ({
       activeCell: CellInterface,
       nextActiveCell?: CellInterface
     ) => {
-      /* Show editor */
+      /**
+       * Hide the editor first, so that we can handle onBlur events
+       * 1. Editor hides -> Submit
+       * 2. If user clicks outside the grid, onBlur is called, if there is a activeCell, we do another submit
+       */
       hideEditor();
 
       /* Save the new value */
@@ -334,11 +341,12 @@ const useEditable = ({
   }, []);
 
   /* Editor */
+  const editingCell = currentActiveCellRef.current;
   const Editor = useMemo(() => {
-    return activeCell
-      ? getEditor(activeCell) || getDefaultEditor(activeCell)
+    return editingCell
+      ? getEditor(editingCell) || getDefaultEditor(editingCell)
       : null;
-  }, [activeCell]);
+  }, [editingCell]);
 
   /**
    * Position of the cell
@@ -354,18 +362,18 @@ const useEditable = ({
   const editorComponent =
     isEditorShown && Editor ? (
       <Editor
-        activeCell={activeCell}
+        activeCell={editingCell}
         value={value}
         onChange={handleChange}
         onSubmit={handleSubmit}
         onCancel={handleHide}
         position={cellPositon}
+        nextFocusableCell={nextFocusableCell}
         onBlur={() => {
           if (currentActiveCellRef.current) {
             handleSubmit(value, currentActiveCellRef.current);
           }
         }}
-        nextFocusableCell={nextFocusableCell}
       />
     ) : null;
 
