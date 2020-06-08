@@ -650,6 +650,17 @@ export const selectionFromActiveCell = (
   ];
 };
 
+/**
+ * Converts a number to alphabet
+ * @param i
+ */
+export const numberToAlphabet = (i: number): string => {
+  return (
+    (i >= 26 ? numberToAlphabet(((i / 26) >> 0) - 1) : "") +
+    "abcdefghijklmnopqrstuvwxyz"[i % 26 >> 0]
+  ).toUpperCase();
+};
+
 export const prepareClipboardData = (rows: string[][]): [string, string] => {
   const html = ["<table>"];
   const csv: string[] = [];

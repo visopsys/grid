@@ -49,10 +49,11 @@ export interface EditorProps extends CellInterface {
     activeCell: CellInterface,
     nextActiveCell?: CellInterface | null
   ) => void;
-  onCancel?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onCancel?: (e?: React.KeyboardEvent<HTMLInputElement>) => void;
   scrollPosition: ScrollCoords;
   position: CellPosition;
   activeCell: CellInterface;
+  cell: CellInterface;
   nextFocusableCell: (
     activeCell: CellInterface,
     direction?: Direction
@@ -72,7 +73,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     onCancel,
     scrollPosition,
     position,
-    activeCell,
+    cell,
     nextFocusableCell,
     ...rest
   } = props;
@@ -98,7 +99,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         outline: "none",
       }}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-        onChange(e.target.value, activeCell)
+        onChange(e.target.value, cell)
       }
       onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!inputRef.current) return;
@@ -107,8 +108,8 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
           onSubmit &&
             onSubmit(
               inputRef.current.value,
-              activeCell,
-              nextFocusableCell(activeCell, Direction.Down)
+              cell,
+              nextFocusableCell(cell, Direction.Down)
             );
         }
 
@@ -121,8 +122,8 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
           onSubmit &&
             onSubmit(
               inputRef.current.value,
-              activeCell,
-              nextFocusableCell(activeCell, Direction.Right)
+              cell,
+              nextFocusableCell(cell, Direction.Right)
             );
         }
       }}
@@ -298,7 +299,10 @@ const useEditable = ({
     (
       value: string,
       activeCell: CellInterface,
-      nextActiveCell?: CellInterface
+      nextActiveCell: CellInterface = nextFocusableCell(
+        activeCell,
+        Direction.Down
+      )
     ) => {
       /**
        * Hide the editor first, so that we can handle onBlur events
@@ -320,14 +324,11 @@ const useEditable = ({
     initialActiveCell.current = undefined;
   }, []);
 
-  const handleChange = useCallback(
-    (value: string) => {
-      if (!activeCell) return;
-      setValue(value);
-      onChange && onChange(value, activeCell);
-    },
-    [activeCell]
-  );
+  const handleChange = useCallback((value: string, activeCell) => {
+    if (!activeCell) return;
+    setValue(value);
+    onChange && onChange(value, activeCell);
+  }, []);
 
   /* When the input is blurred out */
   const handleHide = useCallback((e) => {
@@ -363,7 +364,9 @@ const useEditable = ({
   const editorComponent =
     isEditorShown && Editor ? (
       <Editor
-        activeCell={editingCell}
+        /* This is the cell that is currently being edited */
+        cell={editingCell}
+        activeCell={activeCell}
         value={value}
         selections={selections}
         onChange={handleChange}

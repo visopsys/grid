@@ -996,45 +996,12 @@ GridWithFrozenEdges.story = {
 export const EditableGrid: React.FC = () => {
   const width = number("width", 900);
   const height = number("height", 600);
-  const Cell = ({
-    rowIndex,
-    columnIndex,
-    x,
-    y,
-    width,
-    height,
-    value,
-  }: IChildrenProps) => {
-    const text = value;
-    return (
-      <>
-        <Rect
-          x={x}
-          y={y}
-          height={height}
-          width={width}
-          fill="white"
-          stroke="grey"
-          strokeWidth={0.5}
-        />
-        <Text
-          x={x}
-          y={y}
-          height={height}
-          width={width}
-          text={text}
-          verticalAlign="middle"
-          align="center"
-        />
-      </>
-    );
-  };
   const SelectEditor: React.FC<EditorProps> = (props) => {
     const {
       position,
       onSubmit,
       value,
-      activeCell,
+      cell,
       nextFocusableCell,
       onBlur,
     } = props;
@@ -1057,8 +1024,8 @@ export const EditableGrid: React.FC = () => {
           onChange={(e) => {
             onSubmit(
               e.target.value,
-              activeCell,
-              nextFocusableCell(activeCell, Direction.Down)
+              cell,
+              nextFocusableCell(cell, Direction.Down)
             );
           }}
         >
@@ -1117,8 +1084,7 @@ export const EditableGrid: React.FC = () => {
           }, {});
           setData((prev) => ({ ...prev, ...newValues }));
           const selectionBounds = selections[0].bounds;
-          // console.log('selectionBounds', selectionBounds)
-          /* If user has selected multiple areas to delete */
+
           gridRef.current.resetAfterIndices(
             {
               columnIndex: selectionBounds.left,
@@ -1170,7 +1136,7 @@ export const EditableGrid: React.FC = () => {
             return 100;
           }}
           itemRenderer={(props) => (
-            <Cell
+            <DefaultCell
               value={data[[props.rowIndex, props.columnIndex]]}
               {...props}
             />
