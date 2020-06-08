@@ -1,6 +1,11 @@
 import React, { useState, useCallback, useRef } from "react";
 import { SelectionArea, CellInterface, GridRef } from "./../Grid";
-import { findNextCellWithinBounds, Align } from "./../helpers";
+import {
+  findNextCellWithinBounds,
+  Align,
+  getBoundedCells,
+  cellIndentifier,
+} from "./../helpers";
 import { KeyCodes, Direction, Movement } from "./../types";
 
 export interface UseSelectionOptions {
@@ -143,6 +148,25 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     setSelections((prev) => [...prev, { bounds }]);
   };
 
+  const removeSelection = useCallback(
+    (index: number): [SelectionArea | null, number] => {
+      const prev = selections[index - 1];
+      setSelections((prev) => prev.filter((_, idx) => idx !== index));
+      return [prev, selections.length - 1];
+    },
+    [selections]
+  );
+
+  const cellIndexInSelection = (
+    cell: CellInterface,
+    selections: SelectionArea[]
+  ) => {
+    return selections.findIndex((sel) => {
+      const boundedCells = getBoundedCells(sel.bounds);
+      return boundedCells.has(cellIndentifier(cell.rowIndex, cell.columnIndex));
+    });
+  };
+
   /**
    * Triggers a new selection start
    */
@@ -150,6 +174,9 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     (e: React.MouseEvent<HTMLDivElement>) => {
       /* Exit early if grid is not initialized */
       if (!gridRef || !gridRef.current) return;
+
+      const isShiftKey = e.nativeEvent.shiftKey;
+      const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
 
       /* Attaching mousemove to document, so we can detect drag move */
       document.addEventListener("mousemove", handleMouseMove);
@@ -170,13 +197,13 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       const coords = { rowIndex, columnIndex };
 
       /* Shift key */
-      if (e.nativeEvent.shiftKey) {
+      if (isShiftKey) {
         modifySelection(coords);
         return;
       }
 
       /* Command  or Control key */
-      if (e.nativeEvent.metaKey || e.nativeEvent.ctrlKey) {
+      if (isMetaKey) {
         appendSelection(coords);
         return;
       }

@@ -2,22 +2,50 @@ import React, { useCallback, useState, useMemo, isValidElement } from "react";
 import { CellInterface, GridRef } from "../Grid";
 
 export interface TooltipOptions {
+  /**
+   * Tooltip component
+   */
   component?: React.FC<TooltipProps> | React.ComponentClass<TooltipProps>;
+  /**
+   * Grid references
+   */
   gridRef: React.MutableRefObject<GridRef>;
+  /**
+   * Tooltip value getter of a cell
+   */
   getValue: (cell: CellInterface) => any;
 }
 
 export interface TooltipResults {
+  /**
+   * Tooltip component to inject into the page
+   */
   tooltipComponent: React.ReactElement | null;
+  /**
+   * Mousemove listener to align tooltip
+   */
   onMouseMove: (e: React.MouseEvent<HTMLInputElement>) => void;
+  /**
+   * Mouse leave listener to hide tooltip
+   */
   onMouseLeave: (e: React.MouseEvent<HTMLInputElement>) => void;
 }
 
 export interface TooltipProps {
+  /**
+   * Tooltip content
+   */
   content: string;
+  /**
+   * Tooltip x position
+   */
   x: number;
+  /**
+   * Tooltip y position
+   */
   y: number;
 }
+
 const DefaultTooltipComponent: React.FC<TooltipProps> = ({ content, x, y }) => {
   const offset = 10;
   return (

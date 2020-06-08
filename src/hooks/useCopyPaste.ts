@@ -1,24 +1,32 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { SelectionProps, CellInterface, GridRef, SelectionArea } from "../Grid";
 import { selectionFromActiveCell, prepareClipboardData } from "./../helpers";
-import { KeyCodes } from "../types";
+import { KeyCodes, MimeType } from "../types";
 
-interface CopyProps {
+export interface CopyProps {
+  /**
+   * Selection bounds
+   */
   selections: SelectionArea[];
+  /**
+   * Active cell
+   */
   activeCell?: CellInterface | null;
+  /**
+   * Value getter of a cell
+   */
   getValue: (cell: CellInterface) => any;
+  /**
+   * Grid reference to access grid methods
+   */
   gridRef: React.MutableRefObject<GridRef>;
+  /**
+   * Callback when a paste is executed
+   */
   onPaste?: (
     rows: (string | null)[][],
     activeCell: CellInterface | null
   ) => void;
-}
-
-enum MimeType {
-  html = "text/html",
-  csv = "text/csv",
-  plain = "text/plain",
-  json = "application/json",
 }
 
 /**

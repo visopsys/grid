@@ -31,3 +31,10 @@ export enum Movement {
   backwards = "backwards",
   downwards = "downwards",
 }
+
+export enum MimeType {
+  html = "text/html",
+  csv = "text/csv",
+  plain = "text/plain",
+  json = "application/json",
+}
