@@ -12,19 +12,19 @@ import {
   GridRef,
   SelectionArea,
 } from "../Grid";
-import { KeyCodes, Movement } from "./../types";
+import { KeyCodes, Movement, Direction } from "./../types";
 import { findNextCellWithinBounds } from "../helpers";
 
 export interface UseEditableOptions {
   getEditor?: (cell: CellInterface | null) => React.ElementType;
   gridRef: React.MutableRefObject<GridRef>;
   getValue: (cell: CellInterface) => any;
-  onChange?: (value: string, coords: CellInterface) => void;
-  onCancel?: () => void;
+  onCancel?: (e?: React.KeyboardEvent<HTMLInputElement>) => void;
+  onChange: (value: string, activeCell: CellInterface) => void;
   onSubmit?: (
     value: string,
-    coords: CellInterface,
-    nextCoords?: CellInterface
+    activeCell: CellInterface,
+    nextActiveCell?: CellInterface | null
   ) => void;
   onDelete?: (activeCell: CellInterface, selections: SelectionArea[]) => void;
   selections: SelectionArea[];
@@ -41,12 +41,20 @@ export interface EditableResults {
 }
 
 export interface EditorProps extends CellInterface {
-  onChange: (value: string) => void;
-  onSubmit?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onChange: (value: string, activeCell: CellInterface) => void;
+  onSubmit?: (
+    value: string,
+    activeCell: CellInterface,
+    nextActiveCell?: CellInterface | null
+  ) => void;
   onCancel?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   scrollPosition: ScrollCoords;
   position: CellPosition;
+  activeCell: CellInterface;
+  nextFocusableCell: (
+    activeCell: CellInterface,
+    direction?: Direction
+  ) => CellInterface | null;
 }
 
 /**
@@ -59,26 +67,23 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     columnIndex,
     onChange,
     onSubmit,
-    onBlur,
     onCancel,
     scrollPosition,
     position,
+    activeCell,
+    nextFocusableCell,
     ...rest
   } = props;
   const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    if (!inputRef.current) return;
-    inputRef.current.focus();
-  }, []);
   return (
     <input
       type="text"
       ref={inputRef}
+      autoFocus
       style={{
         position: "absolute",
         top: position.y,
         left: position.x,
-        transform: `translate3d(-${scrollPosition.scrollLeft}px, -${scrollPosition.scrollTop}px, 0)`,
         width: position.width,
         height: position.height,
         padding: "0 3px",
@@ -89,12 +94,18 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         outline: "none",
       }}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-        onChange(e.target.value)
+        onChange(e.target.value, activeCell)
       }
       onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (!inputRef.current) return;
         // Enter key
         if (e.which === KeyCodes.Enter) {
-          onSubmit && onSubmit(e);
+          onSubmit &&
+            onSubmit(
+              inputRef.current.value,
+              activeCell,
+              nextFocusableCell(activeCell, Direction.Down)
+            );
         }
 
         if (e.which === KeyCodes.Escape) {
@@ -103,10 +114,14 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
 
         if (e.which === KeyCodes.Tab) {
           e.preventDefault();
-          onSubmit && onSubmit(e);
+          onSubmit &&
+            onSubmit(
+              inputRef.current.value,
+              activeCell,
+              nextFocusableCell(activeCell, Direction.Right)
+            );
         }
       }}
-      onBlur={onBlur}
       {...rest}
     />
   );
@@ -149,14 +164,6 @@ const useEditable = ({
     setShowEditor(false);
     currentActiveCellRef.current = null;
   };
-
-  useEffect(() => {
-    if (!currentActiveCellRef.current) return;
-    /**
-     * Active cell has changed, but submit has not been clicked - currentActiveCellRef
-     */
-    onSubmit && onSubmit(value, currentActiveCellRef.current);
-  }, [activeCell]);
 
   /**
    * Make a cell editable
@@ -233,37 +240,42 @@ const useEditable = ({
     [selections, activeCell]
   );
 
-  /* Save the value */
-  const handleSubmit = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (!activeCell) return;
-      const isTabKeyPressed = e.which === KeyCodes.Tab;
-      const shiftKey = e.shiftKey;
-      const nextIndex = shiftKey ? -1 : 1;
-      let nextActiveCell = isTabKeyPressed
-        ? {
-            rowIndex: activeCell.rowIndex,
-            columnIndex: activeCell.columnIndex + nextIndex,
-          }
-        : {
-            rowIndex:
-              (initialActiveCell.current?.rowIndex || activeCell.rowIndex) + 1,
-            columnIndex:
-              initialActiveCell.current?.columnIndex || activeCell.columnIndex,
-          };
+  /**
+   * Get next focusable cell
+   * Respects selection bounds
+   */
+  const nextFocusableCell = useCallback(
+    (
+      currentCell: CellInterface,
+      direction: Direction = Direction.Right
+    ): CellInterface => {
+      /* Next immediate cell */
+      let nextActiveCell =
+        direction === Direction.Right
+          ? {
+              rowIndex: currentCell.rowIndex,
+              columnIndex: currentCell.columnIndex + 1,
+            }
+          : {
+              rowIndex:
+                (initialActiveCell.current?.rowIndex || currentCell.rowIndex) +
+                1,
+              columnIndex:
+                initialActiveCell.current?.columnIndex ||
+                currentCell.columnIndex,
+            };
 
-      /* Set previous key */
-      if (isTabKeyPressed && !initialActiveCell.current) {
-        initialActiveCell.current = activeCell;
+      if (direction === Direction.Right && !initialActiveCell.current) {
+        initialActiveCell.current = currentCell;
       }
-      if (e.which === KeyCodes.Enter) {
+      if (direction === Direction.Down) {
         /* Move to the next row + cell */
         initialActiveCell.current = undefined;
 
         /* If user has selected some cells and active cell is within this selection */
-        if (selections.length && activeCell && gridRef) {
+        if (selections.length && currentCell && gridRef) {
           const { bounds } = selections[0];
-          const activeCellBounds = gridRef.current.getCellBounds(activeCell);
+          const activeCellBounds = gridRef.current.getCellBounds(currentCell);
           const nextCell = findNextCellWithinBounds(
             activeCellBounds,
             bounds,
@@ -272,16 +284,28 @@ const useEditable = ({
           if (nextCell) nextActiveCell = nextCell;
         }
       }
+      return nextActiveCell;
+    },
+    [selections]
+  );
+
+  /* Save the value */
+  const handleSubmit = useCallback(
+    (
+      value: string,
+      activeCell: CellInterface,
+      nextActiveCell?: CellInterface
+    ) => {
+      /* Show editor */
+      hideEditor();
 
       /* Save the new value */
       onSubmit && onSubmit(value, activeCell, nextActiveCell);
 
-      /* Show editor */
-      hideEditor();
       /* Keep the focus */
       gridRef.current.focus();
     },
-    [value, selections, activeCell]
+    []
   );
 
   const handleMouseDown = useCallback(() => {
@@ -310,18 +334,41 @@ const useEditable = ({
   }, []);
 
   /* Editor */
-  const Editor = useMemo(() => getEditor(activeCell), [activeCell]);
-  const editorComponent = isEditorShown ? (
-    <Editor
-      value={value}
-      onChange={handleChange}
-      onSubmit={handleSubmit}
-      onBlur={hideEditor}
-      onCancel={handleHide}
-      position={position}
-      scrollPosition={scrollPosition}
-    />
-  ) : null;
+  const Editor = useMemo(() => {
+    return activeCell
+      ? getEditor(activeCell) || getDefaultEditor(activeCell)
+      : null;
+  }, [activeCell]);
+
+  /**
+   * Position of the cell
+   */
+  const cellPositon: CellPosition = useMemo(() => {
+    return {
+      ...position,
+      x: (position.x as number) - scrollPosition.scrollLeft,
+      y: (position.y as number) - scrollPosition.scrollTop,
+    };
+  }, [position, scrollPosition]);
+
+  const editorComponent =
+    isEditorShown && Editor ? (
+      <Editor
+        activeCell={activeCell}
+        value={value}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        onCancel={handleHide}
+        position={cellPositon}
+        onBlur={() => {
+          if (currentActiveCellRef.current) {
+            handleSubmit(value, currentActiveCellRef.current);
+          }
+        }}
+        nextFocusableCell={nextFocusableCell}
+      />
+    ) : null;
+
   return {
     editorComponent,
     onDoubleClick: handleDoubleClick,

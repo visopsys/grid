@@ -1,13 +1,14 @@
 // @ts-nocheck
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import Grid, { IChildrenProps, Cell as DefaultCell } from "./../src/";
 import useSelection from "./../src/hooks/useSelection";
-import useEditable from "./../src/hooks/useEditable";
+import useEditable, { EditorProps } from "./../src/hooks/useEditable";
 import useAutoSizer from "./../src/hooks/useAutoSizer";
 import useTooltip from "./../src/hooks/useTooltip";
 import { useMeasure } from "react-use";
 import { Rect, Text, Group, RegularPolygon } from "react-konva";
 import { number, select } from "@storybook/addon-knobs";
+import { Direction } from "../src/types";
 
 export default {
   title: "Grid",
@@ -1028,10 +1029,40 @@ export const EditableGrid: React.FC = () => {
       </>
     );
   };
+  const SelectEditor: React.FC<EditorProps> = (props) => {
+    const { position, onSubmit, value, activeCell, nextFocusableCell } = props;
+    return (
+      <div
+        style={{
+          position: "absolute",
+          left: position.x,
+          top: position.y,
+          width: position.width,
+          height: position.height,
+        }}
+      >
+        <select
+          style={{ width: "100%" }}
+          autoFocus
+          value={value}
+          onChange={(e) => {
+            onSubmit(
+              e.target.value,
+              activeCell,
+              nextFocusableCell(activeCell, Direction.Down)
+            );
+          }}
+        >
+          <option>Yay Select</option>
+          <option>This can be any React Component</option>
+        </select>
+      </div>
+    );
+  };
   const App = () => {
     const [data, setData] = useState({
       [[1, 2]]: "Hello",
-      [[1, 3]]: "World",
+      [[1, 1]]: "Select editor",
       [[2, 3]]: "Cannot be edited",
       [[30, 4]]: "lorem asd asd as das dasd asd as da sdasdasda",
       [[2, 15]]: "lorem asd asd as das dasd asd as da sdasdasda",
@@ -1058,6 +1089,12 @@ export const EditableGrid: React.FC = () => {
       gridRef,
       getValue: getCellValue,
       selections,
+      getEditor: ({ rowIndex, columnIndex }) => {
+        if (rowIndex == 1 && columnIndex === 1) {
+          return SelectEditor;
+        }
+        return undefined;
+      },
       activeCell,
       onDelete: (activeCell, selections) => {
         if (selections.length) {
