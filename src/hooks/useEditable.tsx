@@ -41,6 +41,7 @@ export interface EditableResults {
 }
 
 export interface EditorProps extends CellInterface {
+  selections: SelectionArea[];
   value?: string;
   onChange: (value: string, activeCell: CellInterface) => void;
   onSubmit?: (
@@ -364,6 +365,7 @@ const useEditable = ({
       <Editor
         activeCell={editingCell}
         value={value}
+        selections={selections}
         onChange={handleChange}
         onSubmit={handleSubmit}
         onCancel={handleHide}
