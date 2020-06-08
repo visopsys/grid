@@ -15,6 +15,8 @@ export enum KeyCodes {
   C = 67,
   Home = 36,
   End = 35,
+  PageDown = 34,
+  PageUp = 33,
 }
 
 export enum Direction {

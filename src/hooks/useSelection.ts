@@ -190,8 +190,6 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
 
-    if (!selections.length) return;
-
     /* Update last selection */
     setSelections((prevSelection) => {
       const len = prevSelection.length;
