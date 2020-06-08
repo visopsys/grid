@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, MouseEvent } from "react";
 import { SelectionArea, CellInterface, GridRef } from "./../Grid";
-import { findNextCellWithinBounds } from "./../helpers";
+import { findNextCellWithinBounds, Align } from "./../helpers";
 import { KeyCodes, Direction, Movement } from "./../types";
 
 export interface UseSelectionOptions {
@@ -18,8 +18,6 @@ export interface SelectionResults {
   setActiveCell: (coords: CellInterface | null) => void;
   selections: SelectionArea[];
   onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
-  onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void;
-  onMouseUp: (e: React.MouseEvent<HTMLDivElement>) => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
 }
 
@@ -112,45 +110,52 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   /**
    * Triggers a new selection start
    */
-  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    /* Exit early if grid is not initialized */
-    if (!gridRef || !gridRef.current) return;
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      /* Exit early if grid is not initialized */
+      if (!gridRef || !gridRef.current) return;
 
-    /* Activate selection mode */
-    isSelectionMode.current = true;
+      /* Attaching mousemove to document, so we can detect drag move */
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
 
-    const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
-      e.clientX,
-      e.clientY
-    );
+      /* Activate selection mode */
+      isSelectionMode.current = true;
 
-    /**
-     * Save the initial Selection in ref
-     * so we can adjust the bounds in mousemove
-     */
-    const coords = { rowIndex, columnIndex };
+      const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
+        e.clientX,
+        e.clientY
+      );
 
-    /* Shift key */
-    if (e.nativeEvent.shiftKey) {
-      modifySelection(coords);
-      return;
-    }
+      /**
+       * Save the initial Selection in ref
+       * so we can adjust the bounds in mousemove
+       */
+      const coords = { rowIndex, columnIndex };
 
-    /* Command  or Control key */
-    if (e.nativeEvent.metaKey || e.nativeEvent.ctrlKey) {
-      appendSelection(coords);
-      return;
-    }
+      /* Shift key */
+      if (e.nativeEvent.shiftKey) {
+        modifySelection(coords);
+        return;
+      }
 
-    /* Trigger new selection */
-    newSelection(coords);
-  }, []);
+      /* Command  or Control key */
+      if (e.nativeEvent.metaKey || e.nativeEvent.ctrlKey) {
+        appendSelection(coords);
+        return;
+      }
+
+      /* Trigger new selection */
+      newSelection(coords);
+    },
+    [activeCell, selections]
+  );
 
   /**
    * Mousemove handler
    */
   const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
+    (e: globalThis.MouseEvent) => {
       /* Exit if user is not in selection mode */
       if (!isSelectionMode.current || !gridRef || !selectionEnd.current) return;
 
@@ -169,6 +174,8 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         return;
 
       modifySelection({ rowIndex, columnIndex }, true);
+
+      gridRef.current.scrollToItem({ rowIndex, columnIndex });
     },
     [activeCell]
   );
@@ -178,6 +185,10 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const handleMouseUp = useCallback(() => {
     /* Reset selection mode */
     isSelectionMode.current = false;
+
+    /* Remove listener */
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
 
     if (!selections.length) return;
 
@@ -292,6 +303,56 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     });
   };
 
+  //  Home
+  const selectFirstCellInRow = () => {
+    if (!selectionStart.current) return;
+    const cell = {
+      rowIndex: selectionStart.current.rowIndex,
+      columnIndex: 0,
+    };
+    newSelection(cell);
+
+    gridRef?.current.scrollToItem(cell);
+  };
+  //  End
+  const selectLastCellInRow = () => {
+    if (!selectionStart.current) return;
+    const cell = {
+      rowIndex: selectionStart.current.rowIndex,
+      columnIndex: columnCount - 1,
+    };
+    newSelection(cell);
+    gridRef?.current.scrollToItem(cell);
+  };
+
+  //  ⌘+Home
+  const selectFirstCellInColumn = () => {
+    if (!selectionStart.current) return;
+    const cell = {
+      rowIndex: 0,
+      columnIndex: selectionStart.current.columnIndex,
+    };
+    newSelection(cell);
+
+    gridRef?.current.scrollToItem(cell);
+  };
+  //  ⌘+End
+  const selectLastCellInColumn = () => {
+    if (!selectionStart.current) return;
+    const cell = {
+      rowIndex: rowCount - 1,
+      columnIndex: selectionStart.current.columnIndex,
+    };
+    newSelection(cell);
+    gridRef?.current.scrollToItem(cell);
+  };
+
+  //  ⌘+Backspace
+  const scrollToActiveCell = () => {
+    if (!activeCell) return;
+    gridRef?.current.scrollToItem(activeCell, Align.smart);
+  };
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       const isShiftKey = e.nativeEvent.shiftKey;
@@ -319,6 +380,26 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
           if (isMetaKey) {
             selectAll();
           }
+          break;
+
+        case KeyCodes.Home:
+          if (isMetaKey) {
+            selectFirstCellInColumn();
+          } else {
+            selectFirstCellInRow();
+          }
+          break;
+
+        case KeyCodes.End:
+          if (isMetaKey) {
+            selectLastCellInColumn();
+          } else {
+            selectLastCellInRow();
+          }
+          break;
+
+        case KeyCodes.BackSpace:
+          if (isMetaKey) scrollToActiveCell();
           break;
 
         case KeyCodes.SPACE:
@@ -363,8 +444,6 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     activeCell,
     selections,
     onMouseDown: handleMouseDown,
-    onMouseMove: handleMouseMove,
-    onMouseUp: handleMouseUp,
     onKeyDown: handleKeyDown,
     newSelection,
     setSelections,

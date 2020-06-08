@@ -31,6 +31,7 @@ import {
   requestTimeout,
   cancelTimeout,
   TimeoutID,
+  Align,
 } from "./helpers";
 import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
@@ -274,7 +275,7 @@ export type GridRef = {
   getCellBounds: (coords: CellInterface) => AreaProps;
   getCellCoordsFromOffset: (x: number, y: number) => CellInterface;
   getCellOffsetFromCoords: (coords: CellInterface) => CellPosition;
-  scrollToItem: (coords: OptionalCellInterface) => void;
+  scrollToItem: (coords: OptionalCellInterface, align?: Align) => void;
   focus: () => void;
   resizeColumns: (indexes: number[]) => void;
   resizeRows: (indexes: number[]) => void;
@@ -697,28 +698,33 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     );
 
     const scrollToItem = useCallback(
-      ({ rowIndex, columnIndex }: OptionalCellInterface) => {
+      (
+        { rowIndex, columnIndex }: OptionalCellInterface,
+        align: Align = Align.smart
+      ) => {
         const frozenColumnOffset = getColumnOffset({
           index: frozenColumns,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
         });
-        const newScrollLeft = columnIndex
-          ? getOffsetForColumnAndAlignment({
-              index: columnIndex,
-              containerHeight,
-              containerWidth,
-              columnCount,
-              columnWidth,
-              rowCount,
-              rowHeight,
-              scrollOffset: scrollLeft,
-              instanceProps: instanceProps.current,
-              scrollbarSize,
-              frozenOffset: frozenColumnOffset,
-            })
-          : void 0;
+        const newScrollLeft =
+          columnIndex !== void 0
+            ? getOffsetForColumnAndAlignment({
+                index: columnIndex,
+                containerHeight,
+                containerWidth,
+                columnCount,
+                columnWidth,
+                rowCount,
+                rowHeight,
+                scrollOffset: scrollLeft,
+                instanceProps: instanceProps.current,
+                scrollbarSize,
+                frozenOffset: frozenColumnOffset,
+                align,
+              })
+            : void 0;
 
         const frozenRowOffset = getRowOffset({
           index: frozenRows,
@@ -726,25 +732,30 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           columnWidth,
           instanceProps: instanceProps.current,
         });
-        const newScrollTop = rowIndex
-          ? getOffsetForRowAndAlignment({
-              index: rowIndex,
-              containerHeight,
-              containerWidth,
-              columnCount,
-              columnWidth,
-              rowCount,
-              rowHeight,
-              scrollOffset: scrollTop,
-              instanceProps: instanceProps.current,
-              scrollbarSize,
-              frozenOffset: frozenRowOffset,
-            })
-          : void 0;
+        const newScrollTop =
+          rowIndex !== void 0
+            ? getOffsetForRowAndAlignment({
+                index: rowIndex,
+                containerHeight,
+                containerWidth,
+                columnCount,
+                columnWidth,
+                rowCount,
+                rowHeight,
+                scrollOffset: scrollTop,
+                instanceProps: instanceProps.current,
+                scrollbarSize,
+                frozenOffset: frozenRowOffset,
+                align,
+              })
+            : void 0;
 
-        scrollTo({
-          scrollLeft: newScrollLeft,
-          scrollTop: newScrollTop,
+        /* Scroll in the next frame, Useful when user wants to jump from 1st column to last */
+        window.requestAnimationFrame(() => {
+          scrollTo({
+            scrollLeft: newScrollLeft,
+            scrollTop: newScrollTop,
+          });
         });
       },
       [

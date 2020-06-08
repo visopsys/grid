@@ -195,6 +195,8 @@ const useEditable = ({
       KeyCodes.Meta,
       KeyCodes.Escape,
       KeyCodes.Tab,
+      KeyCodes.Home,
+      KeyCodes.End,
     ].includes(keyCode);
   };
 

@@ -9,7 +9,7 @@ import {
 } from "./Grid";
 import { Movement } from "./types";
 
-enum Align {
+export enum Align {
   start = "start",
   end = "end",
   center = "center",
@@ -17,7 +17,7 @@ enum Align {
   smart = "smart",
 }
 
-enum ItemType {
+export enum ItemType {
   row = "row",
   column = "column",
 }
