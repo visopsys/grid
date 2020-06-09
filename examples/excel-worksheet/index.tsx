@@ -59,6 +59,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     activeCell,
     selections,
     setActiveCell,
+    newSelection,
     ...selectionProps
   } = useSelection({
     gridRef,
@@ -219,6 +220,10 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         columnWidth={(columnIndex) => {
           if (columnIndex === 0) return 46;
           return autoSizerProps.columnWidth(columnIndex);
+        }}
+        onMouseDown={(...args) => {
+          selectionProps.onMouseDown(...args);
+          editableProps.onMouseDown(...args);
         }}
         onKeyDown={(...args) => {
           selectionProps.onKeyDown(...args);
