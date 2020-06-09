@@ -65,8 +65,10 @@ export interface SelectionResults {
 const EMPTY_SELECTION: SelectionArea[] = [];
 
 /**
- * useSelection hook to enable selection in datagrid
+ * Hook to enable selection in datagrid
  * @param initialSelection
+ *
+ * Usage
  */
 const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const {
@@ -204,6 +206,12 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
 
       /* Command  or Control key */
       if (isMetaKey) {
+        /**
+         * TODO
+         * 1. Ability to remove selection
+         * 2. Ability to remove from selection area
+         * 3. Ability to switch activeCell if its part of removed selection
+         */
         appendSelection(coords);
         return;
       }

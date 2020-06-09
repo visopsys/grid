@@ -239,8 +239,8 @@ export interface InstanceInterface {
   lastMeasuredRowIndex: number;
   estimatedRowHeight: number;
   estimatedColumnWidth: number;
-  recalcColumnIndexes: number[];
-  recalcRowIndexes: number[];
+  recalcColumnIndices: number[];
+  recalcRowIndices: number[];
 }
 
 export type CellMetaDataMap = Record<number, CellMetaData>;
@@ -277,8 +277,8 @@ export type GridRef = {
   getCellOffsetFromCoords: (coords: CellInterface) => CellPosition;
   scrollToItem: (coords: OptionalCellInterface, align?: Align) => void;
   focus: () => void;
-  resizeColumns: (indexes: number[]) => void;
-  resizeRows: (indexes: number[]) => void;
+  resizeColumns: (indices: number[]) => void;
+  resizeRows: (indices: number[]) => void;
   getViewPort: () => ViewPortProps;
 };
 
@@ -379,8 +379,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       lastMeasuredRowIndex: -1,
       estimatedColumnWidth: estimatedColumnWidth || DEFAULT_ESTIMATED_ITEM_SIZE,
       estimatedRowHeight: estimatedRowHeight || DEFAULT_ESTIMATED_ITEM_SIZE,
-      recalcColumnIndexes: [],
-      recalcRowIndexes: [],
+      recalcColumnIndices: [],
+      recalcRowIndices: [],
     });
     const stageRef = useRef(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -573,30 +573,30 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     /**
      * Resize one or more columns
      */
-    const resizeColumns = useCallback((indexes: number[]) => {
-      const leftMost = Math.min(...indexes);
+    const resizeColumns = useCallback((indices: number[]) => {
+      const leftMost = Math.min(...indices);
       resetAfterIndices({ columnIndex: leftMost }, false);
-      instanceProps.current.recalcColumnIndexes = indexes;
+      instanceProps.current.recalcColumnIndices = indices;
       forceRender();
     }, []);
 
     /**
      * Resize one or more rows
      */
-    const resizeRows = useCallback((indexes: number[]) => {
-      const topMost = Math.min(...indexes);
+    const resizeRows = useCallback((indices: number[]) => {
+      const topMost = Math.min(...indices);
       resetAfterIndices({ rowIndex: topMost }, false);
-      instanceProps.current.recalcRowIndexes = indexes;
+      instanceProps.current.recalcRowIndices = indices;
       forceRender();
     }, []);
 
     /* Always if the viewport changes */
     useEffect(() => {
-      if (instanceProps.current.recalcColumnIndexes.length) {
-        instanceProps.current.recalcColumnIndexes.length = 0;
+      if (instanceProps.current.recalcColumnIndices.length) {
+        instanceProps.current.recalcColumnIndices.length = 0;
       }
-      if (instanceProps.current.recalcRowIndexes.length) {
-        instanceProps.current.recalcRowIndexes.length = 0;
+      if (instanceProps.current.recalcRowIndices.length) {
+        instanceProps.current.recalcRowIndices.length = 0;
       }
     }, [rowStopIndex, columnStopIndex]);
 

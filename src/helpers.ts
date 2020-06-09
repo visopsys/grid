@@ -224,19 +224,19 @@ export const getItemMetadata = ({
   columnWidth,
   instanceProps,
 }: IGetItemMetadata): CellMetaData => {
-  let itemMetadataMap, itemSize, lastMeasuredIndex, recalcIndexes: number[];
+  let itemMetadataMap, itemSize, lastMeasuredIndex, recalcIndices: number[];
   if (itemType === "column") {
     itemMetadataMap = instanceProps.columnMetadataMap;
     itemSize = columnWidth;
     lastMeasuredIndex = instanceProps.lastMeasuredColumnIndex;
-    recalcIndexes = instanceProps.recalcColumnIndexes;
+    recalcIndices = instanceProps.recalcColumnIndices;
   } else {
     itemMetadataMap = instanceProps.rowMetadataMap;
     itemSize = rowHeight;
     lastMeasuredIndex = instanceProps.lastMeasuredRowIndex;
-    recalcIndexes = instanceProps.recalcRowIndexes;
+    recalcIndices = instanceProps.recalcRowIndices;
   }
-  const recalcWithinBoundsOnly = recalcIndexes.length > 0;
+  const recalcWithinBoundsOnly = recalcIndices.length > 0;
   if (index > lastMeasuredIndex) {
     let offset = 0;
     if (lastMeasuredIndex >= 0) {
@@ -247,7 +247,7 @@ export const getItemMetadata = ({
     for (let i = lastMeasuredIndex + 1; i <= index; i++) {
       // Only recalculates specified columns
       let size = recalcWithinBoundsOnly
-        ? recalcIndexes.includes(i)
+        ? recalcIndices.includes(i)
           ? itemSize(i)
           : itemMetadataMap[i]?.size || itemSize(i)
         : itemSize(i);
