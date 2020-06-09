@@ -101,7 +101,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   );
   const selectionStart = useRef<CellInterface>();
   const selectionEnd = useRef<CellInterface>();
-  const isSelectioning = useRef<boolean>();
+  const isSelecting = useRef<boolean>();
 
   /* New selection */
   const newSelection = (start: CellInterface, end: CellInterface = start) => {
@@ -242,7 +242,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       document.addEventListener("mouseup", handleMouseUp);
 
       /* Activate selection mode */
-      isSelectioning.current = true;
+      isSelecting.current = true;
 
       const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
         e.clientX,
@@ -327,7 +327,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const handleMouseMove = useCallback(
     (e: globalThis.MouseEvent) => {
       /* Exit if user is not in selection mode */
-      if (!isSelectioning.current || !gridRef || !selectionEnd.current) return;
+      if (!isSelecting.current || !gridRef || !selectionEnd.current) return;
 
       const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
         e.clientX,
@@ -354,7 +354,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
    */
   const handleMouseUp = useCallback(() => {
     /* Reset selection mode */
-    isSelectioning.current = false;
+    isSelecting.current = false;
 
     /* Remove listener */
     document.removeEventListener("mousemove", handleMouseMove);
