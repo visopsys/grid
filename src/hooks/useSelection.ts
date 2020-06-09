@@ -6,7 +6,7 @@ import {
   getBoundedCells,
   cellIndentifier,
 } from "./../helpers";
-import { KeyCodes, Direction, Movement } from "./../types";
+import { KeyCodes, Direction, Movement, SelectionMode } from "./../types";
 
 export interface UseSelectionOptions {
   /**
@@ -29,6 +29,18 @@ export interface UseSelectionOptions {
    * No of rows in the grid
    */
   rowCount?: number;
+  /**
+   * Allow multiple selection
+   */
+  allowMultipleSelection?: boolean;
+  /**
+   * Allow deselect a selected area
+   */
+  allowDeselectSelection?: boolean;
+  /**
+   * Selection mode
+   */
+  selectionMode?: SelectionMode;
 }
 
 export interface SelectionResults {
@@ -77,6 +89,9 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     initialSelections = [],
     columnCount = 0,
     rowCount = 0,
+    allowMultipleSelection = true,
+    selectionMode = SelectionMode.single,
+    allowDeselectSelection = true,
   } = options || {};
   const [activeCell, setActiveCell] = useState<CellInterface | null>(
     initialActiveCell
@@ -86,7 +101,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   );
   const selectionStart = useRef<CellInterface>();
   const selectionEnd = useRef<CellInterface>();
-  const isSelectionMode = useRef<boolean>();
+  const isSelectioning = useRef<boolean>();
 
   /* New selection */
   const newSelection = (start: CellInterface, end: CellInterface = start) => {
@@ -215,13 +230,19 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
 
       const isShiftKey = e.nativeEvent.shiftKey;
       const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
+      const allowMultiple =
+        selectionMode === SelectionMode.multiple ||
+        (isMetaKey && allowMultipleSelection);
+      const allowDeselect = allowDeselectSelection;
+      const hasSelections = selections.length > 0;
+      const isDeselecting = isMetaKey && allowDeselect;
 
       /* Attaching mousemove to document, so we can detect drag move */
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
 
       /* Activate selection mode */
-      isSelectionMode.current = true;
+      isSelectioning.current = true;
 
       const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
         e.clientX,
@@ -240,49 +261,48 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         return;
       }
 
+      /**
+       * User is adding activeCell to selection
+       */
+      if (isEqualCells(coords, activeCell) && !isDeselecting) {
+        return;
+      }
+
       /* Command  or Control key */
-      if (isMetaKey) {
-        const hasSelections = selections.length > 0;
-
+      if (activeCell && allowMultiple) {
         /**
-         * No selections,
-         * but user is adding activeCell to selection
-         */
-        if (!hasSelections && isEqualCells(coords, activeCell)) {
-          return;
-        }
-
-        /**
-         * User is trying to select multiple selections,
+         * User is manually trying to select multiple selections,
          * So add the current active cell to the list
          */
-        if (!hasSelections) {
+        if (isMetaKey && !hasSelections) {
           appendSelection(activeCell);
         }
 
         /**
-         * Check if this cell has already been selected
+         * Check if this cell has already been selected (only for manual deselect)
          * Remove it from selection
          *
          * Future enhancements -> Split selection, so that 1 cell can be removed from range
          */
-        const cellIndex = cellIndexInSelection(coords, selections);
-        if (cellIndex !== -1) {
-          const newSelection = removeSelectionByIndex(cellIndex);
-          const nextActiveCell = getPossibleActiveCellFromSelections(
-            newSelection
-          );
-          if (nextActiveCell !== null) {
-            setActiveCell(nextActiveCell);
+        if (isMetaKey && allowDeselect) {
+          const cellIndex = cellIndexInSelection(coords, selections);
+          if (cellIndex !== -1) {
+            const newSelection = removeSelectionByIndex(cellIndex);
+            const nextActiveCell = getPossibleActiveCellFromSelections(
+              newSelection
+            );
+            if (nextActiveCell !== null) {
+              setActiveCell(nextActiveCell);
+            }
+            if (
+              newSelection.length === 1 &&
+              cellEqualsSelection(nextActiveCell, newSelection)
+            ) {
+              /* Since we only have 1 cell, lets clear the selections and only keep activeCell */
+              clearSelections();
+            }
+            return;
           }
-          if (
-            newSelection.length === 1 &&
-            cellEqualsSelection(nextActiveCell, newSelection)
-          ) {
-            /* Since we only have 1 cell, lets clear the selections and only keep activeCell */
-            clearSelections();
-          }
-          return;
         }
 
         /**
@@ -298,7 +318,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       /* Trigger new selection */
       newSelection(coords);
     },
-    [activeCell, selections]
+    [activeCell, selections, allowMultipleSelection, allowDeselectSelection]
   );
 
   /**
@@ -307,7 +327,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const handleMouseMove = useCallback(
     (e: globalThis.MouseEvent) => {
       /* Exit if user is not in selection mode */
-      if (!isSelectionMode.current || !gridRef || !selectionEnd.current) return;
+      if (!isSelectioning.current || !gridRef || !selectionEnd.current) return;
 
       const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
         e.clientX,
@@ -334,7 +354,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
    */
   const handleMouseUp = useCallback(() => {
     /* Reset selection mode */
-    isSelectionMode.current = false;
+    isSelectioning.current = false;
 
     /* Remove listener */
     document.removeEventListener("mousemove", handleMouseMove);
@@ -562,7 +582,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         case KeyCodes.Tab:
           /* Cycle through the selections if selections.length > 0 */
           if (selections.length && activeCell && gridRef) {
-            const { bounds } = selections[0];
+            const { bounds } = selections[selections.length - 1];
             const activeCellBounds = gridRef.current.getCellBounds(activeCell);
             const direction = isShiftKey
               ? Movement.backwards

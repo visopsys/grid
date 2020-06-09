@@ -349,7 +349,7 @@ const useEditable = ({
 
         /* If user has selected some cells and active cell is within this selection */
         if (selections.length && currentCell && gridRef) {
-          const { bounds } = selections[0];
+          const { bounds } = selections[selections.length - 1];
           const activeCellBounds = gridRef.current.getCellBounds(currentCell);
           const nextCell = findNextCellWithinBounds(
             activeCellBounds,
