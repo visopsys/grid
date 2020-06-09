@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { SelectionArea, CellInterface, GridRef } from "./../Grid";
 import {
   findNextCellWithinBounds,
@@ -80,7 +80,9 @@ const EMPTY_SELECTION: SelectionArea[] = [];
  * Hook to enable selection in datagrid
  * @param initialSelection
  *
- * Usage
+ * TODO
+ * 1. Clear selection if user mouseovers on active cell
+ * 2. Clear selection if user keyboard navigates on active cell
  */
 const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const {
@@ -102,6 +104,15 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const selectionStart = useRef<CellInterface>();
   const selectionEnd = useRef<CellInterface>();
   const isSelecting = useRef<boolean>();
+  /**
+   * Need to store in ref because on mousemove and mouseup event that are
+   * registered in document
+   */
+  const activeCellRef = useRef(activeCell);
+
+  useEffect(() => {
+    activeCellRef.current = activeCell;
+  });
 
   /* New selection */
   const newSelection = (start: CellInterface, end: CellInterface = start) => {
@@ -129,6 +140,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   /* Modify current selection */
   const modifySelection = (coords: CellInterface, setInProgress?: boolean) => {
     if (!selectionStart.current) return;
+
     selectionEnd.current = coords;
     const bounds = selectionFromStartEnd(selectionStart.current, coords);
     if (!bounds) return;
@@ -261,15 +273,14 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         return;
       }
 
-      /**
-       * User is adding activeCell to selection
-       */
-      if (isEqualCells(coords, activeCell) && !isDeselecting) {
-        return;
-      }
-
       /* Command  or Control key */
       if (activeCell && allowMultiple) {
+        /**
+         * User is adding activeCell to selection
+         */
+        if (isEqualCells(coords, activeCell) && !isDeselecting) {
+          return;
+        }
         /**
          * User is manually trying to select multiple selections,
          * So add the current active cell to the list
@@ -324,31 +335,19 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   /**
    * Mousemove handler
    */
-  const handleMouseMove = useCallback(
-    (e: globalThis.MouseEvent) => {
-      /* Exit if user is not in selection mode */
-      if (!isSelecting.current || !gridRef || !selectionEnd.current) return;
+  const handleMouseMove = useCallback((e: globalThis.MouseEvent) => {
+    /* Exit if user is not in selection mode */
+    if (!isSelecting.current || !gridRef) return;
 
-      const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
-        e.clientX,
-        e.clientY
-      );
+    const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
+      e.clientX,
+      e.clientY
+    );
 
-      /**
-       * If the user is moving across the Active Cell, lets not add it to selection
-       */
-      if (
-        activeCell?.rowIndex === rowIndex &&
-        activeCell?.columnIndex === columnIndex
-      )
-        return;
+    modifySelection({ rowIndex, columnIndex }, true);
 
-      modifySelection({ rowIndex, columnIndex }, true);
-
-      gridRef.current.scrollToItem({ rowIndex, columnIndex });
-    },
-    [activeCell]
-  );
+    gridRef.current.scrollToItem({ rowIndex, columnIndex });
+  }, []);
   /**
    * Mouse up handler
    */
@@ -373,7 +372,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         return sel;
       });
     });
-  }, [selections]);
+  }, []);
 
   /**
    * Navigate selection using keyboard
