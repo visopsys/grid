@@ -5,6 +5,7 @@ import {
   Align,
   getBoundedCells,
   cellIndentifier,
+  mergedCellBounds,
 } from "./../helpers";
 import { KeyCodes, Direction, Movement, SelectionMode } from "./../types";
 
@@ -79,10 +80,6 @@ const EMPTY_SELECTION: SelectionArea[] = [];
 /**
  * Hook to enable selection in datagrid
  * @param initialSelection
- *
- * TODO
- * 1. Clear selection if user mouseovers on active cell
- * 2. Clear selection if user keyboard navigates on active cell
  */
 const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const {
@@ -104,6 +101,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const selectionStart = useRef<CellInterface>();
   const selectionEnd = useRef<CellInterface>();
   const isSelecting = useRef<boolean>();
+  const firstActiveCell = useRef<CellInterface | null>(null);
   /**
    * Need to store in ref because on mousemove and mouseup event that are
    * registered in document
@@ -120,20 +118,42 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     selectionEnd.current = end;
     const bounds = selectionFromStartEnd(start, end);
     if (!bounds) return;
-    setActiveCell({ rowIndex: bounds.top, columnIndex: bounds.left });
+    const coords = { rowIndex: bounds.top, columnIndex: bounds.left };
+    /* Keep track  of first cell that was selected by user */
+    firstActiveCell.current = coords;
+    setActiveCell(coords);
     clearSelections();
   };
 
-  /* selection object from start, end */
+  /**
+   * selection object from start, end
+   * @param start
+   * @param end
+   *
+   * TODO
+   * Cater to Merged cells
+   */
   const selectionFromStartEnd = (start: CellInterface, end: CellInterface) => {
     if (!gridRef) return null;
     const boundsStart = gridRef.current.getCellBounds(start);
     const boundsEnd = gridRef.current.getCellBounds(end);
-    return {
+    const bounds = {
       top: Math.min(boundsStart.top, boundsEnd.top),
       bottom: Math.max(boundsStart.bottom, boundsEnd.bottom),
       left: Math.min(boundsStart.left, boundsEnd.left),
       right: Math.max(boundsStart.right, boundsEnd.right),
+    };
+    /* Get max bounds of merged cell */
+    const mergeCellBounds = mergedCellBounds(
+      bounds,
+      gridRef.current.getCellBounds
+    );
+
+    return {
+      top: Math.min(mergeCellBounds.top, bounds.top),
+      bottom: Math.max(mergeCellBounds.bottom, bounds.bottom),
+      left: Math.min(mergeCellBounds.left, bounds.left),
+      right: Math.max(mergeCellBounds.right, bounds.right),
     };
   };
 
@@ -339,14 +359,18 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     /* Exit if user is not in selection mode */
     if (!isSelecting.current || !gridRef) return;
 
-    const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
+    const coords = gridRef.current.getCellCoordsFromOffset(
       e.clientX,
       e.clientY
     );
 
-    modifySelection({ rowIndex, columnIndex }, true);
+    if (isEqualCells(firstActiveCell.current, coords)) {
+      return clearSelections();
+    }
 
-    gridRef.current.scrollToItem({ rowIndex, columnIndex });
+    modifySelection(coords, true);
+
+    gridRef.current.scrollToItem(coords);
   }, []);
   /**
    * Mouse up handler
@@ -426,10 +450,16 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
           : { rowIndex }
         : { rowIndex, columnIndex };
 
-      if (modify) {
-        modifySelection({ rowIndex, columnIndex });
+      const coords = { rowIndex, columnIndex };
+      const isUserNavigatingToActiveCell = isEqualCells(
+        firstActiveCell.current,
+        coords
+      );
+
+      if (modify && !isUserNavigatingToActiveCell) {
+        modifySelection(coords);
       } else {
-        newSelection({ rowIndex, columnIndex });
+        newSelection(coords);
       }
 
       /* Keep the item in view */

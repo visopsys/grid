@@ -432,7 +432,7 @@ const useEditable = ({
   const handleBlur = useCallback(
     (e: React.FocusEvent) => {
       if (currentActiveCellRef.current) {
-        // handleSubmit(value, currentActiveCellRef.current);
+        handleSubmit(value, currentActiveCellRef.current);
       }
     },
     [value]
