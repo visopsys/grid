@@ -95,7 +95,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     const bounds = selectionFromStartEnd(start, end);
     if (!bounds) return;
     setActiveCell({ rowIndex: bounds.top, columnIndex: bounds.left });
-    setSelections(EMPTY_SELECTION);
+    clearSelections();
   };
 
   /* selection object from start, end */
@@ -141,7 +141,8 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   };
 
   /* Adds a new selection, CMD key */
-  const appendSelection = (coords: CellInterface) => {
+  const appendSelection = (coords: CellInterface | null) => {
+    if (!coords) return;
     selectionStart.current = coords;
     selectionEnd.current = coords;
     const bounds = selectionFromStartEnd(coords, coords);
@@ -150,14 +151,34 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     setSelections((prev) => [...prev, { bounds }]);
   };
 
-  const removeSelection = useCallback(
-    (index: number): [SelectionArea | null, number] => {
-      const prev = selections[index - 1];
-      setSelections((prev) => prev.filter((_, idx) => idx !== index));
-      return [prev, selections.length - 1];
+  const removeSelectionByIndex = useCallback(
+    (index: number): SelectionArea[] => {
+      const newSelection = selections.filter((_, idx) => idx !== index);
+      setSelections(newSelection);
+      return newSelection;
     },
     [selections]
   );
+
+  const isEqualCells = (a: CellInterface | null, b: CellInterface | null) => {
+    if (a === null || b === null) return false;
+    return a.rowIndex === b.rowIndex && a.columnIndex === b.columnIndex;
+  };
+
+  const clearSelections = () => {
+    setSelections(EMPTY_SELECTION);
+  };
+
+  const getPossibleActiveCellFromSelections = (
+    selections: SelectionArea[]
+  ): CellInterface | null => {
+    if (!selections.length) return null;
+    const { bounds } = selections[selections.length - 1];
+    return {
+      rowIndex: bounds.top,
+      columnIndex: bounds.left,
+    };
+  };
 
   const cellIndexInSelection = (
     cell: CellInterface,
@@ -166,6 +187,21 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     return selections.findIndex((sel) => {
       const boundedCells = getBoundedCells(sel.bounds);
       return boundedCells.has(cellIndentifier(cell.rowIndex, cell.columnIndex));
+    });
+  };
+
+  const cellEqualsSelection = (
+    cell: CellInterface | null,
+    selections: SelectionArea[]
+  ): boolean => {
+    if (cell === null) return false;
+    return selections.some((sel) => {
+      return (
+        sel.bounds.left === cell.columnIndex &&
+        sel.bounds.top === cell.rowIndex &&
+        sel.bounds.right === cell.columnIndex &&
+        sel.bounds.bottom === cell.rowIndex
+      );
     });
   };
 
@@ -206,6 +242,49 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
 
       /* Command  or Control key */
       if (isMetaKey) {
+        const hasSelections = selections.length > 0;
+
+        /**
+         * No selections,
+         * but user is adding activeCell to selection
+         */
+        if (!hasSelections && isEqualCells(coords, activeCell)) {
+          return;
+        }
+
+        /**
+         * User is trying to select multiple selections,
+         * So add the current active cell to the list
+         */
+        if (!hasSelections) {
+          appendSelection(activeCell);
+        }
+
+        /**
+         * Check if this cell has already been selected
+         * Remove it from selection
+         *
+         * Future enhancements -> Split selection, so that 1 cell can be removed from range
+         */
+        const cellIndex = cellIndexInSelection(coords, selections);
+        if (cellIndex !== -1) {
+          const newSelection = removeSelectionByIndex(cellIndex);
+          const nextActiveCell = getPossibleActiveCellFromSelections(
+            newSelection
+          );
+          if (nextActiveCell !== null) {
+            setActiveCell(nextActiveCell);
+          }
+          if (
+            newSelection.length === 1 &&
+            cellEqualsSelection(nextActiveCell, newSelection)
+          ) {
+            /* Since we only have 1 cell, lets clear the selections and only keep activeCell */
+            clearSelections();
+          }
+          return;
+        }
+
         /**
          * TODO
          * 1. Ability to remove selection
