@@ -188,7 +188,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         }
 
         if (e.which === KeyCodes.Tab) {
-          e.preventDefault();
+          // e.preventDefault();
           onSubmit &&
             onSubmit(
               inputRef.current.value,
@@ -239,6 +239,7 @@ const useEditable = ({
     setShowEditor(false);
     currentActiveCellRef.current = null;
   };
+  const focusGrid = () => requestAnimationFrame(() => gridRef.current.focus());
 
   /**
    * Make a cell editable
@@ -382,7 +383,7 @@ const useEditable = ({
       onSubmit && onSubmit(value, activeCell, nextActiveCell);
 
       /* Keep the focus */
-      gridRef.current.focus();
+      focusGrid();
     },
     []
   );
@@ -402,7 +403,7 @@ const useEditable = ({
     hideEditor();
     onCancel && onCancel();
     /* Keep the focus back in the grid */
-    gridRef.current.focus();
+    focusGrid();
   }, []);
 
   const handleScroll = useCallback((scrollPos: ScrollCoords) => {
@@ -428,6 +429,15 @@ const useEditable = ({
     };
   }, [position, scrollPosition]);
 
+  const handleBlur = useCallback(
+    (e: React.FocusEvent) => {
+      if (currentActiveCellRef.current) {
+        handleSubmit(value, currentActiveCellRef.current);
+      }
+    },
+    [value]
+  );
+
   const editorComponent =
     isEditorShown && Editor ? (
       <Editor
@@ -441,11 +451,7 @@ const useEditable = ({
         onCancel={handleHide}
         position={cellPositon}
         nextFocusableCell={nextFocusableCell}
-        onBlur={() => {
-          if (currentActiveCellRef.current) {
-            handleSubmit(value, currentActiveCellRef.current);
-          }
-        }}
+        onBlur={handleBlur}
       />
     ) : null;
 

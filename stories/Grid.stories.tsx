@@ -1109,7 +1109,6 @@ export const EditableGrid: React.FC = () => {
       onSubmit: (value, { rowIndex, columnIndex }, nextActiveCell) => {
         setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value }));
         gridRef.current.resizeColumns([columnIndex]);
-        gridRef.current.focus();
         /* Select the next cell */
         if (nextActiveCell) {
           setActiveCell(nextActiveCell);

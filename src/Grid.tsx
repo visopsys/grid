@@ -1597,6 +1597,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         {showScrollbar ? (
           <>
             <div
+              tabIndex={-1}
               style={{
                 height: containerHeight,
                 overflow: "scroll",
@@ -1618,6 +1619,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               />
             </div>
             <div
+              tabIndex={-1}
               style={{
                 overflow: "scroll",
                 position: "absolute",
