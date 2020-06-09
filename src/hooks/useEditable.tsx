@@ -229,7 +229,7 @@ const useEditable = ({
     height: 0,
   });
   const currentActiveCellRef = useRef<CellInterface | null>(null);
-  const initialActiveCell = useRef<CellInterface>();
+  const initialActiveCell = useRef<CellInterface | null>();
   const [scrollPosition, setScrollPosition] = useState<ScrollCoords>({
     scrollLeft: 0,
     scrollTop: 0,
@@ -286,6 +286,9 @@ const useEditable = ({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>) => {
       const keyCode = e.nativeEvent.keyCode;
+      if (keyCode === KeyCodes.Tab && !initialActiveCell.current) {
+        initialActiveCell.current = activeCell;
+      }
       if (
         isSelectionKey(keyCode) ||
         e.nativeEvent.ctrlKey ||
@@ -307,6 +310,7 @@ const useEditable = ({
         onDelete && onDelete(activeCell, selections);
         return;
       }
+
       const initialValue =
         keyCode === KeyCodes.Enter // Enter key
           ? undefined
@@ -334,13 +338,12 @@ const useEditable = ({
             }
           : {
               rowIndex:
-                (initialActiveCell.current?.rowIndex || currentCell.rowIndex) +
+                (initialActiveCell.current?.rowIndex ?? currentCell.rowIndex) +
                 1,
               columnIndex:
-                initialActiveCell.current?.columnIndex ||
+                initialActiveCell.current?.columnIndex ??
                 currentCell.columnIndex,
             };
-
       if (direction === Direction.Right && !initialActiveCell.current) {
         initialActiveCell.current = currentCell;
       }
