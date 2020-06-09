@@ -420,37 +420,47 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         columnIndex,
       });
 
-      const bounds = gridRef.current.getCellBounds({ rowIndex, columnIndex });
+      const currenBounds = gridRef.current.getCellBounds({
+        rowIndex,
+        columnIndex,
+      });
 
       switch (direction) {
         case Direction.Up:
-          if (isMergedCell) rowIndex = bounds.top;
+          if (isMergedCell) rowIndex = currenBounds.top;
           rowIndex = Math.max(rowIndex - 1, 0);
           break;
 
         case Direction.Down:
-          if (isMergedCell) rowIndex = bounds.bottom;
+          if (isMergedCell) rowIndex = currenBounds.bottom;
           rowIndex = Math.min(rowIndex + 1, rowCount - 1);
           break;
 
         case Direction.Left:
-          if (isMergedCell) columnIndex = bounds.left;
+          if (isMergedCell) columnIndex = currenBounds.left;
           columnIndex = Math.max(columnIndex - 1, 0);
           break;
 
         case Direction.Right:
-          if (isMergedCell) columnIndex = bounds.right;
+          if (isMergedCell) columnIndex = currenBounds.right;
           columnIndex = Math.min(columnIndex + 1, columnCount - 1);
           break;
       }
 
+      const newBounds = gridRef.current.getCellBounds({
+        rowIndex,
+        columnIndex,
+      });
+      const coords = { rowIndex: newBounds.top, columnIndex: newBounds.left };
       const scrollToCell = modify
-        ? selectionEnd.current.rowIndex === rowIndex
-          ? { columnIndex }
-          : { rowIndex }
-        : { rowIndex, columnIndex };
+        ? selectionEnd.current.rowIndex === coords.rowIndex
+          ? // Scroll to a column
+            { columnIndex: coords.columnIndex }
+          : // Scroll to row
+            { rowIndex: coords.rowIndex }
+        : // Scroll to cell
+          { rowIndex, columnIndex };
 
-      const coords = { rowIndex, columnIndex };
       const isUserNavigatingToActiveCell = isEqualCells(
         firstActiveCell.current,
         coords
