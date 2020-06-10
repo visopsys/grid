@@ -38,3 +38,9 @@ export enum MimeType {
   plain = "text/plain",
   json = "application/json",
 }
+
+export enum MouseButtonCodes {
+  "left" = 1,
+  "middle" = 2,
+  "right" = 3,
+}

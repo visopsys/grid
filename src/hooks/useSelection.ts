@@ -7,7 +7,7 @@ import {
   cellIndentifier,
   mergedCellBounds,
 } from "./../helpers";
-import { KeyCodes, Direction, Movement } from "./../types";
+import { KeyCodes, Direction, Movement, MouseButtonCodes } from "./../types";
 
 export interface UseSelectionOptions {
   /**
@@ -248,8 +248,12 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       /* Exit early if grid is not initialized */
-      if (!gridRef || !gridRef.current) return;
-
+      if (
+        !gridRef ||
+        !gridRef.current ||
+        e.nativeEvent.which === MouseButtonCodes.right
+      )
+        return;
       const isShiftKey = e.nativeEvent.shiftKey;
       const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
       const allowMultiple =
