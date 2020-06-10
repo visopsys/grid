@@ -40,6 +40,6 @@ export enum MimeType {
 }
 
 export enum SelectionMode {
-  single = "single",
-  multiple = "multiple",
+  continuous = "continuous",
+  discrete = "discrete",
 }

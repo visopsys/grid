@@ -89,7 +89,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     columnCount = 0,
     rowCount = 0,
     allowMultipleSelection = true,
-    selectionMode = SelectionMode.single,
+    selectionMode = SelectionMode.discrete,
     allowDeselectSelection = true,
   } = options || {};
   const [activeCell, setActiveCell] = useState<CellInterface | null>(
@@ -263,7 +263,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       const isShiftKey = e.nativeEvent.shiftKey;
       const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
       const allowMultiple =
-        selectionMode === SelectionMode.multiple ||
+        selectionMode === SelectionMode.continuous ||
         (isMetaKey && allowMultipleSelection);
       const allowDeselect = allowDeselectSelection;
       const hasSelections = selections.length > 0;
