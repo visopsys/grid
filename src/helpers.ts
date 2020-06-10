@@ -740,33 +740,3 @@ export const findNextCellWithinBounds = (
 
   return nextActiveCell;
 };
-
-/**
- * Get maximum bound of an area, caters to merged cells
- * @param area
- * @param boundGetter
- */
-export const mergedCellBounds = (
-  area: AreaProps,
-  boundGetter: (coords: CellInterface) => AreaProps
-): AreaProps => {
-  let top = [];
-  let left = [];
-  let right = [];
-  let bottom = [];
-  for (let i = area.top; i <= area.bottom; i++) {
-    for (let j = area.left; j <= area.right; j++) {
-      const bounds = boundGetter({ rowIndex: i, columnIndex: j });
-      top.push(bounds.top);
-      left.push(bounds.left);
-      right.push(bounds.right);
-      bottom.push(bounds.bottom);
-    }
-  }
-  return {
-    top: Math.min(...top),
-    left: Math.min(...left),
-    right: Math.max(...right),
-    bottom: Math.min(...bottom),
-  };
-};

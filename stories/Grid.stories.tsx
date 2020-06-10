@@ -294,11 +294,27 @@ export const MergedCells: React.FC = () => {
         right: 4,
         bottom: 5,
       },
+      {
+        top: 5,
+        left: 0,
+        right: 1,
+        bottom: 5,
+      },
     ];
     const gridRef = useRef();
     const rowCount = 200;
     const columnCount = 200;
     const { selection, ...selectionProps } = useSelection({
+      initialSelections: [
+        // {
+        //   bounds: {
+        //     top: 1,
+        //     left: 1,
+        //     right: 5,
+        //     bottom: 5
+        //   }
+        // }
+      ],
       gridRef,
       rowCount,
       columnCount,

@@ -5,7 +5,6 @@ import {
   Align,
   getBoundedCells,
   cellIndentifier,
-  mergedCellBounds,
 } from "./../helpers";
 import { KeyCodes, Direction, Movement } from "./../types";
 
@@ -144,18 +143,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       left: Math.min(boundsStart.left, boundsEnd.left),
       right: Math.max(boundsStart.right, boundsEnd.right),
     };
-    /* Get max bounds of merged cell */
-    const mergeCellBounds = mergedCellBounds(
-      bounds,
-      gridRef.current.getCellBounds
-    );
-
-    return {
-      top: Math.min(mergeCellBounds.top, bounds.top),
-      bottom: Math.max(mergeCellBounds.bottom, bounds.bottom),
-      left: Math.min(mergeCellBounds.left, bounds.left),
-      right: Math.max(mergeCellBounds.right, bounds.right),
-    };
+    return bounds;
   };
 
   /* Modify current selection */
