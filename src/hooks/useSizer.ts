@@ -48,6 +48,10 @@ export interface IProps {
    * No of rows in teh grid
    */
   rowCount?: number;
+  /**
+   * Enable autoresize
+   */
+  autoResize?: boolean;
 }
 
 export enum ResizeStrategy {
@@ -59,11 +63,15 @@ export interface AutoResizerResults {
   /**
    * Column width function consumed by the grid
    */
-  columnWidth: ItemSizer;
+  columnWidth?: ItemSizer;
   /**
    * Callback when viewport is changed
    */
   onViewChange: (cells: ViewPortProps) => void;
+  /**
+   * Resize a column by index
+   */
+  resizeColumn: (columnIndex: number) => void;
 }
 
 /**
@@ -84,6 +92,7 @@ const useAutoSizer = ({
   rowCount,
   resizeOnScroll = true,
   font = "12px Arial",
+  autoResize = true,
 }: IProps): AutoResizerResults => {
   invariant(
     !(resizeStrategy === ResizeStrategy.full && rowCount === void 0),
@@ -144,6 +153,11 @@ const useAutoSizer = ({
     [viewport, getValue, initialVisibleRows]
   );
 
+  const handleResizeColumn = useCallback((columnIndex: number) => {
+    const width = getColumnWidth(columnIndex);
+    gridRef.current.resizeColumns([columnIndex]);
+  }, []);
+
   const handleViewChange = useCallback(
     (cells: ViewPortProps) => {
       /* Update viewport cells */
@@ -170,7 +184,8 @@ const useAutoSizer = ({
   );
 
   return {
-    columnWidth: getColumnWidth,
+    columnWidth: autoResize ? getColumnWidth : undefined,
+    resizeColumn: handleResizeColumn,
     onViewChange: handleViewChange,
   };
 };

@@ -38,8 +38,3 @@ export enum MimeType {
   plain = "text/plain",
   json = "application/json",
 }
-
-export enum SelectionMode {
-  continuous = "continuous",
-  discrete = "discrete",
-}

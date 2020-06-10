@@ -7,7 +7,7 @@ import {
   cellIndentifier,
   mergedCellBounds,
 } from "./../helpers";
-import { KeyCodes, Direction, Movement, SelectionMode } from "./../types";
+import { KeyCodes, Direction, Movement } from "./../types";
 
 export interface UseSelectionOptions {
   /**
@@ -39,9 +39,10 @@ export interface UseSelectionOptions {
    */
   allowDeselectSelection?: boolean;
   /**
-   * Selection mode
+   * If true, user can select multiple selections without pressing Ctrl/Cmd.
+   * Useful for formula mode
    */
-  selectionMode?: SelectionMode;
+  persistantSelectionMode?: boolean;
 }
 
 export interface SelectionResults {
@@ -89,7 +90,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     columnCount = 0,
     rowCount = 0,
     allowMultipleSelection = true,
-    selectionMode = SelectionMode.discrete,
+    persistantSelectionMode = false,
     allowDeselectSelection = true,
   } = options || {};
   const [activeCell, setActiveCell] = useState<CellInterface | null>(
@@ -263,8 +264,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       const isShiftKey = e.nativeEvent.shiftKey;
       const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
       const allowMultiple =
-        selectionMode === SelectionMode.continuous ||
-        (isMetaKey && allowMultipleSelection);
+        persistantSelectionMode || (isMetaKey && allowMultipleSelection);
       const allowDeselect = allowDeselectSelection;
       const hasSelections = selections.length > 0;
       const isDeselecting = isMetaKey && allowDeselect;

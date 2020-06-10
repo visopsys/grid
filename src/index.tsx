@@ -3,7 +3,7 @@ import { CellRenderer, Cell } from "./Cell";
 import useEditable from "./hooks/useEditable";
 import useSelection from "./hooks/useSelection";
 import useTooltip from "./hooks/useTooltip";
-import useAutoSizer from "./hooks/useAutoSizer";
+import useSizer from "./hooks/useSizer";
 
 export {
   Grid,
@@ -12,7 +12,7 @@ export {
   useEditable,
   useSelection,
   useTooltip,
-  useAutoSizer,
+  useSizer,
 };
 export default Grid;
 export * from "./Grid";

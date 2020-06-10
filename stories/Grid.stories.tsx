@@ -3,7 +3,7 @@ import React, { useRef, useState, useCallback, useEffect } from "react";
 import Grid, { IChildrenProps, Cell as DefaultCell } from "./../src/";
 import useSelection from "./../src/hooks/useSelection";
 import useEditable, { EditorProps } from "./../src/hooks/useEditable";
-import useAutoSizer from "./../src/hooks/useAutoSizer";
+import useAutoSizer from "../src/hooks/useSizer";
 import useTooltip from "./../src/hooks/useTooltip";
 import { useMeasure } from "react-use";
 import { Rect, Text, Group, RegularPolygon } from "react-konva";
@@ -1037,7 +1037,7 @@ export const EditableGrid: React.FC = () => {
   };
   const App = () => {
     const [data, setData] = useState({
-      [[1, 2]]: "Hello",
+      [[1, 2]]: "Hello lorem ipsum lorem",
       [[1, 1]]: "Select editor",
       [[2, 3]]: "Cannot be edited",
       [[30, 4]]: "lorem asd asd as das dasd asd as da sdasdasda",
@@ -1120,6 +1120,7 @@ export const EditableGrid: React.FC = () => {
       getValue: getCellValue,
       resizeStrategy: "lazy",
       rowCount,
+      autoResize: true,
     });
     return (
       <div style={{ position: "relative" }}>
@@ -1137,6 +1138,7 @@ export const EditableGrid: React.FC = () => {
           itemRenderer={(props) => (
             <DefaultCell
               value={data[[props.rowIndex, props.columnIndex]]}
+              align="left"
               {...props}
             />
           )}
