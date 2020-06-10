@@ -404,7 +404,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
    * @param modify
    */
   const keyNavigate = useCallback(
-    (direction: Direction, modify?: boolean) => {
+    (direction: Direction, modify?: boolean, metaKeyPressed?: boolean) => {
       if (
         !selectionStart.current ||
         !selectionEnd.current ||
@@ -429,21 +429,30 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         case Direction.Up:
           if (isMergedCell) rowIndex = currenBounds.top;
           rowIndex = Math.max(rowIndex - 1, 0);
+          // Shift + Ctrl/Commmand
+          // TODO: Scroll to last contentful cell
+          if (metaKeyPressed) rowIndex = 0;
           break;
 
         case Direction.Down:
           if (isMergedCell) rowIndex = currenBounds.bottom;
           rowIndex = Math.min(rowIndex + 1, rowCount - 1);
+          // Shift + Ctrl/Commmand
+          if (metaKeyPressed) rowIndex = rowCount - 1;
           break;
 
         case Direction.Left:
           if (isMergedCell) columnIndex = currenBounds.left;
           columnIndex = Math.max(columnIndex - 1, 0);
+          // Shift + Ctrl/Commmand
+          if (metaKeyPressed) columnIndex = 0;
           break;
 
         case Direction.Right:
           if (isMergedCell) columnIndex = currenBounds.right;
           columnIndex = Math.min(columnIndex + 1, columnCount - 1);
+          // Shift + Ctrl/Commmand
+          if (metaKeyPressed) columnIndex = columnCount - 1;
           break;
       }
 
@@ -566,20 +575,20 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
       switch (e.nativeEvent.which) {
         case KeyCodes.Right:
-          keyNavigate(Direction.Right, isShiftKey);
+          keyNavigate(Direction.Right, isShiftKey, isMetaKey);
           break;
 
         case KeyCodes.Left:
-          keyNavigate(Direction.Left, isShiftKey);
+          keyNavigate(Direction.Left, isShiftKey, isMetaKey);
           break;
 
         // Up
         case KeyCodes.Up:
-          keyNavigate(Direction.Up, isShiftKey);
+          keyNavigate(Direction.Up, isShiftKey, isMetaKey);
           break;
 
         case KeyCodes.Down:
-          keyNavigate(Direction.Down, isShiftKey);
+          keyNavigate(Direction.Down, isShiftKey, isMetaKey);
           break;
 
         case KeyCodes.A:
