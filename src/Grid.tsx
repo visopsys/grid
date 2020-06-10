@@ -993,6 +993,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      */
     const ranges = [];
     for (const { rowIndex, columnIndex, toColumnIndex } of cellAreas) {
+      /* Skip merged cells, Merged  cell cannot be extended */
+      if (isMergedCell({ rowIndex, columnIndex })) {
+        continue;
+      }
       const x = getColumnOffset({
         index: columnIndex,
         rowHeight,
