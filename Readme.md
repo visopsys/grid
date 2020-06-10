@@ -127,6 +127,7 @@ This is the list of props that are meant to be used to customise the `konva-grid
 | activeCell | false | { rowIndex, columnIndex } | Recently active cell that user has clicked | null |
 | selections | false | Array | Array of selected cell areas | []|
 | mergedCells | false | Array | Array of merged cell areas | []|
+| cellAreas | false | Array | Increase the range of certain  cells | [] |
 | snap | false | boolean | Snaps to the next row or column as you scroll | false |
 | frozenRows | false | number | No of frozen rows | 0 |
 | frozenColumns | false | number | No of frozen columns | 0 |

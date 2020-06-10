@@ -72,6 +72,10 @@ export interface AutoResizerResults {
    * Resize a column by index
    */
   resizeColumn: (columnIndex: number) => void;
+  /**
+   * Text size getter
+   */
+  getTextMetrics: (text: string) => TextMetrics | undefined;
 }
 
 /**
@@ -123,6 +127,10 @@ const useAutoSizer = ({
   useEffect(() => {
     autoSizer.current.setFont(font);
   }, [font]);
+
+  const getTextMetrics = (text: string) => {
+    return autoSizer.current.measureText(text);
+  };
 
   const getColumnWidth = useCallback(
     (columnIndex: number) => {
@@ -187,6 +195,7 @@ const useAutoSizer = ({
     columnWidth: autoResize ? getColumnWidth : undefined,
     resizeColumn: handleResizeColumn,
     onViewChange: handleViewChange,
+    getTextMetrics,
   };
 };
 

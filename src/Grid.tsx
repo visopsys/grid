@@ -141,6 +141,10 @@ export interface GridProps {
    */
   borderStyles?: StylingProps;
   /**
+   * Extend certains to coords
+   */
+  cellAreas?: CellRangeArea[];
+  /**
    * Cell renderer. Must be a Konva Component eg: Group, Rect etc
    */
   itemRenderer?: (props: RendererProps) => React.ReactNode;
@@ -169,6 +173,10 @@ export interface GridProps {
    * Props that can be injected to Konva stage
    */
   stageProps?: Omit<StageConfig, "container">;
+}
+
+export interface CellRangeArea extends CellInterface {
+  toColumnIndex: number;
 }
 
 export type RefAttribute = {
@@ -344,6 +352,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       children,
       stageProps,
       wrapper = (children: React.ReactNode): React.ReactNode => children,
+      cellAreas = [],
       ...rest
     } = props;
 
@@ -568,6 +577,93 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const estimatedTotalWidth = getEstimatedTotalWidth(
       columnCount,
       instanceProps.current
+    );
+
+    /* Find frozen column boundary */
+    const isWithinFrozenColumnBoundary = (x: number) => {
+      return (
+        frozenColumns > 0 &&
+        x <
+          getColumnOffset({
+            index: frozenColumns,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          })
+      );
+    };
+
+    /* Find frozen row boundary */
+    const isWithinFrozenRowBoundary = (y: number) => {
+      return (
+        frozenRows > 0 &&
+        y <
+          getRowOffset({
+            index: frozenRows,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          })
+      );
+    };
+
+    /**
+     * Get cell cordinates from current mouse x/y positions
+     */
+    const getCellCoordsFromOffset = useCallback(
+      (x: number, y: number): CellInterface => {
+        const rowIndex = getRowStartIndexForOffset({
+          rowHeight,
+          columnWidth,
+          rowCount,
+          columnCount,
+          instanceProps: instanceProps.current,
+          offset: isWithinFrozenRowBoundary(y) ? y : y + scrollTop,
+        });
+        const columnIndex = getColumnStartIndexForOffset({
+          rowHeight,
+          columnWidth,
+          rowCount,
+          columnCount,
+          instanceProps: instanceProps.current,
+          offset: isWithinFrozenColumnBoundary(x) ? x : x + scrollLeft,
+        });
+        /* To be compatible with merged cells */
+        const bounds = getCellBounds({ rowIndex, columnIndex });
+
+        return { rowIndex: bounds.top, columnIndex: bounds.left };
+      },
+      [scrollLeft, scrollTop, rowCount, columnCount]
+    );
+
+    /**
+     * Get cell offset position from rowIndex, columnIndex
+     */
+    const getCellOffsetFromCoords = useCallback(
+      ({ rowIndex, columnIndex }: CellInterface): CellPosition => {
+        const width = getColumnWidth(columnIndex, instanceProps.current);
+        const x = getColumnOffset({
+          index: columnIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
+        const height = getRowHeight(rowIndex, instanceProps.current);
+        const y = getRowOffset({
+          index: rowIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        });
+
+        return {
+          x,
+          y,
+          width,
+          height,
+        };
+      },
+      []
     );
 
     /**
@@ -888,6 +984,43 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           );
         }
       }
+    }
+
+    /**
+     * Extend certain cells.
+     * Mimics google sheets functionality where
+     * oevrflowed cell content can cover adjacent cells
+     */
+    const ranges = [];
+    for (const { rowIndex, columnIndex, toColumnIndex } of cellAreas) {
+      const x = getColumnOffset({
+        index: columnIndex,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      const height = getRowHeight(rowIndex, instanceProps.current);
+      const y = getRowOffset({
+        index: rowIndex,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      const { x: offsetX = 0 } = getCellOffsetFromCoords({
+        rowIndex,
+        columnIndex: toColumnIndex + 1,
+      });
+      ranges.push(
+        itemRenderer({
+          x,
+          y,
+          width: offsetX - x,
+          height,
+          rowIndex,
+          columnIndex,
+          key: `range:${itemKey({ rowIndex, columnIndex })}`,
+        })
+      );
     }
 
     /* Draw merged cells */
@@ -1321,64 +1454,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     }
 
     /**
-     * Get cell offset position from rowIndex, columnIndex
-     */
-    const getCellOffsetFromCoords = useCallback(
-      ({ rowIndex, columnIndex }: CellInterface): CellPosition => {
-        const width = getColumnWidth(columnIndex, instanceProps.current);
-        const x = getColumnOffset({
-          index: columnIndex,
-          rowHeight,
-          columnWidth,
-          instanceProps: instanceProps.current,
-        });
-        const height = getRowHeight(rowIndex, instanceProps.current);
-        const y = getRowOffset({
-          index: rowIndex,
-          rowHeight,
-          columnWidth,
-          instanceProps: instanceProps.current,
-        });
-
-        return {
-          x,
-          y,
-          width,
-          height,
-        };
-      },
-      []
-    );
-
-    /* Find frozen column boundary */
-    const isWithinFrozenColumnBoundary = (x: number) => {
-      return (
-        frozenColumns > 0 &&
-        x <
-          getColumnOffset({
-            index: frozenColumns,
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current,
-          })
-      );
-    };
-
-    /* Find frozen row boundary */
-    const isWithinFrozenRowBoundary = (y: number) => {
-      return (
-        frozenRows > 0 &&
-        y <
-          getRowOffset({
-            index: frozenRows,
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current,
-          })
-      );
-    };
-
-    /**
      * Renders active cell
      */
     let activeCellSelection = null;
@@ -1447,35 +1522,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       }
     }
 
-    /**
-     * Get cell cordinates from current mouse x/y positions
-     */
-    const getCellCoordsFromOffset = useCallback(
-      (x: number, y: number): CellInterface => {
-        const rowIndex = getRowStartIndexForOffset({
-          rowHeight,
-          columnWidth,
-          rowCount,
-          columnCount,
-          instanceProps: instanceProps.current,
-          offset: isWithinFrozenRowBoundary(y) ? y : y + scrollTop,
-        });
-        const columnIndex = getColumnStartIndexForOffset({
-          rowHeight,
-          columnWidth,
-          rowCount,
-          columnCount,
-          instanceProps: instanceProps.current,
-          offset: isWithinFrozenColumnBoundary(x) ? x : x + scrollLeft,
-        });
-        /* To be compatible with merged cells */
-        const bounds = getCellBounds({ rowIndex, columnIndex });
-
-        return { rowIndex: bounds.top, columnIndex: bounds.left };
-      },
-      [scrollLeft, scrollTop, rowCount, columnCount]
-    );
-
     const borderStylesCells = useMemo(() => {
       const borderStyleCells = [];
       for (let i = 0; i < borderStyles.length; i++) {
@@ -1537,6 +1583,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           >
             {cells}
             {mergedCellAreas}
+            {ranges}
           </Group>
         </Layer>
 

@@ -1061,6 +1061,13 @@ export const EditableGrid: React.FC = () => {
       rowCount,
       columnCount,
     });
+    const { getTextMetrics, ...autoSizerProps } = useAutoSizer({
+      gridRef,
+      getValue: getCellValue,
+      resizeStrategy: "lazy",
+      rowCount,
+      autoResize: false,
+    });
     const { editorComponent, ...editableProps } = useEditable({
       gridRef,
       getValue: getCellValue,
@@ -1109,18 +1116,12 @@ export const EditableGrid: React.FC = () => {
       onSubmit: (value, { rowIndex, columnIndex }, nextActiveCell) => {
         setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value }));
         gridRef.current.resizeColumns([columnIndex]);
+
         /* Select the next cell */
         if (nextActiveCell) {
           setActiveCell(nextActiveCell);
         }
       },
-    });
-    const autoSizerProps = useAutoSizer({
-      gridRef,
-      getValue: getCellValue,
-      resizeStrategy: "lazy",
-      rowCount,
-      autoResize: true,
     });
     return (
       <div style={{ position: "relative" }}>
