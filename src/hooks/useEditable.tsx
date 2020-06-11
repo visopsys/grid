@@ -195,6 +195,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         boxShadow: "0 2px 6px 2px rgba(60,64,67,.15)",
         outline: "none",
         resize: "none",
+        overflow: "hidden",
       }}
       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setInputWidth(getWidth(e.target.value));
