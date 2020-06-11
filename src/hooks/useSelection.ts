@@ -7,7 +7,7 @@ import {
   cellIndentifier,
   mergedCellBounds,
 } from "./../helpers";
-import { KeyCodes, Direction, Movement, MouseButtonCodes } from "./../types";
+import { KeyCodes, Direction, MouseButtonCodes } from "./../types";
 
 export interface UseSelectionOptions {
   /**
@@ -625,9 +625,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
           if (selections.length && activeCell && gridRef) {
             const { bounds } = selections[selections.length - 1];
             const activeCellBounds = gridRef.current.getCellBounds(activeCell);
-            const direction = isShiftKey
-              ? Movement.backwards
-              : Movement.forwards;
+            const direction = isShiftKey ? Direction.Left : Direction.Right;
             const nextCell = findNextCellWithinBounds(
               activeCellBounds,
               bounds,

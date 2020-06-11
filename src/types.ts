@@ -26,12 +26,6 @@ export enum Direction {
   Right = "RIGHT",
 }
 
-export enum Movement {
-  forwards = "forwards",
-  backwards = "backwards",
-  downwards = "downwards",
-}
-
 export enum MimeType {
   html = "text/html",
   csv = "text/csv",

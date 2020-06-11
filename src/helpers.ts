@@ -7,7 +7,7 @@ import {
   CellMetaData,
   SelectionArea,
 } from "./Grid";
-import { Movement } from "./types";
+import { Direction } from "./types";
 
 export enum Align {
   start = "start",
@@ -696,11 +696,11 @@ export const prepareClipboardData = (rows: string[][]): [string, string] => {
 export const findNextCellWithinBounds = (
   activeCellBounds: AreaProps,
   selectionBounds: AreaProps,
-  direction: Movement = Movement.forwards
+  direction: Direction = Direction.Right
 ): CellInterface | null => {
   let rowIndex, columnIndex;
   let nextActiveCell: CellInterface | null = null;
-  if (direction === Movement.forwards) {
+  if (direction === Direction.Right) {
     rowIndex = activeCellBounds.top;
     columnIndex = activeCellBounds.left + 1;
     if (columnIndex > selectionBounds.right) {
@@ -712,7 +712,7 @@ export const findNextCellWithinBounds = (
     }
     nextActiveCell = { rowIndex, columnIndex };
   }
-  if (direction === Movement.backwards) {
+  if (direction === Direction.Left) {
     rowIndex = activeCellBounds.bottom;
     columnIndex = activeCellBounds.left - 1;
     if (columnIndex < selectionBounds.left) {
@@ -725,7 +725,7 @@ export const findNextCellWithinBounds = (
     nextActiveCell = { rowIndex, columnIndex };
   }
 
-  if (direction === Movement.downwards) {
+  if (direction === Direction.Down) {
     rowIndex = activeCellBounds.bottom + 1;
     columnIndex = activeCellBounds.left;
     if (rowIndex > selectionBounds.bottom) {
@@ -733,6 +733,19 @@ export const findNextCellWithinBounds = (
       rowIndex = selectionBounds.top;
       if (columnIndex > selectionBounds.right) {
         columnIndex = selectionBounds.left;
+      }
+    }
+    nextActiveCell = { rowIndex, columnIndex };
+  }
+
+  if (direction === Direction.Up) {
+    rowIndex = activeCellBounds.top - 1;
+    columnIndex = activeCellBounds.left;
+    if (rowIndex < selectionBounds.top) {
+      columnIndex = activeCellBounds.left - 1;
+      rowIndex = selectionBounds.bottom;
+      if (columnIndex < selectionBounds.left) {
+        columnIndex = selectionBounds.right;
       }
     }
     nextActiveCell = { rowIndex, columnIndex };

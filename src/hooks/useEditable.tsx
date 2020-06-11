@@ -12,7 +12,7 @@ import {
   GridRef,
   SelectionArea,
 } from "../Grid";
-import { KeyCodes, Movement, Direction } from "./../types";
+import { KeyCodes, Direction } from "./../types";
 import { findNextCellWithinBounds } from "../helpers";
 
 export interface UseEditableOptions {
@@ -369,7 +369,7 @@ const useEditable = ({
       if (direction === Direction.Right && !initialActiveCell.current) {
         initialActiveCell.current = currentCell;
       }
-      if (direction === Direction.Down) {
+      if (direction === Direction.Down || direction === Direction.Up) {
         /* Move to the next row + cell */
         initialActiveCell.current = undefined;
 
@@ -380,7 +380,7 @@ const useEditable = ({
           const nextCell = findNextCellWithinBounds(
             activeCellBounds,
             bounds,
-            Movement.downwards
+            direction
           );
           if (nextCell) nextActiveCell = nextCell;
         }
