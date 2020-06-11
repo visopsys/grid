@@ -248,12 +248,17 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       /* Exit early if grid is not initialized */
-      if (
-        !gridRef ||
-        !gridRef.current ||
-        e.nativeEvent.which === MouseButtonCodes.right
-      )
-        return;
+      if (!gridRef || !gridRef.current) return;
+      const coords = gridRef.current.getCellCoordsFromOffset(
+        e.clientX,
+        e.clientY
+      );
+      /* Check if its context menu click */
+      const isContextMenuClick = e.nativeEvent.which === MouseButtonCodes.right;
+      if (isContextMenuClick) {
+        const cellIndex = cellIndexInSelection(coords, selections);
+        if (cellIndex !== -1) return;
+      }
       const isShiftKey = e.nativeEvent.shiftKey;
       const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
       const allowMultiple =
@@ -263,22 +268,14 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       const isDeselecting = isMetaKey && allowDeselect;
 
       /* Attaching mousemove to document, so we can detect drag move */
-      document.addEventListener("mousemove", handleMouseMove);
+      if (!isContextMenuClick) {
+        /* Prevent  mousemove if its contextmenu click */
+        document.addEventListener("mousemove", handleMouseMove);
+      }
       document.addEventListener("mouseup", handleMouseUp);
 
       /* Activate selection mode */
       isSelecting.current = true;
-
-      const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
-        e.clientX,
-        e.clientY
-      );
-
-      /**
-       * Save the initial Selection in ref
-       * so we can adjust the bounds in mousemove
-       */
-      const coords = { rowIndex, columnIndex };
 
       /* Shift key */
       if (isShiftKey) {
