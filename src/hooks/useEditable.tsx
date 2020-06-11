@@ -172,6 +172,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     /* Focus cursor at the end */
     inputRef.current.selectionStart = value.length;
   }, []);
+  const inputHeight = height + borderWidth;
   return (
     <textarea
       rows={1}
@@ -180,12 +181,12 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
       defaultValue={value}
       style={{
         font: "12px Arial",
-        lineHeight: height,
+        lineHeight: 1.5,
         position: "absolute",
         top: y - borderWidth / 2,
         left: x - borderWidth / 2,
         width: inputWidth,
-        height: height + borderWidth,
+        height: inputHeight,
         background: "white",
         padding: "0 4px",
         margin: 0,

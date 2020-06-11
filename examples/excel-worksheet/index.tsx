@@ -6,7 +6,7 @@ import {
   RendererProps,
   useSelection,
   useEditable,
-  useAutoSizer,
+  useSizer,
   GridRef,
   CellInterface,
   Cell,
@@ -133,7 +133,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
       if (nextActiveCell) setActiveCell(nextActiveCell);
     },
   });
-  const autoSizerProps = useAutoSizer({
+  const autoSizerProps = useSizer({
     gridRef,
     getValue,
     resizeStrategy: "full",
