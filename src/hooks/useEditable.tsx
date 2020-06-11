@@ -159,7 +159,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
   const borderWidth = 2;
   const padding = 12;
   const textSizer = useRef(AutoSizerCanvas("12px Arial"));
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { x = 0, y = 0, width = 0, height = 0 } = position;
   const getWidth = useCallback((text) => {
     const textWidth = textSizer.current.measureText(text)?.width || 0;
@@ -167,14 +167,17 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
   }, []);
   const [inputWidth, setInputWidth] = useState(() => getWidth(value));
   useEffect(() => {
-    inputRef.current?.focus();
+    if (!inputRef.current) return;
+    inputRef.current.focus();
+    /* Focus cursor at the end */
+    inputRef.current.selectionStart = value.length;
   }, []);
   return (
     <textarea
       rows={1}
       cols={1}
       ref={inputRef}
-      value={value}
+      defaultValue={value}
       style={{
         font: "12px Arial",
         lineHeight: height,
@@ -184,7 +187,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         width: inputWidth,
         height: height + borderWidth,
         background: "white",
-        padding: "0 3px",
+        padding: "0 4px",
         margin: 0,
         boxSizing: "border-box",
         border: "2px #1a73e8 solid",
