@@ -417,7 +417,6 @@ const useEditable = ({
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (currentActiveCellRef.current) {
         if (isDirtyRef.current) {
-          console.log("submitted");
           handleSubmit(value, currentActiveCellRef.current);
         } else {
           handleHide();
