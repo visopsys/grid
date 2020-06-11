@@ -1,9 +1,10 @@
 .storybook
 node_modules
 .github
-.storybook-static
 .parcel-cache
 examples
 docs
 *.gif
 *.png
+stories
+storybook-static
