@@ -346,7 +346,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       onViewChange,
       selectionRenderer = defaultSelectionRenderer,
       onBeforeRenderRow,
-      showFrozenShadow = true,
+      showFrozenShadow = false,
       shadowSettings = defaultShadowSettings,
       borderStyles = [],
       children,
@@ -374,7 +374,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         getCellBounds,
         getCellCoordsFromOffset,
         getCellOffsetFromCoords,
-        focus: () => containerRef.current?.focus(),
+        focus: focusContainer,
         resizeColumns,
         resizeRows,
         getViewPort,
@@ -403,6 +403,11 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       isScrolling: false,
     });
     const { scrollTop, scrollLeft, isScrolling } = scrollState;
+
+    /* Focus container */
+    const focusContainer = useCallback(() => {
+      return containerRef.current?.focus();
+    }, []);
     /**
      * Snaps vertical scrollbar to the next/prev visible row
      */
@@ -846,12 +851,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               })
             : void 0;
 
+        const coords = {
+          scrollLeft: newScrollLeft,
+          scrollTop: newScrollTop,
+        };
         /* Scroll in the next frame, Useful when user wants to jump from 1st column to last */
         window.requestAnimationFrame(() => {
-          scrollTo({
-            scrollLeft: newScrollLeft,
-            scrollTop: newScrollTop,
-          });
+          scrollTo(coords);
         });
       },
       [
@@ -870,7 +876,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     /**
      * Fired when user tries to scroll the canvas
      */
-
     const handleWheel = useCallback(
       (event: React.WheelEvent) => {
         const { deltaX, deltaY, deltaMode } = event.nativeEvent;
@@ -1194,8 +1199,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      * Frozen column shadow
      */
     const frozenColumnShadow = useMemo(() => {
-      if (showFrozenShadow == false || frozenColumns === 0 || scrollLeft === 0)
-        return null;
       const frozenColumnLineX = getColumnOffset({
         index: frozenColumns,
         rowHeight,
@@ -1209,20 +1212,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           {...shadowSettings}
         />
       );
-    }, [
-      shadowSettings,
-      showFrozenShadow,
-      frozenColumns,
-      containerHeight,
-      scrollLeft,
-    ]);
+    }, [shadowSettings, frozenColumns, containerHeight]);
 
     /**
      * Frozen row shadow
      */
     const frozenRowShadow = useMemo(() => {
-      if (showFrozenShadow === false || frozenRows === 0 || scrollTop === 0)
-        return null;
       const frozenRowLineY = getRowOffset({
         index: frozenRows,
         rowHeight,
@@ -1236,13 +1231,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           {...shadowSettings}
         />
       );
-    }, [
-      shadowSettings,
-      showFrozenShadow,
-      frozenRows,
-      containerWidth,
-      scrollTop,
-    ]);
+    }, [shadowSettings, frozenRows, containerWidth]);
 
     /* Draw frozen intersection cells */
     const frozenIntersectionCells = [];
@@ -1577,6 +1566,16 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      * Prevents drawing hit region when scrolling
      */
     const listenToEvents = !isScrolling;
+    /* Frozen row shadow */
+    const frozenRowShadowComponent =
+      showFrozenShadow && frozenRows !== 0 && scrollTop !== 0
+        ? frozenRowShadow
+        : null;
+    /* Frozen column shadow */
+    const frozenColumnShadowComponent =
+      showFrozenShadow && frozenColumns !== 0 && scrollLeft !== 0
+        ? frozenColumnShadow
+        : null;
     const stageChildren = (
       <>
         <Layer>
@@ -1597,8 +1596,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             {selectionAreas}
             {activeCellSelection}
           </Group>
-          {frozenColumnShadow}
-          {frozenRowShadow}
+          {frozenRowShadowComponent}
+          {frozenColumnShadowComponent}
           <Group offsetY={0} offsetX={scrollLeft}>
             {frozenRowCells}
             {frozenRowMergedCellAreas}

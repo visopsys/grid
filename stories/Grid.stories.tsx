@@ -138,6 +138,9 @@ export const FullWidthGrid: React.FC = () => {
       </>
     );
   };
+  const itemRenderer = (props) => (
+    <DefaultCell value={`${props.rowIndex}:${props.columnIndex}`} {...props} />
+  );
   const App = () => {
     const [containerRef, { width, height }] = useMeasure();
     return (
@@ -157,7 +160,7 @@ export const FullWidthGrid: React.FC = () => {
           columnWidth={(index) => {
             return 100;
           }}
-          itemRenderer={(props) => <Cell {...props} />}
+          itemRenderer={itemRenderer}
           rowHeight={(index) => {
             return 20;
           }}
