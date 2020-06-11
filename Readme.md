@@ -207,7 +207,7 @@ const theme = { color: 'yellow' }
 />
 ```
 
-This will let you use ThemeContext is any of the React Konva components. To access theme inside `Cell`, you could do
+This will let you use ThemeContext in any of the React Konva components. To access theme inside `Cell`, you could do
 
 ```js
 const Cell = ({ x, y, width, height }) => {
