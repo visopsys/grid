@@ -286,14 +286,22 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         return;
       }
 
+      /* Is the current cell same as active cell */
+      const isSameAsActiveCell = isEqualCells(coords, activeCell);
+
       /* Command  or Control key */
       if (activeCell && allowMultiple) {
         /**
          * User is adding activeCell to selection
+         *
+         * 1. User is selecting and not de-selecting
+         * 2. User has not made any selection
+         * 3. Trying to add active cell to selection
          */
-        if (isEqualCells(coords, activeCell) && !isDeselecting) {
+        if (isSameAsActiveCell && (!isDeselecting || !hasSelections)) {
           return;
         }
+
         /**
          * User is manually trying to select multiple selections,
          * So add the current active cell to the list
