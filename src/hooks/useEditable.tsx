@@ -204,7 +204,11 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         if (!inputRef.current) return;
         const isShiftKey = e.nativeEvent.shiftKey;
         const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
-        if (isShiftKey || isMetaKey) return;
+
+        if (isShiftKey || isMetaKey) {
+          // Newline not supported right now.
+          e.preventDefault();
+        }
 
         const value = inputRef.current.value;
         // Enter key
