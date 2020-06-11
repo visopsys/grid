@@ -157,7 +157,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     ...rest
   } = props;
   const borderWidth = 2;
-  const padding = 12;
+  const padding = 20;
   const textSizer = useRef(AutoSizerCanvas("12px Arial"));
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { x = 0, y = 0, width = 0, height = 0 } = position;
@@ -203,14 +203,8 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
       onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (!inputRef.current) return;
         const isShiftKey = e.nativeEvent.shiftKey;
-        const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
-
-        if (isShiftKey || isMetaKey) {
-          // Newline not supported right now.
-          e.preventDefault();
-        }
-
         const value = inputRef.current.value;
+
         // Enter key
         if (e.which === KeyCodes.Enter) {
           onSubmit &&
