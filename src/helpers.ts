@@ -774,3 +774,31 @@ export const mergedCellBounds = (
   }
   return area;
 };
+
+/**
+ * Simple Canvas element to measure text size
+ * @param defaultFont
+ *
+ * Usage
+ *
+ * ```
+ * const textSizer = new AutoSizer('12px Arial')
+ * textSizer.measureText('Hello world').width
+ * ```
+ */
+export const AutoSizerCanvas = (defaultFont: string) => {
+  const canvas = <HTMLCanvasElement>document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  const setFont = (font: string = defaultFont) => {
+    if (context) context.font = font;
+  };
+  const measureText = (text: string) => context?.measureText(text);
+  /* Set font in constructor */
+  setFont(defaultFont);
+
+  return {
+    context,
+    measureText,
+    setFont,
+  };
+};

@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { ViewPortProps, GridRef, CellInterface, ItemSizer } from "./../Grid";
-import { debounce } from "./../helpers";
+import { debounce, AutoSizerCanvas } from "./../helpers";
 import invariant from "tiny-invariant";
 
 export interface IProps {
@@ -196,24 +196,6 @@ const useAutoSizer = ({
     resizeColumn: handleResizeColumn,
     onViewChange: handleViewChange,
     getTextMetrics,
-  };
-};
-
-/* Canvas element */
-const AutoSizerCanvas = (defaultFont: string) => {
-  const canvas = <HTMLCanvasElement>document.createElement("canvas");
-  const context = canvas.getContext("2d");
-  const setFont = (font: string = defaultFont) => {
-    if (context) context.font = font;
-  };
-  const measureText = (text: string) => context?.measureText(text);
-  /* Set font in constructor */
-  setFont(defaultFont);
-
-  return {
-    context,
-    measureText,
-    setFont,
   };
 };
 

@@ -13,7 +13,7 @@ import {
   SelectionArea,
 } from "../Grid";
 import { KeyCodes, Direction } from "./../types";
-import { findNextCellWithinBounds } from "../helpers";
+import { findNextCellWithinBounds, AutoSizerCanvas } from "../helpers";
 
 export interface UseEditableOptions {
   /**
@@ -31,7 +31,7 @@ export interface UseEditableOptions {
   /**
    * Callback when user cancels editing
    */
-  onCancel?: (e?: React.KeyboardEvent<HTMLInputElement>) => void;
+  onCancel?: (e?: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   /**
    * Callback when user changes a value in editor
    */
@@ -70,7 +70,7 @@ export interface EditableResults {
   /**
    * Double click listener, activates the grid
    */
-  onDoubleClick: (e: React.MouseEvent<HTMLInputElement>) => void;
+  onDoubleClick: (e: React.MouseEvent<HTMLDivElement>) => void;
   /**
    * OnScroll listener to align the editor
    */
@@ -116,7 +116,7 @@ export interface EditorProps extends CellInterface {
   /**
    * On Cancel callbacks. Hides the editor
    */
-  onCancel?: (e?: React.KeyboardEvent<HTMLInputElement>) => void;
+  onCancel?: (e?: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   /**
    * Cell position, x, y, width and height
    */
@@ -152,40 +152,62 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     position,
     cell,
     nextFocusableCell,
+    value = "",
+    activeCell,
     ...rest
   } = props;
-  const inputRef = useRef<HTMLInputElement>(null);
+  const borderWidth = 2;
+  const padding = 12;
+  const textSizer = useRef(AutoSizerCanvas("12px Arial"));
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const { x = 0, y = 0, width = 0, height = 0 } = position;
+  const getWidth = useCallback((text) => {
+    const textWidth = textSizer.current.measureText(text)?.width || 0;
+    return Math.max(textWidth + padding, width + borderWidth);
+  }, []);
+  const [inputWidth, setInputWidth] = useState(() => getWidth(value));
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
   return (
-    <input
-      type="text"
+    <textarea
+      rows={1}
+      cols={1}
       ref={inputRef}
+      value={value}
       style={{
+        font: "12px Arial",
+        lineHeight: height,
         position: "absolute",
-        top: position.y,
-        left: position.x,
-        width: position.width,
-        height: position.height,
+        top: y - borderWidth / 2,
+        left: x - borderWidth / 2,
+        width: inputWidth,
+        height: height + borderWidth,
+        background: "white",
         padding: "0 3px",
         margin: 0,
         boxSizing: "border-box",
-        border: "1px #1a73e8 solid",
+        border: "2px #1a73e8 solid",
         boxShadow: "0 2px 6px 2px rgba(60,64,67,.15)",
         outline: "none",
+        resize: "none",
       }}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-        onChange(e.target.value, cell)
-      }
-      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setInputWidth(getWidth(e.target.value));
+        onChange(e.target.value, cell);
+      }}
+      onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (!inputRef.current) return;
         const isShiftKey = e.nativeEvent.shiftKey;
+        const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
+        if (isShiftKey || isMetaKey) return;
+
+        const value = inputRef.current.value;
         // Enter key
         if (e.which === KeyCodes.Enter) {
           onSubmit &&
             onSubmit(
-              inputRef.current.value,
+              value,
               cell,
               nextFocusableCell(
                 cell,
@@ -201,11 +223,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         if (e.which === KeyCodes.Tab) {
           // e.preventDefault();
           onSubmit &&
-            onSubmit(
-              inputRef.current.value,
-              cell,
-              nextFocusableCell(cell, Direction.Right)
-            );
+            onSubmit(value, cell, nextFocusableCell(cell, Direction.Right));
         }
       }}
       {...rest}
