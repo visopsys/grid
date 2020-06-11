@@ -83,6 +83,13 @@ export interface EditableResults {
    * Mouse down listener which triggers Blur event on the editors
    */
   onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
+  /**
+   * Get next focusable cell based on current activeCell and direction user is moving
+   */
+  nextFocusableCell: (
+    currentCell: CellInterface,
+    direction: Direction
+  ) => CellInterface;
 }
 
 export interface EditorProps extends CellInterface {
@@ -173,13 +180,17 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
       }
       onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!inputRef.current) return;
+        const isShiftKey = e.nativeEvent.shiftKey;
         // Enter key
         if (e.which === KeyCodes.Enter) {
           onSubmit &&
             onSubmit(
               inputRef.current.value,
               cell,
-              nextFocusableCell(cell, Direction.Down)
+              nextFocusableCell(
+                cell,
+                isShiftKey ? Direction.Up : Direction.Down
+              )
             );
         }
 
@@ -234,6 +245,7 @@ const useEditable = ({
     scrollLeft: 0,
     scrollTop: 0,
   });
+  const isDirtyRef = useRef<boolean>(false);
   const showEditor = () => setShowEditor(true);
   const hideEditor = () => {
     setShowEditor(false);
@@ -330,20 +342,30 @@ const useEditable = ({
       direction: Direction = Direction.Right
     ): CellInterface => {
       /* Next immediate cell */
-      let nextActiveCell =
-        direction === Direction.Right
-          ? {
-              rowIndex: currentCell.rowIndex,
-              columnIndex: currentCell.columnIndex + 1,
-            }
-          : {
-              rowIndex:
-                (initialActiveCell.current?.rowIndex ?? currentCell.rowIndex) +
-                1,
-              columnIndex:
-                initialActiveCell.current?.columnIndex ??
-                currentCell.columnIndex,
-            };
+      let nextActiveCell = currentCell;
+      switch (direction) {
+        case Direction.Right:
+          nextActiveCell = {
+            rowIndex: currentCell.rowIndex,
+            columnIndex: currentCell.columnIndex + 1,
+          };
+          break;
+        case Direction.Up:
+          nextActiveCell = {
+            rowIndex: currentCell.rowIndex - 1,
+            columnIndex: currentCell.columnIndex,
+          };
+          break;
+
+        default:
+          nextActiveCell = {
+            rowIndex:
+              (initialActiveCell.current?.rowIndex ?? currentCell.rowIndex) + 1,
+            columnIndex:
+              initialActiveCell.current?.columnIndex ?? currentCell.columnIndex,
+          };
+          break;
+      }
       if (direction === Direction.Right && !initialActiveCell.current) {
         initialActiveCell.current = currentCell;
       }
@@ -391,18 +413,34 @@ const useEditable = ({
     []
   );
 
-  const handleMouseDown = useCallback(() => {
-    initialActiveCell.current = undefined;
-  }, []);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (currentActiveCellRef.current) {
+        if (isDirtyRef.current) {
+          console.log("submitted");
+          handleSubmit(value, currentActiveCellRef.current);
+        } else {
+          handleHide();
+        }
+      }
+      initialActiveCell.current = undefined;
+    },
+    [value]
+  );
 
-  const handleChange = useCallback((value: string, activeCell) => {
-    if (!activeCell) return;
-    setValue(value);
-    onChange && onChange(value, activeCell);
-  }, []);
+  const handleChange = useCallback(
+    (newValue: string, activeCell) => {
+      if (!activeCell) return;
+      /* Check if the value has changed. Used to conditionally submit if editor is not in focus */
+      isDirtyRef.current = newValue !== value;
+      setValue(newValue);
+      onChange && onChange(newValue, activeCell);
+    },
+    [value]
+  );
 
   /* When the input is blurred out */
-  const handleHide = useCallback((e) => {
+  const handleHide = useCallback(() => {
     hideEditor();
     onCancel && onCancel();
     /* Keep the focus back in the grid */
@@ -432,14 +470,12 @@ const useEditable = ({
     };
   }, [position, scrollPosition]);
 
-  const handleBlur = useCallback(
-    (e: React.FocusEvent) => {
-      if (currentActiveCellRef.current) {
-        handleSubmit(value, currentActiveCellRef.current);
-      }
-    },
-    [value]
-  );
+  const handleBlur = useCallback((e: React.FocusEvent) => {
+    if (currentActiveCellRef.current) {
+      /* Keep the focus */
+      focusGrid();
+    }
+  }, []);
 
   const editorComponent =
     isEditorShown && Editor ? (
@@ -464,6 +500,7 @@ const useEditable = ({
     onScroll: handleScroll,
     onKeyDown: handleKeyDown,
     onMouseDown: handleMouseDown,
+    nextFocusableCell,
   };
 };
 
