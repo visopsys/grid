@@ -226,7 +226,14 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         if (e.which === KeyCodes.Tab) {
           // e.preventDefault();
           onSubmit &&
-            onSubmit(value, cell, nextFocusableCell(cell, Direction.Right));
+            onSubmit(
+              value,
+              cell,
+              nextFocusableCell(
+                cell,
+                isShiftKey ? Direction.Left : Direction.Right
+              )
+            );
         }
       }}
       {...rest}
@@ -375,6 +382,13 @@ const useEditable = ({
           nextActiveCell = {
             rowIndex: currentCell.rowIndex - 1,
             columnIndex: currentCell.columnIndex,
+          };
+          break;
+
+        case Direction.Left:
+          nextActiveCell = {
+            rowIndex: currentCell.rowIndex,
+            columnIndex: currentCell.columnIndex - 1,
           };
           break;
 
