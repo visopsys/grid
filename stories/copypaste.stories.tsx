@@ -35,6 +35,8 @@ export const Default = () => {
       ...selectionProps
     } = useSelection({
       gridRef,
+      columnCount,
+      rowCount,
     });
 
     useCopyPaste({
