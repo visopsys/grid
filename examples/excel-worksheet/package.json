@@ -14,7 +14,7 @@
     "react-dom": "^16.13.1",
     "react-fast-compare": "^3.2.0",
     "react-konva": "^16.13.0-3",
-    "react-konva-grid": "^2.8.14",
+    "react-konva-grid": "^2.8.16",
     "react-use": "^15.1.0"
   },
   "devDependencies": {
