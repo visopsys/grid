@@ -1578,16 +1578,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         : null;
     const stageChildren = (
       <>
-        <Layer>
-          <Group
-            offsetY={scrollTop}
-            offsetX={scrollLeft}
-            perfectDrawEnabled={false}
-          >
-            {cells}
-            {mergedCellAreas}
-            {ranges}
-          </Group>
+        <Layer offsetY={scrollTop} offsetX={scrollLeft}>
+          {cells}
+          {mergedCellAreas}
+          {ranges}
         </Layer>
 
         <Layer>
