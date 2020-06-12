@@ -803,6 +803,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         { rowIndex, columnIndex }: OptionalCellInterface,
         align: Align = Align.smart
       ) => {
+        /* Do not scroll if the row or column is frozen */
+        if (
+          (rowIndex && rowIndex < frozenRows) ||
+          (columnIndex && columnIndex < frozenColumns)
+        )
+          return;
         const frozenColumnOffset = getColumnOffset({
           index: frozenColumns,
           rowHeight,
