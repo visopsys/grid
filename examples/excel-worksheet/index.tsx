@@ -45,7 +45,9 @@ const Header = memo((props: RendererProps) => {
     : number2Alpha(columnIndex - 1).toUpperCase();
 
   const fill = isActive ? "#E9EAED" : "#F8F9FA";
-  return <Cell {...props} value={text} fill={fill} stroke="#999" />;
+  return (
+    <Cell {...props} value={text} fill={fill} stroke="#999" align="center" />
+  );
 }, isEqual);
 
 const Sheet = ({ data, onChange, name, isActive }) => {
