@@ -1,6 +1,6 @@
 import React, { memo, useEffect } from "react";
 import { RendererProps } from "./Grid";
-import { Group, Rect, Text } from "react-konva";
+import { Group, Rect, Text, Shape } from "react-konva";
 import { KonvaEventObject } from "konva/types/Node";
 
 export interface CellProps extends RendererProps {
@@ -34,8 +34,8 @@ const Cell: React.FC<CellProps> = memo((props) => {
     children,
   } = props;
   return (
-    <Group onClick={onClick}>
-      <Rect
+    <>
+      <Shape
         x={x}
         y={y}
         height={height}
@@ -44,22 +44,33 @@ const Cell: React.FC<CellProps> = memo((props) => {
         stroke={stroke}
         strokeWidth={strokeWidth}
         shadowForStrokeEnabled={false}
+        sceneFunc={(context, shape) => {
+          context.beginPath();
+          context.rect(0, 0, shape.getAttr("width"), shape.getAttr("height"));
+          context.closePath();
+          context.fillStrokeShape(shape);
+        }}
       />
-      <Text
+      <Shape
+        strokeWidth={0}
+        hitStrokeWidth={0}
+        perfectDrawEnabled={false}
+        shadowForStrokeEnabled={false}
         x={x}
         y={y}
         height={height}
         width={width}
-        text={value}
-        fill={textColor}
-        verticalAlign={verticalAlign}
-        align={align}
-        fontFamily={fontFamily}
-        fontSize={fontSize}
-        padding={padding}
+        sceneFunc={(context) => {
+          // @ts-ignore
+          context.font = `${fontSize}px ${fontFamily}`;
+          context.fillText(
+            value === void 0 ? "" : value,
+            padding,
+            (height || 0) - padding
+          );
+        }}
       />
-      {children}
-    </Group>
+    </>
   );
 });
 

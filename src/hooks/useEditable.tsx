@@ -157,7 +157,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     ...rest
   } = props;
   const borderWidth = 2;
-  const padding = 20;
+  const padding = 16;
   const textSizer = useRef(AutoSizerCanvas("12px Arial"));
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { x = 0, y = 0, width = 0, height = 0 } = position;
