@@ -10,6 +10,17 @@ export interface CellProps extends RendererProps {
   onClick?: (e: KonvaEventObject<MouseEvent>) => void;
 }
 
+enum Align {
+  LEFT = "left",
+  RIGHT = "right",
+  CENTER = "center",
+}
+
+const getX = (align: Align, width: number = 0, padding: number = 0) => {
+  if (align === Align.CENTER) return width / 2;
+  if (align === Align.LEFT) return padding;
+};
+
 /**
  * Default cell component
  * @param props
@@ -56,14 +67,10 @@ const Cell: React.FC<CellProps> = memo((props) => {
           height={height}
           width={width}
           sceneFunc={(context) => {
-            // @ts-ignore
-            context.font = `${fontSize}px ${fontFamily}`;
-            // @ts-ignore
-            context.fillStyle = textColor;
-            const lineTranslateX =
-              align === "center" ? (width || 0) / 2 : padding;
-            // @ts-ignore
-            context.textAlign = align;
+            context._context.font = `${fontSize}px ${fontFamily}`;
+            context._context.fillStyle = textColor;
+            const lineTranslateX = getX(align, width, padding);
+            context._context.textAlign = align;
             context.fillText(value, lineTranslateX, (height || 0) - padding);
           }}
         />
