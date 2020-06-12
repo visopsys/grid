@@ -58,6 +58,8 @@ const Cell: React.FC<CellProps> = memo((props) => {
           sceneFunc={(context) => {
             // @ts-ignore
             context.font = `${fontSize}px ${fontFamily}`;
+            // @ts-ignore
+            context.fillStyle = textColor;
             context.fillText(value, padding, (height || 0) - padding);
           }}
         />
