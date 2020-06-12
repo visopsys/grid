@@ -35,7 +35,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
   } = props;
   return (
     <>
-      <Shape
+      <Rect
         x={x}
         y={y}
         height={height}
@@ -44,32 +44,24 @@ const Cell: React.FC<CellProps> = memo((props) => {
         stroke={stroke}
         strokeWidth={strokeWidth}
         shadowForStrokeEnabled={false}
-        sceneFunc={(context, shape) => {
-          context.beginPath();
-          context.rect(0, 0, shape.getAttr("width"), shape.getAttr("height"));
-          context.closePath();
-          context.fillStrokeShape(shape);
-        }}
       />
-      <Shape
-        strokeWidth={0}
-        hitStrokeWidth={0}
-        perfectDrawEnabled={false}
-        shadowForStrokeEnabled={false}
-        x={x}
-        y={y}
-        height={height}
-        width={width}
-        sceneFunc={(context) => {
-          // @ts-ignore
-          context.font = `${fontSize}px ${fontFamily}`;
-          context.fillText(
-            value === void 0 ? "" : value,
-            padding,
-            (height || 0) - padding
-          );
-        }}
-      />
+      {value !== void 0 ? (
+        <Shape
+          strokeWidth={0}
+          hitStrokeWidth={0}
+          perfectDrawEnabled={false}
+          shadowForStrokeEnabled={false}
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+          sceneFunc={(context) => {
+            // @ts-ignore
+            context.font = `${fontSize}px ${fontFamily}`;
+            context.fillText(value, padding, (height || 0) - padding);
+          }}
+        />
+      ) : null}
     </>
   );
 });
