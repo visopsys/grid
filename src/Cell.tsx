@@ -47,7 +47,6 @@ const Cell: React.FC<CellProps> = memo((props) => {
         strokeWidth={strokeWidth}
         shadowForStrokeEnabled={false}
         hitStrokeWidth={0}
-        strokeHitEnabled={false}
       />
       {isNull(value) ? null : (
         <Text
@@ -64,7 +63,6 @@ const Cell: React.FC<CellProps> = memo((props) => {
           padding={padding}
           wrap={wrap}
           hitStrokeWidth={0}
-          strokeHitEnabled={false}
         />
       )}
       {children}
