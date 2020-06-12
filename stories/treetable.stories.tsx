@@ -480,6 +480,7 @@ export const ExpandCollapseRows = () => {
               {...props}
               align={align}
               padding={toggleable ? 20 : 5}
+              wrap="word"
             >
               {columnIndex === 0 && value && !details ? (
                 <RegularPolygon

@@ -802,3 +802,7 @@ export const AutoSizerCanvas = (defaultFont: string) => {
     setFont,
   };
 };
+
+/* Check if a value is null */
+export const isNull = (value: any) =>
+  value === void 0 || value === null || value === "";

@@ -1,7 +1,8 @@
-import React, { memo, useEffect } from "react";
+import React, { memo } from "react";
 import { RendererProps } from "./Grid";
 import { Group, Rect, Text } from "react-konva";
 import { KonvaEventObject } from "konva/types/Node";
+import { isNull } from "./helpers";
 
 export interface CellProps extends RendererProps {
   value?: string;
@@ -30,11 +31,12 @@ const Cell: React.FC<CellProps> = memo((props) => {
     padding = 5,
     fontFamily = "Arial, sans-serif",
     fontSize = 12,
-    onClick,
     children,
+    wrap = "none",
+    ...rest
   } = props;
   return (
-    <>
+    <Group {...rest}>
       <Rect
         x={x}
         y={y}
@@ -47,7 +49,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
         hitStrokeWidth={0}
         strokeHitEnabled={false}
       />
-      {value === void 0 ? null : (
+      {isNull(value) ? null : (
         <Text
           x={x}
           y={y}
@@ -60,13 +62,13 @@ const Cell: React.FC<CellProps> = memo((props) => {
           fontFamily={fontFamily}
           fontSize={fontSize}
           padding={padding}
-          wrap="none"
+          wrap={wrap}
           hitStrokeWidth={0}
           strokeHitEnabled={false}
         />
       )}
       {children}
-    </>
+    </Group>
   );
 });
 
