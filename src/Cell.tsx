@@ -67,10 +67,10 @@ const Cell: React.FC<CellProps> = memo((props) => {
           height={height}
           width={width}
           sceneFunc={(context) => {
-            context._context.font = `${fontSize}px ${fontFamily}`;
-            context._context.fillStyle = textColor;
+            context.setAttr("font", `${fontSize}px ${fontFamily}`);
+            context.setAttr("fillStyle", textColor);
             const lineTranslateX = getX(align, width, padding);
-            context._context.textAlign = align;
+            context.setAttr("textAlign", align);
             context.fillText(value, lineTranslateX, (height || 0) - padding);
           }}
         />
