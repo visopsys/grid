@@ -99,8 +99,8 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const [selections, setSelections] = useState<SelectionArea[]>(
     initialSelections
   );
-  const selectionStart = useRef<CellInterface>();
-  const selectionEnd = useRef<CellInterface>();
+  const selectionStart = useRef<CellInterface | null>(null);
+  const selectionEnd = useRef<CellInterface | null>(null);
   const isSelecting = useRef<boolean>();
   const firstActiveCell = useRef<CellInterface | null>(null);
   /**
@@ -410,6 +410,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         !activeCell
       )
         return;
+
       var { rowIndex, columnIndex } = modify
         ? selectionEnd.current
         : activeCell;
@@ -651,6 +652,16 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     [rowCount, columnCount, activeCell, selections]
   );
 
+  /**
+   * User modified active cell deliberately
+   */
+  const handleSetActiveCell = useCallback((coords: CellInterface | null) => {
+    selectionStart.current = coords;
+    firstActiveCell.current = coords;
+    selectionEnd.current = coords;
+    setActiveCell(coords);
+  }, []);
+
   return {
     activeCell,
     selections,
@@ -658,7 +669,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     onKeyDown: handleKeyDown,
     newSelection,
     setSelections,
-    setActiveCell,
+    setActiveCell: handleSetActiveCell,
   };
 };
 

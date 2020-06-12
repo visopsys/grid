@@ -60,11 +60,11 @@ const Cell: React.FC<CellProps> = memo((props) => {
             context.font = `${fontSize}px ${fontFamily}`;
             // @ts-ignore
             context.fillStyle = textColor;
-            const lineTranslateX = align === "center" ? (width || 0) / 2 : x;
+            const lineTranslateX =
+              align === "center" ? (width || 0) / 2 : padding;
             // @ts-ignore
             context.textAlign = align;
             context.fillText(value, lineTranslateX, (height || 0) - padding);
-            // context.fillText(value, padding, (height || 0) - padding);
           }}
         />
       ) : null}
