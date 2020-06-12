@@ -106,38 +106,6 @@ BaseGridSnap.story = {
 };
 
 export const FullWidthGrid: React.FC = () => {
-  const Cell = ({
-    rowIndex,
-    columnIndex,
-    x,
-    y,
-    width,
-    height,
-  }: IChildrenProps) => {
-    const text = `${rowIndex}x${columnIndex}`;
-    return (
-      <>
-        <Rect
-          x={x}
-          y={y}
-          height={height}
-          width={width}
-          fill="white"
-          stroke="grey"
-          strokeWidth={0.5}
-        />
-        <Text
-          x={x}
-          y={y}
-          height={height}
-          width={width}
-          text={text}
-          verticalAlign="middle"
-          align="center"
-        />
-      </>
-    );
-  };
   const itemRenderer = (props) => (
     <DefaultCell value={`${props.rowIndex}:${props.columnIndex}`} {...props} />
   );

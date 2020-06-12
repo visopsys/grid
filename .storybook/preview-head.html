@@ -5,3 +5,21 @@
   }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="//rawgit.com/mrdoob/stats.js/master/build/stats.min.js"></script>
+<script>
+  window.onload = function () {
+    var stats = new Stats();
+    stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+    document.body.appendChild( stats.dom );
+    function animate() {
+        stats.begin();
+        // monitored code goes here
+        stats.end();
+        requestAnimationFrame( animate );
+    }
+
+    requestAnimationFrame( animate );
+    stats.dom.style.right = '0';
+    stats.dom.style.left = 'initial';
+  }
+</script>
