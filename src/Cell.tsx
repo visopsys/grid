@@ -1,6 +1,6 @@
 import React, { memo, useEffect } from "react";
 import { RendererProps } from "./Grid";
-import { Group, Rect, Text, Shape } from "react-konva";
+import { Group, Rect, Text } from "react-konva";
 import { KonvaEventObject } from "konva/types/Node";
 
 export interface CellProps extends RendererProps {
@@ -9,17 +9,6 @@ export interface CellProps extends RendererProps {
   padding?: number;
   onClick?: (e: KonvaEventObject<MouseEvent>) => void;
 }
-
-enum Align {
-  LEFT = "left",
-  RIGHT = "right",
-  CENTER = "center",
-}
-
-const getX = (align: Align, width: number = 0, padding: number = 0) => {
-  if (align === Align.CENTER) return width / 2;
-  if (align === Align.LEFT) return padding;
-};
 
 /**
  * Default cell component
@@ -35,7 +24,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
     fill = "white",
     strokeWidth = 0.5,
     stroke = "#aaa",
-    align = "center",
+    align = "left",
     verticalAlign = "middle",
     textColor = "#333",
     padding = 5,
@@ -55,26 +44,28 @@ const Cell: React.FC<CellProps> = memo((props) => {
         stroke={stroke}
         strokeWidth={strokeWidth}
         shadowForStrokeEnabled={false}
+        hitStrokeWidth={0}
+        strokeHitEnabled={false}
       />
-      {value !== void 0 ? (
-        <Shape
-          strokeWidth={0}
-          hitStrokeWidth={0}
-          perfectDrawEnabled={false}
-          shadowForStrokeEnabled={false}
+      {value === void 0 ? null : (
+        <Text
           x={x}
           y={y}
           height={height}
           width={width}
-          sceneFunc={(context) => {
-            context.setAttr("font", `${fontSize}px ${fontFamily}`);
-            context.setAttr("fillStyle", textColor);
-            const lineTranslateX = getX(align, width, padding);
-            context.setAttr("textAlign", align);
-            context.fillText(value, lineTranslateX, (height || 0) - padding);
-          }}
+          text={value}
+          fill={textColor}
+          verticalAlign={verticalAlign}
+          align={align}
+          fontFamily={fontFamily}
+          fontSize={fontSize}
+          padding={padding}
+          wrap="none"
+          hitStrokeWidth={0}
+          strokeHitEnabled={false}
         />
-      ) : null}
+      )}
+      {children}
     </>
   );
 });
