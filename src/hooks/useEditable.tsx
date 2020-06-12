@@ -404,21 +404,19 @@ const useEditable = ({
       if (direction === Direction.Right && !initialActiveCell.current) {
         initialActiveCell.current = currentCell;
       }
-      if (direction === Direction.Down || direction === Direction.Up) {
+
+      /* If user has selected some cells and active cell is within this selection */
+      if (selections.length && currentCell && gridRef) {
         /* Move to the next row + cell */
         initialActiveCell.current = undefined;
-
-        /* If user has selected some cells and active cell is within this selection */
-        if (selections.length && currentCell && gridRef) {
-          const { bounds } = selections[selections.length - 1];
-          const activeCellBounds = gridRef.current.getCellBounds(currentCell);
-          const nextCell = findNextCellWithinBounds(
-            activeCellBounds,
-            bounds,
-            direction
-          );
-          if (nextCell) nextActiveCell = nextCell;
-        }
+        const { bounds } = selections[selections.length - 1];
+        const activeCellBounds = gridRef.current.getCellBounds(currentCell);
+        const nextCell = findNextCellWithinBounds(
+          activeCellBounds,
+          bounds,
+          direction
+        );
+        if (nextCell) nextActiveCell = nextCell;
       }
       return nextActiveCell;
     },
