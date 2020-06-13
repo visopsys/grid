@@ -7,7 +7,6 @@ import useAutoSizer from "../src/hooks/useSizer";
 import useTooltip from "./../src/hooks/useTooltip";
 import { useMeasure } from "react-use";
 import { Rect, Text, Group, RegularPolygon } from "react-konva";
-import { number, select } from "@storybook/addon-knobs";
 import { Direction } from "../src/types";
 
 export default {
@@ -16,8 +15,8 @@ export default {
 };
 
 export const BaseGrid: React.FC = () => {
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const width = 900;
+  const height = 600;
   const App = () => {
     return (
       <Grid
@@ -45,8 +44,8 @@ export const BaseGrid: React.FC = () => {
 };
 
 export const BaseGridSnap: React.FC = () => {
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const width = 900;
+  const height = 600;
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -141,8 +140,8 @@ export const FullWidthGrid: React.FC = () => {
 };
 
 export const AutoSizer: React.FC = () => {
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const width = 900;
+  const height = 600;
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -217,8 +216,8 @@ export const AutoSizer: React.FC = () => {
 };
 
 export const MergedCells: React.FC = () => {
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const width = 900;
+  const height = 600;
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -305,8 +304,8 @@ export const MergedCells: React.FC = () => {
 };
 
 export const BaseGridWithSelection: React.FC = () => {
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const width = 900;
+  const height = 600;
   const initialSelections = [
     {
       bounds: {
@@ -386,8 +385,8 @@ export const BaseGridWithSelection: React.FC = () => {
 };
 
 export const VariableSizeGrid: React.FC = () => {
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const width = 900;
+  const height = 600;
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -440,8 +439,8 @@ export const VariableSizeGrid: React.FC = () => {
 };
 
 export const LargeGrid: React.FC = () => {
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const width = 900;
+  const height = 600;
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -506,10 +505,10 @@ LargeGrid.story = {
 };
 
 export const DataGrid: React.FC = () => {
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const width = 900;
+  const height = 600;
   const gridRef = useRef();
-  const frozenColumns = number("frozenColumns", 1);
+  const frozenColumns = 1;
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -702,11 +701,11 @@ export const DataGridResize: React.FC = () => {
   const columnCount = 100000;
   const rowCount = 100000;
   const App = () => {
-    const width = number("width", 900);
-    const height = number("height", 600);
+    const width = 900;
+    const height = 600;
     const gridRef = useRef();
     const mainGridRef = useRef();
-    const frozenColumns = number("frozenColumns", 1);
+    const frozenColumns = 1;
     const [columnWidthMap, setColumnWidthMap] = useState({});
     const handleResize = (columnIndex, newWidth) => {
       setColumnWidthMap((prev) => {
@@ -779,9 +778,9 @@ DataGridResize.story = {
 };
 
 export const GridWithFrozenRow: React.FC = () => {
-  const frozenRows = number("frozenRows", 1);
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const frozenRows = 1;
+  const width = 900;
+  const height = 600;
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -837,9 +836,9 @@ GridWithFrozenRow.story = {
 };
 
 export const GridWithFrozenColumns: React.FC = () => {
-  const frozenColumns = number("frozenColumns", 1);
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const frozenColumns = 1;
+  const width = 900;
+  const height = 600;
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -895,10 +894,10 @@ GridWithFrozenColumns.story = {
 };
 
 export const GridWithFrozenEdges: React.FC = () => {
-  const frozenRows = number("frozenRows", 2);
-  const frozenColumns = number("frozenColumns", 2);
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const frozenRows = 2;
+  const frozenColumns = 2;
+  const width = 900;
+  const height = 600;
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -971,8 +970,8 @@ GridWithFrozenEdges.story = {
 };
 
 export const EditableGrid: React.FC = () => {
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const width = 900;
+  const height = 600;
   const SelectEditor: React.FC<EditorProps> = (props) => {
     const {
       position,
@@ -1144,8 +1143,8 @@ export const EditableGrid: React.FC = () => {
 };
 
 export const WithTooltip: React.FC = () => {
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const width = 900;
+  const height = 600;
   const Cell = ({
     rowIndex,
     columnIndex,
@@ -1212,8 +1211,8 @@ export const WithTooltip: React.FC = () => {
 };
 
 export const GridWithContextMenu: React.FC = () => {
-  const width = number("width", 900);
-  const height = number("height", 600);
+  const width = 900;
+  const height = 600;
   const ContextMenu = ({ left, top, rowIndex, columnIndex }) => {
     return (
       <div

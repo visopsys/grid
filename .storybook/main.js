@@ -2,7 +2,7 @@ module.exports = {
   stories: ["../src/**/*.stories.[tj]s[x]", "../stories/**/*.stories.[tj]s[x]"],
   addons: [
     // "@storybook/addon-storysource",
-    "@storybook/addon-knobs",
+    // "@storybook/addon-knobs",
     // "@storybook/addon-docs",
   ],
   webpackFinal: async (config) => {
