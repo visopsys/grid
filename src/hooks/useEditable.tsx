@@ -405,10 +405,13 @@ const useEditable = ({
         initialActiveCell.current = currentCell;
       }
 
-      /* If user has selected some cells and active cell is within this selection */
-      if (selections.length && currentCell && gridRef) {
+      if (direction === Direction.Down) {
         /* Move to the next row + cell */
         initialActiveCell.current = undefined;
+      }
+
+      /* If user has selected some cells and active cell is within this selection */
+      if (selections.length && currentCell && gridRef) {
         const { bounds } = selections[selections.length - 1];
         const activeCellBounds = gridRef.current.getCellBounds(currentCell);
         const nextCell = findNextCellWithinBounds(
