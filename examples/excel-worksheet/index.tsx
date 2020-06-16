@@ -57,6 +57,12 @@ const Sheet = ({ data, onChange, name, isActive }) => {
   const [containerRef, { width, height }] = useMeasure();
   const rowCount = 1000;
   const columnCount = 1000;
+  const getValue = useCallback(
+    ({ rowIndex, columnIndex }) => {
+      return data[[rowIndex, columnIndex]];
+    },
+    [data]
+  );
   const {
     activeCell,
     selections,
@@ -67,13 +73,19 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     gridRef,
     rowCount,
     columnCount,
-  });
-  const getValue = useCallback(
-    ({ rowIndex, columnIndex }) => {
-      return data[[rowIndex, columnIndex]];
+    onFill: (activeCell, fillSelection) => {
+      if (!fillSelection) return;
+      const { bounds } = fillSelection;
+      const changes = {};
+      const value = getValue(activeCell);
+      for (let i = bounds.top; i <= bounds.bottom; i++) {
+        for (let j = bounds.left; j <= bounds.right; j++) {
+          changes[[i, j]] = value;
+        }
+      }
+      onChange(name, changes);
     },
-    [data]
-  );
+  });
   getValueRef.current = getValue;
   useEffect(() => {
     parser.on("callCellValue", (cellCoord, done) => {
