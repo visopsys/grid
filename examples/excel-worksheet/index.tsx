@@ -51,7 +51,6 @@ const Header = memo((props: RendererProps) => {
 }, isEqual);
 
 const Sheet = ({ data, onChange, name, isActive }) => {
-  if (!isActive) return null;
   const gridRef = useRef<GridRef>();
   const getValueRef = useRef();
   const [containerRef, { width, height }] = useMeasure();
@@ -170,7 +169,12 @@ const Sheet = ({ data, onChange, name, isActive }) => {
   const frozenRows = 1;
   return (
     <div
-      style={{ position: "relative", flex: 1, minWidth: 0 }}
+      style={{
+        flex: 1,
+        minWidth: 0,
+        position: isActive ? "relative" : "absolute",
+        top: isActive ? 0 : -2000,
+      }}
       ref={containerRef}
     >
       <Grid
