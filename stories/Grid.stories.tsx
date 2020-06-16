@@ -1041,7 +1041,9 @@ export const EditableGrid: React.FC = () => {
       gridRef,
       rowCount,
       columnCount,
-      onFill: (activeCell, { bounds }) => {
+      onFill: (activeCell, fillSelection) => {
+        if (!fillSelection) return;
+        const { bounds } = fillSelection;
         const changes = {};
         const value = getCellValue(activeCell);
         for (let i = bounds.top; i <= bounds.bottom; i++) {

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { SelectionArea, CellInterface, GridRef } from "./../Grid";
+import { SelectionArea, CellInterface, GridRef, AreaProps } from "./../Grid";
 import {
   findNextCellWithinBounds,
   Align,
@@ -269,6 +269,15 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         sel.bounds.bottom === cell.rowIndex
       );
     });
+  };
+
+  const boundsSubsetOfSelection = (bounds: AreaProps, selection: AreaProps) => {
+    return (
+      bounds.top >= selection.top &&
+      bounds.bottom <= selection.bottom &&
+      bounds.left >= selection.left &&
+      bounds.right <= selection.right
+    );
   };
 
   /**
@@ -711,7 +720,35 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         e.clientY
       );
       const bounds = selectionFromStartEnd(activeCell, coords);
+      const hasSelections = selections.length > 0;
+      const activeCellBounds = hasSelections
+        ? selections[0].bounds
+        : gridRef.current.getCellBounds(activeCell);
       if (!bounds) return;
+
+      /**
+       * Restrict to same row and col
+       */
+      if (
+        bounds.bottom !== activeCellBounds.bottom ||
+        bounds.top !== activeCellBounds.top
+      ) {
+        bounds.left = activeCellBounds.left;
+        bounds.right = activeCellBounds.right;
+      } else if (bounds.left !== activeCellBounds.left) {
+        bounds.top = activeCellBounds.top;
+        bounds.bottom = activeCellBounds.bottom;
+      }
+      /**
+       * If user moves back to the same selection, clear
+       */
+      if (
+        hasSelections &&
+        boundsSubsetOfSelection(bounds, selections[0].bounds)
+      ) {
+        setFillSelection(null);
+        return;
+      }
 
       setFillSelection({ bounds });
 
