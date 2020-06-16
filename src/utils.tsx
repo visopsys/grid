@@ -1,5 +1,4 @@
 import React from "react";
-import { Line, Rect } from "react-konva";
 import { ShapeConfig } from "konva/types/Shape";
 
 export interface BoxProps extends ShapeConfig {}
