@@ -138,6 +138,9 @@ This is the list of props that are meant to be used to customise the `konva-grid
 | stageProps | false | Object | Konva stage props | null |
 | children | false | Function | Inject React Konva shapes using children | null
 | wrapper | false | Function | Inject custom context using a wrapper | (children) => children |
+| showFillHandle | false | boolean | Show fill handle at bottom right corner | true |
+| onFillHandleMouseDown |  false | Function | Callback fired user selects fill handle | null |
+| fillSelection | false  | SelectionProp | Area of selected fill | null
 
 ## Methods
 
