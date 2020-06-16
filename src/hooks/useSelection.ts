@@ -707,23 +707,23 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       document.addEventListener("mousemove", handleFillHandleMouseMove);
       document.addEventListener("mouseup", handleFillHandleMouseUp);
     },
-    [activeCell, selections]
+    [selections]
   );
 
   const handleFillHandleMouseMove = useCallback(
     (e: globalThis.MouseEvent) => {
       /* Exit if user is not in selection mode */
-      if (!isFilling.current || !gridRef || !activeCell) return;
+      if (!isFilling.current || !gridRef || !activeCellRef.current) return;
 
       const coords = gridRef.current.getCellCoordsFromOffset(
         e.clientX,
         e.clientY
       );
-      const bounds = selectionFromStartEnd(activeCell, coords);
+      const bounds = selectionFromStartEnd(activeCellRef.current, coords);
       const hasSelections = selections.length > 0;
       const activeCellBounds = hasSelections
-        ? selections[0].bounds
-        : gridRef.current.getCellBounds(activeCell);
+        ? selections[selections.length - 1].bounds
+        : gridRef.current.getCellBounds(activeCellRef.current);
       if (!bounds) return;
 
       /**
@@ -754,7 +754,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
 
       gridRef.current.scrollToItem(coords);
     },
-    [activeCell, selections]
+    [selections]
   );
 
   const handleFillHandleMouseUp = useCallback(
@@ -765,7 +765,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       document.removeEventListener("mouseup", handleFillHandleMouseUp);
 
       /* Exit early */
-      if (!gridRef) return;
+      if (!gridRef || !activeCellRef.current) return;
 
       /* Update last selection */
       let fillSelection: SelectionArea | null = null;
@@ -782,12 +782,12 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
 
       if (!activeCell) return;
 
-      onFill && onFill(activeCell, fillSelection, selections);
+      onFill && onFill(activeCellRef.current, fillSelection, selections);
 
       /* Modify last selection */
       modifySelection(coords);
     },
-    [activeCell, selections]
+    [selections]
   );
 
   return {
