@@ -36,7 +36,7 @@ import {
 import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
 import Selection from "./Selection";
-import { createBox, FillHandle } from "./utils";
+import { FillHandle, createHTMLBox } from "./utils";
 import invariant from "tiny-invariant";
 import { StageConfig } from "konva/types/Stage";
 
@@ -1647,7 +1647,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           }) - y;
 
         borderStyleCells.push(
-          createBox({
+          createHTMLBox({
             x,
             y,
             width,
@@ -1683,9 +1683,11 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         </Layer>
 
         <Layer>
-          <Group offsetY={scrollTop} offsetX={scrollLeft} listening={false}>
-            {borderStylesCells}
-          </Group>
+          <Group
+            offsetY={scrollTop}
+            offsetX={scrollLeft}
+            listening={false}
+          ></Group>
           {frozenRowShadowComponent}
           {frozenColumnShadowComponent}
           <Group offsetY={0} offsetX={scrollLeft}>
@@ -1709,17 +1711,22 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           : null}
       </>
     );
+    const fillHandleWidth = 8;
     const fillhandleComponent =
       showFillHandle && !isSelectionInProgress ? (
         <FillHandle
           {...fillHandleDimension}
           stroke={selectionBorderColor}
+          size={fillHandleWidth}
           onMouseDown={onFillHandleMouseDown}
         />
       ) : null;
-    const fillHandleWidth = 8;
     const selectionChildren = (
-      <>
+      <div
+        style={{
+          pointerEvents: "none",
+        }}
+      >
         <div
           style={{
             position: "absolute",
@@ -1737,6 +1744,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               }px)`,
             }}
           >
+            {borderStylesCells}
             {fillSelections}
             {selectionAreas}
             {activeCellSelection}
@@ -1797,7 +1805,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           {activeCellSelectionFrozenIntersection}
           {fillhandleComponent}
         </div>
-      </>
+      </div>
     );
     return (
       <div style={{ position: "relative", width: containerWidth }}>

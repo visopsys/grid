@@ -86,7 +86,7 @@ export const CanvasOverlay = () => {
     const [isSelected, setIsSelected] = useState(false);
     const handleMouseDown = (e) => {
       // Handle it better, maybe using `ids`
-      const clickedOnEmpty = e.target.className !== "Rect";
+      const clickedOnEmpty = e.target.attrs.draggable !== true;
       if (clickedOnEmpty) setIsSelected(false);
     };
     return (

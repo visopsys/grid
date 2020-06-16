@@ -2,111 +2,31 @@ import React from "react";
 import { Line, Rect } from "react-konva";
 import { ShapeConfig } from "konva/types/Shape";
 
-interface BoxProps extends ShapeConfig {
-  onCrosshairMouseDown?: (e: React.MouseEvent<HTMLDivElement>) => void;
-  onCrosshairMouseMove?: (e: React.MouseEvent<HTMLDivElement>) => void;
-  onCrosshairMouseUp?: (e: React.MouseEvent<HTMLDivElement>) => void;
-}
-
-/**
- * Create a box with custom top/right/bottom/left colors and widths
- * @param param0
- */
-export const createBox = ({
-  x = 0,
-  y = 0,
-  width = 0,
-  height = 0,
-  fill,
-  stroke,
-  strokeLeftColor = stroke,
-  strokeTopColor = stroke,
-  strokeRightColor = stroke,
-  strokeBottomColor = stroke,
-  strokeWidth = 0,
-  strokeTopWidth = strokeWidth,
-  strokeRightWidth = strokeWidth,
-  strokeBottomWidth = strokeWidth,
-  strokeLeftWidth = strokeWidth,
-  key,
-}: BoxProps) => {
-  const commonProps = {
-    perfectDrawEnabled: false,
-    shadowForStrokeEnabled: false,
-    hitStrokeWidth: 0,
-    listening: false,
-    lineCap: "square",
-  };
-  const lines = [
-    <Line
-      points={[x, y, x + width, y]}
-      stroke={strokeTopColor}
-      strokeWidth={strokeTopWidth}
-      key="top"
-      {...commonProps}
-    />,
-    <Line
-      points={[x + width, y, x + width, y + height]}
-      stroke={strokeRightColor}
-      strokeWidth={strokeRightWidth}
-      key="right"
-      {...commonProps}
-    />,
-    <Line
-      points={[x + width, y + height, x, y + height]}
-      stroke={strokeBottomColor}
-      strokeWidth={strokeBottomWidth}
-      key="bottom"
-      {...commonProps}
-    />,
-    <Line
-      points={[x, y + height, x, y]}
-      stroke={strokeLeftColor}
-      strokeWidth={strokeLeftWidth}
-      key="left"
-      {...commonProps}
-    />,
-  ];
-
-  return (
-    <React.Fragment key={key}>
-      {lines}
-      {fill && (
-        <Rect
-          fill={fill}
-          x={x}
-          y={y}
-          width={width}
-          height={height}
-          {...commonProps}
-        />
-      )}
-    </React.Fragment>
-  );
-};
+export interface BoxProps extends ShapeConfig {}
 
 export const FillHandle: React.FC<BoxProps> = ({
   x = 0,
   y = 0,
   stroke,
-  onMouseDown,
+  strokeWidth = 1,
+  size = 8,
+  ...props
 }) => {
   if (x === 0 || y === 0) return null;
-  const crossHairSize = 8;
-  const crossHairBorderSize = 1;
   return (
     <div
       style={{
         position: "absolute",
-        left: x - crossHairSize / 2,
-        top: y - crossHairSize / 2,
-        width: crossHairSize,
-        height: crossHairSize,
-        border: `${crossHairBorderSize}px white solid`,
+        left: x - size / 2,
+        top: y - size / 2,
+        width: size,
+        height: size,
+        border: `${strokeWidth}px white solid`,
         background: stroke,
         cursor: "crosshair",
+        pointerEvents: "all",
       }}
-      onMouseDown={onMouseDown}
+      {...props}
     />
   );
 };
