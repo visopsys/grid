@@ -17,7 +17,7 @@ export const FillHandle: React.FC<BoxProps> = ({
     <div
       style={{
         position: "absolute",
-        left: x - size / 2,
+        left: x - size / 2 - strokeWidth,
         top: y - size / 2,
         width: size,
         height: size,
