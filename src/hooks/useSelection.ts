@@ -43,6 +43,14 @@ export interface UseSelectionOptions {
    * Useful for formula mode
    */
   persistantSelectionMode?: boolean;
+  /**
+   * onFill
+   */
+  onFill?: (
+    activeCell: CellInterface,
+    selection: SelectionArea | null,
+    selections: SelectionArea[]
+  ) => void;
 }
 
 export interface SelectionResults {
@@ -74,6 +82,15 @@ export interface SelectionResults {
    * Used to move selections based on pressed key
    */
   onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
+  /**
+   * Mousedown event on fillhandle
+   */
+  onFillHandleMouseDown?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  /**
+   *
+   * Fill selections
+   */
+  fillSelection: SelectionArea | null;
 }
 
 const EMPTY_SELECTION: SelectionArea[] = [];
@@ -92,6 +109,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     allowMultipleSelection = true,
     persistantSelectionMode = false,
     allowDeselectSelection = true,
+    onFill,
   } = options || {};
   const [activeCell, setActiveCell] = useState<CellInterface | null>(
     initialActiveCell
@@ -99,9 +117,13 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const [selections, setSelections] = useState<SelectionArea[]>(
     initialSelections
   );
+  const [fillSelection, setFillSelection] = useState<SelectionArea | null>(
+    null
+  );
   const selectionStart = useRef<CellInterface | null>(null);
   const selectionEnd = useRef<CellInterface | null>(null);
   const isSelecting = useRef<boolean>();
+  const isFilling = useRef<boolean>();
   const firstActiveCell = useRef<CellInterface | null>(null);
   /**
    * Need to store in ref because on mousemove and mouseup event that are
@@ -148,7 +170,11 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   };
 
   /* Modify current selection */
-  const modifySelection = (coords: CellInterface, setInProgress?: boolean) => {
+  const modifySelection = (
+    coords: CellInterface,
+    setInProgress?: boolean,
+    isFilling?: boolean
+  ) => {
     if (!selectionStart.current) return;
 
     selectionEnd.current = coords;
@@ -162,7 +188,9 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     setSelections((prevSelection) => {
       const len = prevSelection.length;
       if (!len) {
-        return [{ bounds, inProgress: setInProgress ? true : false }];
+        return [
+          { bounds, inProgress: setInProgress ? true : false, isFilling },
+        ];
       }
       return prevSelection.map((sel, i) => {
         if (len - 1 === i) {
@@ -170,6 +198,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
             ...sel,
             bounds,
             inProgress: setInProgress ? true : false,
+            isFilling,
           };
         }
         return sel;
@@ -662,6 +691,68 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     setActiveCell(coords);
   }, []);
 
+  const handleFillHandleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      isFilling.current = true;
+      document.addEventListener("mousemove", handleFillHandleMouseMove);
+      document.addEventListener("mouseup", handleFillHandleMouseUp);
+    },
+    [activeCell, selections]
+  );
+
+  const handleFillHandleMouseMove = useCallback(
+    (e: globalThis.MouseEvent) => {
+      /* Exit if user is not in selection mode */
+      if (!isFilling.current || !gridRef || !activeCell) return;
+
+      const coords = gridRef.current.getCellCoordsFromOffset(
+        e.clientX,
+        e.clientY
+      );
+      const bounds = selectionFromStartEnd(activeCell, coords);
+      if (!bounds) return;
+
+      setFillSelection({ bounds });
+
+      gridRef.current.scrollToItem(coords);
+    },
+    [activeCell, selections]
+  );
+
+  const handleFillHandleMouseUp = useCallback(
+    (e: globalThis.MouseEvent) => {
+      isFilling.current = false;
+      /* Remove listener */
+      document.removeEventListener("mousemove", handleFillHandleMouseMove);
+      document.removeEventListener("mouseup", handleFillHandleMouseUp);
+
+      /* Exit early */
+      if (!gridRef) return;
+
+      /* Update last selection */
+      let fillSelection: SelectionArea | null = null;
+
+      const coords = gridRef.current.getCellCoordsFromOffset(
+        e.clientX,
+        e.clientY
+      );
+
+      setFillSelection((prev) => {
+        fillSelection = prev;
+        return null;
+      });
+
+      if (!activeCell) return;
+
+      onFill && onFill(activeCell, fillSelection, selections);
+
+      /* Modify last selection */
+      modifySelection(coords);
+    },
+    [activeCell, selections]
+  );
+
   return {
     activeCell,
     selections,
@@ -670,6 +761,8 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     newSelection,
     setSelections,
     setActiveCell: handleSetActiveCell,
+    onFillHandleMouseDown: handleFillHandleMouseDown,
+    fillSelection,
   };
 };
 

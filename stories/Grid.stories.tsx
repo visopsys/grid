@@ -314,6 +314,11 @@ export const BaseGridWithSelection: React.FC = () => {
         left: 2,
         bottom: 20,
       },
+      style: {
+        // strokeWidth: 1,
+        // stroke: "red",
+        borderStyle: "dashed",
+      },
     },
   ];
 
@@ -1036,6 +1041,16 @@ export const EditableGrid: React.FC = () => {
       gridRef,
       rowCount,
       columnCount,
+      onFill: (activeCell, { bounds }) => {
+        const changes = {};
+        const value = getCellValue(activeCell);
+        for (let i = bounds.top; i <= bounds.bottom; i++) {
+          for (let j = bounds.left; j <= bounds.right; j++) {
+            changes[[i, j]] = value;
+          }
+        }
+        setData((prev) => ({ ...prev, ...changes }));
+      },
     });
     const { getTextMetrics, ...autoSizerProps } = useAutoSizer({
       gridRef,
@@ -1044,61 +1059,63 @@ export const EditableGrid: React.FC = () => {
       rowCount,
       autoResize: false,
     });
-    const { editorComponent, ...editableProps } = useEditable({
-      gridRef,
-      getValue: getCellValue,
-      selections,
-      getEditor: ({ rowIndex, columnIndex }) => {
-        if (rowIndex == 1 && columnIndex === 1) {
-          return SelectEditor;
-        }
-        return undefined;
-      },
-      activeCell,
-      onDelete: (activeCell, selections) => {
-        if (selections.length) {
-          const newValues = selections.reduce((acc, { bounds: sel }) => {
-            for (let i = sel.top; i <= sel.bottom; i++) {
-              for (let j = sel.left; j <= sel.right; j++) {
-                acc[[i, j]] = "";
+    const { editorComponent, isEditInProgress, ...editableProps } = useEditable(
+      {
+        gridRef,
+        getValue: getCellValue,
+        selections,
+        getEditor: ({ rowIndex, columnIndex }) => {
+          if (rowIndex == 1 && columnIndex === 1) {
+            return SelectEditor;
+          }
+          return undefined;
+        },
+        activeCell,
+        onDelete: (activeCell, selections) => {
+          if (selections.length) {
+            const newValues = selections.reduce((acc, { bounds: sel }) => {
+              for (let i = sel.top; i <= sel.bottom; i++) {
+                for (let j = sel.left; j <= sel.right; j++) {
+                  acc[[i, j]] = "";
+                }
               }
-            }
-            return acc;
-          }, {});
-          setData((prev) => ({ ...prev, ...newValues }));
-          const selectionBounds = selections[0].bounds;
+              return acc;
+            }, {});
+            setData((prev) => ({ ...prev, ...newValues }));
+            const selectionBounds = selections[0].bounds;
 
-          gridRef.current.resetAfterIndices(
-            {
-              columnIndex: selectionBounds.left,
-              rowIndex: selectionBounds.top,
-            },
-            true
-          );
-        } else if (activeCell) {
-          setData((prev) => {
-            return {
-              ...prev,
-              [[activeCell.rowIndex, activeCell.columnIndex]]: "",
-            };
-          });
-          gridRef.current.resetAfterIndices(activeCell);
-        }
-      },
-      onBeforeEdit: ({ rowIndex, columnIndex }) => {
-        if (rowIndex === 2 && columnIndex === 3) return false;
-        return true;
-      },
-      onSubmit: (value, { rowIndex, columnIndex }, nextActiveCell) => {
-        setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value }));
-        gridRef.current.resizeColumns([columnIndex]);
+            gridRef.current.resetAfterIndices(
+              {
+                columnIndex: selectionBounds.left,
+                rowIndex: selectionBounds.top,
+              },
+              true
+            );
+          } else if (activeCell) {
+            setData((prev) => {
+              return {
+                ...prev,
+                [[activeCell.rowIndex, activeCell.columnIndex]]: "",
+              };
+            });
+            gridRef.current.resetAfterIndices(activeCell);
+          }
+        },
+        onBeforeEdit: ({ rowIndex, columnIndex }) => {
+          if (rowIndex === 2 && columnIndex === 3) return false;
+          return true;
+        },
+        onSubmit: (value, { rowIndex, columnIndex }, nextActiveCell) => {
+          setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value }));
+          gridRef.current.resizeColumns([columnIndex]);
 
-        /* Select the next cell */
-        if (nextActiveCell) {
-          setActiveCell(nextActiveCell);
-        }
-      },
-    });
+          /* Select the next cell */
+          if (nextActiveCell) {
+            setActiveCell(nextActiveCell);
+          }
+        },
+      }
+    );
     return (
       <div style={{ position: "relative" }}>
         <Grid
@@ -1112,6 +1129,7 @@ export const EditableGrid: React.FC = () => {
           columnWidth={(index) => {
             return 100;
           }}
+          showFillHandle={!isEditInProgress}
           itemRenderer={(props) => (
             <DefaultCell
               value={data[[props.rowIndex, props.columnIndex]]}

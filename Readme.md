@@ -31,6 +31,7 @@ Canvas table grid to render large set of tabular data. Uses virtualization simil
 - :page_with_curl: Pagination sync/async
 - :hammer_and_wrench: Fully typed API written in TypeScript
 - :rainbow: Full Theming and Context Support
+- :feet: Fill handle support
 - :muscle: Highly customizable using [react-konva](https://github.com/konvajs/react-konva/)
 
 ### Why another canvas grid library

@@ -90,6 +90,10 @@ export interface EditableResults {
     currentCell: CellInterface,
     direction: Direction
   ) => CellInterface;
+  /**
+   * Is editing in progress
+   */
+  isEditInProgress: boolean;
 }
 
 export interface EditorProps extends CellInterface {
@@ -157,13 +161,13 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     ...rest
   } = props;
   const borderWidth = 2;
-  const padding = 16;
+  const padding = 10; /* 2 + 1 + 1 + 2 + 2 */
   const textSizer = useRef(AutoSizerCanvas("12px Arial"));
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { x = 0, y = 0, width = 0, height = 0 } = position;
   const getWidth = useCallback((text) => {
     const textWidth = textSizer.current.measureText(text)?.width || 0;
-    return Math.max(textWidth + padding, width + borderWidth);
+    return Math.max(textWidth + padding, width);
   }, []);
   const [inputWidth, setInputWidth] = useState(() => getWidth(value));
   useEffect(() => {
@@ -172,72 +176,81 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     /* Focus cursor at the end */
     inputRef.current.selectionStart = value.length;
   }, []);
-  const inputHeight = height + borderWidth;
+  const inputHeight = height;
   return (
-    <textarea
-      rows={1}
-      cols={1}
-      ref={inputRef}
-      defaultValue={value}
+    <div
       style={{
-        font: "12px Arial",
-        lineHeight: 1.5,
-        position: "absolute",
         top: y - borderWidth / 2,
-        left: x - borderWidth / 2,
+        left: x,
+        position: "absolute",
         width: inputWidth,
-        height: inputHeight,
-        background: "white",
-        padding: "0 4px",
-        margin: 0,
-        boxSizing: "border-box",
-        border: "2px #1a73e8 solid",
+        height: inputHeight + borderWidth,
+        padding: borderWidth,
         boxShadow: "0 2px 6px 2px rgba(60,64,67,.15)",
-        outline: "none",
-        resize: "none",
-        overflow: "hidden",
+        border: "2px #1a73e8 solid",
+        background: "white",
       }}
-      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setInputWidth(getWidth(e.target.value));
-        onChange(e.target.value, cell);
-      }}
-      onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (!inputRef.current) return;
-        const isShiftKey = e.nativeEvent.shiftKey;
-        const value = inputRef.current.value;
+    >
+      <textarea
+        rows={1}
+        cols={1}
+        ref={inputRef}
+        defaultValue={value}
+        style={{
+          font: "12px Arial",
+          lineHeight: 1.2,
+          width: "100%",
+          height: "100%",
+          padding: "0 1px",
+          margin: 0,
+          boxSizing: "border-box",
+          borderWidth: 0,
+          outline: "none",
+          resize: "none",
+          overflow: "hidden",
+        }}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+          setInputWidth(getWidth(e.target.value));
+          onChange(e.target.value, cell);
+        }}
+        onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+          if (!inputRef.current) return;
+          const isShiftKey = e.nativeEvent.shiftKey;
+          const value = inputRef.current.value;
 
-        // Enter key
-        if (e.which === KeyCodes.Enter) {
-          onSubmit &&
-            onSubmit(
-              value,
-              cell,
-              nextFocusableCell(
+          // Enter key
+          if (e.which === KeyCodes.Enter) {
+            onSubmit &&
+              onSubmit(
+                value,
                 cell,
-                isShiftKey ? Direction.Up : Direction.Down
-              )
-            );
-        }
+                nextFocusableCell(
+                  cell,
+                  isShiftKey ? Direction.Up : Direction.Down
+                )
+              );
+          }
 
-        if (e.which === KeyCodes.Escape) {
-          onCancel && onCancel(e);
-        }
+          if (e.which === KeyCodes.Escape) {
+            onCancel && onCancel(e);
+          }
 
-        if (e.which === KeyCodes.Tab) {
-          // e.preventDefault();
-          onSubmit &&
-            onSubmit(
-              value,
-              cell,
-              nextFocusableCell(
+          if (e.which === KeyCodes.Tab) {
+            // e.preventDefault();
+            onSubmit &&
+              onSubmit(
+                value,
                 cell,
-                isShiftKey ? Direction.Left : Direction.Right
-              )
-            );
-        }
-      }}
-      {...rest}
-    />
+                nextFocusableCell(
+                  cell,
+                  isShiftKey ? Direction.Left : Direction.Right
+                )
+              );
+          }
+        }}
+        {...rest}
+      />
+    </div>
   );
 };
 
@@ -536,6 +549,7 @@ const useEditable = ({
     onKeyDown: handleKeyDown,
     onMouseDown: handleMouseDown,
     nextFocusableCell,
+    isEditInProgress: !!editingCell,
   };
 };
 
