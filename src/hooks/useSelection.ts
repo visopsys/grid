@@ -170,11 +170,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   };
 
   /* Modify current selection */
-  const modifySelection = (
-    coords: CellInterface,
-    setInProgress?: boolean,
-    isFilling?: boolean
-  ) => {
+  const modifySelection = (coords: CellInterface, setInProgress?: boolean) => {
     if (!selectionStart.current) return;
 
     selectionEnd.current = coords;
@@ -188,9 +184,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     setSelections((prevSelection) => {
       const len = prevSelection.length;
       if (!len) {
-        return [
-          { bounds, inProgress: setInProgress ? true : false, isFilling },
-        ];
+        return [{ bounds, inProgress: setInProgress ? true : false }];
       }
       return prevSelection.map((sel, i) => {
         if (len - 1 === i) {
@@ -198,7 +192,6 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
             ...sel,
             bounds,
             inProgress: setInProgress ? true : false,
-            isFilling,
           };
         }
         return sel;
@@ -719,26 +712,38 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         e.clientX,
         e.clientY
       );
-      const bounds = selectionFromStartEnd(activeCellRef.current, coords);
+      let bounds = selectionFromStartEnd(activeCellRef.current, coords);
       const hasSelections = selections.length > 0;
       const activeCellBounds = hasSelections
         ? selections[selections.length - 1].bounds
         : gridRef.current.getCellBounds(activeCellRef.current);
       if (!bounds) return;
 
-      /**
-       * Restrict to same row and col
-       */
-      if (
-        bounds.bottom !== activeCellBounds.bottom ||
-        bounds.top !== activeCellBounds.top
-      ) {
-        bounds.left = activeCellBounds.left;
-        bounds.right = activeCellBounds.right;
-      } else if (bounds.left !== activeCellBounds.left) {
-        bounds.top = activeCellBounds.top;
-        bounds.bottom = activeCellBounds.bottom;
+      const direction =
+        bounds.right > activeCellBounds.right
+          ? Direction.Right
+          : bounds.top < activeCellBounds.top
+          ? Direction.Up
+          : bounds.left < activeCellBounds.left
+          ? Direction.Left
+          : Direction.Down;
+
+      if (direction === Direction.Right) {
+        bounds = { ...activeCellBounds, right: bounds.right };
       }
+
+      if (direction === Direction.Up) {
+        bounds = { ...activeCellBounds, top: bounds.top };
+      }
+
+      if (direction === Direction.Left) {
+        bounds = { ...activeCellBounds, left: bounds.left };
+      }
+
+      if (direction === Direction.Down) {
+        bounds = { ...activeCellBounds, bottom: bounds.bottom };
+      }
+
       /**
        * If user moves back to the same selection, clear
        */
@@ -770,22 +775,35 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       /* Update last selection */
       let fillSelection: SelectionArea | null = null;
 
-      const coords = gridRef.current.getCellCoordsFromOffset(
-        e.clientX,
-        e.clientY
-      );
-
       setFillSelection((prev) => {
         fillSelection = prev;
         return null;
       });
 
-      if (!activeCell) return;
+      if (!activeCell || !fillSelection) return;
 
+      const newBounds = (fillSelection as SelectionArea)?.bounds;
+      if (!newBounds) return;
+
+      /* Callback */
       onFill && onFill(activeCellRef.current, fillSelection, selections);
 
       /* Modify last selection */
-      modifySelection(coords);
+      setSelections((prevSelection) => {
+        const len = prevSelection.length;
+        if (!len) {
+          return [{ bounds: newBounds }];
+        }
+        return prevSelection.map((sel, i) => {
+          if (len - 1 === i) {
+            return {
+              ...sel,
+              bounds: newBounds,
+            };
+          }
+          return sel;
+        });
+      });
     },
     [selections]
   );
