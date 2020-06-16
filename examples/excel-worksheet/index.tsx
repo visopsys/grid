@@ -99,7 +99,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
       done(value);
     });
   }, []);
-  const { editorComponent, ...editableProps } = useEditable({
+  const { editorComponent, isEditInProgress, ...editableProps } = useEditable({
     gridRef,
     getValue,
     selections,
@@ -179,6 +179,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     >
       <Grid
         // snap
+        showFillHandle={!isEditInProgress}
         activeCell={activeCell}
         width={width}
         height={height}
