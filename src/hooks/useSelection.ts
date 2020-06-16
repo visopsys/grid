@@ -703,6 +703,10 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     [selections]
   );
 
+  /**
+   * TODO
+   * 1. Fill does not extend to merged cells
+   */
   const handleFillHandleMouseMove = useCallback(
     (e: globalThis.MouseEvent) => {
       /* Exit if user is not in selection mode */
