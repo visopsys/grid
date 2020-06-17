@@ -27,12 +27,12 @@ export const BaseGrid: React.FC = () => {
         columnWidth={(index) => {
           return 100;
         }}
-        itemRenderer={(props) => (
-          <DefaultCell
-            {...props}
-            value={`${props.rowIndex}:${props.columnIndex}`}
-          />
-        )}
+        // itemRenderer={(props) => (
+        //   <DefaultCell
+        //     {...props}
+        //     value={`${props.rowIndex}:${props.columnIndex}`}
+        //   />
+        // )}
         rowHeight={(index) => {
           return 20;
         }}
@@ -381,7 +381,7 @@ export const BaseGridWithSelection: React.FC = () => {
         rowHeight={(index) => {
           return 20;
         }}
-        itemRenderer={Cell}
+        // itemRenderer={Cell}
       />
     );
   };

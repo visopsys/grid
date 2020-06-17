@@ -10,7 +10,8 @@ import React, {
   useEffect,
   Key,
 } from "react";
-import { Stage, Layer, Group, Line } from "react-konva/lib/ReactKonvaCore";
+import { Layer, Group, Line } from "react-konva/lib/ReactKonvaCore";
+import { Stage, Container } from "@inlet/react-pixi";
 import {
   getRowStartIndexForOffset,
   getRowStopIndexForStartIndex,
@@ -1769,13 +1770,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         : null;
     const stageChildren = (
       <>
-        <Layer offsetY={scrollTop} offsetX={scrollLeft}>
+        <Container y={-scrollTop} x={-scrollLeft}>
           {cells}
           {mergedCellAreas}
           {ranges}
-        </Layer>
+        </Container>
 
-        <Layer>
+        {/* <Layer>
           <Group
             offsetY={scrollTop}
             offsetX={scrollLeft}
@@ -1801,7 +1802,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               scrollLeft,
               scrollTop,
             })
-          : null}
+          : null} */}
       </>
     );
     const fillHandleWidth = 8;
@@ -1901,13 +1902,18 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       </div>
     );
     return (
-      <div style={{ position: "relative", width: containerWidth }}>
+      <div
+        style={{ position: "relative", width: containerWidth }}
+        className="rowsncolumns-grid"
+      >
         <div tabIndex={0} ref={containerRef} {...rest}>
           <Stage
             width={containerWidth}
             height={containerHeight}
             ref={stageRef}
-            listening={listenToEvents}
+            options={{
+              transparent: true,
+            }}
             {...stageProps}
           >
             {wrapper(stageChildren)}
