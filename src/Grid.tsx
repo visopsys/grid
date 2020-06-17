@@ -36,7 +36,8 @@ import {
 import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
 import Selection from "./Selection";
-import { FillHandle, createHTMLBox } from "./utils";
+import FillHandle from "./FillHandle";
+import { createHTMLBox } from "./utils";
 import invariant from "tiny-invariant";
 import { StageConfig } from "konva/types/Stage";
 

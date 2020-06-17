@@ -1,35 +1,6 @@
 import React from "react";
 import { ShapeConfig } from "konva/types/Shape";
 
-export interface BoxProps extends ShapeConfig {}
-
-export const FillHandle: React.FC<BoxProps> = ({
-  x = 0,
-  y = 0,
-  stroke,
-  strokeWidth = 1,
-  size = 8,
-  ...props
-}) => {
-  if (x === 0 || y === 0) return null;
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: x - size / 2 - strokeWidth,
-        top: y - size / 2,
-        width: size,
-        height: size,
-        border: `${strokeWidth}px white solid`,
-        background: stroke,
-        cursor: "crosshair",
-        pointerEvents: "all",
-      }}
-      {...props}
-    />
-  );
-};
-
 export const createHTMLBox = ({
   x = 0,
   y = 0,
@@ -48,7 +19,7 @@ export const createHTMLBox = ({
   strokeLeftWidth = strokeWidth,
   key,
   strokeStyle = "solid",
-}: BoxProps) => {
+}: ShapeConfig) => {
   const commonProps = {};
   width = width - Math.floor(strokeWidth);
   y = y - Math.ceil(strokeWidth / 2);
