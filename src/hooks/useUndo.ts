@@ -1,4 +1,4 @@
-import React, { useReducer, useRef, useEffect, useCallback } from "react";
+import React, { useReducer, useRef, useCallback } from "react";
 import { KeyCodes } from "../types";
 
 /**
@@ -100,7 +100,7 @@ const useUndo = (props: UndoProps = {}): UndoResults => {
     forceRender();
   };
 
-  const addUndoable = ({ patches, inversePatches }) => {
+  const addUndoable = ({ patches, inversePatches }: Stack) => {
     const pointer = ++undoStackPointer.current;
     undoStack.current.length = pointer;
     undoStack.current[pointer] = { patches, inversePatches };
