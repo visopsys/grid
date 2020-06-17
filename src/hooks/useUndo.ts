@@ -12,14 +12,14 @@ import { KeyCodes } from "../types";
  */
 
 export interface UndoProps {
-  onRedo: (patches: Patches) => void;
-  onUndo: (patches: Patches) => void;
+  onRedo?: (patches: Patches) => void;
+  onUndo?: (patches: Patches) => void;
 }
 
 export interface UndoResults {
   undo: () => void;
   redo: () => void;
-  addToUndoStack: (stack: Stack) => void;
+  add: (stack: Stack) => void;
   canUndo: boolean;
   canRedo: boolean;
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
@@ -40,6 +40,13 @@ export interface Stack {
 
 export type Operator = "add" | "remove" | "replace" | "move";
 
+/**
+ * Create patches
+ * @param path
+ * @param value
+ * @param previousValue
+ * @param op
+ */
 export function createPatches(
   path: Path,
   value: any,
@@ -55,7 +62,8 @@ export function createPatches(
  * Undo/Redo hook
  * @param
  */
-const useUndo = ({ onRedo, onUndo }: UndoProps): UndoResults => {
+const useUndo = (props: UndoProps = {}): UndoResults => {
+  const { onRedo, onUndo } = props;
   const undoStack = useRef<Stack[]>([]);
   const undoStackPointer = useRef<number>(-1);
   const [_, forceRender] = useReducer((s) => s + 1, 0);
@@ -81,6 +89,7 @@ const useUndo = ({ onRedo, onUndo }: UndoProps): UndoResults => {
     const patches = undoStack.current[undoStackPointer.current].inversePatches;
     undoStackPointer.current--;
     onUndo && onUndo(patches);
+    forceRender();
   };
 
   const handleRedo = () => {
@@ -88,18 +97,20 @@ const useUndo = ({ onRedo, onUndo }: UndoProps): UndoResults => {
     undoStackPointer.current++;
     const patches = undoStack.current[undoStackPointer.current].patches;
     onRedo && onRedo(patches);
+    forceRender();
   };
 
   const addUndoable = ({ patches, inversePatches }) => {
     const pointer = ++undoStackPointer.current;
     undoStack.current.length = pointer;
     undoStack.current[pointer] = { patches, inversePatches };
+    forceRender();
   };
 
   return {
     undo: handleUndo,
     redo: handleRedo,
-    addToUndoStack: addUndoable,
+    add: addUndoable,
     canUndo: !(undoStackPointer.current < 0),
     canRedo: !(undoStackPointer.current === undoStack.current.length - 1),
     onKeyDown: handleKeyDown,

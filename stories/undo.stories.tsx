@@ -26,7 +26,7 @@ export const UndoRedo = () => {
     const {
       undo,
       redo,
-      addToUndoStack,
+      add: addToUndoStack,
       canUndo,
       canRedo,
       ...undoProps
