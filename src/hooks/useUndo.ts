@@ -25,10 +25,12 @@ export interface UndoResults {
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
 }
 
+export type Path = [string, any];
+
 export interface Patches {
-  path: [string, any];
+  path: Path;
   value: any;
-  operator: Operator;
+  op: Operator;
 }
 
 export interface Stack {
@@ -38,22 +40,25 @@ export interface Stack {
 
 export type Operator = "add" | "remove" | "replace" | "move";
 
-export function createPatches(path, value, previousValue, op = "replace") {
-  const patches = { op, value, path };
-  const inversePatches = { op, value: previousValue, path };
+export function createPatches(
+  path: Path,
+  value: any,
+  previousValue: any,
+  op: Operator = "replace"
+): Stack {
+  const patches: Patches = { op, value, path };
+  const inversePatches: Patches = { op, value: previousValue, path };
   return { patches, inversePatches };
 }
 
+/**
+ * Undo/Redo hook
+ * @param
+ */
 const useUndo = ({ onRedo, onUndo }: UndoProps): UndoResults => {
   const undoStack = useRef<Stack[]>([]);
   const undoStackPointer = useRef<number>(-1);
   const [_, forceRender] = useReducer((s) => s + 1, 0);
-
-  useEffect(() => {
-    document.addEventListener("undo", () => {
-      console.log("calld");
-    });
-  }, []);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
