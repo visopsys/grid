@@ -431,6 +431,15 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const focusContainer = useCallback(() => {
       return containerRef.current?.focus();
     }, []);
+
+    /**
+     * Handle mouse wheeel
+     */
+    useEffect(() => {
+      containerRef.current?.addEventListener("wheel", handleWheel, {
+        passive: true,
+      });
+    }, []);
     /**
      * Snaps vertical scrollbar to the next/prev visible row
      */
@@ -910,8 +919,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      * Fired when user tries to scroll the canvas
      */
     const handleWheel = useCallback(
-      (event: React.WheelEvent) => {
-        const { deltaX, deltaY, deltaMode } = event.nativeEvent;
+      (event: globalThis.MouseWheelEvent) => {
+        const { deltaX, deltaY, deltaMode } = event;
         /* If snaps are active */
         if (snap) {
           snapToRowThrottler.current({
@@ -1810,7 +1819,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     );
     return (
       <div style={{ position: "relative", width: containerWidth }}>
-        <div onWheel={handleWheel} tabIndex={0} ref={containerRef} {...rest}>
+        <div tabIndex={0} ref={containerRef} {...rest}>
           <Stage
             width={containerWidth}
             height={containerHeight}
