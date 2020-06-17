@@ -308,6 +308,8 @@ export type GridRef = {
   resizeColumns: (indices: number[]) => void;
   resizeRows: (indices: number[]) => void;
   getViewPort: () => ViewPortProps;
+  copy?: () => void;
+  paste?: () => void;
 };
 
 export type MergedCellMap = Map<string, AreaProps>;
@@ -653,6 +655,11 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      */
     const getCellCoordsFromOffset = useCallback(
       (x: number, y: number): CellInterface => {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (rect) {
+          x = x - rect.x;
+          y = y - rect.y;
+        }
         const rowIndex = getRowStartIndexForOffset({
           rowHeight,
           columnWidth,

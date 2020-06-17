@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, {
   createContext,
   useContext,
@@ -6,7 +5,7 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import Grid, { Cell, useSelection, SelectionArea } from "../src";
+import Grid, { Cell, useSelection, SelectionArea, GridRef } from "../src";
 import useCopyPaste from "./../src/hooks/useCopyPaste";
 
 export default {
@@ -21,7 +20,7 @@ export const Default = () => {
     const [data, setData] = useState({
       [[1, 2]]: "Hello world",
     });
-    const gridRef = useRef();
+    const gridRef = useRef<GridRef>();
     const getValue = useCallback(
       ({ rowIndex, columnIndex }) => {
         return data[[rowIndex, columnIndex]];
@@ -46,9 +45,11 @@ export const Default = () => {
       getValue,
       onPaste: (rows, activeCell) => {
         const { rowIndex, columnIndex } = activeCell;
-        const endRowIndex = rowIndex + rows.length - 1;
-        const endColumnIndex =
-          columnIndex + (rows.length && rows[0].length - 1);
+        const endRowIndex = Math.max(rowIndex, rowIndex + rows.length - 1);
+        const endColumnIndex = Math.max(
+          columnIndex,
+          columnIndex + (rows.length && rows[0].length - 1)
+        );
         const changes = {};
         for (const [i, row] of rows.entries()) {
           for (const [j, cell] of row.entries()) {
@@ -56,7 +57,9 @@ export const Default = () => {
           }
         }
         setData((prev) => ({ ...prev, ...changes }));
-        if (rows.length === 1 && rows[0].length === 1) return;
+
+        /* Should select */
+        if (rowIndex === endRowIndex && columnIndex === endColumnIndex) return;
 
         setSelections([
           {
@@ -69,9 +72,21 @@ export const Default = () => {
           },
         ]);
       },
+      onCut: (selection) => {
+        const { bounds } = selection;
+        const changes = {};
+        for (let i = bounds.top; i <= bounds.bottom; i++) {
+          for (let j = bounds.left; j <= bounds.right; j++) {
+            changes[[i, j]] = undefined;
+          }
+        }
+        setData((prev) => ({ ...prev, ...changes }));
+      },
     });
     return (
       <>
+        <button onClick={() => gridRef.current.copy()}>Copy</button>
+        <button onClick={() => gridRef.current.paste()}>Paste</button>
         <Grid
           activeCell={activeCell}
           selections={selections}

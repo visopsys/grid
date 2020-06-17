@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useImperativeHandle,
+} from "react";
 import { SelectionProps, CellInterface, GridRef, SelectionArea } from "../Grid";
 import { selectionFromActiveCell, prepareClipboardData } from "./../helpers";
 import { KeyCodes, MimeType } from "../types";
@@ -27,6 +33,10 @@ export interface CopyProps {
     rows: (string | null)[][],
     activeCell: CellInterface | null
   ) => void;
+  /**
+   * When user tries to cut a selection
+   */
+  onCut: (selection: SelectionArea) => void;
 }
 
 /**
@@ -44,12 +54,35 @@ const useCopyPaste = ({
   getValue,
   gridRef,
   onPaste,
+  onCut,
 }: CopyProps) => {
   const selectionRef = useRef({ selections, activeCell, getValue });
+  const cutSelections = useRef<SelectionArea | null>(null);
 
   /* Keep selections and activeCell upto date */
   useEffect(() => {
     selectionRef.current = { selections, activeCell, getValue };
+  });
+
+  /**
+   * Add some events to ref
+   */
+  useImperativeHandle(gridRef, () => {
+    return {
+      ...gridRef.current,
+      copy: () => {
+        gridRef.current.focus();
+        document.execCommand("copy");
+      },
+      paste: async () => {
+        gridRef.current.focus();
+        const text = await navigator.clipboard.readText();
+        const clipboardData = new DataTransfer();
+        clipboardData.setData(MimeType.plain, text);
+        const event = new ClipboardEvent("paste", { clipboardData });
+        handlePaste(event);
+      },
+    };
   });
 
   const currentSelections = () => {
@@ -69,6 +102,12 @@ const useCopyPaste = ({
     document.addEventListener("paste", (e) => {
       if (gridRef.current?.container !== document.activeElement) return;
       handlePaste(e);
+    });
+
+    document.addEventListener("cut", (e) => {
+      if (gridRef.current?.container !== document.activeElement) return;
+      cutSelections.current = currentSelections();
+      handleCopy(e);
     });
   }, []);
 
@@ -145,7 +184,14 @@ const useCopyPaste = ({
         rows.push(row);
       }
     }
+
     onPaste && onPaste(rows, selectionRef.current.activeCell);
+
+    /* Clear all values in cut */
+    if (cutSelections.current) {
+      onCut && onCut(cutSelections.current);
+      cutSelections.current = null;
+    }
   };
 
   return {};
