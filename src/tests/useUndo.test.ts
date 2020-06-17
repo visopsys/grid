@@ -1,7 +1,7 @@
 import { renderHook, act } from "@testing-library/react-hooks";
 import useUndo, { createPatches } from "./../hooks/useUndo";
 
-describe("useSelection", () => {
+describe("useUndo", () => {
   it("is a function", () => {
     expect(typeof useUndo).toBe("function");
   });
