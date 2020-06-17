@@ -65,6 +65,8 @@ export const UndoRedo = () => {
       ({ rowIndex, columnIndex }) => data[[rowIndex, columnIndex]],
       [data]
     );
+    const cellValueRef = useRef();
+    cellValueRef.current = getCellValue;
     const {
       selections,
       activeCell,
@@ -109,8 +111,8 @@ export const UndoRedo = () => {
           addToUndoStack(
             createPatches(
               ["data", activeCell],
-              undefined,
-              getCellValue(activeCell)
+              void 0,
+              cellValueRef.current(activeCell)
             )
           );
 
@@ -125,10 +127,9 @@ export const UndoRedo = () => {
       },
       onSubmit: (value, cell, nextActiveCell) => {
         const { rowIndex, columnIndex } = cell;
-        const previousValue = getCellValue(cell);
+        const previousValue = cellValueRef.current(cell);
         setData((prev) => ({ ...prev, [[rowIndex, columnIndex]]: value }));
         gridRef.current.resizeColumns([columnIndex]);
-
         addToUndoStack(createPatches(["data", cell], value, previousValue));
 
         /* Select the next cell */
