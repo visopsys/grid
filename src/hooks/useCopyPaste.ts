@@ -1,13 +1,7 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useImperativeHandle,
-} from "react";
-import { SelectionProps, CellInterface, GridRef, SelectionArea } from "../Grid";
+import React, { useCallback, useEffect, useRef } from "react";
+import { CellInterface, GridRef, SelectionArea } from "../Grid";
 import { selectionFromActiveCell, prepareClipboardData } from "./../helpers";
-import { KeyCodes, MimeType } from "../types";
+import { MimeType } from "../types";
 
 export interface CopyProps {
   /**
@@ -39,6 +33,11 @@ export interface CopyProps {
   onCut: (selection: SelectionArea) => void;
 }
 
+export interface CopyResults {
+  copy: () => void;
+  paste: () => void;
+}
+
 /**
  * Copy paste hook
  * Usage
@@ -55,34 +54,13 @@ const useCopyPaste = ({
   gridRef,
   onPaste,
   onCut,
-}: CopyProps) => {
+}: CopyProps): CopyResults => {
   const selectionRef = useRef({ selections, activeCell, getValue });
   const cutSelections = useRef<SelectionArea | null>(null);
 
   /* Keep selections and activeCell upto date */
   useEffect(() => {
     selectionRef.current = { selections, activeCell, getValue };
-  });
-
-  /**
-   * Add some events to ref
-   */
-  useImperativeHandle(gridRef, () => {
-    return {
-      ...gridRef.current,
-      copy: () => {
-        gridRef.current.focus();
-        document.execCommand("copy");
-      },
-      paste: async () => {
-        gridRef.current.focus();
-        const text = await navigator.clipboard.readText();
-        const clipboardData = new DataTransfer();
-        clipboardData.setData(MimeType.plain, text);
-        const event = new ClipboardEvent("paste", { clipboardData });
-        handlePaste(event);
-      },
-    };
   });
 
   const currentSelections = () => {
@@ -194,7 +172,30 @@ const useCopyPaste = ({
     }
   };
 
-  return {};
+  /**
+   * User is trying to copy from outisde the app
+   */
+  const handleProgramaticCopy = useCallback(() => {
+    gridRef.current.focus();
+    document.execCommand("copy");
+  }, []);
+
+  /**
+   * User is trying to paste from outisde the app
+   */
+  const handleProgramaticPaste = useCallback(async () => {
+    gridRef.current.focus();
+    const text = await navigator.clipboard.readText();
+    const clipboardData = new DataTransfer();
+    clipboardData.setData(MimeType.plain, text);
+    const event = new ClipboardEvent("paste", { clipboardData });
+    handlePaste(event);
+  }, []);
+
+  return {
+    copy: handleProgramaticCopy,
+    paste: handleProgramaticPaste,
+  };
 };
 
 export default useCopyPaste;

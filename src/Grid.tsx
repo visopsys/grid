@@ -308,8 +308,6 @@ export type GridRef = {
   resizeColumns: (indices: number[]) => void;
   resizeRows: (indices: number[]) => void;
   getViewPort: () => ViewPortProps;
-  copy?: () => void;
-  paste?: () => void;
 };
 
 export type MergedCellMap = Map<string, AreaProps>;

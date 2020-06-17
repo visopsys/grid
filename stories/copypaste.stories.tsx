@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, {
   createContext,
   useContext,
@@ -38,7 +39,7 @@ export const Default = () => {
       rowCount,
     });
 
-    useCopyPaste({
+    const { copy, paste } = useCopyPaste({
       gridRef,
       selections,
       activeCell,
@@ -85,8 +86,8 @@ export const Default = () => {
     });
     return (
       <>
-        <button onClick={() => gridRef.current.copy()}>Copy</button>
-        <button onClick={() => gridRef.current.paste()}>Paste</button>
+        <button onClick={() => copy()}>Copy</button>
+        <button onClick={() => paste()}>Paste</button>
         <Grid
           activeCell={activeCell}
           selections={selections}
