@@ -94,6 +94,10 @@ export interface EditableResults {
    * Is editing in progress
    */
   isEditInProgress: boolean;
+  /**
+   * Currently editing cell
+   */
+  editingCell: CellInterface | null;
 }
 
 export interface EditorProps extends CellInterface {
@@ -550,6 +554,7 @@ const useEditable = ({
     onMouseDown: handleMouseDown,
     nextFocusableCell,
     isEditInProgress: !!editingCell,
+    editingCell,
   };
 };
 
