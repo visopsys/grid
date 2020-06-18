@@ -27,7 +27,6 @@ const useTouch = ({ gridRef }: TouchProps): TouchResults => {
       const { pageX, pageY } = e.touches[0];
       let x = pageX;
       let y = pageY;
-      let touchMoving = false;
       const handleTouchMove = (e: globalThis.TouchEvent) => {
         const { pageX, pageY } = e.changedTouches[0];
         const dx = pageX - x;
@@ -41,21 +40,12 @@ const useTouch = ({ gridRef }: TouchProps): TouchResults => {
         x = pageX;
         y = pageY;
       };
-      const touchMove = (e: globalThis.TouchEvent) => {
-        if (touchMoving) {
-          return;
-        }
-        touchMoving = true;
-        requestAnimationFrame(() => {
-          handleTouchMove(e);
-          touchMoving = false;
-        });
+      const handleTouchEnd = () => {
+        target.removeEventListener("touchmove", handleTouchMove);
+        target.removeEventListener("touchend", handleTouchEnd);
       };
       target.addEventListener("touchmove", handleTouchMove);
-      target.addEventListener("touchend", () => {
-        target.removeEventListener("touchmove", handleTouchMove);
-        target.removeEventListener("touchmove", handleTouchMove);
-      });
+      target.addEventListener("touchend", handleTouchEnd);
     },
     []
   );
