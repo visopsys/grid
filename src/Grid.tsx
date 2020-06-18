@@ -947,18 +947,25 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         let dx = deltaX;
         let dy = deltaY;
 
+        /* Scroll only in one direction */
+        const isHorizontal = Math.abs(dx) > Math.abs(dy);
+
         if (deltaMode === 1) {
           dy = dy * scrollbarSize;
         }
         if (!horizontalScrollRef.current || !verticalScrollRef.current) return;
-        const x = horizontalScrollRef.current?.scrollLeft;
-        const y = verticalScrollRef.current?.scrollTop;
+        const currentScroll = isHorizontal
+          ? horizontalScrollRef.current?.scrollLeft
+          : verticalScrollRef.current?.scrollTop;
         wheelingRef.current = window.requestAnimationFrame(() => {
           wheelingRef.current = null;
-          if (horizontalScrollRef.current)
-            horizontalScrollRef.current.scrollLeft = x + dx;
-          if (verticalScrollRef.current)
-            verticalScrollRef.current.scrollTop = y + dy;
+          if (isHorizontal) {
+            if (horizontalScrollRef.current)
+              horizontalScrollRef.current.scrollLeft = currentScroll + dx;
+          } else {
+            if (verticalScrollRef.current)
+              verticalScrollRef.current.scrollTop = currentScroll + dy;
+          }
         });
       },
       [
