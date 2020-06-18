@@ -20,7 +20,7 @@ Canvas table grid to render large set of tabular data. Uses virtualization simil
 
 - :electron: React powered declarative library
 - :100: Virtualized: Only visible cells are rendered
-- :bulb: Peformant: Canvas implementation with no DOM nodes
+- :bulb: Performant: Canvas implementation - 55-60fps (re-render) and  50-60fps (scroll)
 - :scroll: Supports scrolling using native scrollbars
 - :computer: Supports both Fixed and Variable sized grids
 - :fire: Freeze rows and columns
