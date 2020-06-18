@@ -91,6 +91,10 @@ export interface SelectionResults {
    * Fill selections
    */
   fillSelection: SelectionArea | null;
+  /**
+   * Clears the last selection
+   */
+  clearLastSelection: () => void;
 }
 
 const EMPTY_SELECTION: SelectionArea[] = [];
@@ -812,6 +816,13 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     [selections]
   );
 
+  /**
+   * Remove the last selection from state
+   */
+  const handleClearLastSelection = () => {
+    setSelections((prev) => prev.slice(0, -1));
+  };
+
   return {
     activeCell,
     selections,
@@ -822,6 +833,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     setActiveCell: handleSetActiveCell,
     onFillHandleMouseDown: handleFillHandleMouseDown,
     fillSelection,
+    clearLastSelection: handleClearLastSelection,
   };
 };
 

@@ -6,12 +6,15 @@ import {
   RendererProps,
   useSelection,
   useEditable,
+  useCopyPaste,
+  useUndo,
   useSizer,
   GridRef,
   CellInterface,
   Cell,
   getBoundedCells,
 } from "react-konva-grid";
+import { createPatches } from "react-konva-grid/dist/hooks/useUndo";
 import { Group, Rect, Text } from "react-konva";
 import { useMeasure } from "react-use";
 import isEqual from "react-fast-compare";
@@ -62,10 +65,12 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     },
     [data]
   );
+  getValueRef.current = getValue;
   const {
     activeCell,
     selections,
     setActiveCell,
+    setSelections,
     newSelection,
     ...selectionProps
   } = useSelection({
@@ -76,16 +81,106 @@ const Sheet = ({ data, onChange, name, isActive }) => {
       if (!fillSelection) return;
       const { bounds } = fillSelection;
       const changes = {};
-      const value = getValue(activeCell);
+      const previousChanges = {};
+      const value = getValueRef.current(activeCell);
       for (let i = bounds.top; i <= bounds.bottom; i++) {
         for (let j = bounds.left; j <= bounds.right; j++) {
           changes[[i, j]] = value;
+          previousChanges[[i, j]] = getValue({ rowIndex: i, columnIndex: j });
+        }
+      }
+
+      addToUndoStack(
+        createPatches(["range", activeCell], changes, previousChanges)
+      );
+
+      onChange(name, changes);
+    },
+  });
+  const handleUndo = (patches) => {
+    const { path, value } = patches;
+    const [key] = path;
+    if (key === "data") {
+      const [_, { rowIndex, columnIndex }] = path;
+      const changes = {
+        [[rowIndex, columnIndex]]: value,
+      };
+      onChange(name, changes);
+      setActiveCell({ rowIndex, columnIndex });
+    }
+
+    if (key === "range") {
+      const [_, cell] = path;
+      onChange(name, value);
+      setActiveCell(cell);
+    }
+  };
+  const {
+    undo,
+    redo,
+    add: addToUndoStack,
+    canUndo,
+    canRedo,
+    ...undoProps
+  } = useUndo({
+    onUndo: handleUndo,
+    onRedo: handleUndo,
+  });
+  useCopyPaste({
+    gridRef,
+    selections,
+    activeCell,
+    getValue,
+    onPaste: (rows, activeCell) => {
+      const { rowIndex, columnIndex } = activeCell;
+      const endRowIndex = Math.max(rowIndex, rowIndex + rows.length - 1);
+      const endColumnIndex = Math.max(
+        columnIndex,
+        columnIndex + (rows.length && rows[0].length - 1)
+      );
+      const changes = {};
+      for (const [i, row] of rows.entries()) {
+        for (const [j, cell] of row.entries()) {
+          changes[[rowIndex + i, columnIndex + j]] = cell;
+        }
+      }
+
+      addToUndoStack(
+        createPatches(
+          ["data", activeCell],
+          changes[[rowIndex, columnIndex]],
+          getValueRef.current(activeCell)
+        )
+      );
+
+      onChange(name, changes);
+
+      /* Should select */
+      if (rowIndex === endRowIndex && columnIndex === endColumnIndex) return;
+
+      setSelections([
+        {
+          bounds: {
+            top: rowIndex,
+            left: columnIndex,
+            bottom: endRowIndex,
+            right: endColumnIndex,
+          },
+        },
+      ]);
+    },
+    onCut: (selection) => {
+      const { bounds } = selection;
+      const changes = {};
+      for (let i = bounds.top; i <= bounds.bottom; i++) {
+        for (let j = bounds.left; j <= bounds.right; j++) {
+          changes[[i, j]] = undefined;
         }
       }
       onChange(name, changes);
     },
   });
-  getValueRef.current = getValue;
+
   useEffect(() => {
     parser.on("callCellValue", (cellCoord, done) => {
       let value = getValueRef.current({
@@ -135,10 +230,15 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         gridRef.current.resetAfterIndices(activeCell);
       }
     },
-    onSubmit: (value, { rowIndex, columnIndex }, nextActiveCell) => {
+    onSubmit: (value, cell, nextActiveCell) => {
+      const { rowIndex, columnIndex } = cell;
       const changes = {
         [[rowIndex, columnIndex]]: value,
       };
+      const previousValue = getValueRef.current(cell);
+
+      addToUndoStack(createPatches(["data", cell], value, previousValue));
+
       onChange(name, changes);
       gridRef.current.resetAfterIndices({ rowIndex, columnIndex }, false);
 
@@ -247,6 +347,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         onKeyDown={(...args) => {
           selectionProps.onKeyDown(...args);
           editableProps.onKeyDown(...args);
+          undoProps.onKeyDown(...args);
         }}
       />
       {editorComponent}

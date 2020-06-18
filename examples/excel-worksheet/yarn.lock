@@ -4347,10 +4347,10 @@ react-is@^16.8.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
-react-konva-grid@^3.0.5:
-  version "3.0.5"
-  resolved "https://registry.yarnpkg.com/react-konva-grid/-/react-konva-grid-3.0.5.tgz#c6652852c17bafade41720b5a2e815b72a162baf"
-  integrity sha512-nH5o1vwBgVM0K7k8t1exow81X+LHiWyLmRowHTD8tmJ3nUN8+DWe/WnCTAXtpucYdP+z7Gyysd8KsEKsvmgQzg==
+react-konva-grid@^3.0.12:
+  version "3.0.12"
+  resolved "https://registry.yarnpkg.com/react-konva-grid/-/react-konva-grid-3.0.12.tgz#601ca093703f0a2a346fae0f0f95b7c81c645976"
+  integrity sha512-Eb5Xthqru80xlVl+yea0qwnjqnxf70EdzNROeBbCVjVL6S5/HyW9+YI5Si11+SZTEyN85T1GGHq8SRnqJoialw==
   dependencies:
     konva "^6.0.0"
     react-konva "^16.13.0-3"
