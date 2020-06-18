@@ -299,7 +299,7 @@ export interface SnapColumnProps {
 
 export type GridRef = {
   scrollTo: (scrollPosition: ScrollCoords) => void;
-  stage: typeof Stage | null;
+  stage: Stage | null;
   container: HTMLDivElement | null;
   resetAfterIndices: (
     coords: CellInterface,
@@ -308,7 +308,7 @@ export type GridRef = {
   getScrollPosition: () => ScrollCoords;
   isMergedCell: (coords: CellInterface) => boolean;
   getCellBounds: (coords: CellInterface) => AreaProps;
-  getCellCoordsFromOffset: (x: number, y: number) => CellInterface;
+  getCellCoordsFromOffset: (x: number, y: number) => CellInterface | null;
   getCellOffsetFromCoords: (coords: CellInterface) => CellPosition;
   scrollToItem: (coords: OptionalCellInterface, align?: Align) => void;
   focus: () => void;
@@ -422,7 +422,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       recalcColumnIndices: [],
       recalcRowIndices: [],
     });
-    const stageRef = useRef(null);
+    const stageRef = useRef<Stage | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const verticalScrollRef = useRef<HTMLDivElement>(null);
     const wheelingRef = useRef<number | null>(null);
@@ -710,12 +710,19 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      * Get cell cordinates from current mouse x/y positions
      */
     const getCellCoordsFromOffset = useCallback(
-      (x: number, y: number): CellInterface => {
+      (left: number, top: number): CellInterface | null => {
+        if (!stageRef.current) return null;
+        const stage = stageRef.current.getStage();
         const rect = containerRef.current?.getBoundingClientRect();
         if (rect) {
-          x = x - rect.x;
-          y = y - rect.y;
+          left = left - rect.x;
+          top = top - rect.y;
         }
+        const { x, y } = stage
+          .getAbsoluteTransform()
+          .copy()
+          .invert()
+          .point({ x: left, y: top });
         const rowIndex = getRowStartIndexForOffset({
           rowHeight,
           columnWidth,

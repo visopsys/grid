@@ -90,10 +90,12 @@ const useTooltip = ({
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
-      const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
+      const coords = gridRef.current.getCellCoordsFromOffset(
         e.clientX,
         e.clientY
       );
+      if (!coords) return;
+      const { rowIndex, columnIndex } = coords;
       setTooltipPosition({
         x: e.clientX,
         y: e.clientY,

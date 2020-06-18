@@ -288,6 +288,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         e.clientX,
         e.clientY
       );
+      if (!coords) return;
       /* Check if its context menu click */
       const isContextMenuClick = e.nativeEvent.which === MouseButtonCodes.right;
       if (isContextMenuClick) {
@@ -396,6 +397,8 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       e.clientX,
       e.clientY
     );
+
+    if (!coords) return;
 
     if (isEqualCells(firstActiveCell.current, coords)) {
       return clearSelections();
@@ -720,6 +723,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         e.clientX,
         e.clientY
       );
+      if (!coords) return;
       let bounds = selectionFromStartEnd(activeCellRef.current, coords);
       const hasSelections = selections.length > 0;
       const activeCellBounds = hasSelections

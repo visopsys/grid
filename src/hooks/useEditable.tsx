@@ -317,10 +317,12 @@ const useEditable = ({
   /* Activate edit mode */
   const handleDoubleClick = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
-      const { rowIndex, columnIndex } = gridRef.current.getCellCoordsFromOffset(
+      const coords = gridRef.current.getCellCoordsFromOffset(
         e.clientX,
         e.clientY
       );
+      if (!coords) return;
+      const { rowIndex, columnIndex } = coords;
       makeEditable({ rowIndex, columnIndex });
     },
     [getValue]
