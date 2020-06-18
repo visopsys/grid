@@ -964,10 +964,16 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           scrollLeft: newScrollLeft,
           scrollTop: newScrollTop,
         };
+        const isOutsideViewport =
+          (rowIndex !== void 0 && rowIndex > rowStopIndex) ||
+          (columnIndex !== void 0 && columnIndex > columnStopIndex);
+
         /* Scroll in the next frame, Useful when user wants to jump from 1st column to last */
-        window.requestAnimationFrame(() => {
-          scrollTo(coords);
-        });
+        if (isOutsideViewport) {
+          window.requestAnimationFrame(() => {
+            scrollTo(coords);
+          });
+        } else scrollTo(coords);
       },
       [
         containerHeight,
