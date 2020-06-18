@@ -337,6 +337,7 @@ const useEditable = ({
       KeyCodes.Tab,
       KeyCodes.Home,
       KeyCodes.End,
+      KeyCodes.CapsLock,
     ].includes(keyCode);
   };
 

@@ -687,20 +687,20 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      */
     const getCellOffsetFromCoords = useCallback(
       ({ rowIndex, columnIndex }: CellInterface): CellPosition => {
-        const width = getColumnWidth(columnIndex, instanceProps.current);
         const x = getColumnOffset({
           index: columnIndex,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
         });
-        const height = getRowHeight(rowIndex, instanceProps.current);
         const y = getRowOffset({
           index: rowIndex,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
         });
+        const width = getColumnWidth(columnIndex, instanceProps.current);
+        const height = getRowHeight(rowIndex, instanceProps.current);
 
         return {
           x,
@@ -1016,20 +1016,20 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           ) {
             continue;
           }
-          const width = getColumnWidth(columnIndex, instanceProps.current);
           const x = getColumnOffset({
             index: columnIndex,
             rowHeight,
             columnWidth,
             instanceProps: instanceProps.current,
           });
-          const height = getRowHeight(rowIndex, instanceProps.current);
           const y = getRowOffset({
             index: rowIndex,
             rowHeight,
             columnWidth,
             instanceProps: instanceProps.current,
           });
+          const width = getColumnWidth(columnIndex, instanceProps.current);
+          const height = getRowHeight(rowIndex, instanceProps.current);
           cells.push(
             itemRenderer({
               x,
@@ -1062,13 +1062,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnWidth,
         instanceProps: instanceProps.current,
       });
-      const height = getRowHeight(rowIndex, instanceProps.current);
       const y = getRowOffset({
         index: rowIndex,
         rowHeight,
         columnWidth,
         instanceProps: instanceProps.current,
       });
+      const height = getRowHeight(rowIndex, instanceProps.current);
       const { x: offsetX = 0 } = getCellOffsetFromCoords({
         rowIndex,
         columnIndex: toColumnIndex + 1,
@@ -1172,21 +1172,20 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         if (isMergedCell({ rowIndex, columnIndex })) {
           continue;
         }
-
-        const width = getColumnWidth(columnIndex, instanceProps.current);
         const x = getColumnOffset({
           index: columnIndex,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
         });
-        const height = getRowHeight(rowIndex, instanceProps.current);
         const y = getRowOffset({
           index: rowIndex,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
         });
+        const width = getColumnWidth(columnIndex, instanceProps.current);
+        const height = getRowHeight(rowIndex, instanceProps.current);
 
         frozenRowCells.push(
           itemRenderer({
@@ -1220,21 +1219,20 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         if (isMergedCell({ rowIndex, columnIndex })) {
           continue;
         }
-
-        const width = getColumnWidth(columnIndex, instanceProps.current);
         const x = getColumnOffset({
           index: columnIndex,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
         });
-        const height = getRowHeight(rowIndex, instanceProps.current);
         const y = getRowOffset({
           index: rowIndex,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
         });
+        const width = getColumnWidth(columnIndex, instanceProps.current);
+        const height = getRowHeight(rowIndex, instanceProps.current);
         frozenColumnCells.push(
           itemRenderer({
             x,
@@ -1309,21 +1307,20 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         if (isMergedCell({ rowIndex, columnIndex })) {
           continue;
         }
-
-        const width = getColumnWidth(columnIndex, instanceProps.current);
         const x = getColumnOffset({
           index: columnIndex,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
         });
-        const height = getRowHeight(rowIndex, instanceProps.current);
         const y = getRowOffset({
           index: rowIndex,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
         });
+        const width = getColumnWidth(columnIndex, instanceProps.current);
+        const height = getRowHeight(rowIndex, instanceProps.current);
         frozenIntersectionCells.push(
           itemRenderer({
             x,
@@ -1640,7 +1637,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       for (let i = 0; i < borderStyles.length; i++) {
         const { bounds, style } = borderStyles[i];
         const { top, right, bottom, left } = bounds;
-
         const x = getColumnOffset({
           index: left,
           rowHeight,
