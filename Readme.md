@@ -142,6 +142,7 @@ This is the list of props that are meant to be used to customise the `konva-grid
 | showFillHandle | false | boolean | Show fill handle at bottom right corner | true |
 | onFillHandleMouseDown |  false | Function | Callback fired user selects fill handle | null |
 | fillSelection | false  | SelectionProp | Area of selected fill | null
+| overscanCount | false | number | Number of items outside the visible viewport should be renderer at all times | 1 |
 
 ## Methods
 

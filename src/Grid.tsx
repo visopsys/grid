@@ -40,6 +40,7 @@ import FillHandle from "./FillHandle";
 import { createHTMLBox } from "./utils";
 import invariant from "tiny-invariant";
 import { StageConfig } from "konva/types/Stage";
+import { Direction } from "./types";
 
 export interface GridProps {
   /**
@@ -187,6 +188,10 @@ export interface GridProps {
    * Show fillhandle
    */
   showFillHandle?: boolean;
+  /**
+   * Overscan row and columns
+   */
+  overscanCount?: number;
 }
 
 export interface CellRangeArea extends CellInterface {
@@ -214,6 +219,8 @@ export type OptionalScrollCoords = {
 
 export interface ScrollState extends ScrollCoords {
   isScrolling: boolean;
+  verticalScrollDirection: Direction;
+  horizontalScrollDirection: Direction;
 }
 
 export type RenderComponent = React.FC<RendererProps>;
@@ -376,6 +383,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       showFillHandle = true,
       onFillHandleMouseDown,
       fillSelection,
+      overscanCount = 1,
       ...rest
     } = props;
 
@@ -424,8 +432,16 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       scrollTop: 0,
       scrollLeft: 0,
       isScrolling: false,
+      verticalScrollDirection: Direction.Down,
+      horizontalScrollDirection: Direction.Right,
     });
-    const { scrollTop, scrollLeft, isScrolling } = scrollState;
+    const {
+      scrollTop,
+      scrollLeft,
+      isScrolling,
+      verticalScrollDirection,
+      horizontalScrollDirection,
+    } = scrollState;
 
     /* Focus container */
     const focusContainer = useCallback(() => {
@@ -569,43 +585,85 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       [mergedCellMap]
     );
 
-    const rowStartIndex = getRowStartIndexForOffset({
-      rowHeight,
-      columnWidth,
-      rowCount,
-      columnCount,
-      instanceProps: instanceProps.current,
-      offset: scrollTop,
-    });
+    const getVerticalRangeToRender = () => {
+      const startIndex = getRowStartIndexForOffset({
+        rowHeight,
+        columnWidth,
+        rowCount,
+        columnCount,
+        instanceProps: instanceProps.current,
+        offset: scrollTop,
+      });
+      const stopIndex = getRowStopIndexForStartIndex({
+        startIndex,
+        rowCount,
+        rowHeight,
+        columnWidth,
+        scrollTop,
+        containerHeight,
+        instanceProps: instanceProps.current,
+      });
 
-    const rowStopIndex = getRowStopIndexForStartIndex({
-      startIndex: rowStartIndex,
-      rowCount,
-      rowHeight,
-      columnWidth,
-      scrollTop,
-      containerHeight,
-      instanceProps: instanceProps.current,
-    });
+      // Overscan by one item in each direction so that tab/focus works.
+      // If there isn't at least one extra item, tab loops back around.
+      const overscanBackward =
+        !isScrolling || verticalScrollDirection === Direction.Up
+          ? Math.max(1, overscanCount)
+          : 1;
+      const overscanForward =
+        !isScrolling || verticalScrollDirection === Direction.Down
+          ? Math.max(1, overscanCount)
+          : 1;
 
-    const columnStartIndex = getColumnStartIndexForOffset({
-      rowHeight,
-      columnWidth,
-      rowCount,
-      columnCount,
-      instanceProps: instanceProps.current,
-      offset: scrollLeft,
-    });
+      return [
+        Math.max(0, startIndex - overscanBackward),
+        Math.max(0, Math.min(rowCount - 1, stopIndex + overscanForward)),
+        startIndex,
+        stopIndex,
+      ];
+    };
 
-    const columnStopIndex = getColumnStopIndexForStartIndex({
-      startIndex: columnStartIndex,
-      columnCount,
-      rowHeight,
-      columnWidth,
-      scrollLeft,
-      containerWidth,
-      instanceProps: instanceProps.current,
-    });
+    const getHorizontalRangeToRender = () => {
+      const startIndex = getColumnStartIndexForOffset({
+        rowHeight,
+        columnWidth,
+        rowCount,
+        columnCount,
+        instanceProps: instanceProps.current,
+        offset: scrollLeft,
+      });
+
+      const stopIndex = getColumnStopIndexForStartIndex({
+        startIndex,
+        columnCount,
+        rowHeight,
+        columnWidth,
+        scrollLeft,
+        containerWidth,
+        instanceProps: instanceProps.current,
+      });
+
+      // Overscan by one item in each direction so that tab/focus works.
+      // If there isn't at least one extra item, tab loops back around.
+      const overscanBackward =
+        !isScrolling || horizontalScrollDirection === Direction.Left
+          ? Math.max(1, overscanCount)
+          : 1;
+      const overscanForward =
+        !isScrolling || horizontalScrollDirection === Direction.Right
+          ? Math.max(1, overscanCount)
+          : 1;
+
+      return [
+        Math.max(0, startIndex - overscanBackward),
+        Math.max(0, Math.min(columnCount - 1, stopIndex + overscanForward)),
+        startIndex,
+        stopIndex,
+      ];
+    };
+
+    const [rowStartIndex, rowStopIndex] = getVerticalRangeToRender();
+    const [columnStartIndex, columnStopIndex] = getHorizontalRangeToRender();
 
     const estimatedTotalHeight = getEstimatedTotalHeight(
       rowCount,
@@ -787,6 +845,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         setScrollState((prev) => ({
           ...prev,
           isScrolling: true,
+          verticalScrollDirection:
+            prev.scrollTop > scrollTop ? Direction.Up : Direction.Down,
           scrollTop,
         }));
 
@@ -806,6 +866,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         setScrollState((prev) => ({
           ...prev,
           isScrolling: true,
+          horizontalScrollDirection:
+            prev.scrollLeft > scrollLeft ? Direction.Left : Direction.Right,
           scrollLeft,
         }));
         /* Scroll callbacks */
