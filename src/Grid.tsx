@@ -1815,11 +1815,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         />
       ) : null;
     const selectionChildren = (
-      <div
-        style={{
-          pointerEvents: "none",
-        }}
-      >
+      <>
         <div
           style={{
             position: "absolute",
@@ -1852,11 +1848,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             left: 0,
             bottom: 0,
             overflow: "hidden",
+            pointerEvents: "none",
           }}
         >
           <div
             style={{
               transform: `translate(0, -${scrollTop + frozenRowHeight}px)`,
+              pointerEvents: "none",
             }}
           >
             {selectionAreasFrozenColumns}
@@ -1872,11 +1870,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             right: 0,
             top: 0,
             overflow: "hidden",
+            pointerEvents: "none",
           }}
         >
           <div
             style={{
               transform: `translate(-${scrollLeft + frozenColumnWidth}px, 0)`,
+              pointerEvents: "none",
             }}
           >
             {selectionAreasFrozenRows}
@@ -1892,16 +1892,23 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             left: 0,
             top: 0,
             overflow: "hidden",
+            pointerEvents: "none",
           }}
         >
           {selectionAreasIntersection}
           {activeCellSelectionFrozenIntersection}
           {fillhandleComponent}
         </div>
-      </div>
+      </>
     );
     return (
-      <div style={{ position: "relative", width: containerWidth }}>
+      <div
+        style={{
+          position: "relative",
+          width: containerWidth,
+          touchAction: "none",
+        }}
+      >
         <div tabIndex={0} ref={containerRef} {...rest}>
           <Stage
             width={containerWidth}
