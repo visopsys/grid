@@ -85,7 +85,7 @@ export interface SelectionResults {
   /**
    * Mousedown event on fillhandle
    */
-  onFillHandleMouseDown?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  fillHandleProps?: Record<string, (e: any) => void>;
   /**
    *
    * Fill selections
@@ -835,7 +835,9 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     newSelection,
     setSelections,
     setActiveCell: handleSetActiveCell,
-    onFillHandleMouseDown: handleFillHandleMouseDown,
+    fillHandleProps: {
+      onMouseDown: handleFillHandleMouseDown,
+    },
     fillSelection,
     clearLastSelection: handleClearLastSelection,
   };

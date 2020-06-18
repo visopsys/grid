@@ -160,9 +160,9 @@ export interface GridProps {
    */
   selectionRenderer?: (props: SelectionProps) => React.ReactNode;
   /**
-   * Mousedown event on fillhandle
+   * Bind to fill handle
    */
-  onFillHandleMouseDown?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  fillHandleProps?: Record<string, (e: any) => void>;
   /**
    * Fired when scroll viewport changes
    */
@@ -204,7 +204,7 @@ export type RefAttribute = {
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 export interface SelectionProps extends ShapeConfig {
-  onFillHandleMouseDown?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  fillHandleProps?: Record<string, (e: any) => void>;
 }
 
 export type ScrollCoords = {
@@ -381,9 +381,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       wrapper = (children: React.ReactNode): React.ReactNode => children,
       cellAreas = [],
       showFillHandle = true,
-      onFillHandleMouseDown,
       fillSelection,
       overscanCount = 1,
+      fillHandleProps,
       ...rest
     } = props;
 
@@ -1811,7 +1811,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           {...fillHandleDimension}
           stroke={selectionBorderColor}
           size={fillHandleWidth}
-          onMouseDown={onFillHandleMouseDown}
+          {...fillHandleProps}
         />
       ) : null;
     const selectionChildren = (
