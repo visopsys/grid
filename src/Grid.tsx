@@ -928,8 +928,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         setScrollState((prev) => {
           return {
             ...prev,
-            scrollLeft: x == void 0 ? prev.scrollLeft : scrollLeft + x,
-            scrollTop: y == void 0 ? prev.scrollTop : scrollTop + y,
+            scrollLeft: x == void 0 ? prev.scrollLeft : prev.scrollLeft + x,
+            scrollTop: y == void 0 ? prev.scrollTop : prev.scrollTop + y,
           };
         });
       }
