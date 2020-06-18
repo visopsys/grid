@@ -33,6 +33,7 @@ Canvas table grid to render large set of tabular data. Uses virtualization simil
 - :rainbow: Full Theming and Context Support
 - :anchor: Fill handle support
 - :feet: Customizable undo/redo support
+- :iphone: Mobile/Touch device support
 - :muscle: Highly customizable using [react-konva](https://github.com/konvajs/react-konva/)
 
 ### Why another canvas grid library
