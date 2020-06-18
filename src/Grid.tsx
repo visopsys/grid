@@ -297,8 +297,14 @@ export interface SnapColumnProps {
   frozenColumns: number;
 }
 
+export interface PosXY {
+  x?: number;
+  y?: number;
+}
+
 export type GridRef = {
   scrollTo: (scrollPosition: ScrollCoords) => void;
+  scrollBy: (pos: PosXY) => void;
   stage: Stage | null;
   container: HTMLDivElement | null;
   resetAfterIndices: (
@@ -396,6 +402,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     useImperativeHandle(forwardedRef, () => {
       return {
         scrollTo,
+        scrollBy,
         scrollToItem,
         stage: stageRef.current,
         container: containerRef.current,
@@ -907,6 +914,26 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       },
       [showScrollbar]
     );
+
+    /**
+     * Scrollby utility
+     */
+    const scrollBy = useCallback(({ x, y }: PosXY) => {
+      if (showScrollbar) {
+        if (horizontalScrollRef.current && x !== void 0)
+          horizontalScrollRef.current.scrollLeft += x;
+        if (verticalScrollRef.current && y !== void 0)
+          verticalScrollRef.current.scrollTop += y;
+      } else {
+        setScrollState((prev) => {
+          return {
+            ...prev,
+            scrollLeft: x == void 0 ? prev.scrollLeft : scrollLeft + x,
+            scrollTop: y == void 0 ? prev.scrollTop : scrollTop + y,
+          };
+        });
+      }
+    }, []);
 
     const scrollToItem = useCallback(
       (
