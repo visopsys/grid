@@ -1851,6 +1851,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             right: 0,
             bottom: 0,
             overflow: "hidden",
+            pointerEvents: "none",
           }}
         >
           <div
@@ -1881,7 +1882,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           <div
             style={{
               transform: `translate(0, -${scrollTop + frozenRowHeight}px)`,
-              pointerEvents: "none",
             }}
           >
             {selectionAreasFrozenColumns}
@@ -1903,7 +1903,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           <div
             style={{
               transform: `translate(-${scrollLeft + frozenColumnWidth}px, 0)`,
-              pointerEvents: "none",
             }}
           >
             {selectionAreasFrozenRows}
@@ -1933,7 +1932,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         style={{
           position: "relative",
           width: containerWidth,
-          touchAction: "none",
+          userSelect: "none",
         }}
       >
         <div tabIndex={0} ref={containerRef} {...rest}>
