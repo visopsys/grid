@@ -8,11 +8,11 @@
 
 Canvas table grid to render large set of tabular data. Uses virtualization similar to `react-window` and [React-Konva](https://github.com/konvajs/react-konva/) for primitives such as Rect, Text, Shape etc
 
-[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![Build Status](https://travis-ci.org/rmdort/konva-grid.svg?branch=master)](https://travis-ci.org/rmdort/konva-grid)
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![Build Status](https://travis-ci.org/rowsncolumns/grid.svg?branch=master)](https://travis-ci.org/rowsncolumns/grid)
 
 
 
-[Demo](https://rmdort.github.io/konva-grid) | [Usage](#Usage) | [Wiki](https://github.com/rmdort/konva-grid/wiki/Extending-Konva-Grid-using-hooks)
+[Demo](https://rowsncolumns.github.io/grid) | [Usage](#Usage) | [Wiki](https://github.com/rowsncolumns/grid/wiki/Extending-Konva-Grid-using-hooks)
 
 <kbd>![Screen capture](screencapture.gif)</kbd>
 
@@ -62,17 +62,17 @@ Konva Grid is a pure renderer, that will work with many third-party table plugin
 
 #### 1. React-table
 
-[https://github.com/rmdort/konva-grid/tree/master/examples/react-table](https://github.com/rmdort/konva-grid/tree/master/examples/react-table)
+[https://github.com/rowsncolumns/grid/tree/master/examples/react-table](https://github.com/rowsncolumns/grid/tree/master/examples/react-table)
 
 Uses [react-table](https://github.com/tannerlinsley/react-table) to create grouped headings and rows, and display on Konva Grid
 
 #### 2. Excel worksheet
 
-[https://github.com/rmdort/konva-grid/tree/master/examples/excel-worksheet](https://github.com/rmdort/konva-grid/tree/master/examples/excel-worksheet)
+[https://github.com/rowsncolumns/grid/tree/master/examples/excel-worksheet](https://github.com/rowsncolumns/grid/tree/master/examples/excel-worksheet)
 
 #### 3. Zustand - More control over cell level re-rendering
 
-[https://github.com/rmdort/konva-grid/tree/master/examples/zustand](https://github.com/rmdort/konva-grid/tree/master/examples/zustand)
+[https://github.com/rowsncolumns/grid/tree/master/examples/zustand](https://github.com/rowsncolumns/grid/tree/master/examples/zustand)
 
 *More examples coming soon.*
 
@@ -246,8 +246,8 @@ yarn run storybook
 Feel free to fork and submit pull requests
 
 ````
-git clone https://github.com/rmdort/konva-grid.git
-cd konva-grid
+git clone https://github.com/rowsncolumns/grid.git
+cd grid
 yarn
 // Run storybook
 yarn storybook 
