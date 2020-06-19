@@ -1851,7 +1851,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             right: 0,
             bottom: 0,
             overflow: "hidden",
-            pointerEvents: "none",
           }}
         >
           <div
@@ -1859,6 +1858,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               transform: `translate(-${scrollLeft + frozenColumnWidth}px, -${
                 scrollTop + frozenRowHeight
               }px)`,
+              pointerEvents: "none",
             }}
           >
             {borderStylesCells}
@@ -1868,63 +1868,69 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             {fillhandleComponent}
           </div>
         </div>
-        <div
-          style={{
-            position: "absolute",
-            width: frozenColumnWidth + fillHandleWidth,
-            top: frozenRowHeight,
-            left: 0,
-            bottom: 0,
-            overflow: "hidden",
-            pointerEvents: "none",
-          }}
-        >
+        {frozenColumns ? (
           <div
             style={{
-              transform: `translate(0, -${scrollTop + frozenRowHeight}px)`,
+              position: "absolute",
+              width: frozenColumnWidth + fillHandleWidth,
+              top: frozenRowHeight,
+              left: 0,
+              bottom: 0,
+              overflow: "hidden",
             }}
           >
-            {selectionAreasFrozenColumns}
-            {activeCellSelectionFrozenColumn}
-            {fillhandleComponent}
+            <div
+              style={{
+                transform: `translate(0, -${scrollTop + frozenRowHeight}px)`,
+                pointerEvents: "none",
+              }}
+            >
+              {selectionAreasFrozenColumns}
+              {activeCellSelectionFrozenColumn}
+              {fillhandleComponent}
+            </div>
           </div>
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            height: frozenRowHeight + fillHandleWidth,
-            left: frozenColumnWidth,
-            right: 0,
-            top: 0,
-            overflow: "hidden",
-            pointerEvents: "none",
-          }}
-        >
+        ) : null}
+        {frozenRows ? (
           <div
             style={{
-              transform: `translate(-${scrollLeft + frozenColumnWidth}px, 0)`,
+              position: "absolute",
+              height: frozenRowHeight + fillHandleWidth,
+              left: frozenColumnWidth,
+              right: 0,
+              top: 0,
+              overflow: "hidden",
             }}
           >
-            {selectionAreasFrozenRows}
-            {activeCellSelectionFrozenRow}
+            <div
+              style={{
+                transform: `translate(-${scrollLeft + frozenColumnWidth}px, 0)`,
+                pointerEvents: "none",
+              }}
+            >
+              {selectionAreasFrozenRows}
+              {activeCellSelectionFrozenRow}
+              {fillhandleComponent}
+            </div>
+          </div>
+        ) : null}
+        {frozenRows && frozenColumns ? (
+          <div
+            style={{
+              position: "absolute",
+              height: frozenRowHeight + fillHandleWidth,
+              width: frozenColumnWidth + fillHandleWidth,
+              left: 0,
+              top: 0,
+              overflow: "hidden",
+              pointerEvents: "none",
+            }}
+          >
+            {selectionAreasIntersection}
+            {activeCellSelectionFrozenIntersection}
             {fillhandleComponent}
           </div>
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            height: frozenRowHeight + fillHandleWidth,
-            width: frozenColumnWidth + fillHandleWidth,
-            left: 0,
-            top: 0,
-            overflow: "hidden",
-            pointerEvents: "none",
-          }}
-        >
-          {selectionAreasIntersection}
-          {activeCellSelectionFrozenIntersection}
-          {fillhandleComponent}
-        </div>
+        ) : null}
       </>
     );
     return (
