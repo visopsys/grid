@@ -3,7 +3,8 @@
   "workspaces": ["packages/*"],
   "scripts": {
     "storybook": "lerna run storybook --stream",
-    "build": "lerna run build --stream"
+    "build": "lerna run build",
+    "test": "lerna run test"
   },
   "husky": {
     "hooks": {
