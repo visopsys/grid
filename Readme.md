@@ -44,12 +44,12 @@ Born out of frustration, having to deal with complicated imperative canvas libra
 
 #### npm
 ```
-yarn add react-konva-grid
+yarn add @rowsncolumns/grid
 ```
 #### yarn
 
 ```
-npm install react-konva-grid --save
+npm install @rowsncolumns/grid --save
 ```
 
 ## Compatiblity
@@ -79,7 +79,7 @@ Uses [react-table](https://github.com/tannerlinsley/react-table) to create group
 ## Usage
 
 ```js
-import { Grid, Cell } from 'react-konva-grid'
+import { Grid, Cell } from '@rowsncolumns/grid'
 import { Group, Text, Rect } from 'react-konva'
 
 const App = () => {
