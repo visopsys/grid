@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import Grid, { RendererProps, GridRef, useSelection } from "react-konva-grid";
+import Grid, { RendererProps, GridRef, useSelection } from "@rowsncolumns/grid";
 import { Group, Rect, Text } from "react-konva";
 import { useTable } from "react-table";
 import makeData from "./makeData";
@@ -13,35 +13,35 @@ export default function App() {
         columns: [
           {
             Header: "First Name",
-            accessor: "firstName",
+            accessor: "firstName"
           },
           {
             Header: "Last Name",
-            accessor: "lastName",
-          },
-        ],
+            accessor: "lastName"
+          }
+        ]
       },
       {
         Header: "Info",
         columns: [
           {
             Header: "Age",
-            accessor: "age",
+            accessor: "age"
           },
           {
             Header: "Visits",
-            accessor: "visits",
+            accessor: "visits"
           },
           {
             Header: "Status",
-            accessor: "status",
+            accessor: "status"
           },
           {
             Header: "Profile Progress",
-            accessor: "progress",
-          },
-        ],
-      },
+            accessor: "progress"
+          }
+        ]
+      }
     ],
     []
   );
@@ -55,7 +55,7 @@ export default function App() {
     ...rest
   } = useTable({
     columns,
-    data,
+    data
   });
   const frozenRows = headerGroups.length;
   const mergedCells = [];
@@ -69,7 +69,7 @@ export default function App() {
           top: rowIdx,
           left: prevSpan,
           right: colSpan + prevSpan - 1,
-          bottom: rowIdx,
+          bottom: rowIdx
         });
 
         headerCellMap[[rowIdx, prevSpan]] = column;
@@ -85,7 +85,7 @@ export default function App() {
   const { selections, activeCell, ...selectionProps } = useSelection({
     gridRef,
     rowCount,
-    columnCount,
+    columnCount
   });
   return (
     <div className="App">
@@ -98,7 +98,7 @@ export default function App() {
         rowHeight={() => 20}
         columnWidth={() => 100}
         mergedCells={mergedCells}
-        itemRenderer={(props) => {
+        itemRenderer={props => {
           if (props.rowIndex < frozenRows) {
             const value =
               headerCellMap[[props.rowIndex, props.columnIndex]].Header;
@@ -110,7 +110,7 @@ export default function App() {
           // console.log('d', row, cell, cell.render('Cell'))
           return <Cell value={cell.value} {...props} />;
         }}
-        onBeforeRenderRow={(rowIndex) => {
+        onBeforeRenderRow={rowIndex => {
           prepareRow(rows[rowIndex]);
         }}
         width={600}
@@ -130,7 +130,7 @@ const Cell = ({
   y,
   width,
   height,
-  value,
+  value
 }: RendererProps) => {
   return (
     <Group key={key}>

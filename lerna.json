@@ -1,7 +1,13 @@
 {
   "packages": [
-    "packages/*"
+    "packages/*",
+    "examples/*"
   ],
+  "command": {
+    "publish": {
+      "ignore": "example-*"
+    }
+  },
   "useWorkspaces": true,
   "version": "independent",
   "npmClient": "yarn"

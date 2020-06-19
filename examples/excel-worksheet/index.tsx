@@ -12,9 +12,9 @@ import {
   GridRef,
   CellInterface,
   Cell,
-  getBoundedCells,
-} from "react-konva-grid";
-import { createPatches } from "react-konva-grid/dist/hooks/useUndo";
+  getBoundedCells
+} from "@rowsncolumns/grid";
+import { createPatches } from "@rowsncolumns/grid/dist/hooks/useUndo";
 import { Group, Rect, Text } from "react-konva";
 import { useMeasure } from "react-use";
 import isEqual from "react-fast-compare";
@@ -38,7 +38,7 @@ const Header = memo((props: RendererProps) => {
     columnIndex,
     value,
     columnHeader,
-    isActive,
+    isActive
   } = props;
   const isCorner = rowIndex === columnIndex;
   const text = isCorner
@@ -95,15 +95,15 @@ const Sheet = ({ data, onChange, name, isActive }) => {
       );
 
       onChange(name, changes);
-    },
+    }
   });
-  const handleUndo = (patches) => {
+  const handleUndo = patches => {
     const { path, value } = patches;
     const [key] = path;
     if (key === "data") {
       const [_, { rowIndex, columnIndex }] = path;
       const changes = {
-        [[rowIndex, columnIndex]]: value,
+        [[rowIndex, columnIndex]]: value
       };
       onChange(name, changes);
       setActiveCell({ rowIndex, columnIndex });
@@ -124,7 +124,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     ...undoProps
   } = useUndo({
     onUndo: handleUndo,
-    onRedo: handleUndo,
+    onRedo: handleUndo
   });
   useCopyPaste({
     gridRef,
@@ -164,12 +164,12 @@ const Sheet = ({ data, onChange, name, isActive }) => {
             top: rowIndex,
             left: columnIndex,
             bottom: endRowIndex,
-            right: endColumnIndex,
-          },
-        },
+            right: endColumnIndex
+          }
+        }
       ]);
     },
-    onCut: (selection) => {
+    onCut: selection => {
       const { bounds } = selection;
       const changes = {};
       for (let i = bounds.top; i <= bounds.bottom; i++) {
@@ -178,14 +178,14 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         }
       }
       onChange(name, changes);
-    },
+    }
   });
 
   useEffect(() => {
     parser.on("callCellValue", (cellCoord, done) => {
       let value = getValueRef.current({
         rowIndex: cellCoord.row.index + 1,
-        columnIndex: cellCoord.column.index + 1,
+        columnIndex: cellCoord.column.index + 1
       });
       const isFormula = value && value.toString().startsWith("=");
       if (isFormula) {
@@ -221,7 +221,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         gridRef.current.resetAfterIndices(
           {
             rowIndex: selections[0].bounds.top,
-            columnIndex: selections[0].bounds.left,
+            columnIndex: selections[0].bounds.left
           },
           false
         );
@@ -233,7 +233,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
     onSubmit: (value, cell, nextActiveCell) => {
       const { rowIndex, columnIndex } = cell;
       const changes = {
-        [[rowIndex, columnIndex]]: value,
+        [[rowIndex, columnIndex]]: value
       };
       const previousValue = getValueRef.current(cell);
 
@@ -244,14 +244,14 @@ const Sheet = ({ data, onChange, name, isActive }) => {
 
       /* Select the next cell */
       if (nextActiveCell) setActiveCell(nextActiveCell);
-    },
+    }
   });
   const autoSizerProps = useSizer({
     gridRef,
     getValue,
     resizeStrategy: "full",
     rowCount,
-    minColumnWidth: 100,
+    minColumnWidth: 100
   });
   const selectionArea = selections.reduce(
     (acc, { bounds }) => {
@@ -273,7 +273,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         flex: 1,
         minWidth: 0,
         position: isActive ? "relative" : "absolute",
-        top: isActive ? 0 : -2000,
+        top: isActive ? 0 : -2000
       }}
       ref={containerRef}
     >
@@ -289,7 +289,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         rowCount={rowCount}
         rowHeight={() => 22}
         scrollThrottleTimeout={50}
-        itemRenderer={(props) => {
+        itemRenderer={props => {
           if (props.rowIndex < frozenRows) {
             return (
               <Header
@@ -336,7 +336,7 @@ const Sheet = ({ data, onChange, name, isActive }) => {
         {...selectionProps}
         {...editableProps}
         {...autoSizerProps}
-        columnWidth={(columnIndex) => {
+        columnWidth={columnIndex => {
           if (columnIndex === 0) return 46;
           return autoSizerProps.columnWidth(columnIndex);
         }}
@@ -363,23 +363,23 @@ const defaultSheets = [
       "1,2": "World",
       "1,3": "=SUM(2,2)",
       "1,4": "=SUM(B2, 4)",
-      "2,2": 10,
-    },
-  },
+      "2,2": 10
+    }
+  }
 ];
 const App = () => {
   const [activeSheet, setActiveSheet] = useState(0);
   const [sheets, setSheets] = useState(defaultSheets);
   const handleChange = useCallback((name, changes) => {
-    setSheets((prev) => {
-      return prev.map((cur) => {
+    setSheets(prev => {
+      return prev.map(cur => {
         if (cur.name === name) {
           return {
             ...cur,
             cells: {
               ...cur.cells,
-              ...changes,
-            },
+              ...changes
+            }
           };
         }
         return cur;
@@ -404,7 +404,7 @@ const App = () => {
       <Tabs
         sheets={sheets}
         onAdd={() => {
-          setSheets((prev) =>
+          setSheets(prev =>
             prev.concat({ name: "Sheet" + (prev.length + 1), cells: {} })
           );
           setActiveSheet(sheets.length);

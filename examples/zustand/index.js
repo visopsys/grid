@@ -4,34 +4,34 @@ import Grid, {
   Cell,
   useEditable,
   useSelection,
-  useAutoSizer,
-} from "react-konva-grid";
+  useAutoSizer
+} from "@rowsncolumns/grid";
 import create from "zustand";
 
 const [dataStore] = create((set, get) => {
   return {
     data: {
-      [[1, 0]]: "Hello world",
+      [[1, 0]]: "Hello world"
     },
-    setValue: (changes) => {
-      set((state) => {
+    setValue: changes => {
+      set(state => {
         return {
           data: {
             ...state.data,
-            ...changes,
-          },
+            ...changes
+          }
         };
       });
     },
     getValue: ({ rowIndex, columnIndex }) => {
       return get().data[[rowIndex, columnIndex]];
-    },
+    }
   };
 });
 
-const DataCell = memo((props) => {
+const DataCell = memo(props => {
   const { rowIndex, columnIndex } = props;
-  const value = dataStore((state) => state.data[[rowIndex, columnIndex]]);
+  const value = dataStore(state => state.data[[rowIndex, columnIndex]]);
   return <Cell {...props} value={value} />;
 });
 
@@ -39,14 +39,14 @@ const App = () => {
   const rowCount = 100;
   const columnCount = 100;
   const gridRef = useRef();
-  const [getValue, setValue] = dataStore((state) => [
+  const [getValue, setValue] = dataStore(state => [
     state.getValue,
-    state.setValue,
+    state.setValue
   ]);
   const { selections, newSelection, ...selectionProps } = useSelection({
     gridRef,
     rowCount,
-    columnCount,
+    columnCount
   });
   const { editorComponent, ...editableProps } = useEditable({
     gridRef,
@@ -54,18 +54,18 @@ const App = () => {
     selections,
     onSubmit: (value, { rowIndex, columnIndex }) => {
       const changes = {
-        [[rowIndex, columnIndex]]: value,
+        [[rowIndex, columnIndex]]: value
       };
       setValue(changes);
       /* Trigger redraw visible cells after this cell */
       gridRef.current.resetAfterIndices({ rowIndex, columnIndex });
-    },
+    }
   });
   const autoSizerProps = useAutoSizer({
     gridRef,
     getValue,
     rowCount,
-    resizeStrategy: "full",
+    resizeStrategy: "full"
   });
   return (
     <div style={{ position: "relative" }}>
@@ -74,7 +74,7 @@ const App = () => {
         ref={gridRef}
         rowCount={rowCount}
         columnCount={columnCount}
-        itemRenderer={(props) => <DataCell {...props} />}
+        itemRenderer={props => <DataCell {...props} />}
         {...selectionProps}
         {...editableProps}
         {...autoSizerProps}
