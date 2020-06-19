@@ -20,6 +20,9 @@
     "test": "jest",
     "precommit": "npm run test && npm run check:types"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Vinay M <rmdort@gmail.com>",
   "repository": {
     "type": "git",
