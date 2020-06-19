@@ -1842,7 +1842,11 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         />
       ) : null;
     const selectionChildren = (
-      <>
+      <div
+        style={{
+          pointerEvents: "none",
+        }}
+      >
         <div
           style={{
             position: "absolute",
@@ -1858,7 +1862,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               transform: `translate(-${scrollLeft + frozenColumnWidth}px, -${
                 scrollTop + frozenRowHeight
               }px)`,
-              pointerEvents: "none",
             }}
           >
             {borderStylesCells}
@@ -1882,7 +1885,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             <div
               style={{
                 transform: `translate(0, -${scrollTop + frozenRowHeight}px)`,
-                pointerEvents: "none",
               }}
             >
               {selectionAreasFrozenColumns}
@@ -1905,7 +1907,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             <div
               style={{
                 transform: `translate(-${scrollLeft + frozenColumnWidth}px, 0)`,
-                pointerEvents: "none",
               }}
             >
               {selectionAreasFrozenRows}
@@ -1931,7 +1932,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             {fillhandleComponent}
           </div>
         ) : null}
-      </>
+      </div>
     );
     return (
       <div
@@ -1951,8 +1952,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           >
             {wrapper(stageChildren)}
           </Stage>
-          {selectionChildren}
         </div>
+        {selectionChildren}
         {showScrollbar ? (
           <>
             <div
