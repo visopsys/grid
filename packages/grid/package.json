@@ -26,10 +26,10 @@
   "author": "Vinay M <rmdort@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rmdort/konva-grid.git"
+    "url": "https://github.com/rowsncolumns/grid.git"
   },
   "bugs": {
-    "url": "https://github.com/rmdort/konva-grid/issues"
+    "url": "https://github.com/rowsncolumns/grid/issues"
   },
   "dependencies": {
     "konva": "^6.0.0",
