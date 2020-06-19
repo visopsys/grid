@@ -1,4 +1,4 @@
-## Declarative Canvas Grid with React Konva
+## Declarative Canvas Grid
 
 <p align="center">
   <br />
