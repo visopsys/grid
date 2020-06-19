@@ -6,6 +6,7 @@ import {
   getBoundedCells,
   cellIndentifier,
   mergedCellBounds,
+  isEqualCells,
 } from "./../helpers";
 import { KeyCodes, Direction, MouseButtonCodes } from "./../types";
 
@@ -223,11 +224,6 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     [selections]
   );
 
-  const isEqualCells = (a: CellInterface | null, b: CellInterface | null) => {
-    if (a === null || b === null) return false;
-    return a.rowIndex === b.rowIndex && a.columnIndex === b.columnIndex;
-  };
-
   const clearSelections = () => {
     setSelections(EMPTY_SELECTION);
   };
@@ -285,8 +281,8 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       /* Exit early if grid is not initialized */
       if (!gridRef || !gridRef.current) return;
       const coords = gridRef.current.getCellCoordsFromOffset(
-        e.clientX,
-        e.clientY
+        e.nativeEvent.clientX,
+        e.nativeEvent.clientY
       );
       if (!coords) return;
       /* Check if its context menu click */

@@ -169,10 +169,13 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
   const textSizer = useRef(AutoSizerCanvas("12px Arial"));
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { x = 0, y = 0, width = 0, height = 0 } = position;
-  const getWidth = useCallback((text) => {
-    const textWidth = textSizer.current.measureText(text)?.width || 0;
-    return Math.max(textWidth + padding, width);
-  }, []);
+  const getWidth = useCallback(
+    (text) => {
+      const textWidth = textSizer.current.measureText(text)?.width || 0;
+      return Math.max(textWidth + padding, width);
+    },
+    [width]
+  );
   const [inputWidth, setInputWidth] = useState(() => getWidth(value));
   useEffect(() => {
     if (!inputRef.current) return;
@@ -318,8 +321,8 @@ const useEditable = ({
   const handleDoubleClick = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       const coords = gridRef.current.getCellCoordsFromOffset(
-        e.clientX,
-        e.clientY
+        e.nativeEvent.clientX,
+        e.nativeEvent.clientY
       );
       if (!coords) return;
       const { rowIndex, columnIndex } = coords;

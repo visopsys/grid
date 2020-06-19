@@ -806,3 +806,11 @@ export const AutoSizerCanvas = (defaultFont: string) => {
 /* Check if a value is null */
 export const isNull = (value: any) =>
   value === void 0 || value === null || value === "";
+
+export const isEqualCells = (
+  a: CellInterface | null,
+  b: CellInterface | null
+) => {
+  if (a === null || b === null) return false;
+  return a.rowIndex === b.rowIndex && a.columnIndex === b.columnIndex;
+};

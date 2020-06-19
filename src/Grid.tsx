@@ -718,6 +718,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      */
     const getCellCoordsFromOffset = useCallback(
       (left: number, top: number): CellInterface | null => {
+        invariant(
+          typeof left === "number" && typeof top === "number",
+          "Top and left should be a number"
+        );
         if (!stageRef.current) return null;
         const stage = stageRef.current.getStage();
         const rect = containerRef.current?.getBoundingClientRect();
