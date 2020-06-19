@@ -14,11 +14,11 @@
     "storybook": "start-storybook -p 9002 -s ./public",
     "build-storybook": "build-storybook -c .storybook -o .out",
     "deploy-storybook": "storybook-to-ghpages",
-    "prepublish": "npm run build",
-    "postpublish": "storybook-to-ghpages",
+    "prepublish": "yarn build",
+    "postpublish": "yarn deploy-storybook",
     "prettier": "prettier src/**/*.{ts,tsx} stories/**/*.tsx --write",
     "test": "jest",
-    "precommit": "npm run test && npm run check:types"
+    "precommit": "yarn test && yarn check:types"
   },
   "publishConfig": {
     "access": "public"
@@ -44,5 +44,5 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
   },
-  "gitHead": "03d1fc094911c4591e888c60189e13ca2b66b750"
+  "gitHead": "28451ee6c02cf6e579c19fcdbe46d5caea9b37f3"
 }
