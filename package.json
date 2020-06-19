@@ -1,77 +1,8 @@
 {
-  "name": "react-konva-grid",
-  "description": "Declarative React Canvas Grid primitive for Data table, Pivot table, Excel Worksheets",
-  "version": "3.1.3",
-  "main": "dist/index.js",
-  "license": "MIT",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "private": true,
+  "workspaces": ["packages/*"],
   "scripts": {
-    "build": "rimraf dist && tsc -b",
-    "check:types": "tsc --noEmit",
-    "storybook": "start-storybook -p 9002 -s ./public",
-    "build-storybook": "build-storybook -c .storybook -o .out",
-    "deploy-storybook": "storybook-to-ghpages",
-    "prepublish": "npm run build",
-    "postpublish": "storybook-to-ghpages",
-    "prettier": "prettier src/**/*.{ts,tsx} stories/**/*.tsx --write",
-    "test": "jest"
-  },
-  "author": "Vinay M <rmdort@gmail.com>",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/rmdort/konva-grid.git"
-  },
-  "bugs": {
-    "url": "https://github.com/rmdort/konva-grid/issues"
-  },
-  "dependencies": {
-    "konva": "^6.0.0",
-    "react-konva": "^16.13.0-3",
-    "tiny-invariant": "^1.1.0"
-  },
-  "peerDependencies": {
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run test && npm run check:types && lint-staged"
-    }
-  },
-  "lint-staged": {
-    "**/*.+(js|jsx|ts|tsx)": [
-      "prettier --write"
-    ]
-  },
-  "devDependencies": {
-    "@babel/core": "^7.9.6",
-    "@babel/preset-env": "^7.9.6",
-    "@babel/preset-react": "^7.9.4",
-    "@babel/preset-typescript": "^7.9.0",
-    "@storybook/addon-docs": "^5.3.18",
-    "@storybook/addon-info": "^5.3.18",
-    "@storybook/addon-knobs": "^5.3.18",
-    "@storybook/addon-storysource": "^5.3.18",
-    "@storybook/react": "^5.3.18",
-    "@storybook/storybook-deployer": "^2.8.6",
-    "@testing-library/react": "^10.0.4",
-    "@testing-library/react-hooks": "^3.2.1",
-    "@types/jest": "^26.0.0",
-    "@types/react": "^16.9.35",
-    "@types/react-dom": "^16.9.8",
-    "babel-loader": "^8.1.0",
-    "canvas": "^2.6.1",
-    "husky": "^4.2.5",
-    "jest": "^26.0.1",
-    "lint-staged": "^10.2.4",
-    "prettier": "^2.0.5",
-    "react-docgen-typescript-loader": "^3.7.2",
-    "react-test-renderer": "^16.13.1",
-    "react-use": "^15.1.0",
-    "rimraf": "^3.0.2",
-    "typescript": "^3.9.3"
+    "storybook": "lerna run storybook --stream",
+    "build": "lerna run build --stream"
   }
 }
