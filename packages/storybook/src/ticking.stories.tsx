@@ -1,11 +1,6 @@
 // @ts-nocheck
 import React, { memo, useRef, useState, useCallback, useEffect } from "react";
-import Grid, { Cell, CellRenderer } from "./../src";
-import useSelection from "./../src/hooks/useSelection";
-// import useEditable from "./../src/hooks/useEditable";
-import useAutoSizer from "./../src/hooks/useAutoSizer";
-// import { useMeasure } from "react-use";
-// import { Rect, Text, Group, RegularPolygon } from "react-konva";
+import Grid, { Cell, CellRenderer, useSelection } from "@rowsncolumns/grid";
 
 export default {
   title: "Ticking",

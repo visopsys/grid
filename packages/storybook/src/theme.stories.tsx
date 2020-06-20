@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import Grid, { Cell } from "../src";
+import Grid, { Cell } from "@rowsncolumns/grid";
 
 export default {
   title: "Themes",

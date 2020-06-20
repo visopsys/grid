@@ -1,7 +1,5 @@
 import React, { useRef } from "react";
-import Grid, { Cell } from "./../src";
-import useSelection from "./../src/hooks/useSelection";
-import useTouch from "../src/hooks/useTouch";
+import Grid, { Cell, useSelection, useTouch } from "@rowsncolumns/grid";
 
 export default {
   title: "Mobile (touch)",

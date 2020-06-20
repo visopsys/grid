@@ -1,13 +1,15 @@
 // @ts-nocheck
 import React, { useRef, useState, useCallback, useEffect } from "react";
-import Grid, { IChildrenProps, Cell as DefaultCell } from "./../src/";
-import useSelection from "./../src/hooks/useSelection";
-import useEditable, { EditorProps } from "./../src/hooks/useEditable";
-import useAutoSizer from "../src/hooks/useSizer";
-import useTooltip from "./../src/hooks/useTooltip";
+import Grid, {
+  IChildrenProps,
+  Cell as DefaultCell,
+  useSelection,
+  useEditable,
+  useSizer as useAutoSizer,
+  useTooltip,
+} from "@rowsncolumns/grid";
 import { useMeasure } from "react-use";
 import { Rect, Text, Group, RegularPolygon } from "react-konva";
-import { Direction } from "../src/types";
 
 export default {
   title: "Grid",

@@ -1,9 +1,13 @@
 // @ts-nocheck
 import React, { useRef, useEffect, useCallback, useState } from "react";
-import Grid, { Cell, GridRef } from "./../src";
-import useSelection from "./../src/hooks/useSelection";
-import useEditable from "./../src/hooks/useEditable";
-import useUndo, { createPatches } from "./../src/hooks/useUndo";
+import Grid, {
+  Cell,
+  GridRef,
+  useSelection,
+  useEditable,
+  useUndo,
+  createPatches,
+} from "@rowsncolumns/grid";
 
 export default {
   title: "Undo Redo",

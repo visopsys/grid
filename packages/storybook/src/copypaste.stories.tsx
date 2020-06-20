@@ -6,8 +6,13 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import Grid, { Cell, useSelection, SelectionArea, GridRef } from "../src";
-import useCopyPaste from "./../src/hooks/useCopyPaste";
+import Grid, {
+  Cell,
+  useSelection,
+  SelectionArea,
+  GridRef,
+  useCopyPaste,
+} from "@rowsncolumns/grid";
 
 export default {
   title: "Copy Paste",

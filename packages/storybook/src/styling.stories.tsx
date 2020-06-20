@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
-import Grid, { Cell, GridRef } from "./../src";
-import useSelection from "./../src/hooks/useSelection";
+import Grid, { Cell, GridRef, useSelection } from "@rowsncolumns/grid";
 
 export default {
   title: "Styling",

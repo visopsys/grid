@@ -1,7 +1,10 @@
 import React, { useRef } from "react";
-import Grid, { Cell, GridRef } from "./../src";
-import useSelection from "./../src/hooks/useSelection";
-import usePagination from "./../src/hooks/usePagination";
+import Grid, {
+  Cell,
+  GridRef,
+  useSelection,
+  usePagination,
+} from "@rowsncolumns/grid";
 
 export default {
   title: "Pagination",

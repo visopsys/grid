@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useRef, useReducer } from "react";
 import { Layer, Group, Image, Transformer, Rect } from "react-konva";
-import Grid from "./../src";
+import Grid from "@rowsncolumns/grid";
 
 // More info https://konvajs.org/docs/react/Transformer.html
 

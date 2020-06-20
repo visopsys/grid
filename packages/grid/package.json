@@ -10,13 +10,13 @@
   ],
   "scripts": {
     "build": "rimraf dist && tsc -b",
-    "check:types": "tsc --noEmit",
-    "storybook": "start-storybook -p 9002 -s ./public",
+    "build:watch": "tsc -b --watch",
+    "check:types": "tsc --noEmit",    
     "build-storybook": "build-storybook -c .storybook -o .out",
     "deploy-storybook": "storybook-to-ghpages",
     "prepublish": "yarn build",
     "postpublish": "yarn deploy-storybook",
-    "prettier": "prettier src/**/*.{ts,tsx} stories/**/*.tsx --write",
+    "prettier": "prettier src/**/*.{ts,tsx} --write",
     "test": "jest",
     "precommit": "yarn test && yarn check:types"
   },
