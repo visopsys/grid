@@ -56,7 +56,7 @@ export interface IProps {
 
 export enum ResizeStrategy {
   "lazy" = "lazy",
-  "full" = "full",
+  "full" = "full"
 }
 
 export interface AutoResizerResults {
@@ -96,7 +96,7 @@ const useAutoSizer = ({
   rowCount,
   resizeOnScroll = true,
   font = "12px Arial",
-  autoResize = true,
+  autoResize = true
 }: IProps): AutoResizerResults => {
   invariant(
     !(resizeStrategy === ResizeStrategy.full && rowCount === void 0),
@@ -108,7 +108,7 @@ const useAutoSizer = ({
     rowStartIndex: 0,
     rowStopIndex: 0,
     columnStartIndex: 0,
-    columnStopIndex: 0,
+    columnStopIndex: 0
   });
   const isMounted = useRef(false);
   const debounceResizer = useRef(
@@ -145,7 +145,7 @@ const useAutoSizer = ({
         const value =
           getValue({
             rowIndex: start,
-            columnIndex,
+            columnIndex
           }) ?? null;
         if (value !== null) {
           const metrics = autoSizer.current.measureText(value);
@@ -184,7 +184,7 @@ const useAutoSizer = ({
         if (!isMounted.current) return;
         debounceResizer.current({
           rowIndex: cells.rowStartIndex,
-          columnIndex: cells.columnStartIndex,
+          columnIndex: cells.columnStartIndex
         });
       }
     },
@@ -192,10 +192,10 @@ const useAutoSizer = ({
   );
 
   return {
-    columnWidth: autoResize ? getColumnWidth : undefined,
+    ...(autoResize ? { columnWidth: getColumnWidth } : {}),
     resizeColumn: handleResizeColumn,
     onViewChange: handleViewChange,
-    getTextMetrics,
+    getTextMetrics
   };
 };
 
