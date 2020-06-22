@@ -10,6 +10,7 @@ const FillHandle: React.FC<ShapeConfig> = ({
   stroke,
   strokeWidth = 1,
   size = 8,
+  borderColor,
   ...props
 }) => {
   if (x === 0 || y === 0) return null;
@@ -21,7 +22,7 @@ const FillHandle: React.FC<ShapeConfig> = ({
         top: y - size / 2,
         width: size,
         height: size,
-        border: `${strokeWidth}px white solid`,
+        border: `${strokeWidth}px ${borderColor} solid`,
         background: stroke,
         cursor: "crosshair",
         pointerEvents: "all",

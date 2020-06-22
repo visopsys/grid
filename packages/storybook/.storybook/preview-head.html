@@ -2,7 +2,10 @@
 <style type="text/css">
   body {
     margin: 0;
-    padding: 0;
+    padding: 0;    
+  }
+  html, body {
+    min-height: 100%;
   }
   * {
     box-sizing:border-box;
@@ -25,6 +28,8 @@
 
     requestAnimationFrame( animate );
     stats.dom.style.right = '0';
+    stats.dom.style.bottom = '0';
+    stats.dom.style.top = 'initial';
     stats.dom.style.left = 'initial';
   }
 </script>

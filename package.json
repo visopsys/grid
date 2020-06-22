@@ -1,9 +1,10 @@
 {
   "private": true,
-  "workspaces": ["packages/*", "examples/*"],
+  "workspaces": ["packages/*", "examples/*", "hooks/*"],
   "scripts": {
     "storybook": "lerna run storybook --stream",
     "build": "lerna run build",
+    "build:watch": "lerna run build:watch --stream --concurrency 20 --parallel",
     "test": "lerna run test"
   },
   "husky": {

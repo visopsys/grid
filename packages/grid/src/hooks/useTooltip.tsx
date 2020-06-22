@@ -9,7 +9,7 @@ export interface TooltipOptions {
   /**
    * Grid references
    */
-  gridRef: React.MutableRefObject<GridRef>;
+  gridRef: React.MutableRefObject<GridRef | null>;
   /**
    * Tooltip value getter of a cell
    */
@@ -90,6 +90,7 @@ const useTooltip = ({
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
+      if (!gridRef.current) return
       const coords = gridRef.current.getCellCoordsFromOffset(
         e.clientX,
         e.clientY

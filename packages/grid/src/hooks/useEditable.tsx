@@ -23,7 +23,7 @@ export interface UseEditableOptions {
   /**
    * Access grid methods
    */
-  gridRef: React.MutableRefObject<GridRef>;
+  gridRef: React.MutableRefObject<GridRef | null>;
   /**
    * Value getter
    */
@@ -35,7 +35,7 @@ export interface UseEditableOptions {
   /**
    * Callback when user changes a value in editor
    */
-  onChange: (value: string, activeCell: CellInterface) => void;
+  onChange?: (value: string, activeCell: CellInterface) => void;
   /**
    * Callback when user submits a value. Use this to update state
    */
@@ -79,10 +79,6 @@ export interface EditableResults {
    * Key down listeners
    */
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
-  /**
-   * Mouse down listener which triggers Blur event on the editors
-   */
-  onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
   /**
    * Get next focusable cell based on current activeCell and direction user is moving
    */
@@ -215,6 +211,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
           outline: "none",
           resize: "none",
           overflow: "hidden",
+          verticalAlign: 'top',
         }}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
           setInputWidth(getWidth(e.target.value));
@@ -294,12 +291,18 @@ const useEditable = ({
     scrollTop: 0,
   });
   const isDirtyRef = useRef<boolean>(false);
+  const currentValueRef = useRef(value)
   const showEditor = () => setShowEditor(true);
   const hideEditor = () => {
     setShowEditor(false);
     currentActiveCellRef.current = null;
   };
-  const focusGrid = () => requestAnimationFrame(() => gridRef.current.focus());
+  const focusGrid = () => requestAnimationFrame(() => gridRef.current && gridRef.current.focus());
+
+  /* Keep ref in sync */
+  useEffect(() => {
+    currentValueRef.current = value
+  })
 
   /**
    * Make a cell editable
@@ -315,11 +318,14 @@ const useEditable = ({
     setValue(initialValue || getValue(coords) || "");
     showEditor();
     setPosition(pos);
+    /* Listen to mousedown events, so we can close teh editor */
+    document.addEventListener('mousedown', handleMouseDown)
   };
 
   /* Activate edit mode */
   const handleDoubleClick = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
+      if (!gridRef.current) return
       const coords = gridRef.current.getCellCoordsFromOffset(
         e.nativeEvent.clientX,
         e.nativeEvent.clientY
@@ -434,7 +440,7 @@ const useEditable = ({
       }
 
       /* If user has selected some cells and active cell is within this selection */
-      if (selections.length && currentCell && gridRef) {
+      if (selections.length && currentCell && gridRef.current) {
         const { bounds } = selections[selections.length - 1];
         const activeCellBounds = gridRef.current.getCellBounds(currentCell);
         const nextCell = findNextCellWithinBounds(
@@ -473,17 +479,19 @@ const useEditable = ({
   );
 
   const handleMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
+    (e: globalThis.MouseEvent) => {
       if (currentActiveCellRef.current) {
         if (isDirtyRef.current) {
-          handleSubmit(value, currentActiveCellRef.current);
+          handleSubmit(currentValueRef.current, currentActiveCellRef.current);
         } else {
           handleHide();
         }
       }
       initialActiveCell.current = undefined;
+
+      document.removeEventListener('mousedown', handleMouseDown)
     },
-    [value]
+    []
   );
 
   const handleChange = useCallback(
@@ -557,7 +565,6 @@ const useEditable = ({
     onDoubleClick: handleDoubleClick,
     onScroll: handleScroll,
     onKeyDown: handleKeyDown,
-    onMouseDown: handleMouseDown,
     nextFocusableCell,
     isEditInProgress: !!editingCell,
     editingCell,

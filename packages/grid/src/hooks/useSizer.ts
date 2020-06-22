@@ -7,7 +7,7 @@ export interface IProps {
   /**
    * Used to access grid functions
    */
-  gridRef: React.MutableRefObject<GridRef>;
+  gridRef: React.MutableRefObject<GridRef | null>;
   /**
    * Value getter for a cell
    */
@@ -114,7 +114,7 @@ const useAutoSizer = ({
   const debounceResizer = useRef(
     debounce(
       ({ rowIndex, columnIndex }: CellInterface) =>
-        gridRef.current.resetAfterIndices({ rowIndex, columnIndex }),
+      gridRef.current && gridRef.current.resetAfterIndices({ rowIndex, columnIndex }),
       timeout
     )
   );
@@ -162,6 +162,7 @@ const useAutoSizer = ({
   );
 
   const handleResizeColumn = useCallback((columnIndex: number) => {
+    if (!gridRef.current) return
     const width = getColumnWidth(columnIndex);
     gridRef.current.resizeColumns([columnIndex]);
   }, []);

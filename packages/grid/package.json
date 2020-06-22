@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "rimraf dist && tsc -b",
-    "build:watch": "tsc -b --watch",
+    "build:watch": "tsc -p . --watch",
     "check:types": "tsc --noEmit",    
     "build-storybook": "build-storybook -c .storybook -o .out",
     "deploy-storybook": "storybook-to-ghpages",

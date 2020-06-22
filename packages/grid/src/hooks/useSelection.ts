@@ -14,7 +14,7 @@ export interface UseSelectionOptions {
   /**
    * Access grid functions
    */
-  gridRef?: React.MutableRefObject<GridRef>;
+  gridRef: React.MutableRefObject<GridRef | null>;
   /**
    * Initial selections
    */
@@ -162,7 +162,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
    * Cater to Merged cells
    */
   const selectionFromStartEnd = (start: CellInterface, end: CellInterface) => {
-    if (!gridRef) return null;
+    if (!gridRef?.current) return null;
     const boundsStart = gridRef.current.getCellBounds(start);
     const boundsEnd = gridRef.current.getCellBounds(end);
     const bounds = {
@@ -387,7 +387,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
    */
   const handleMouseMove = useCallback((e: globalThis.MouseEvent) => {
     /* Exit if user is not in selection mode */
-    if (!isSelecting.current || !gridRef) return;
+    if (!isSelecting.current || !gridRef?.current) return;
 
     const coords = gridRef.current.getCellCoordsFromOffset(
       e.clientX,
@@ -440,7 +440,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       if (
         !selectionStart.current ||
         !selectionEnd.current ||
-        !gridRef ||
+        !gridRef?.current ||
         !activeCell
       )
         return;
@@ -554,7 +554,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
 
   //  Home
   const selectFirstCellInRow = () => {
-    if (!selectionStart.current) return;
+    if (!selectionStart.current || !gridRef?.current) return;
     const cell = {
       rowIndex: selectionStart.current.rowIndex,
       columnIndex: 0,
@@ -565,7 +565,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   };
   //  End
   const selectLastCellInRow = () => {
-    if (!selectionStart.current) return;
+    if (!selectionStart.current || !gridRef?.current) return;
     const cell = {
       rowIndex: selectionStart.current.rowIndex,
       columnIndex: columnCount - 1,
@@ -576,7 +576,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
 
   //  ⌘+Home
   const selectFirstCellInColumn = () => {
-    if (!selectionStart.current) return;
+    if (!selectionStart.current || !gridRef?.current) return;
     const cell = {
       rowIndex: 0,
       columnIndex: selectionStart.current.columnIndex,
@@ -587,7 +587,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   };
   //  ⌘+End
   const selectLastCellInColumn = () => {
-    if (!selectionStart.current) return;
+    if (!selectionStart.current || !gridRef?.current) return;
     const cell = {
       rowIndex: rowCount - 1,
       columnIndex: selectionStart.current.columnIndex,
@@ -598,12 +598,13 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
 
   //  ⌘+Backspace
   const scrollToActiveCell = () => {
-    if (!activeCell) return;
+    if (!activeCell || !gridRef?.current) return;
     gridRef?.current.scrollToItem(activeCell, Align.smart);
   };
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      if (!gridRef?.current) return
       const isShiftKey = e.nativeEvent.shiftKey;
       const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
       switch (e.nativeEvent.which) {
@@ -713,7 +714,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const handleFillHandleMouseMove = useCallback(
     (e: globalThis.MouseEvent) => {
       /* Exit if user is not in selection mode */
-      if (!isFilling.current || !gridRef || !activeCellRef.current) return;
+      if (!isFilling.current || !gridRef?.current || !activeCellRef.current) return;
 
       const coords = gridRef.current.getCellCoordsFromOffset(
         e.clientX,

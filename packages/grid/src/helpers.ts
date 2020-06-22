@@ -471,7 +471,7 @@ export function throttle(func: Function, limit: number): Function {
   };
 }
 
-export function debounce<T extends Function>(cb: T, wait = 20) {
+export function debounce<T extends Function>(cb: T, wait = 300) {
   let h = 0;
   let callable = (...args: any) => {
     clearTimeout(h);
@@ -811,6 +811,6 @@ export const isEqualCells = (
   a: CellInterface | null,
   b: CellInterface | null
 ) => {
-  if (a === null || b === null) return false;
+  if (isNull(a) || isNull(b) || a === null || b === null) return false;
   return a.rowIndex === b.rowIndex && a.columnIndex === b.columnIndex;
 };

@@ -19,7 +19,7 @@ export interface CopyProps {
   /**
    * Grid reference to access grid methods
    */
-  gridRef: React.MutableRefObject<GridRef>;
+  gridRef: React.MutableRefObject<GridRef | null>;
   /**
    * Callback when a paste is executed
    */
@@ -30,7 +30,7 @@ export interface CopyProps {
   /**
    * When user tries to cut a selection
    */
-  onCut: (selection: SelectionArea) => void;
+  onCut?: (selection: SelectionArea) => void;
 }
 
 export interface CopyResults {
@@ -176,6 +176,7 @@ const useCopyPaste = ({
    * User is trying to copy from outisde the app
    */
   const handleProgramaticCopy = useCallback(() => {
+    if (!gridRef.current) return
     gridRef.current.focus();
     document.execCommand("copy");
   }, []);
@@ -184,6 +185,7 @@ const useCopyPaste = ({
    * User is trying to paste from outisde the app
    */
   const handleProgramaticPaste = useCallback(async () => {
+    if (!gridRef.current) return
     gridRef.current.focus();
     const text = await navigator.clipboard.readText();
     const clipboardData = new DataTransfer();

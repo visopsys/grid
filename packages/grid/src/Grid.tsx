@@ -90,7 +90,7 @@ export interface GridProps {
   /**
    * Currently active cell
    */
-  activeCell?: CellInterface;
+  activeCell?: CellInterface | null;
   /**
    * Background of selection
    */
@@ -192,6 +192,12 @@ export interface GridProps {
    * Overscan row and columns
    */
   overscanCount?: number;
+  /**
+   * Border color of fill handle
+   */
+  fillhandleBorderColor?: string;
+  onMouseDown?: (e: React.MouseEvent<HTMLDivElement>) => void
+  onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void
 }
 
 export interface CellRangeArea extends CellInterface {
@@ -199,7 +205,7 @@ export interface CellRangeArea extends CellInterface {
 }
 
 export type RefAttribute = {
-  ref?: React.MutableRefObject<GridRef>;
+  ref?: React.MutableRefObject<GridRef | null>;
 };
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
@@ -390,6 +396,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       fillSelection,
       overscanCount = 1,
       fillHandleProps,
+      fillhandleBorderColor = 'white',
       ...rest
     } = props;
 
@@ -1842,6 +1849,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           {...fillHandleDimension}
           stroke={selectionBorderColor}
           size={fillHandleWidth}
+          borderColor={fillhandleBorderColor}
           {...fillHandleProps}
         />
       ) : null;
@@ -1945,8 +1953,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           width: containerWidth,
           userSelect: "none",
         }}
+        className='rowsncolumns-grid'
       >
-        <div tabIndex={0} ref={containerRef} {...rest}>
+        <div className='rowsncolumns-grid-container' tabIndex={0} ref={containerRef} {...rest}>
           <Stage
             width={containerWidth}
             height={containerHeight}

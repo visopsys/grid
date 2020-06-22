@@ -12,6 +12,7 @@ import { KeyCodes } from "../types";
  */
 
 export interface UndoProps {
+  id?: number;
   onRedo?: (patches: Patches) => void;
   onUndo?: (patches: Patches) => void;
 }

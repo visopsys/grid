@@ -8,6 +8,8 @@ export interface CellProps extends RendererProps {
   value?: string;
   textColor?: string;
   padding?: number;
+  fontWeight?: string;
+  fontStyle?: string;
   onClick?: (e: KonvaEventObject<MouseEvent>) => void;
 }
 
@@ -24,7 +26,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
     value,
     fill = "white",
     strokeWidth = 0.5,
-    stroke = "#aaa",
+    stroke = "#d9d9d9",
     align = "left",
     verticalAlign = "middle",
     textColor = "#333",
@@ -33,8 +35,12 @@ const Cell: React.FC<CellProps> = memo((props) => {
     fontSize = 12,
     children,
     wrap = "none",
+    fontWeight = 'normal',
+    fontStyle = 'normal',
+    textDecoration,
     ...rest
   } = props;
+  const textStyle = `${fontWeight} ${fontStyle}`
   return (
     <Group {...rest}>
       <Rect
@@ -59,7 +65,8 @@ const Cell: React.FC<CellProps> = memo((props) => {
           verticalAlign={verticalAlign}
           align={align}
           fontFamily={fontFamily}
-          fontSize={fontSize}
+          fontStyle={textStyle}
+          textDecoration={textDecoration}
           padding={padding}
           wrap={wrap}
           hitStrokeWidth={0}

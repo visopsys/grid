@@ -5,7 +5,7 @@ export interface TouchProps {
   /**
    * Grid reference to access grid methods
    */
-  gridRef: React.MutableRefObject<GridRef>;
+  gridRef: React.MutableRefObject<GridRef | null>;
 }
 
 export interface TouchResults {
@@ -28,6 +28,7 @@ const useTouch = ({ gridRef }: TouchProps): TouchResults => {
       let x = pageX;
       let y = pageY;
       const handleTouchMove = (e: globalThis.TouchEvent) => {
+        if (!gridRef.current) return
         const { pageX, pageY } = e.changedTouches[0];
         const dx = pageX - x;
         const dy = pageY - y;
