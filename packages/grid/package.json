@@ -11,9 +11,7 @@
   "scripts": {
     "build": "rimraf dist && tsc -b",
     "build:watch": "tsc -p . --watch",
-    "check:types": "tsc --noEmit",    
-    "build-storybook": "build-storybook -c .storybook -o .out",
-    "deploy-storybook": "storybook-to-ghpages",
+    "check:types": "tsc --noEmit",        
     "prepublish": "yarn build",
     "postpublish": "yarn deploy-storybook",
     "prettier": "prettier src/**/*.{ts,tsx} --write",
