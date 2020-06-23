@@ -13,7 +13,7 @@ import {
   SelectionArea,
 } from "../Grid";
 import { KeyCodes, Direction } from "./../types";
-import { findNextCellWithinBounds, AutoSizerCanvas } from "../helpers";
+import { findNextCellWithinBounds, AutoSizerCanvas, isEqualCells } from "../helpers";
 
 export interface UseEditableOptions {
   /**
@@ -59,7 +59,7 @@ export interface UseEditableOptions {
   /**
    * Callback fired before editing. Can be used to prevent editing. Do not use it, Can be removed in next release.
    */
-  onBeforeEdit?: (coords: CellInterface) => boolean;
+  canEdit?: (coords: CellInterface) => boolean;
 }
 
 export interface EditableResults {
@@ -94,6 +94,34 @@ export interface EditableResults {
    * Currently editing cell
    */
   editingCell: CellInterface | null;
+  /**
+   * Make a cell editable
+   */
+  makeEditable: (cell: CellInterface, value?: string) => void
+  /**
+   * Set editable value imperatively
+   */
+  setValue: (value: string, activeCell: CellInterface) => void;
+  /**
+   * Hide editor
+   */
+  hideEditor: () => void;
+  /**
+   * Show editor
+   */
+  showEditor: () => void;
+  /**
+   * Bind to mousedown event
+   */
+  onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
+  /**
+   * Imperatively trigger submit
+   */
+  submitEditor: (value: string, activeCell: CellInterface, nextActiveCell?: CellInterface) => void
+  /**
+   * Cancels an edit
+   */
+  cancelEditor: () => void
 }
 
 export interface EditorProps extends CellInterface {
@@ -140,6 +168,8 @@ export interface EditorProps extends CellInterface {
     activeCell: CellInterface,
     direction?: Direction
   ) => CellInterface | null;
+  /* Autofocus on the editor */
+  autoFocus?: boolean
 }
 
 /**
@@ -158,6 +188,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     nextFocusableCell,
     value = "",
     activeCell,
+    autoFocus = true,
     ...rest
   } = props;
   const borderWidth = 2;
@@ -172,10 +203,13 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
     },
     [width]
   );
+  useEffect(() => {
+    setInputWidth(getWidth(value));
+  }, [ value ])
   const [inputWidth, setInputWidth] = useState(() => getWidth(value));
   useEffect(() => {
     if (!inputRef.current) return;
-    inputRef.current.focus();
+    if (autoFocus) inputRef.current.focus();
     /* Focus cursor at the end */
     inputRef.current.selectionStart = value.length;
   }, []);
@@ -198,7 +232,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         rows={1}
         cols={1}
         ref={inputRef}
-        defaultValue={value}
+        value={value}
         style={{
           font: "12px Arial",
           lineHeight: 1.2,
@@ -213,8 +247,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
           overflow: "hidden",
           verticalAlign: 'top',
         }}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-          setInputWidth(getWidth(e.target.value));
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {          
           onChange(e.target.value, cell);
         }}
         onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -259,7 +292,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
 };
 
 const getDefaultEditor = (cell: CellInterface | null) => DefaultEditor;
-
+const defaultCanEdit = (cell: CellInterface) => true
 /**
  * Hook to make grid editable
  * @param param
@@ -274,7 +307,7 @@ const useEditable = ({
   onDelete,
   selections = [],
   activeCell,
-  onBeforeEdit,
+  canEdit = defaultCanEdit,
 }: UseEditableOptions): EditableResults => {
   const [isEditorShown, setShowEditor] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
@@ -290,6 +323,7 @@ const useEditable = ({
     scrollLeft: 0,
     scrollTop: 0,
   });
+  const [ autoFocus, setAutoFocus ] = useState<boolean>(true)
   const isDirtyRef = useRef<boolean>(false);
   const currentValueRef = useRef(value)
   const showEditor = () => setShowEditor(true);
@@ -309,17 +343,20 @@ const useEditable = ({
    * @param coords
    * @param initialValue
    */
-  const makeEditable = (coords: CellInterface, initialValue?: string) => {
+  const makeEditable = (coords: CellInterface, initialValue?: string, autoFocus: boolean = true) => {
     if (!gridRef.current) return;
+    if (isEqualCells(coords, currentActiveCellRef.current)) return
     /* Call on before edit */
-    if (onBeforeEdit && !onBeforeEdit(coords)) return;
-    currentActiveCellRef.current = coords;
-    const pos = gridRef.current.getCellOffsetFromCoords(coords);
-    setValue(initialValue || getValue(coords) || "");
-    showEditor();
-    setPosition(pos);
-    /* Listen to mousedown events, so we can close teh editor */
-    document.addEventListener('mousedown', handleMouseDown)
+    if (canEdit(coords)) {
+      currentActiveCellRef.current = coords;
+      const pos = gridRef.current.getCellOffsetFromCoords(coords);
+      const value = initialValue || getValue(coords) || ""
+      setValue(value);
+      setAutoFocus(autoFocus)
+      showEditor();
+      setPosition(pos);
+      if (value) handleChange(value, coords)      
+    }
   };
 
   /* Activate edit mode */
@@ -479,24 +516,22 @@ const useEditable = ({
   );
 
   const handleMouseDown = useCallback(
-    (e: globalThis.MouseEvent) => {
+    (e: React.MouseEvent<HTMLDivElement>) => {
       if (currentActiveCellRef.current) {
         if (isDirtyRef.current) {
           handleSubmit(currentValueRef.current, currentActiveCellRef.current);
         } else {
-          handleHide();
+          handleCancel();
         }
       }
       initialActiveCell.current = undefined;
-
-      document.removeEventListener('mousedown', handleMouseDown)
     },
     []
   );
 
   const handleChange = useCallback(
     (newValue: string, activeCell) => {
-      if (!activeCell) return;
+      if (!currentActiveCellRef.current) return;
       /* Check if the value has changed. Used to conditionally submit if editor is not in focus */
       isDirtyRef.current = newValue !== value;
       setValue(newValue);
@@ -506,7 +541,7 @@ const useEditable = ({
   );
 
   /* When the input is blurred out */
-  const handleHide = useCallback(() => {
+  const handleCancel = useCallback(() => {
     hideEditor();
     onCancel && onCancel();
     /* Keep the focus back in the grid */
@@ -549,11 +584,12 @@ const useEditable = ({
         /* This is the cell that is currently being edited */
         cell={editingCell}
         activeCell={activeCell}
+        autoFocus={autoFocus}
         value={value}
         selections={selections}
         onChange={handleChange}
         onSubmit={handleSubmit}
-        onCancel={handleHide}
+        onCancel={handleCancel}
         position={cellPositon}
         nextFocusableCell={nextFocusableCell}
         onBlur={handleBlur}
@@ -568,6 +604,13 @@ const useEditable = ({
     nextFocusableCell,
     isEditInProgress: !!editingCell,
     editingCell,
+    makeEditable,
+    setValue: handleChange,
+    hideEditor,
+    showEditor,
+    submitEditor: handleSubmit,
+    cancelEditor: handleCancel,
+    onMouseDown: handleMouseDown
   };
 };
 

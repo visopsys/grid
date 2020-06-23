@@ -12,8 +12,11 @@ import {
   MdVerticalAlignBottom,
   MdWbSunny,
   MdFormatUnderlined,
+  MdTextFields,
+  MdFormatClear
 } from "react-icons/md";
 import { AiOutlineMergeCells } from "react-icons/ai";
+import { BsColumns } from "react-icons/bs";
 import { IoMdColorFill, IoMdMoon } from "react-icons/io";
 import {
   IconButton,
@@ -22,41 +25,40 @@ import {
   Flex,
   useColorMode,
   useTheme,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  PopoverArrow,
+  PopoverContext
 } from "@chakra-ui/core";
-import { StyledToolbar, Rect, Separator } from "./../styled";
-import {
-  DARK_MODE_COLOR,
-  FORMATTING,
-  FONT_WEIGHT,
-  FONT_STYLE,
-  TEXT_DECORATION,
-} from "./../constants";
+import { StyledToolbar, Rect, Separator, PercentIcon } from "./../styled";
+import { DARK_MODE_COLOR } from "./../constants";
+import { FORMATTING_TYPE, CellFormatting } from "./../types";
+import { translations } from "../translations";
+import { CellConfig } from "../Spreadsheet";
+import { SketchPicker } from "react-color";
 
-const PercentIcon = () => <>%</>;
-
-export interface ToolbarProps {
-  fontWeight?: string;
-  fontStyle?: string;
-  textDecoration?: string;
-  fill?: string;
+export interface ToolbarProps extends CellConfig {
   onFormattingChange?: (
-    type: FORMATTING,
+    type: keyof CellFormatting,
     value: any,
     options?: Record<string, any>
   ) => void;
+  onClearFormatting?: () => void
 }
 
-const Toolbar: React.FC<ToolbarProps> = (props) => {
+const Toolbar: React.FC<ToolbarProps> = props => {
   const {
-    fontWeight,
-    fontStyle,
+    bold,
+    italic,
     fill,
-    textDecoration,
+    underline,
+    strike,
+    color,
     onFormattingChange,
+    onClearFormatting
   } = props;
-  const isBold = fontWeight === FONT_WEIGHT.BOLD;
-  const isItalic = fontStyle === FONT_STYLE.ITALIC;
-  const isStrike = textDecoration === TEXT_DECORATION.STRIKE;
   const { colorMode, toggleColorMode } = useColorMode();
   const theme = useTheme();
   const isLightMode = colorMode === "light";
@@ -69,173 +71,356 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
     : theme.colors.gray[600];
   const backgroundColor = isLightMode ? "white" : DARK_MODE_COLOR;
   return (
-    <StyledToolbar borderColor={borderColor} backgroundColor={backgroundColor}>
+    <StyledToolbar
+      pr={2}
+      pl={2}
+      borderColor={borderColor}
+      backgroundColor={backgroundColor}
+    >
       <Flex flex={1} alignItems="center">
-        <IconButton
-          aria-label="Undo"
-          variant="ghost"
-          color={iconColor}
-          icon={MdUndo}
-          size="sm"
-        />
-
-        <IconButton
-          aria-label="Redo"
-          variant="ghost"
-          color={iconColor}
-          icon={MdRedo}
-          size="sm"
-        />
-
-        <IconButton
-          aria-label="Print"
-          variant="ghost"
-          color={iconColor}
-          icon={MdPrint}
-          size="sm"
-        />
-
-        <Separator borderColor={borderColor} />
-
-        <IconButton
-          aria-label="Format as currency"
-          variant="ghost"
-          color={iconColor}
-          icon={MdAttachMoney}
-          size="sm"
-        />
-
-        <IconButton
-          aria-label="Format as percent"
-          variant="ghost"
-          color={iconColor}
-          fontSize={10}
-          icon={PercentIcon}
-          size="sm"
-        />
-
-        <Separator borderColor={borderColor} />
-
-        <IconButton
-          aria-label="Bold"
-          variant={isBold ? "solid" : "ghost"}
-          color={isBold ? activeIconColor : iconColor}
-          icon={MdFormatBold}
-          fontSize={20}
-          size="sm"
-          onClick={() =>
-            onFormattingChange?.(
-              FORMATTING.FONT_WEIGHT,
-              isBold ? FONT_WEIGHT.NORMAL : FONT_WEIGHT.BOLD
-            )
-          }
-        />
-        <IconButton
-          aria-label="Italic"
-          variant={isItalic ? "solid" : "ghost"}
-          color={isItalic ? activeIconColor : iconColor}
-          icon={MdFormatItalic}
-          fontSize={20}
-          size="sm"
-          onClick={() =>
-            onFormattingChange?.(
-              FORMATTING.FONT_STYLE,
-              isItalic ? FONT_STYLE.NORMAL : FONT_STYLE.ITALIC
-            )
-          }
-        />
-
-        <IconButton
-          aria-label="Strikethrough"
-          variant={isStrike ? "solid" : "ghost"}
-          color={isStrike ? activeIconColor : iconColor}
-          icon={MdFormatUnderlined}
-          fontSize={20}
-          size="sm"
-          onClick={() =>
-            onFormattingChange?.(
-              FORMATTING.TEXT_DECORATION,
-              isStrike ? TEXT_DECORATION.NONE : TEXT_DECORATION.STRIKE
-            )
-          }
-        />
-
-        <IconButton
-          aria-label="Strikethrough"
-          variant={isStrike ? "solid" : "ghost"}
-          color={isStrike ? activeIconColor : iconColor}
-          icon={MdStrikethroughS}
-          fontSize={20}
-          size="sm"
-          onClick={() =>
-            onFormattingChange?.(
-              FORMATTING.TEXT_DECORATION,
-              isStrike ? TEXT_DECORATION.NONE : TEXT_DECORATION.STRIKE
-            )
-          }
-        />
-
-        <Separator borderColor={borderColor} />
-
-        <Button
-          size="sm"
-          color={iconColor}
-          variant="ghost"
-          p={0}
-          w={8}
-          flexDirection="column"
+        <Tooltip
+          hasArrow
+          aria-label={translations.undo}
+          label={translations.undo}
         >
-          <IoMdColorFill />
-          <Rect color={fill} />
-        </Button>
+          <IconButton
+            aria-label={translations.undo}
+            variant="ghost"
+            color={iconColor}
+            icon={MdUndo}
+            size="sm"
+          />
+        </Tooltip>
 
-        <IconButton
-          aria-label="Border"
-          variant="ghost"
-          color={iconColor}
-          icon={MdBorderAll}
-          fontSize={20}
-          size="sm"
-        />
+        <Tooltip
+          hasArrow
+          aria-label={translations.redo}
+          label={translations.redo}
+        >
+          <IconButton
+            aria-label={translations.redo}
+            variant="ghost"
+            color={iconColor}
+            icon={MdRedo}
+            size="sm"
+          />
+        </Tooltip>
 
-        <IconButton
-          aria-label="Border"
-          variant="ghost"
-          color={iconColor}
-          icon={AiOutlineMergeCells}
-          fontSize={20}
-          size="sm"
-        />
+        <Tooltip
+          hasArrow
+          aria-label={translations.print}
+          label={translations.print}
+        >
+          <IconButton
+            aria-label={translations.print}
+            variant="ghost"
+            color={iconColor}
+            icon={MdPrint}
+            size="sm"
+          />
+        </Tooltip>
+
+        <Tooltip
+          hasArrow
+          aria-label={translations.clear_formatting}
+          label={translations.clear_formatting}
+        >
+          <IconButton
+            aria-label={translations.clear_formatting}
+            variant="ghost"
+            color={iconColor}
+            icon={MdFormatClear}
+            size="sm"
+            onClick={() => onClearFormatting?.()}
+          />
+        </Tooltip>
 
         <Separator borderColor={borderColor} />
 
-        <IconButton
-          aria-label="Border"
-          variant="ghost"
-          color={iconColor}
-          icon={MdFormatAlignLeft}
-          fontSize={20}
-          size="sm"
-        />
-        <IconButton
-          aria-label="Border"
-          variant="ghost"
-          color={iconColor}
-          icon={MdVerticalAlignBottom}
-          fontSize={20}
-          size="sm"
-        />
+        <Tooltip
+          hasArrow
+          aria-label={translations.format_as_currency}
+          label={translations.format_as_currency}
+        >
+          <IconButton
+            aria-label={translations.format_as_currency}
+            variant="ghost"
+            color={iconColor}
+            icon={MdAttachMoney}
+            size="sm"
+          />
+        </Tooltip>
+
+        <Tooltip
+          hasArrow
+          aria-label={translations.format_as_percent}
+          label={translations.format_as_percent}
+        >
+          <IconButton
+            aria-label={translations.format_as_percent}
+            variant="ghost"
+            color={iconColor}
+            fontSize={10}
+            icon={PercentIcon}
+            size="sm"
+          />
+        </Tooltip>
+
+        <Separator borderColor={borderColor} />
+
+        <Tooltip
+          hasArrow
+          aria-label={translations.bold}
+          label={translations.bold}
+        >
+          <IconButton
+            aria-label={translations.bold}
+            variant={bold ? "solid" : "ghost"}
+            color={bold ? activeIconColor : iconColor}
+            icon={MdFormatBold}
+            fontSize={20}
+            size="sm"
+            onClick={() => onFormattingChange?.(FORMATTING_TYPE.BOLD, !bold)}
+          />
+        </Tooltip>
+
+        <Tooltip
+          hasArrow
+          aria-label={translations.italic}
+          label={translations.italic}
+        >
+          <IconButton
+            aria-label={translations.italic}
+            variant={italic ? "solid" : "ghost"}
+            color={italic ? activeIconColor : iconColor}
+            icon={MdFormatItalic}
+            fontSize={20}
+            size="sm"
+            onClick={() =>
+              onFormattingChange?.(FORMATTING_TYPE.ITALIC, !italic)
+            }
+          />
+        </Tooltip>
+
+        <Tooltip
+          hasArrow
+          aria-label={translations.underline}
+          label={translations.underline}
+        >
+          <IconButton
+            aria-label={translations.underline}
+            variant={underline ? "solid" : "ghost"}
+            color={underline ? activeIconColor : iconColor}
+            icon={MdFormatUnderlined}
+            fontSize={20}
+            size="sm"
+            onClick={() =>
+              onFormattingChange?.(FORMATTING_TYPE.UNDERLINE, !underline)
+            }
+          />
+        </Tooltip>
+
+        <Tooltip
+          hasArrow
+          aria-label={translations.strikethrough}
+          label={translations.strikethrough}
+        >
+          <IconButton
+            aria-label={translations.strikethrough}
+            variant={strike ? "solid" : "ghost"}
+            color={strike ? activeIconColor : iconColor}
+            icon={MdStrikethroughS}
+            fontSize={20}
+            size="sm"
+            onClick={() =>
+              onFormattingChange?.(FORMATTING_TYPE.STRIKE, !strike)
+            }
+          />
+        </Tooltip>
+
+        <Tooltip
+          hasArrow
+          aria-label={translations.text_color}
+          label={translations.text_color}
+        >
+          <Popover usePortal>
+            {({ onClose }) => {
+              return (
+                <>
+                  <PopoverTrigger>
+                    <Button
+                      size="sm"
+                      color={iconColor}
+                      variant="ghost"
+                      p={0}
+                      w={8}
+                      flexDirection="column"
+                      aria-label={translations.text_color}
+                    >
+                      <MdTextFields />
+                      <Rect color={color} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent width={220}>
+                    <PopoverArrow />
+                    <SketchPicker
+                      onChange={e => {
+                        onFormattingChange?.(FORMATTING_TYPE.COLOR, e.hex);
+                        // onClose?.();
+                      }}
+                    />
+                  </PopoverContent>
+                </>
+              );
+            }}
+          </Popover>
+        </Tooltip>
+
+        <Separator borderColor={borderColor} />
+
+        <Tooltip
+          hasArrow
+          aria-label={translations.fill_color}
+          label={translations.fill_color}
+        >
+          <Popover usePortal>
+            {({ onClose }) => {
+              return (
+                <>
+                  <PopoverTrigger>
+                    <Button
+                      size="sm"
+                      color={iconColor}
+                      variant="ghost"
+                      p={0}
+                      w={8}
+                      flexDirection="column"
+                      aria-label={translations.fill_color}
+                    >
+                      <IoMdColorFill />
+                      <Rect color={fill} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent width={220}>
+                    <PopoverArrow />
+                    <SketchPicker
+                      onChange={e => {
+                        onFormattingChange?.(FORMATTING_TYPE.FILL, e.hex);
+                        // onClose?.();
+                      }}
+                    />
+                  </PopoverContent>
+                </>
+              );
+            }}
+          </Popover>
+        </Tooltip>
+
+        <Tooltip
+          hasArrow
+          aria-label={translations.borders}
+          label={translations.borders}
+        >
+          <IconButton
+            aria-label={translations.borders}
+            variant="ghost"
+            color={iconColor}
+            icon={MdBorderAll}
+            fontSize={20}
+            size="sm"
+          />
+        </Tooltip>
+
+        <Tooltip
+          hasArrow
+          aria-label={translations.merge_cells}
+          label={translations.merge_cells}
+        >
+          <IconButton
+            aria-label={translations.merge_cells}
+            variant="ghost"
+            color={iconColor}
+            icon={AiOutlineMergeCells}
+            fontSize={20}
+            size="sm"
+          />
+        </Tooltip>
+
+        <Tooltip
+          hasArrow
+          aria-label={translations.freeze}
+          label={translations.freeze}
+        >
+          <IconButton
+            aria-label={translations.freeze}
+            variant="ghost"
+            color={iconColor}
+            icon={BsColumns}
+            fontSize={20}
+            size="sm"
+          />
+        </Tooltip>
+
+        <Separator borderColor={borderColor} />
+
+        <Tooltip
+          hasArrow
+          aria-label={translations.horizontal_align}
+          label={translations.horizontal_align}
+        >
+          <IconButton
+            aria-label={translations.horizontal_align}
+            variant="ghost"
+            color={iconColor}
+            icon={MdFormatAlignLeft}
+            fontSize={20}
+            size="sm"
+          />
+        </Tooltip>
+
+        <Tooltip
+          hasArrow
+          aria-label={translations.vertical_align}
+          label={translations.vertical_align}
+        >
+          <IconButton
+            aria-label={translations.vertical_align}
+            variant="ghost"
+            color={iconColor}
+            icon={MdVerticalAlignBottom}
+            fontSize={20}
+            size="sm"
+          />
+        </Tooltip>
       </Flex>
       <Flex alignItems="flex-end">
-        <IconButton
-          aria-label="Switch to dark mode"
-          variant="ghost"
-          color={iconColor}
-          icon={isLightMode ? IoMdMoon : MdWbSunny}
-          fontSize={20}
-          size="sm"
-          onClick={toggleColorMode}
-        />
+        <Tooltip
+          hasArrow
+          aria-label={
+            isLightMode
+              ? translations.switch_dark_mode
+              : translations.switch_light_mode
+          }
+          label={
+            isLightMode
+              ? translations.switch_dark_mode
+              : translations.switch_light_mode
+          }
+        >
+          <IconButton
+            aria-label={
+              isLightMode
+                ? translations.switch_dark_mode
+                : translations.switch_light_mode
+            }
+            variant="ghost"
+            color={iconColor}
+            icon={isLightMode ? IoMdMoon : MdWbSunny}
+            fontSize={20}
+            size="sm"
+            onClick={toggleColorMode}
+          />
+        </Tooltip>
       </Flex>
     </StyledToolbar>
   );

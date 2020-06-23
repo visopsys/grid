@@ -11,12 +11,12 @@ type ToolbarProps = {
   borderColor: string
   className?: string
   backgroundColor: string
+  pr?: number
+  pl?: number
 }
-const Toolbar: React.FC<ToolbarProps> = (props) => <div className={props.className}>{props.children}</div>
+const Toolbar: React.FC<ToolbarProps> = (props) => <Box {...props} />
 export const StyledToolbar = styled(Toolbar)`
-  min-height: 40px;
-  padding-left: ${props => props.theme.space[2]};
-  padding-right: ${props => props.theme.space[2]};
+  min-height: 40px;  
   border-color: ${props => props.borderColor};
   background: ${props => props.backgroundColor};
   border-width: 1px 0;
@@ -57,3 +57,5 @@ export const GridWrapper = styled.div`
   display: flex;
   flex-direction: column;
 `
+
+export const PercentIcon = () => <>%</>;

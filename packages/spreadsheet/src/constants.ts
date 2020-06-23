@@ -20,28 +20,11 @@ export const createNewSheet = ({ count }: { count: number }): Sheet => ({
   cells: {},
   activeCell: null,
   selections: [],
-  scrollState: { scrollTop: 0, scrollLeft: 0 },
+  scrollState: { scrollTop: 0, scrollLeft: 0 }
 });
 
-export enum FORMATTING {
-  FONT_STYLE = "fontStyle",
-  FONT_WEIGHT = "fontWeight",
-  TEXT_DECORATION = "textDecoration",
-}
-
-export enum FONT_WEIGHT {
-  BOLD = "bold",
-  NORMAL = "normal",
-}
-
-export enum FONT_STYLE {
-  ITALIC = "italic",
-  NORMAL = "normal",
-}
-
-export enum TEXT_DECORATION {
-  STRIKE = "line-through",
-  NONE = "",
-}
-
-export const uuid = () => "_" + Math.random().toString(36).substr(2, 9);
+export const uuid = () =>
+  "_" +
+  Math.random()
+    .toString(36)
+    .substr(2, 9);

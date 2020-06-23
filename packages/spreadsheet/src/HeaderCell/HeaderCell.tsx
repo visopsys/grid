@@ -1,9 +1,9 @@
-import React from "react";
+import React, { memo } from "react";
 import { Cell, RendererProps } from "@rowsncolumns/grid";
 import {
   number2Alpha,
   DARK_MODE_COLOR,
-  DARK_MODE_COLOR_LIGHT,
+  DARK_MODE_COLOR_LIGHT
 } from "../constants";
 import { useColorMode, useTheme } from "@chakra-ui/core";
 
@@ -11,7 +11,7 @@ interface HeaderCellProps extends RendererProps {
   isActive?: boolean;
 }
 
-const HeaderCell: React.FC<HeaderCellProps> = (props) => {
+const HeaderCell: React.FC<HeaderCellProps> = memo(props => {
   const { rowIndex, columnIndex, isActive } = props;
   const isCorner = rowIndex === columnIndex;
   const value = isCorner
@@ -39,9 +39,9 @@ const HeaderCell: React.FC<HeaderCellProps> = (props) => {
       value={value}
       textColor={textColor}
       stroke={stroke}
-      fontSize={11}
+      fontSize={10}
     />
   );
-};
+});
 
 export default HeaderCell;

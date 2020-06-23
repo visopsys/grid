@@ -51,7 +51,7 @@ export interface UseSelectionOptions {
     activeCell: CellInterface,
     selection: SelectionArea | null,
     selections: SelectionArea[]
-  ) => void;
+  ) => void;  
 }
 
 export interface SelectionResults {
@@ -67,6 +67,10 @@ export interface SelectionResults {
    * Use this to update selections without clearning old selection.
    */
   setSelections: (selection: SelectionArea[]) => void;
+  /**
+   * Modify selectio
+   */
+  modifySelection: (coords: CellInterface) => void
   /**
    * Set the currently active cell
    */
@@ -837,6 +841,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     },
     fillSelection,
     clearLastSelection: handleClearLastSelection,
+    modifySelection
   };
 };
 

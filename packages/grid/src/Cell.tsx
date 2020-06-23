@@ -69,6 +69,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
           textDecoration={textDecoration}
           padding={padding}
           wrap={wrap}
+          fontSize={fontSize}
           hitStrokeWidth={0}
         />
       )}

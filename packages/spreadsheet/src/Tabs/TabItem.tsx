@@ -15,7 +15,7 @@ import {
   PopoverContent,
   PopoverBody,
   PopoverArrow,
-  IconButton,
+  IconButton
 } from "@chakra-ui/core";
 import { MdArrowDropDown } from "react-icons/md";
 import { KeyCodes } from "@rowsncolumns/grid/dist/types";
@@ -39,7 +39,7 @@ const TabItem: React.FC<TabItemProps> = ({
   onSelect,
   onChangeSheetName,
   onDeleteSheet,
-  onDuplicateSheet,
+  onDuplicateSheet
 }) => {
   const theme = useTheme();
   const [isEditmode, setIsEditmode] = useState(false);
@@ -59,6 +59,7 @@ const TabItem: React.FC<TabItemProps> = ({
       height={height}
       background={bg}
       boxShadow={shadow}
+      zIndex={isActive ? 1 : 0}
     >
       {isEditmode ? (
         <Input
@@ -107,7 +108,7 @@ const TabItem: React.FC<TabItemProps> = ({
                 ? bg
                 : isLight
                 ? theme.colors.gray[200]
-                : theme.colors.gray[800],
+                : theme.colors.gray[800]
             }}
           >
             {name}
@@ -132,7 +133,7 @@ const TabItem: React.FC<TabItemProps> = ({
                         color="gray.400"
                       />
                     </PopoverTrigger>
-                    <PopoverContent width={200}>
+                    <PopoverContent width={200} zIndex={1}>
                       <PopoverArrow />
                       <PopoverBody>
                         <Button
@@ -143,7 +144,8 @@ const TabItem: React.FC<TabItemProps> = ({
                           textAlign="left"
                           justifyContent="left"
                           borderRadius={0}
-                          onClick={(e) => {
+                          onClick={e => {
+                            onClose?.();
                             onDeleteSheet?.(id);
                             e.preventDefault();
                             e.stopPropagation();
@@ -159,8 +161,9 @@ const TabItem: React.FC<TabItemProps> = ({
                           textAlign="left"
                           justifyContent="left"
                           borderRadius={0}
-                          onClick={(e) => {
-                            onDuplicateSheet?.(id);                            
+                          onClick={e => {
+                            onClose?.();
+                            onDuplicateSheet?.(id);
                             e.preventDefault();
                             e.stopPropagation();
                           }}
@@ -175,8 +178,8 @@ const TabItem: React.FC<TabItemProps> = ({
                           textAlign="left"
                           justifyContent="left"
                           borderRadius={0}
-                          onClick={(e) => {
-                            enableEditmode()
+                          onClick={e => {
+                            enableEditmode();
                             e.preventDefault();
                             e.stopPropagation();
                           }}

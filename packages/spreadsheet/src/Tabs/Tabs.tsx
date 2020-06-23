@@ -8,7 +8,7 @@ import {
   Button,
   Box,
   useTheme,
-  useColorMode,
+  useColorMode
 } from "@chakra-ui/core";
 import { COLUMN_HEADER_WIDTH } from "../constants";
 import {
@@ -16,7 +16,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  PopoverArrow,
+  PopoverArrow
 } from "@chakra-ui/core";
 import TabItem from "./TabItem";
 
@@ -30,7 +30,7 @@ interface TabProps {
   onDuplicateSheet?: (id: string) => void;
 }
 
-const Tabs: React.FC<TabProps> = (props) => {
+const Tabs: React.FC<TabProps> = props => {
   const {
     sheets,
     onSelect,
@@ -38,7 +38,7 @@ const Tabs: React.FC<TabProps> = (props) => {
     selectedSheet,
     onChangeSheetName,
     onDeleteSheet,
-    onDuplicateSheet,
+    onDuplicateSheet
   } = props;
   const theme = useTheme();
   const { colorMode } = useColorMode();
@@ -84,7 +84,7 @@ const Tabs: React.FC<TabProps> = (props) => {
           </PopoverBody>
         </PopoverContent>
       </Popover>
-      <Box overflow="auto" display="flex">
+      <Box overflow="auto" display="flex" pl={1} pr={1}>
         {sheets.map((sheet, idx) => {
           const isActive = selectedSheet === sheet.id;
           return (

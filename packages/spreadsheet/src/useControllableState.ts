@@ -50,7 +50,7 @@ export function useControllableState<T>(props: UseControllableStateProps<T>) {
     defaultValue,
     onChange,
     shouldUpdate = () => true,
-    name = "Component",
+    name = "Component"
   } = props;
 
   const [valueState, setValue] = React.useState(defaultValue as T);
@@ -85,16 +85,16 @@ export function useControllableState<T>(props: UseControllableStateProps<T>) {
 
   const updateValue = React.useCallback(
     (next: React.SetStateAction<T>) => {
-      const nextValue = runIfFn(next, value);
-      const shouldUpdateState = shouldUpdate(value, nextValue);
+      // const nextValue = runIfFn(next, value);
+      // const shouldUpdateState = shouldUpdate(value, nextValue);
 
-      if (!shouldUpdateState) return;
+      // if (!shouldUpdateState) return;
 
       if (!isControlled) {
         setValue(next);
       }
 
-      onChange?.(nextValue);
+      onChange?.(runIfFn(next, value));
     },
     [onChange, shouldUpdate, isControlled, value]
   );
