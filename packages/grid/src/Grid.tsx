@@ -322,6 +322,7 @@ export type GridRef = {
   getCellBounds: (coords: CellInterface) => AreaProps;
   getCellCoordsFromOffset: (x: number, y: number) => CellInterface | null;
   getCellOffsetFromCoords: (coords: CellInterface) => CellPosition;
+  getActualCellCoords: (coords: CellInterface) => CellInterface;
   scrollToItem: (coords: OptionalCellInterface, align?: Align) => void;
   focus: () => void;
   resizeColumns: (indices: number[]) => void;
@@ -419,6 +420,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         getCellBounds,
         getCellCoordsFromOffset,
         getCellOffsetFromCoords,
+        getActualCellCoords,
         focus: focusContainer,
         resizeColumns,
         resizeRows,
@@ -569,7 +571,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         for (const cell of getBoundedCells(bounds)) {
           mergedCellMap.set(cell, bounds);
         }
-      }
+      }      
       return mergedCellMap;
     }, [mergedCells]);
 
@@ -578,7 +580,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       ({ rowIndex, columnIndex }: CellInterface) => {
         return mergedCellMap.has(cellIndentifier(rowIndex, columnIndex));
       },
-      [mergedCellMap]
+      [mergedCells]
     );
 
     /* Get top, left bounds of a cell */
@@ -595,6 +597,25 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           right: columnIndex,
           bottom: rowIndex,
         } as AreaProps;
+      },
+      [mergedCellMap]
+    );
+
+    /* Get top, left bounds of a cell */
+    const getActualCellCoords = useCallback(
+      ({ rowIndex, columnIndex }: CellInterface): CellInterface => {
+        const isMerged = isMergedCell({ rowIndex, columnIndex });
+        if (isMerged) {
+          const cell = mergedCellMap.get(cellIndentifier(rowIndex, columnIndex)) as AreaProps
+          return {
+            rowIndex: cell?.top,
+            columnIndex: cell?.left
+          }
+        }
+        return {
+          rowIndex,
+          columnIndex
+        };
       },
       [mergedCellMap]
     );
@@ -762,14 +783,15 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
         return { rowIndex: bounds.top, columnIndex: bounds.left };
       },
-      [scrollLeft, scrollTop, rowCount, columnCount]
+      [scrollLeft, scrollTop, rowCount, columnCount, mergedCellMap]
     );
 
     /**
      * Get cell offset position from rowIndex, columnIndex
      */
     const getCellOffsetFromCoords = useCallback(
-      ({ rowIndex, columnIndex }: CellInterface): CellPosition => {
+      (cell: CellInterface): CellPosition => {
+        const { top: rowIndex, left: columnIndex, right, bottom } = getCellBounds(cell)
         const x = getColumnOffset({
           index: columnIndex,
           rowHeight,
@@ -782,8 +804,18 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           columnWidth,
           instanceProps: instanceProps.current,
         });
-        const width = getColumnWidth(columnIndex, instanceProps.current);
-        const height = getRowHeight(rowIndex, instanceProps.current);
+        const width = getColumnOffset({
+          index: right + 1,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        }) - x;
+        const height = getRowOffset({
+          index: bottom + 1,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current,
+        }) - y;
 
         return {
           x,
@@ -792,7 +824,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           height,
         };
       },
-      []
+      [ mergedCellMap ]
     );
 
     /**

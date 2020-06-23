@@ -9,11 +9,15 @@ import {
   MdStrikethroughS,
   MdBorderAll,
   MdFormatAlignLeft,
+  MdFormatAlignCenter,
+  MdFormatAlignRight,
   MdVerticalAlignBottom,
   MdWbSunny,
   MdFormatUnderlined,
   MdTextFields,
-  MdFormatClear
+  MdFormatClear,
+  MdVerticalAlignCenter,
+  MdVerticalAlignTop,
 } from "react-icons/md";
 import { AiOutlineMergeCells } from "react-icons/ai";
 import { BsColumns } from "react-icons/bs";
@@ -30,11 +34,17 @@ import {
   PopoverContent,
   PopoverBody,
   PopoverArrow,
-  PopoverContext
+  PopoverContext,
+  Box,
 } from "@chakra-ui/core";
 import { StyledToolbar, Rect, Separator, PercentIcon } from "./../styled";
 import { DARK_MODE_COLOR } from "./../constants";
-import { FORMATTING_TYPE, CellFormatting } from "./../types";
+import {
+  FORMATTING_TYPE,
+  CellFormatting,
+  VERTICAL_ALIGNMENT,
+  HORIZONTAL_ALIGNMENT,
+} from "./../types";
 import { translations } from "../translations";
 import { CellConfig } from "../Spreadsheet";
 import { SketchPicker } from "react-color";
@@ -45,10 +55,11 @@ export interface ToolbarProps extends CellConfig {
     value: any,
     options?: Record<string, any>
   ) => void;
-  onClearFormatting?: () => void
+  onClearFormatting?: () => void;
+  onMergeCells?: () => void
 }
 
-const Toolbar: React.FC<ToolbarProps> = props => {
+const Toolbar: React.FC<ToolbarProps> = (props) => {
   const {
     bold,
     italic,
@@ -56,8 +67,13 @@ const Toolbar: React.FC<ToolbarProps> = props => {
     underline,
     strike,
     color,
+    verticalAlign,
+    horizontalAlign,
     onFormattingChange,
-    onClearFormatting
+    onClearFormatting,
+    percent,
+    currency,
+    onMergeCells,
   } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const theme = useTheme();
@@ -82,6 +98,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
           hasArrow
           aria-label={translations.undo}
           label={translations.undo}
+          placement="bottom-start"
         >
           <IconButton
             aria-label={translations.undo}
@@ -96,6 +113,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
           hasArrow
           aria-label={translations.redo}
           label={translations.redo}
+          placement="bottom-start"
         >
           <IconButton
             aria-label={translations.redo}
@@ -144,10 +162,13 @@ const Toolbar: React.FC<ToolbarProps> = props => {
         >
           <IconButton
             aria-label={translations.format_as_currency}
-            variant="ghost"
-            color={iconColor}
+            variant={currency ? "solid" : "ghost"}
+            color={currency ? activeIconColor : iconColor}
             icon={MdAttachMoney}
             size="sm"
+            onClick={() =>
+              onFormattingChange?.(FORMATTING_TYPE.CURRENCY, !currency)
+            }
           />
         </Tooltip>
 
@@ -158,11 +179,14 @@ const Toolbar: React.FC<ToolbarProps> = props => {
         >
           <IconButton
             aria-label={translations.format_as_percent}
-            variant="ghost"
-            color={iconColor}
+            variant={percent ? "solid" : "ghost"}
+            color={percent ? activeIconColor : iconColor}
             fontSize={10}
             icon={PercentIcon}
             size="sm"
+            onClick={() =>
+              onFormattingChange?.(FORMATTING_TYPE.PERCENT, !percent)
+            }
           />
         </Tooltip>
 
@@ -243,7 +267,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
           aria-label={translations.text_color}
           label={translations.text_color}
         >
-          <Popover usePortal>
+          <Popover usePortal placement="top-start">
             {({ onClose }) => {
               return (
                 <>
@@ -264,7 +288,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                   <PopoverContent width={220}>
                     <PopoverArrow />
                     <SketchPicker
-                      onChange={e => {
+                      onChange={(e) => {
                         onFormattingChange?.(FORMATTING_TYPE.COLOR, e.hex);
                         // onClose?.();
                       }}
@@ -283,7 +307,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
           aria-label={translations.fill_color}
           label={translations.fill_color}
         >
-          <Popover usePortal>
+          <Popover usePortal placement="top-start">
             {({ onClose }) => {
               return (
                 <>
@@ -304,7 +328,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                   <PopoverContent width={220}>
                     <PopoverArrow />
                     <SketchPicker
-                      onChange={e => {
+                      onChange={(e) => {
                         onFormattingChange?.(FORMATTING_TYPE.FILL, e.hex);
                         // onClose?.();
                       }}
@@ -343,6 +367,9 @@ const Toolbar: React.FC<ToolbarProps> = props => {
             icon={AiOutlineMergeCells}
             fontSize={20}
             size="sm"
+            onClick={() =>
+              onMergeCells?.()
+            }
           />
         </Tooltip>
 
@@ -368,14 +395,95 @@ const Toolbar: React.FC<ToolbarProps> = props => {
           aria-label={translations.horizontal_align}
           label={translations.horizontal_align}
         >
-          <IconButton
-            aria-label={translations.horizontal_align}
-            variant="ghost"
-            color={iconColor}
-            icon={MdFormatAlignLeft}
-            fontSize={20}
-            size="sm"
-          />
+          <Popover usePortal placement="top-start">
+            {({ onClose }) => {
+              return (
+                <>
+                  <PopoverTrigger>
+                    <IconButton
+                      aria-label={translations.horizontal_align}
+                      variant="ghost"
+                      color={iconColor}
+                      icon={MdFormatAlignLeft}
+                      fontSize={20}
+                      size="sm"
+                    />
+                  </PopoverTrigger>
+                  <PopoverContent width="auto">
+                    <PopoverArrow />
+                    <Box display="flex">
+                      <IconButton
+                        aria-label={translations.horizontal_align}
+                        variant={
+                          horizontalAlign === HORIZONTAL_ALIGNMENT.LEFT
+                            ? "solid"
+                            : "ghost"
+                        }
+                        color={
+                          horizontalAlign === HORIZONTAL_ALIGNMENT.LEFT
+                            ? activeIconColor
+                            : iconColor
+                        }
+                        onClick={() =>
+                          onFormattingChange?.(
+                            FORMATTING_TYPE.HORIZONTAL_ALIGN,
+                            HORIZONTAL_ALIGNMENT.LEFT
+                          )
+                        }
+                        icon={MdFormatAlignLeft}
+                        fontSize={20}
+                        size="sm"
+                      />
+                      <IconButton
+                        aria-label={translations.horizontal_align}
+                        variant={
+                          horizontalAlign === HORIZONTAL_ALIGNMENT.CENTER
+                            ? "solid"
+                            : "ghost"
+                        }
+                        color={
+                          horizontalAlign === HORIZONTAL_ALIGNMENT.CENTER
+                            ? activeIconColor
+                            : iconColor
+                        }
+                        onClick={() =>
+                          onFormattingChange?.(
+                            FORMATTING_TYPE.HORIZONTAL_ALIGN,
+                            HORIZONTAL_ALIGNMENT.CENTER
+                          )
+                        }
+                        icon={MdFormatAlignCenter}
+                        fontSize={20}
+                        size="sm"
+                      />
+                      <IconButton
+                        aria-label={translations.horizontal_align}
+                        variant={
+                          horizontalAlign === HORIZONTAL_ALIGNMENT.RIGHT
+                            ? "solid"
+                            : "ghost"
+                        }
+                        color={
+                          horizontalAlign === HORIZONTAL_ALIGNMENT.RIGHT
+                            ? activeIconColor
+                            : iconColor
+                        }
+                        onClick={() =>
+                          onFormattingChange?.(
+                            FORMATTING_TYPE.HORIZONTAL_ALIGN,
+                            HORIZONTAL_ALIGNMENT.RIGHT
+                          )
+                        }
+                        icon={MdFormatAlignRight}
+                        fontSize={20}
+                        size="sm"
+                      />
+                    </Box>
+                  </PopoverContent>
+                </>
+              );
+            }}
+          </Popover>
         </Tooltip>
 
         <Tooltip
@@ -383,14 +491,95 @@ const Toolbar: React.FC<ToolbarProps> = props => {
           aria-label={translations.vertical_align}
           label={translations.vertical_align}
         >
-          <IconButton
-            aria-label={translations.vertical_align}
-            variant="ghost"
-            color={iconColor}
-            icon={MdVerticalAlignBottom}
-            fontSize={20}
-            size="sm"
-          />
+          <Popover usePortal placement="top-start">
+            {({ onClose }) => {
+              return (
+                <>
+                  <PopoverTrigger>
+                    <IconButton
+                      aria-label={translations.vertical_align}
+                      variant="ghost"
+                      color={iconColor}
+                      icon={MdVerticalAlignBottom}
+                      fontSize={20}
+                      size="sm"
+                    />
+                  </PopoverTrigger>
+                  <PopoverContent width="auto">
+                    <PopoverArrow />
+                    <Box display="flex">
+                      <IconButton
+                        aria-label={translations.horizontal_align}
+                        variant={
+                          verticalAlign === VERTICAL_ALIGNMENT.TOP
+                            ? "solid"
+                            : "ghost"
+                        }
+                        color={
+                          verticalAlign === VERTICAL_ALIGNMENT.TOP
+                            ? activeIconColor
+                            : iconColor
+                        }
+                        icon={MdVerticalAlignTop}
+                        fontSize={20}
+                        size="sm"
+                        onClick={() =>
+                          onFormattingChange?.(
+                            FORMATTING_TYPE.VERTICAL_ALIGN,
+                            VERTICAL_ALIGNMENT.TOP
+                          )
+                        }
+                      />
+                      <IconButton
+                        aria-label={translations.horizontal_align}
+                        variant={
+                          verticalAlign === VERTICAL_ALIGNMENT.MIDDLE
+                            ? "solid"
+                            : "ghost"
+                        }
+                        color={
+                          verticalAlign === VERTICAL_ALIGNMENT.MIDDLE
+                            ? activeIconColor
+                            : iconColor
+                        }
+                        icon={MdVerticalAlignCenter}
+                        fontSize={20}
+                        size="sm"
+                        onClick={() =>
+                          onFormattingChange?.(
+                            FORMATTING_TYPE.VERTICAL_ALIGN,
+                            VERTICAL_ALIGNMENT.MIDDLE
+                          )
+                        }
+                      />
+                      <IconButton
+                        aria-label={translations.horizontal_align}
+                        variant={
+                          verticalAlign === VERTICAL_ALIGNMENT.BOTTOM
+                            ? "solid"
+                            : "ghost"
+                        }
+                        color={
+                          verticalAlign === VERTICAL_ALIGNMENT.BOTTOM
+                            ? activeIconColor
+                            : iconColor
+                        }
+                        icon={MdVerticalAlignBottom}
+                        fontSize={20}
+                        size="sm"
+                        onClick={() =>
+                          onFormattingChange?.(
+                            FORMATTING_TYPE.VERTICAL_ALIGN,
+                            VERTICAL_ALIGNMENT.BOTTOM
+                          )
+                        }
+                      />
+                    </Box>
+                  </PopoverContent>
+                </>
+              );
+            }}
+          </Popover>
         </Tooltip>
       </Flex>
       <Flex alignItems="flex-end">

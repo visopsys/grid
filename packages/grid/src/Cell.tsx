@@ -17,7 +17,7 @@ export interface CellProps extends RendererProps {
  * Default cell component
  * @param props
  */
-const Cell: React.FC<CellProps> = memo((props) => {
+const Cell: React.FC<CellProps> = (props) => {
   const {
     x,
     y,
@@ -40,6 +40,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
     textDecoration,
     ...rest
   } = props;
+
   const textStyle = `${fontWeight} ${fontStyle}`
   return (
     <Group {...rest}>
@@ -76,7 +77,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
       {children}
     </Group>
   );
-});
+};
 
 /**
  * Default CellRenderer

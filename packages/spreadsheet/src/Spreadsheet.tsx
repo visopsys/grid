@@ -4,10 +4,10 @@ import Formulabar from './Formulabar'
 import Workbook from './Workbook'
 import { theme, ThemeProvider, ColorModeProvider, CSSReset, Flex } from "@chakra-ui/core"
 import { Global, css } from "@emotion/core"
-import { RendererProps, CellInterface, SelectionArea, ScrollCoords } from '@rowsncolumns/grid'
+import { RendererProps, CellInterface, SelectionArea, ScrollCoords, useUndo, AreaProps } from '@rowsncolumns/grid'
 import useControllableState from './useControllableState'
-import { createNewSheet, uuid } from './constants'
-import { FORMATTING_TYPE, DATATYPE, VERTICAL_ALIGNMENT, HORIZONTAL_ALIGNMENT, CellFormatting } from './types'
+import { createNewSheet, uuid, detectDataType } from './constants'
+import { FORMATTING_TYPE, DATATYPE, VERTICAL_ALIGNMENT, HORIZONTAL_ALIGNMENT, CellFormatting, CellDataFormatting, AXIS } from './types'
 import { useImmer } from 'use-immer'
 import { WorkbookGridRef } from './Grid/Grid'
 import { KeyCodes, Direction } from '@rowsncolumns/grid/dist/types'
@@ -29,7 +29,7 @@ export interface SpreadSheetProps {
   onChangeSheets?: (sheets: Sheet[]) => void;
   showFormulabar?: boolean
   showToolbar?: boolean;
-  formatter?: (cell: CellConfig) => string
+  format: (value: string, datatype?: DATATYPE, formatting?: CellDataFormatting) => string;  
 }
 
 export interface Sheet {
@@ -38,7 +38,14 @@ export interface Sheet {
   cells: Cells;
   activeCell: CellInterface | null;
   selections: SelectionArea []
-  scrollState: ScrollCoords
+  scrollState: ScrollCoords;
+  columnSizes?: SizeType;
+  rowSizes?: SizeType;
+  mergedCells?: AreaProps[]
+}
+
+export type SizeType = {
+  [key: number]: number
 }
 
 export type Cells = Record<string, Cell>
@@ -62,6 +69,14 @@ const defaultSheets: Sheet[] = [
       rowIndex: 1,
       columnIndex: 1
     },
+    mergedCells: [
+      {
+        top: 5,
+        bottom: 8,
+        left: 5,
+        right: 6
+      }
+    ],
     selections: [],
     cells: {
       1: {
@@ -71,21 +86,16 @@ const defaultSheets: Sheet[] = [
           color: 'red',
           bold: true,
           italic: true,
-          verticalAlignment: VERTICAL_ALIGNMENT.MIDDLE,
-          horizontalAlignment: HORIZONTAL_ALIGNMENT.LEFT,
+          verticalAlign: VERTICAL_ALIGNMENT.MIDDLE,
+          horizontalAlign: HORIZONTAL_ALIGNMENT.LEFT,
           strike: true,
-          underline: true,
-          percent: true,
-          decimals: 4
+          underline: true,          
         },
         2: {
           text: '2',
           datatype: DATATYPE.NUMBER,
-          // Prevent nested properties: Re-rendering onchange is hard
-          // formatting: {
-          //   percent: true,
-          //   // decimals: 2
-          // }
+          // percent: true,
+          decimals: 4
         }
       }
     },
@@ -93,7 +103,7 @@ const defaultSheets: Sheet[] = [
   }
 ]
 const Spreadsheet = (props: SpreadSheetProps) => {
-  const { initialSheets = defaultSheets, sheets: controlledSheets, onChange, showFormulabar = true, minColumnWidth, minRowHeight, CellRenderer, HeaderCellRenderer, initialActiveSheet = defaultActiveSheet, activeSheet, onChangeSelectedSheet, onChangeSheets, showToolbar = true } = props
+  const { initialSheets = defaultSheets, onChange, showFormulabar = true, minColumnWidth, minRowHeight, CellRenderer, HeaderCellRenderer, initialActiveSheet = defaultActiveSheet, activeSheet, onChangeSelectedSheet, onChangeSheets, showToolbar = true, format } = props
   const [ selectedSheet, setSelectedSheet ] = useControllableState<string>({
     defaultValue: initialActiveSheet,
     value: activeSheet,
@@ -108,7 +118,11 @@ const Spreadsheet = (props: SpreadSheetProps) => {
     onChangeSheets?.(sheets)
   }, [ sheets ])
 
-
+  /**
+   * Undo/redo
+   */
+  const { undo, redo, add, canUndo, canRedo } = useUndo();
+  
   /**
    * Handle add new sheet
    */
@@ -121,7 +135,10 @@ const Spreadsheet = (props: SpreadSheetProps) => {
     setSelectedSheet(newSheet.id)
   }, [ sheets ])
 
-  const handleChange = useCallback((id: string, changes: Cells) => {    
+  /**
+   * Cell changes on user input
+   */
+  const handleChange = useCallback((id: string, changes: Cells) => {
     setSheets(draft => {
       const sheet = draft.find(sheet => sheet.id === id)
       if (sheet) {
@@ -129,11 +146,13 @@ const Spreadsheet = (props: SpreadSheetProps) => {
           if (!(row in sheet.cells)) sheet.cells[row] = {}
           for (const col in changes[row]) {
             if (!(col in sheet.cells[row])) sheet.cells[row][col] = {}
-            const cur = sheet.cells[row][col]
-            sheet.cells[row][col] = {
-              ...cur,
-              ...changes[row][col]
-            }
+            const cell = sheet.cells[row][col]
+            const value = changes[row][col].text
+            cell.text = value
+
+            /* Get datatype of user input */
+            const datatype = detectDataType(value)
+            cell.datatype = datatype
           }
         }
       }
@@ -223,10 +242,14 @@ const Spreadsheet = (props: SpreadSheetProps) => {
     return sheets.find(sheet => sheet.id === selectedSheet) as Sheet
   }, [sheets, selectedSheet])
 
-  const { activeCell, cells } = currentSheet || {}
-  const activeCellConfig = activeCell
-    ? cells?.[activeCell.rowIndex]?.[activeCell.columnIndex]
-    : null
+  const [ activeCellConfig, activeCell ] = useMemo(() => {
+    const { activeCell, cells } = currentSheet || {}
+    const activeCellConfig = activeCell
+      ? cells?.[activeCell.rowIndex]?.[activeCell.columnIndex]
+      : null
+    return [ activeCellConfig, activeCell ]
+  }, [ currentSheet ])
+
 
   const handleActiveCellChange = useCallback((cell: CellInterface | null, value) => {    
     if (!cell) return
@@ -290,7 +313,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   /**
    * Handle fill
    */
-  const handleFill = useCallback((id: string, activeCell: CellInterface, fillSelection: SelectionArea | null, allSelections: SelectionArea []) => {
+  const handleFill = useCallback((id: string, activeCell: CellInterface, fillSelection: SelectionArea | null) => {
     if (!fillSelection) return;
   /* Check if user is trying to extend a selection */
     const { bounds } = fillSelection;
@@ -361,28 +384,75 @@ const Spreadsheet = (props: SpreadSheetProps) => {
               if (!(i in cells)) continue
               for (let j = bounds.left; j <= bounds.right; j++) {
                 if (!(j in cells[i])) continue
-                for (const type in FORMATTING_TYPE) {
-                  // @ts-ignore
-                  const key: string = FORMATTING_TYPE[type]
-                  // @ts-ignore
+                Object.values(FORMATTING_TYPE).forEach(key => {
                   delete cells[i][j][key]
-                }
+                })
               }
             }
           })
         } else if (activeCell) {
           const { rowIndex, columnIndex} = activeCell
-          for (const type in FORMATTING_TYPE) {
-            // @ts-ignore
-            const key: string = FORMATTING_TYPE[type]
-            // @ts-ignore
-            delete cells[rowIndex]?.[columnIndex]?.[key]
-          }
+          Object.values(FORMATTING_TYPE).forEach(key => {
+            if (key) delete (cells[rowIndex]?.[columnIndex])?.[key]
+          })
         }
       }
     })
   }, [sheets, selectedSheet])
-  
+
+  const handleResize = useCallback((id: string, axis: AXIS, index: number, dimension: number) => {
+    setSheets(draft => {
+      const sheet = draft.find(sheet => sheet.id === id)
+      if (sheet) {
+        if (axis === AXIS.X) {
+          if (!('columnSizes' in sheet)) sheet.columnSizes = {}
+          if (sheet.columnSizes) sheet.columnSizes[index] = dimension
+          currentGrid.current?.resizeColumns?.([ index])
+        } else {
+          if (!('rowSizes' in sheet)) sheet.rowSizes = {}
+          if (sheet.rowSizes) sheet.rowSizes[index] = dimension
+          currentGrid.current?.resizeRows?.([ index])
+        }
+      }
+    })
+  }, [])
+
+  /**
+   * Handle toggle cell merges
+   */
+  const handleMergeCells = useCallback(() => {
+    setSheets(draft => {
+      const sheet = draft.find(sheet => sheet.id === selectedSheet)
+      if (sheet) {
+        const { selections, activeCell } = sheet
+        const { bounds } = selections.length
+          ? selections[selections.length - 1]
+          : { bounds: currentGrid.current?.getCellBounds?.(activeCell as CellInterface) }
+        if (!bounds) return
+        if (!sheet.mergedCells) {
+          sheet.mergedCells = []
+        } else {
+          /* Check if cell is already merged */
+          const index = sheet.mergedCells.findIndex(area => {
+            return (
+              area.left === bounds.left &&
+              area.right === bounds.right &&
+              area.top === bounds.top &&
+              area.bottom === bounds.bottom
+            )
+          })
+
+          if (index !== -1) {
+            sheet.mergedCells.splice(index, 1)
+            return
+          }
+        }
+        sheet.mergedCells.push(bounds)
+      }
+
+    })
+  }, [ selectedSheet ])
+
   return (
     <ThemeProvider theme={theme}>
       <CSSReset />
@@ -403,8 +473,13 @@ const Spreadsheet = (props: SpreadSheetProps) => {
                 strike={activeCellConfig?.strike}
                 underline={activeCellConfig?.underline}
                 color={activeCellConfig?.color}
+                percent={activeCellConfig?.percent}
+                currency={activeCellConfig?.currency}
+                verticalAlign={activeCellConfig?.verticalAlign}
+                horizontalAlign={activeCellConfig?.horizontalAlign}
                 onFormattingChange={handleFormattingChange}
                 onClearFormatting={handleClearFormatting}
+                onMergeCells={handleMergeCells}
               />
             : null
           }
@@ -413,6 +488,8 @@ const Spreadsheet = (props: SpreadSheetProps) => {
             : null
           }
           <Workbook
+            onResize={handleResize}
+            format={format}
             ref={currentGrid}
             onDelete={handleDelete}
             onFill={handleFill}

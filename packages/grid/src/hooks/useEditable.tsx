@@ -345,6 +345,9 @@ const useEditable = ({
    */
   const makeEditable = (coords: CellInterface, initialValue?: string, autoFocus: boolean = true) => {
     if (!gridRef.current) return;
+    /* Get actual coords for merged cells */
+    coords = gridRef.current.getActualCellCoords(coords)
+    /* Check if its the same cell */
     if (isEqualCells(coords, currentActiveCellRef.current)) return
     /* Call on before edit */
     if (canEdit(coords)) {

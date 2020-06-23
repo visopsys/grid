@@ -5,7 +5,7 @@ import React, {
   useEffect,
   memo,
   useImperativeHandle,
-  forwardRef
+  forwardRef,
 } from "react";
 import Grid, {
   RendererProps,
@@ -13,32 +13,31 @@ import Grid, {
   GridRef,
   useEditable,
   useCopyPaste,
-  useUndo,
   CellInterface,
-  SelectionProps,
   SelectionArea,
   ScrollCoords,
-  RefAttribute
+  AreaProps,
 } from "@rowsncolumns/grid";
 import { debounce } from "@rowsncolumns/grid/dist/helpers";
 import {
   ThemeProvider,
   ColorModeProvider,
-  useTheme,
-  useColorMode
+  useColorMode,
 } from "@chakra-ui/core";
 import {
   COLUMN_HEADER_WIDTH,
   DEFAULT_COLUMN_WIDTH,
   ROW_HEADER_HEIGHT,
   DEFAULT_ROW_HEIGHT,
-  DARK_MODE_COLOR_LIGHT
+  DARK_MODE_COLOR_LIGHT,
 } from "./../constants";
 import HeaderCell from "./../HeaderCell";
 import Cell from "./../Cell";
 import { GridWrapper, ThemeType } from "./../styled";
-import { Cells, CellConfig } from "../Spreadsheet";
+import { Cells, CellConfig, SizeType } from "../Spreadsheet";
 import { Direction } from "@rowsncolumns/grid/dist/types";
+import { DATATYPE, CellDataFormatting, AXIS } from "../types";
+import useAutoSizer from "@rowsncolumns/grid/dist/hooks/useSizer";
 
 export interface SheetGridProps {
   theme?: ThemeType;
@@ -66,6 +65,15 @@ export interface SheetGridProps {
   onActiveCellChange: (cell: CellInterface | null, value?: string) => void;
   onActiveCellValueChange: (value: string) => void;
   onDelete?: (activeCell: CellInterface, selections: SelectionArea[]) => void;
+  format: (
+    value: string,
+    datatype?: DATATYPE,
+    formatting?: CellDataFormatting
+  ) => string;
+  onResize?: (axis: AXIS, index: number, dimension: number) => void;
+  columnSizes?: SizeType;
+  rowSizes?: SizeType;
+  mergedCells?: AreaProps[]
 }
 
 export interface RowColSelection {
@@ -93,6 +101,9 @@ export type WorkbookGridRef = {
     nextActiveCell?: CellInterface
   ) => void;
   cancelEditor: () => void;
+  resizeColumns?: (indices: number[]) => void;
+  resizeRows?: (indices: number[]) => void;
+  getCellBounds?: (coords: CellInterface) => AreaProps;
 };
 
 /**
@@ -122,7 +133,12 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       scrollState,
       onActiveCellChange,
       onActiveCellValueChange,
-      onDelete
+      onDelete,
+      format,
+      onResize,
+      columnSizes = {},
+      rowSizes = {},
+      mergedCells
     } = props;
     const gridRef = useRef<GridRef | null>(null);
     const { colorMode } = useColorMode();
@@ -139,7 +155,10 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         setEditorValue: setValue,
         hideEditor,
         submitEditor,
-        cancelEditor
+        cancelEditor,
+        resizeColumns: gridRef.current?.resizeColumns,
+        resizeRows: gridRef.current?.resizeRows,
+        getCellBounds: gridRef.current?.getCellBounds
       };
     });
 
@@ -160,6 +179,18 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     );
 
     /**
+     * Column resizer
+     */
+    const { getColumnWidth } = useAutoSizer({
+      gridRef,
+      minColumnWidth,
+      getValue,
+      columnSizes,
+      autoResize: false,
+      resizeOnScroll: false,
+    });
+
+    /**
      * Selection
      */
     const {
@@ -169,6 +200,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       setSelections,
       modifySelection,
       newSelection,
+      clearLastSelection,
       ...selectionProps
     } = useSelection({
       initialActiveCell,
@@ -176,13 +208,12 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       gridRef,
       rowCount,
       columnCount,
-      onFill
+      onFill,
     });
 
     /**
      * Check if selections are in
      */
-
     useEffect(() => {
       onActiveCellChange?.(
         activeCell,
@@ -197,6 +228,12 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       if (scrollState) gridRef.current?.scrollTo(scrollState);
       setActiveCell(initialActiveCell);
       setSelections(initialSelections);
+      const rowIndices = Object.keys(rowSizes).map(Number);
+      const colIndices = Object.keys(columnSizes).map(Number);
+      gridRef.current?.resetAfterIndices?.({
+        rowIndex: rowIndices.length ? Math.min(...rowIndices) : 0,
+        columnIndex: colIndices.length ? Math.min(...colIndices) : 0,
+      });
     }, [selectedSheet]);
 
     /**
@@ -213,12 +250,13 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         nextActiveCell?: CellInterface | null
       ) => {
         const { rowIndex, columnIndex } = cell;
+        const previousCell = getValue(cell, true);
         const changes = {
           [rowIndex]: {
             [columnIndex]: {
-              text: value
-            }
-          }
+              text: value,
+            },
+          },
         };
 
         onChange?.(changes);
@@ -241,6 +279,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       hideEditor,
       submitEditor,
       cancelEditor,
+      editingCell,
+      showEditor,
       ...editableProps
     } = useEditable({
       gridRef,
@@ -253,7 +293,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         if (cell.rowIndex === 0 || cell.columnIndex === 0) return false;
         return true;
       },
-      onDelete: onDelete
+      onDelete: onDelete,
     });
 
     const getNextFocusableCell = useCallback(
@@ -269,30 +309,26 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     useCopyPaste({
       gridRef,
       getValue,
-      selections
+      selections,
     });
-    /**
-     * Undo/redo
-     */
-    const { undo, redo, add, canUndo, canRedo, ...undoProps } = useUndo();
 
     /* Width calculator */
     const columnWidth = useCallback(
       (columnIndex: number) => {
         if (columnIndex === 0) return COLUMN_HEADER_WIDTH;
-        return minColumnWidth;
+        return columnSizes[columnIndex] || minColumnWidth;
       },
-      [minColumnWidth]
+      [minColumnWidth, columnSizes, selectedSheet]
     );
     const rowHeight = useCallback(
       (rowIndex: number) => {
         if (rowIndex === 0) return ROW_HEADER_HEIGHT;
-        return minRowHeight;
+        return rowSizes[rowIndex] || minRowHeight;
       },
-      [minColumnWidth]
+      [minColumnWidth, rowSizes, selectedSheet]
     );
     const contextWrapper = useCallback(
-      children => {
+      (children) => {
         return (
           <ThemeProvider theme={theme}>
             <ColorModeProvider>{children}</ColorModeProvider>
@@ -318,6 +354,14 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       [selections]
     );
 
+    /**
+     * Adjusts a column
+     */
+    const handleAdjustColumn = useCallback((columnIndex: number) => {
+      const width = getColumnWidth(columnIndex);
+      onResize?.(AXIS.X, columnIndex, width);
+    }, []);
+
     const itemRenderer = useCallback(
       (props: RendererProps) => {
         const { rowIndex, columnIndex } = props;
@@ -333,12 +377,23 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             : false;
         const cell = { rowIndex, columnIndex };
         if (rowIndex === 0 || columnIndex === 0)
-          return <HeaderCellRenderer {...props} isActive={isHeaderActive} />;
+          return (
+            <HeaderCellRenderer
+              {...props}
+              isActive={isHeaderActive}
+              onResize={onResize}
+              onAdjustColumn={handleAdjustColumn}
+            />
+          );
         return (
-          <CellRenderer {...props} {...(getValue(cell, true) as CellConfig)} />
+          <CellRenderer
+            {...props}
+            {...(getValue(cell, true) as CellConfig)}
+            format={format}
+          />
         );
       },
-      [CellRenderer, HeaderCellRenderer, cells, selectedRowsAndCols, activeCell]
+      [cells, selectedRowsAndCols, activeCell]
     );
     const fillhandleBorderColor = isLightMode ? "white" : DARK_MODE_COLOR_LIGHT;
 
@@ -360,6 +415,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           activeCell={activeCell}
           fillhandleBorderColor={fillhandleBorderColor}
           showFillHandle={!isEditInProgress}
+          mergedCells={mergedCells}
           {...selectionProps}
           {...editableProps}
           onScroll={(scrollState: ScrollCoords) => {
@@ -373,7 +429,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
             selectionProps.onKeyDown(e);
             editableProps.onKeyDown(e);
-            undoProps.onKeyDown(e);
           }}
         />
         {editorComponent}

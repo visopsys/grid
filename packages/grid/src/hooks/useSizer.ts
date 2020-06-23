@@ -52,6 +52,10 @@ export interface IProps {
    * Enable autoresize
    */
   autoResize?: boolean;
+  /**
+   * Map of index to size
+   */
+  columnSizes?: SizeType,
 }
 
 export enum ResizeStrategy {
@@ -69,13 +73,17 @@ export interface AutoResizerResults {
    */
   onViewChange: (cells: ViewPortProps) => void;
   /**
-   * Resize a column by index
+   * Get column width based on resize strategy
    */
-  resizeColumn: (columnIndex: number) => void;
+  getColumnWidth: (columnIndex: number) => number;
   /**
    * Text size getter
    */
   getTextMetrics: (text: string) => TextMetrics | undefined;
+}
+
+export type SizeType = {
+  [key: number]: number
 }
 
 /**
@@ -96,7 +104,8 @@ const useAutoSizer = ({
   rowCount,
   resizeOnScroll = true,
   font = "12px Arial",
-  autoResize = true
+  autoResize = true,
+  columnSizes = {}
 }: IProps): AutoResizerResults => {
   invariant(
     !(resizeStrategy === ResizeStrategy.full && rowCount === void 0),
@@ -111,6 +120,7 @@ const useAutoSizer = ({
     columnStopIndex: 0
   });
   const isMounted = useRef(false);
+  const getValueRef = useRef(getValue)
   const debounceResizer = useRef(
     debounce(
       ({ rowIndex, columnIndex }: CellInterface) =>
@@ -118,6 +128,10 @@ const useAutoSizer = ({
       timeout
     )
   );
+
+  useEffect(() => {
+    getValueRef.current = getValue
+  })
 
   useEffect(() => {
     isMounted.current = true;
@@ -141,9 +155,12 @@ const useAutoSizer = ({
           : rowStopIndex || initialVisibleRows;
       let start = resizeStrategy === ResizeStrategy.full ? 0 : rowStartIndex;
       let maxWidth = minColumnWidth;
+      if (columnIndex in columnSizes) {
+        return Math.max(minColumnWidth, columnSizes[columnIndex])
+      }
       while (start < visibleRows) {
         const value =
-          getValue({
+        getValueRef.current({
             rowIndex: start,
             columnIndex
           }) ?? null;
@@ -160,12 +177,6 @@ const useAutoSizer = ({
     },
     [viewport, getValue, initialVisibleRows]
   );
-
-  const handleResizeColumn = useCallback((columnIndex: number) => {
-    if (!gridRef.current) return
-    const width = getColumnWidth(columnIndex);
-    gridRef.current.resizeColumns([columnIndex]);
-  }, []);
 
   const handleViewChange = useCallback(
     (cells: ViewPortProps) => {
@@ -194,7 +205,7 @@ const useAutoSizer = ({
 
   return {
     ...(autoResize ? { columnWidth: getColumnWidth } : {}),
-    resizeColumn: handleResizeColumn,
+    getColumnWidth,
     onViewChange: handleViewChange,
     getTextMetrics
   };

@@ -1,19 +1,13 @@
-import React, {
-  useCallback,
-  useRef,
-  useEffect,
-  memo,
-  forwardRef,
-  useImperativeHandle
-} from "react";
+import React, { useCallback, useRef, useEffect, memo, forwardRef } from "react";
 import { useMeasure } from "react-use";
 import Grid from "./../Grid";
 import { Flex, useColorMode } from "@chakra-ui/core";
 import { BottomPanel, ThemeType } from "./../styled";
 import Tabs from "./../Tabs";
-import { SpreadSheetProps, Sheet, Cells } from "../Spreadsheet";
-import { CellInterface, SelectionArea, GridRef } from "@rowsncolumns/grid";
-import { WorkbookGridRef, RefAttributeGrid } from "../Grid/Grid";
+import { SpreadSheetProps, Sheet, Cells, SizeType } from "../Spreadsheet";
+import { CellInterface, SelectionArea } from "@rowsncolumns/grid";
+import { WorkbookGridRef } from "../Grid/Grid";
+import { AXIS } from "../types";
 
 export interface WorkbookProps extends SpreadSheetProps {
   currentSheet: Sheet;
@@ -38,7 +32,10 @@ export interface WorkbookProps extends SpreadSheetProps {
   onChangeSheetName?: (id: string, value: string) => void;
   onDeleteSheet?: (id: string) => void;
   onDuplicateSheet?: (id: string) => void;
+  onResize?: (id: string, axis: AXIS, index: number, dimension: number) => void;
   onActiveCellValueChange: (value: string) => void;
+  rowSizes?: SizeType;
+  columnSizes?: SizeType;
 }
 
 export type RefAttributeWorkbook = {
@@ -70,13 +67,23 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       onActiveCellChange,
       onActiveCellValueChange,
       onFill,
-      onDelete
+      onDelete,
+      format,
+      onResize,
     } = props;
 
     const { colorMode } = useColorMode();
     const isLight = colorMode === "light";
     const [containerRef, { width, height }] = useMeasure();
-    const { cells, name, activeCell, selections, scrollState } = currentSheet;
+    const {
+      cells,
+      activeCell,
+      selections,
+      scrollState,
+      columnSizes = {},
+      rowSizes = {},
+      mergedCells
+    } = currentSheet;
     const selectedSheetRef = useRef(selectedSheet);
     useEffect(() => {
       selectedSheetRef.current = selectedSheet;
@@ -99,7 +106,7 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       if (!selectedSheetRef.current) return;
       onSheetChange?.(selectedSheetRef.current, args);
     }, []);
-    const handleScroll = useCallback(scrollState => {
+    const handleScroll = useCallback((scrollState) => {
       if (!selectedSheetRef.current) return;
       onSheetChange?.(selectedSheetRef.current, { scrollState });
     }, []);
@@ -111,12 +118,20 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       []
     );
 
+    const handleResize = useCallback(
+      (axis: AXIS, index: number, dimension: number) => {
+        if (!selectedSheetRef.current) return;
+        onResize?.(selectedSheetRef.current, axis, index, dimension);
+      },
+      []
+    );
     return (
       <>
         <Flex flex={1} ref={containerRef}>
           <Grid
             // @ts-ignore
             ref={forwardedRef}
+            onResize={handleResize}
             onDelete={handleDelete}
             onActiveCellValueChange={onActiveCellValueChange}
             onActiveCellChange={onActiveCellChange}
@@ -135,6 +150,10 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
             HeaderCellRenderer={HeaderCellRenderer}
             onSheetChange={handleSheetChange}
             onScroll={handleScroll}
+            format={format}
+            columnSizes={columnSizes}
+            rowSizes={rowSizes}
+            mergedCells={mergedCells}
           />
         </Flex>
         <Flex>

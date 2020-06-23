@@ -18,4 +18,6 @@ export const translations = {
   switch_light_mode: 'Switch to light mode',
   switch_dark_mode: 'Switch to dark mode',
   clear_formatting: 'Clear formatting',
+  add_sheet: 'Add sheet',
+  all_sheets: 'All sheets'
 }

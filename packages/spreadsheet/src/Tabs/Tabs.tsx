@@ -8,7 +8,8 @@ import {
   Button,
   Box,
   useTheme,
-  useColorMode
+  useColorMode,
+  Tooltip,
 } from "@chakra-ui/core";
 import { COLUMN_HEADER_WIDTH } from "../constants";
 import {
@@ -16,9 +17,10 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  PopoverArrow
+  PopoverArrow,
 } from "@chakra-ui/core";
 import TabItem from "./TabItem";
+import { translations } from "../translations";
 
 interface TabProps {
   selectedSheet: string;
@@ -30,7 +32,7 @@ interface TabProps {
   onDuplicateSheet?: (id: string) => void;
 }
 
-const Tabs: React.FC<TabProps> = props => {
+const Tabs: React.FC<TabProps> = (props) => {
   const {
     sheets,
     onSelect,
@@ -38,19 +40,26 @@ const Tabs: React.FC<TabProps> = props => {
     selectedSheet,
     onChangeSheetName,
     onDeleteSheet,
-    onDuplicateSheet
+    onDuplicateSheet,
   } = props;
   const theme = useTheme();
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
   return (
     <Flex pl={COLUMN_HEADER_WIDTH} alignItems="center">
-      <IconButton
-        aria-label="Add sheet"
-        icon={GoPlus}
-        onClick={onNewSheet}
-        variant="ghost"
-      />
+      <Tooltip
+        placement="top-start"
+        hasArrow
+        aria-label={translations.add_sheet}
+        label={translations.add_sheet}
+      >
+        <IconButton
+          aria-label={translations.add_sheet}
+          icon={GoPlus}
+          onClick={onNewSheet}
+          variant="ghost"
+        />
+      </Tooltip>
       <Popover placement="top" usePortal>
         <PopoverTrigger>
           <IconButton aria-label="All sheets" icon={MdMenu} variant="ghost" />

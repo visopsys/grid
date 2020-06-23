@@ -8,6 +8,10 @@ export enum FORMATTING_TYPE {
   UNDERLINE = 'underline',
   FILL = 'fill',
   COLOR = 'color',
+  PERCENT = 'percent',
+  DECIMALS = 'decimals',
+  CURRENCY = 'currency',
+  CURRENCY_SYMBOL = 'currencySymbol'
 }
 
 export enum FONT_WEIGHT {
@@ -44,16 +48,26 @@ export enum DATATYPE {
   STRING = "string"
 }
 
-export interface CellFormatting {
+export interface CellFormatting extends CellDataFormatting {
   datatype?: DATATYPE;
   [FORMATTING_TYPE.BOLD]?: boolean;
   [FORMATTING_TYPE.COLOR]?: string;
-  italic?: boolean;
-  horizontalAlignment?: HORIZONTAL_ALIGNMENT
-  verticalAlignment?: VERTICAL_ALIGNMENT;
-  underline?: boolean;
-  strike?: boolean;
-  fill?: string;
-  percent?: boolean;
-  decimals?: number
+  [FORMATTING_TYPE.ITALIC]?: boolean;
+  [FORMATTING_TYPE.HORIZONTAL_ALIGN]?: HORIZONTAL_ALIGNMENT
+  [FORMATTING_TYPE.VERTICAL_ALIGN]?: VERTICAL_ALIGNMENT;
+  [FORMATTING_TYPE.UNDERLINE]?: boolean;
+  [FORMATTING_TYPE.STRIKE]?: boolean;
+  [FORMATTING_TYPE.FILL]?: string;    
+}
+
+export interface CellDataFormatting {
+  [FORMATTING_TYPE.PERCENT]?: boolean;
+  [FORMATTING_TYPE.DECIMALS]?: number;
+  [FORMATTING_TYPE.CURRENCY]?: boolean;
+  [FORMATTING_TYPE.CURRENCY_SYMBOL]?: string
+}
+
+export enum AXIS {
+  X = 'x',
+  Y = 'y'
 }
