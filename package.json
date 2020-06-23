@@ -1,6 +1,10 @@
 {
   "private": true,
-  "workspaces": ["packages/*", "examples/*", "hooks/*"],
+  "workspaces": [
+    "packages/*",
+    "examples/*",
+    "hooks/*"
+  ],
   "scripts": {
     "storybook": "lerna run storybook --stream",
     "build": "lerna run build",
@@ -9,7 +13,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lerna run precommit --stream && lint-staged"
+      "pre-commit": "lint-staged"
     }
   },
   "lint-staged": {

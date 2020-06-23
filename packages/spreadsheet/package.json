@@ -9,8 +9,7 @@
     "check:types": "tsc --noEmit",
     "prepublish": "yarn build",
     "prettier": "prettier src/**/*.{ts,tsx} --write",
-    "test": "jest",
-    "precommit": "yarn test && yarn check:types"
+    "test": "jest"
   },
   "dependencies": {
     "@chakra-ui/core": "^0.8.0",
