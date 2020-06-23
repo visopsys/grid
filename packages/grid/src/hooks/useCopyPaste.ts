@@ -176,7 +176,7 @@ const useCopyPaste = ({
    * User is trying to copy from outisde the app
    */
   const handleProgramaticCopy = useCallback(() => {
-    if (!gridRef.current) return
+    if (!gridRef.current) return;
     gridRef.current.focus();
     document.execCommand("copy");
   }, []);
@@ -185,7 +185,7 @@ const useCopyPaste = ({
    * User is trying to paste from outisde the app
    */
   const handleProgramaticPaste = useCallback(async () => {
-    if (!gridRef.current) return
+    if (!gridRef.current) return;
     gridRef.current.focus();
     const text = await navigator.clipboard.readText();
     const clipboardData = new DataTransfer();

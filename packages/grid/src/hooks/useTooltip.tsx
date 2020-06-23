@@ -90,7 +90,7 @@ const useTooltip = ({
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
-      if (!gridRef.current) return
+      if (!gridRef.current) return;
       const coords = gridRef.current.getCellCoordsFromOffset(
         e.clientX,
         e.clientY

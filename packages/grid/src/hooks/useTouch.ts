@@ -28,7 +28,7 @@ const useTouch = ({ gridRef }: TouchProps): TouchResults => {
       let x = pageX;
       let y = pageY;
       const handleTouchMove = (e: globalThis.TouchEvent) => {
-        if (!gridRef.current) return
+        if (!gridRef.current) return;
         const { pageX, pageY } = e.changedTouches[0];
         const dx = pageX - x;
         const dy = pageY - y;

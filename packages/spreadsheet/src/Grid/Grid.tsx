@@ -73,7 +73,7 @@ export interface SheetGridProps {
   onResize?: (axis: AXIS, index: number, dimension: number) => void;
   columnSizes?: SizeType;
   rowSizes?: SizeType;
-  mergedCells?: AreaProps[]
+  mergedCells?: AreaProps[];
 }
 
 export interface RowColSelection {
@@ -138,7 +138,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       onResize,
       columnSizes = {},
       rowSizes = {},
-      mergedCells
+      mergedCells,
     } = props;
     const gridRef = useRef<GridRef | null>(null);
     const { colorMode } = useColorMode();
@@ -158,7 +158,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         cancelEditor,
         resizeColumns: gridRef.current?.resizeColumns,
         resizeRows: gridRef.current?.resizeRows,
-        getCellBounds: gridRef.current?.getCellBounds
+        getCellBounds: gridRef.current?.getCellBounds,
       };
     });
 

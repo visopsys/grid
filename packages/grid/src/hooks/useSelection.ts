@@ -51,7 +51,7 @@ export interface UseSelectionOptions {
     activeCell: CellInterface,
     selection: SelectionArea | null,
     selections: SelectionArea[]
-  ) => void;  
+  ) => void;
 }
 
 export interface SelectionResults {
@@ -70,7 +70,7 @@ export interface SelectionResults {
   /**
    * Modify selectio
    */
-  modifySelection: (coords: CellInterface) => void
+  modifySelection: (coords: CellInterface) => void;
   /**
    * Set the currently active cell
    */
@@ -608,7 +608,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (!gridRef?.current) return
+      if (!gridRef?.current) return;
       const isShiftKey = e.nativeEvent.shiftKey;
       const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
       switch (e.nativeEvent.which) {
@@ -718,7 +718,8 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const handleFillHandleMouseMove = useCallback(
     (e: globalThis.MouseEvent) => {
       /* Exit if user is not in selection mode */
-      if (!isFilling.current || !gridRef?.current || !activeCellRef.current) return;
+      if (!isFilling.current || !gridRef?.current || !activeCellRef.current)
+        return;
 
       const coords = gridRef.current.getCellCoordsFromOffset(
         e.clientX,
@@ -841,7 +842,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     },
     fillSelection,
     clearLastSelection: handleClearLastSelection,
-    modifySelection
+    modifySelection,
   };
 };
 

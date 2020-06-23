@@ -82,7 +82,7 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       scrollState,
       columnSizes = {},
       rowSizes = {},
-      mergedCells
+      mergedCells,
     } = currentSheet;
     const selectedSheetRef = useRef(selectedSheet);
     useEffect(() => {

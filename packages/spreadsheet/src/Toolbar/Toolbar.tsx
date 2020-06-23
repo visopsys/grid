@@ -56,7 +56,7 @@ export interface ToolbarProps extends CellConfig {
     options?: Record<string, any>
   ) => void;
   onClearFormatting?: () => void;
-  onMergeCells?: () => void
+  onMergeCells?: () => void;
 }
 
 const Toolbar: React.FC<ToolbarProps> = (props) => {
@@ -367,9 +367,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             icon={AiOutlineMergeCells}
             fontSize={20}
             size="sm"
-            onClick={() =>
-              onMergeCells?.()
-            }
+            onClick={() => onMergeCells?.()}
           />
         </Tooltip>
 

@@ -13,7 +13,11 @@ import {
   SelectionArea,
 } from "../Grid";
 import { KeyCodes, Direction } from "./../types";
-import { findNextCellWithinBounds, AutoSizerCanvas, isEqualCells } from "../helpers";
+import {
+  findNextCellWithinBounds,
+  AutoSizerCanvas,
+  isEqualCells,
+} from "../helpers";
 
 export interface UseEditableOptions {
   /**
@@ -97,7 +101,7 @@ export interface EditableResults {
   /**
    * Make a cell editable
    */
-  makeEditable: (cell: CellInterface, value?: string) => void
+  makeEditable: (cell: CellInterface, value?: string) => void;
   /**
    * Set editable value imperatively
    */
@@ -117,11 +121,15 @@ export interface EditableResults {
   /**
    * Imperatively trigger submit
    */
-  submitEditor: (value: string, activeCell: CellInterface, nextActiveCell?: CellInterface) => void
+  submitEditor: (
+    value: string,
+    activeCell: CellInterface,
+    nextActiveCell?: CellInterface
+  ) => void;
   /**
    * Cancels an edit
    */
-  cancelEditor: () => void
+  cancelEditor: () => void;
 }
 
 export interface EditorProps extends CellInterface {
@@ -169,7 +177,7 @@ export interface EditorProps extends CellInterface {
     direction?: Direction
   ) => CellInterface | null;
   /* Autofocus on the editor */
-  autoFocus?: boolean
+  autoFocus?: boolean;
 }
 
 /**
@@ -205,7 +213,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
   );
   useEffect(() => {
     setInputWidth(getWidth(value));
-  }, [ value ])
+  }, [value]);
   const [inputWidth, setInputWidth] = useState(() => getWidth(value));
   useEffect(() => {
     if (!inputRef.current) return;
@@ -245,9 +253,9 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
           outline: "none",
           resize: "none",
           overflow: "hidden",
-          verticalAlign: 'top',
+          verticalAlign: "top",
         }}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {          
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
           onChange(e.target.value, cell);
         }}
         onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -292,7 +300,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
 };
 
 const getDefaultEditor = (cell: CellInterface | null) => DefaultEditor;
-const defaultCanEdit = (cell: CellInterface) => true
+const defaultCanEdit = (cell: CellInterface) => true;
 /**
  * Hook to make grid editable
  * @param param
@@ -323,49 +331,54 @@ const useEditable = ({
     scrollLeft: 0,
     scrollTop: 0,
   });
-  const [ autoFocus, setAutoFocus ] = useState<boolean>(true)
+  const [autoFocus, setAutoFocus] = useState<boolean>(true);
   const isDirtyRef = useRef<boolean>(false);
-  const currentValueRef = useRef(value)
+  const currentValueRef = useRef(value);
   const showEditor = () => setShowEditor(true);
   const hideEditor = () => {
     setShowEditor(false);
     currentActiveCellRef.current = null;
   };
-  const focusGrid = () => requestAnimationFrame(() => gridRef.current && gridRef.current.focus());
+  const focusGrid = () =>
+    requestAnimationFrame(() => gridRef.current && gridRef.current.focus());
 
   /* Keep ref in sync */
   useEffect(() => {
-    currentValueRef.current = value
-  })
+    currentValueRef.current = value;
+  });
 
   /**
    * Make a cell editable
    * @param coords
    * @param initialValue
    */
-  const makeEditable = (coords: CellInterface, initialValue?: string, autoFocus: boolean = true) => {
+  const makeEditable = (
+    coords: CellInterface,
+    initialValue?: string,
+    autoFocus: boolean = true
+  ) => {
     if (!gridRef.current) return;
     /* Get actual coords for merged cells */
-    coords = gridRef.current.getActualCellCoords(coords)
+    coords = gridRef.current.getActualCellCoords(coords);
     /* Check if its the same cell */
-    if (isEqualCells(coords, currentActiveCellRef.current)) return
+    if (isEqualCells(coords, currentActiveCellRef.current)) return;
     /* Call on before edit */
     if (canEdit(coords)) {
       currentActiveCellRef.current = coords;
       const pos = gridRef.current.getCellOffsetFromCoords(coords);
-      const value = initialValue || getValue(coords) || ""
+      const value = initialValue || getValue(coords) || "";
       setValue(value);
-      setAutoFocus(autoFocus)
+      setAutoFocus(autoFocus);
       showEditor();
       setPosition(pos);
-      if (value) handleChange(value, coords)      
+      if (value) handleChange(value, coords);
     }
   };
 
   /* Activate edit mode */
   const handleDoubleClick = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
-      if (!gridRef.current) return
+      if (!gridRef.current) return;
       const coords = gridRef.current.getCellCoordsFromOffset(
         e.nativeEvent.clientX,
         e.nativeEvent.clientY
@@ -518,19 +531,16 @@ const useEditable = ({
     []
   );
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (currentActiveCellRef.current) {
-        if (isDirtyRef.current) {
-          handleSubmit(currentValueRef.current, currentActiveCellRef.current);
-        } else {
-          handleCancel();
-        }
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (currentActiveCellRef.current) {
+      if (isDirtyRef.current) {
+        handleSubmit(currentValueRef.current, currentActiveCellRef.current);
+      } else {
+        handleCancel();
       }
-      initialActiveCell.current = undefined;
-    },
-    []
-  );
+    }
+    initialActiveCell.current = undefined;
+  }, []);
 
   const handleChange = useCallback(
     (newValue: string, activeCell) => {
@@ -613,7 +623,7 @@ const useEditable = ({
     showEditor,
     submitEditor: handleSubmit,
     cancelEditor: handleCancel,
-    onMouseDown: handleMouseDown
+    onMouseDown: handleMouseDown,
   };
 };
 

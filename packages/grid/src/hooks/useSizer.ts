@@ -55,12 +55,12 @@ export interface IProps {
   /**
    * Map of index to size
    */
-  columnSizes?: SizeType,
+  columnSizes?: SizeType;
 }
 
 export enum ResizeStrategy {
   "lazy" = "lazy",
-  "full" = "full"
+  "full" = "full",
 }
 
 export interface AutoResizerResults {
@@ -83,8 +83,8 @@ export interface AutoResizerResults {
 }
 
 export type SizeType = {
-  [key: number]: number
-}
+  [key: number]: number;
+};
 
 /**
  * Auto sizer hook
@@ -105,7 +105,7 @@ const useAutoSizer = ({
   resizeOnScroll = true,
   font = "12px Arial",
   autoResize = true,
-  columnSizes = {}
+  columnSizes = {},
 }: IProps): AutoResizerResults => {
   invariant(
     !(resizeStrategy === ResizeStrategy.full && rowCount === void 0),
@@ -117,21 +117,22 @@ const useAutoSizer = ({
     rowStartIndex: 0,
     rowStopIndex: 0,
     columnStartIndex: 0,
-    columnStopIndex: 0
+    columnStopIndex: 0,
   });
   const isMounted = useRef(false);
-  const getValueRef = useRef(getValue)
+  const getValueRef = useRef(getValue);
   const debounceResizer = useRef(
     debounce(
       ({ rowIndex, columnIndex }: CellInterface) =>
-      gridRef.current && gridRef.current.resetAfterIndices({ rowIndex, columnIndex }),
+        gridRef.current &&
+        gridRef.current.resetAfterIndices({ rowIndex, columnIndex }),
       timeout
     )
   );
 
   useEffect(() => {
-    getValueRef.current = getValue
-  })
+    getValueRef.current = getValue;
+  });
 
   useEffect(() => {
     isMounted.current = true;
@@ -156,13 +157,13 @@ const useAutoSizer = ({
       let start = resizeStrategy === ResizeStrategy.full ? 0 : rowStartIndex;
       let maxWidth = minColumnWidth;
       if (columnIndex in columnSizes) {
-        return Math.max(minColumnWidth, columnSizes[columnIndex])
+        return Math.max(minColumnWidth, columnSizes[columnIndex]);
       }
       while (start < visibleRows) {
         const value =
-        getValueRef.current({
+          getValueRef.current({
             rowIndex: start,
-            columnIndex
+            columnIndex,
           }) ?? null;
         if (value !== null) {
           const metrics = autoSizer.current.measureText(value);
@@ -196,7 +197,7 @@ const useAutoSizer = ({
         if (!isMounted.current) return;
         debounceResizer.current({
           rowIndex: cells.rowStartIndex,
-          columnIndex: cells.columnStartIndex
+          columnIndex: cells.columnStartIndex,
         });
       }
     },
@@ -207,7 +208,7 @@ const useAutoSizer = ({
     ...(autoResize ? { columnWidth: getColumnWidth } : {}),
     getColumnWidth,
     onViewChange: handleViewChange,
-    getTextMetrics
+    getTextMetrics,
   };
 };
 
