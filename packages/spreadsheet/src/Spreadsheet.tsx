@@ -29,7 +29,7 @@ export interface SpreadSheetProps {
   onChangeSheets?: (sheets: Sheet[]) => void;
   showFormulabar?: boolean
   showToolbar?: boolean;
-  format: (value: string, datatype?: DATATYPE, formatting?: CellDataFormatting) => string;  
+  format?: (value: string, datatype?: DATATYPE, formatting?: CellDataFormatting) => string;  
 }
 
 export interface Sheet {
@@ -68,8 +68,8 @@ const defaultSheets: Sheet[] = [
   {
     id: defaultActiveSheet,
     name: 'Sheet1',
-    frozenColumns: 2,
-    frozenRows: 2,
+    frozenColumns: 0,
+    frozenRows: 0,
     activeCell: {
       rowIndex: 1,
       columnIndex: 1

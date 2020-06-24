@@ -2460,6 +2460,31 @@
   resolved "https://registry.yarnpkg.com/@reach/visually-hidden/-/visually-hidden-0.1.4.tgz#0dc4ecedf523004337214187db70a46183bd945b"
   integrity sha512-QHbzXjflSlCvDd6vJwdwx16mSB+vUCCQMiU/wK/CgVNPibtpEiIbisyxkpZc55DyDFNUIqP91rSUsNae+ogGDQ==
 
+"@rowsncolumns/grid@^3.1.12":
+  version "3.1.12"
+  resolved "https://registry.yarnpkg.com/@rowsncolumns/grid/-/grid-3.1.12.tgz#b813ba28e4a8eb5054d5380f71ae58cc413e9ff4"
+  integrity sha512-ZYmhdRv0UiTAuk261n9ONCVvs5rLiJZsx1D4iZKekoGvnroOstzV4zc4iHvNMXxBNXLUy1eM89alYecxm2UV5A==
+  dependencies:
+    konva "^6.0.0"
+    react-konva "^16.13.0-3"
+    tiny-invariant "^1.1.0"
+
+"@rowsncolumns/spreadsheet@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@rowsncolumns/spreadsheet/-/spreadsheet-1.0.4.tgz#703582f654d3e8a3b0d23e79af5221c483817a38"
+  integrity sha512-cYl/mgL5+Py5up+G37kB3zbZEBYuWoX1Fm0bNU6YOf93suxrXsml1bk+Fn/q7ONqujRRz/itVgBgeHuJyfAcog==
+  dependencies:
+    "@chakra-ui/core" "^0.8.0"
+    "@emotion/core" "^10.0.28"
+    "@emotion/styled" "^10.0.27"
+    "@rowsncolumns/grid" "^3.1.12"
+    emotion-theming "^10.0.27"
+    immer "^7.0.3"
+    react-color "^2.18.1"
+    react-icons "^3.10.0"
+    react-use "^15.3.0"
+    use-immer "^0.4.0"
+
 "@scarf/scarf@^1.0.4":
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/@scarf/scarf/-/scarf-1.0.6.tgz#52011dfb19187b53b75b7b6eac20da0810ddd88f"

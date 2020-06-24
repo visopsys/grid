@@ -66,7 +66,7 @@ export interface SheetGridProps {
   onActiveCellChange: (cell: CellInterface | null, value?: string) => void;
   onActiveCellValueChange: (value: string) => void;
   onDelete?: (activeCell: CellInterface, selections: SelectionArea[]) => void;
-  format: (
+  format?: (
     value: string,
     datatype?: DATATYPE,
     formatting?: CellDataFormatting

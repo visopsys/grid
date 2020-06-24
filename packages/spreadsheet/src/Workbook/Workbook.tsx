@@ -72,7 +72,7 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       format,
       onResize,
     } = props;
-
+    console.log('rnder')
     const { colorMode } = useColorMode();
     const isLight = colorMode === "light";
     const [containerRef, { width, height }] = useMeasure();
@@ -185,4 +185,5 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
     );
   })
 );
+
 export default Workbook;
