@@ -1,5 +1,5 @@
 import { Sheet } from "./Spreadsheet";
-import { DATATYPE, CellDataFormatting } from "./types";
+import { DATATYPE, CellDataFormatting, BORDER_VARIANT } from "./types";
 import { isNull } from "@rowsncolumns/grid";
 
 export const COLUMN_HEADER_WIDTH = 46;
@@ -78,4 +78,30 @@ export const detectDataType = (value?: string): DATATYPE | undefined => {
   if (isNull(value)) return undefined
   if (!isNaN(Number(value))) return DATATYPE.NUMBER
   return undefined
+}
+
+export const createBorderStyle = (variant?: BORDER_VARIANT, thickness: number = 1) => {
+  if (variant === void 0) return {}
+  switch (variant) {
+    case BORDER_VARIANT.OUTER:
+      return {
+        strokeWidth: thickness
+      }
+    
+    case BORDER_VARIANT.BOTTOM:
+      return {
+        strokeBottomWidth: thickness
+      }
+    
+    case BORDER_VARIANT.RIGHT:
+      return {
+        strokeRightWidth: thickness
+      }
+    
+    case BORDER_VARIANT.LEFT:
+      return {
+        strokeLeftWidth: thickness
+      }
+  }
+  return null
 }

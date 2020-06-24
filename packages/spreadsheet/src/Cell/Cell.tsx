@@ -72,7 +72,6 @@ const Cell: React.FC<CellProps> = memo((props) => {
       verticalAlign={vAlign}
       fill={fill}
       globalCompositeOperation={globalCompositeOperation !== void 0 ? globalCompositeOperation : isLightMode ? 'multiply': 'destination-over'}
-      alpha={0}
       stroke={stroke}
       textColor={textColor}
       value={text}

@@ -1674,25 +1674,29 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       }
 
       if (isIntersectionFrozen) {
-        const frozenIntersectionSelectionHeight = Math.min(
-          selectionBounds.height,
-          getRowOffset({
-            index: frozenRows - top,
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current,
-          })
-        );
+        const frozenIntersectionSelectionHeight = getRowOffset({          
+          index: Math.min(bottom + 1, frozenRows),
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        }) - getRowOffset({
+          index: top,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        })
 
-        const frozenIntersectionSelectionWidth = Math.min(
-          selectionBounds.width,
-          getColumnOffset({
-            index: frozenColumns - left,
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current,
-          })
-        );
+        const frozenIntersectionSelectionWidth = getColumnOffset({          
+          index: Math.min(right + 1, frozenColumns),
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        }) - getColumnOffset({
+          index: left,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        })
 
         selectionAreasIntersection.push(
           selectionRenderer({
@@ -1818,6 +1822,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           createCanvasBox({
             x,
             y,
+            key: i,
             width,
             height,
             ...style,

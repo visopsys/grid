@@ -4,10 +4,10 @@ import Formulabar from './Formulabar'
 import Workbook from './Workbook'
 import { theme, ThemeProvider, ColorModeProvider, CSSReset, Flex } from "@chakra-ui/core"
 import { Global, css } from "@emotion/core"
-import { RendererProps, CellInterface, SelectionArea, ScrollCoords, useUndo, AreaProps, StylingProps } from '@rowsncolumns/grid'
+import { RendererProps, CellInterface, SelectionArea, ScrollCoords, useUndo, AreaProps, StylingProps, AreaStyle } from '@rowsncolumns/grid'
 import useControllableState from './useControllableState'
-import { createNewSheet, uuid, detectDataType } from './constants'
-import { FORMATTING_TYPE, DATATYPE, VERTICAL_ALIGNMENT, HORIZONTAL_ALIGNMENT, CellFormatting, CellDataFormatting, AXIS } from './types'
+import { createNewSheet, uuid, detectDataType, createBorderStyle } from './constants'
+import { FORMATTING_TYPE, DATATYPE, VERTICAL_ALIGNMENT, HORIZONTAL_ALIGNMENT, CellFormatting, CellDataFormatting, AXIS, BORDER_VARIANT } from './types'
 import { useImmer } from 'use-immer'
 import { WorkbookGridRef } from './Grid/Grid'
 import { KeyCodes, Direction } from '@rowsncolumns/grid/dist/types'
@@ -68,8 +68,8 @@ const defaultSheets: Sheet[] = [
   {
     id: defaultActiveSheet,
     name: 'Sheet1',
-    frozenColumns: 2,
-    frozenRows: 2,
+    frozenColumns: 0,
+    frozenRows: 0,
     activeCell: {
       rowIndex: 1,
       columnIndex: 1
@@ -441,6 +441,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
           ? selections[selections.length - 1]
           : { bounds: currentGrid.current?.getCellBounds?.(activeCell as CellInterface) }
         if (!bounds) return
+        if (bounds.top === bounds.bottom && bounds.left === bounds.right) return
         if (!sheet.mergedCells) {
           sheet.mergedCells = []
         } else {
@@ -462,6 +463,70 @@ const Spreadsheet = (props: SpreadSheetProps) => {
         sheet.mergedCells.push(bounds)
       }
 
+    })
+  }, [ selectedSheet ])
+
+  const handleFrozenRowChange = useCallback((num) => {
+    setSheets(draft => {
+      const sheet = draft.find(sheet => sheet.id === selectedSheet)
+      if (sheet) {
+        sheet.frozenRows = num
+      }
+    })
+  }, [ selectedSheet ])
+
+  const handleFrozenColumnChange = useCallback((num) => {
+    setSheets(draft => {
+      const sheet = draft.find(sheet => sheet.id === selectedSheet)
+      if (sheet) {
+        sheet.frozenColumns = num
+      }
+    })
+  }, [ selectedSheet ])
+
+  const handleBorderChange= useCallback((color: string, variant?: BORDER_VARIANT) => {    
+    /* Create a border style based on variant */
+    const borderVariantStyle = createBorderStyle(variant)
+    setSheets(draft => {
+      const sheet = draft.find(sheet => sheet.id === selectedSheet)
+      if (sheet) {
+        const { activeCell, selections, borderStyles } = sheet
+        if (!activeCell) return
+        const { bounds: cellBounds } = selections.length
+          ? selections[selections.length - 1]
+          : { bounds: currentGrid.current?.getCellBounds?.(activeCell as CellInterface) }
+        const index = borderStyles?.findIndex(({ bounds }) => {
+          return (
+            bounds.left === cellBounds?.left &&
+            bounds.right === cellBounds.right &&
+            bounds.top === cellBounds.top &&
+            bounds.bottom === cellBounds.bottom
+          )
+        })
+        if (!cellBounds) return
+        /* This bound does not exist */
+        if (!sheet.borderStyles) sheet.borderStyles = [] 
+        
+        /* Create border style */
+        const newStyle = {
+          ...borderVariantStyle,
+          stroke: color,
+        }
+
+        /* Add borders */
+        if (index === -1) {
+          sheet.borderStyles.push({
+            bounds: cellBounds,
+            style: newStyle
+          })
+        } else if (index !== void 0) {
+          if (variant === BORDER_VARIANT.NONE) {
+            sheet.borderStyles.splice(index, 1)
+          } else {
+            sheet.borderStyles[index].style = newStyle
+          }
+        }
+      }
     })
   }, [ selectedSheet ])
 
@@ -492,6 +557,11 @@ const Spreadsheet = (props: SpreadSheetProps) => {
                 onFormattingChange={handleFormattingChange}
                 onClearFormatting={handleClearFormatting}
                 onMergeCells={handleMergeCells}
+                frozenRows={currentSheet.frozenRows} 
+                frozenColumns={currentSheet.frozenColumns} 
+                onFrozenRowChange={handleFrozenRowChange}
+                onFrozenColumnChange={handleFrozenColumnChange}
+                onBorderChange={handleBorderChange}
               />
             : null
           }

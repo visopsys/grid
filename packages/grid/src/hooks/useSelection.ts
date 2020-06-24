@@ -406,7 +406,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
 
     modifySelection(coords, true);
 
-    gridRef.current.scrollToItem(coords);
+    gridRef.current?.scrollToItem(coords);
   }, []);
   /**
    * Mouse up handler

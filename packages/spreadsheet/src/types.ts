@@ -71,3 +71,16 @@ export enum AXIS {
   X = 'x',
   Y = 'y'
 }
+
+export enum BORDER_VARIANT {
+  ALL = 'all',
+  INNER = 'inner',
+  HORIZONTAL = 'horizontal',
+  VERTICAL = 'vertical',
+  OUTER = 'outer',
+  LEFT = 'left',
+  RIGHT = 'right',
+  BOTTOM = 'bottom',
+  TOP = 'top',
+  NONE = 'none'
+}
