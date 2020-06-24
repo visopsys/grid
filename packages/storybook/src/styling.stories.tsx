@@ -20,7 +20,7 @@ export const Borders = () => {
         },
         style: {
           strokeWidth: 1,
-          stroke: "red",
+          stroke: "red",          
         },
       },
       {
@@ -32,7 +32,8 @@ export const Borders = () => {
         },
         style: {
           strokeWidth: 1,
-          stroke: "green",
+          stroke: "red",
+          fill: 'red'
         },
       },
     ];

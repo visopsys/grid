@@ -17,6 +17,7 @@ import Grid, {
   SelectionArea,
   ScrollCoords,
   AreaProps,
+  StylingProps,
 } from "@rowsncolumns/grid";
 import { debounce } from "@rowsncolumns/grid/dist/helpers";
 import {
@@ -74,6 +75,9 @@ export interface SheetGridProps {
   columnSizes?: SizeType;
   rowSizes?: SizeType;
   mergedCells?: AreaProps[];
+  borderStyles?: StylingProps;
+  frozenRows?: number;
+  frozenColumns?: number
 }
 
 export interface RowColSelection {
@@ -139,6 +143,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       columnSizes = {},
       rowSizes = {},
       mergedCells,
+      borderStyles,
+      frozenRows = 1,
+      frozenColumns = 1,
     } = props;
     const gridRef = useRef<GridRef | null>(null);
     const { colorMode } = useColorMode();
@@ -396,7 +403,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       [cells, selectedRowsAndCols, activeCell]
     );
     const fillhandleBorderColor = isLightMode ? "white" : DARK_MODE_COLOR_LIGHT;
-
+    const _frozenRows = Math.max(1, frozenRows)
+    const _frozenColumns = Math.max(1, frozenColumns)
     return (
       <GridWrapper>
         <Grid
@@ -405,8 +413,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           columnCount={columnCount}
           columnWidth={columnWidth}
           rowHeight={rowHeight}
-          frozenColumns={1}
-          frozenRows={1}
           width={width}
           height={height}
           itemRenderer={itemRenderer}
@@ -416,6 +422,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           fillhandleBorderColor={fillhandleBorderColor}
           showFillHandle={!isEditInProgress}
           mergedCells={mergedCells}
+          borderStyles={borderStyles}
+          frozenRows={_frozenRows}
+          frozenColumns={_frozenColumns}
           {...selectionProps}
           {...editableProps}
           onScroll={(scrollState: ScrollCoords) => {

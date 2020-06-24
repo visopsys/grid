@@ -8,6 +8,7 @@ import { SpreadSheetProps, Sheet, Cells, SizeType } from "../Spreadsheet";
 import { CellInterface, SelectionArea } from "@rowsncolumns/grid";
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
+import { DARK_MODE_COLOR_LIGHT } from "../constants";
 
 export interface WorkbookProps extends SpreadSheetProps {
   currentSheet: Sheet;
@@ -83,6 +84,9 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       columnSizes = {},
       rowSizes = {},
       mergedCells,
+      borderStyles,
+      frozenRows,
+      frozenColumns,
     } = currentSheet;
     const selectedSheetRef = useRef(selectedSheet);
     useEffect(() => {
@@ -127,7 +131,10 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
     );
     return (
       <>
-        <Flex flex={1} ref={containerRef}>
+        <Flex
+          flex={1}
+          ref={containerRef}
+        >
           <Grid
             // @ts-ignore
             ref={forwardedRef}
@@ -154,6 +161,9 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
             columnSizes={columnSizes}
             rowSizes={rowSizes}
             mergedCells={mergedCells}
+            borderStyles={borderStyles}
+            frozenRows={frozenRows}
+            frozenColumns={frozenColumns}
           />
         </Flex>
         <Flex>

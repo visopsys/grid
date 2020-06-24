@@ -4,7 +4,7 @@ import Formulabar from './Formulabar'
 import Workbook from './Workbook'
 import { theme, ThemeProvider, ColorModeProvider, CSSReset, Flex } from "@chakra-ui/core"
 import { Global, css } from "@emotion/core"
-import { RendererProps, CellInterface, SelectionArea, ScrollCoords, useUndo, AreaProps } from '@rowsncolumns/grid'
+import { RendererProps, CellInterface, SelectionArea, ScrollCoords, useUndo, AreaProps, StylingProps } from '@rowsncolumns/grid'
 import useControllableState from './useControllableState'
 import { createNewSheet, uuid, detectDataType } from './constants'
 import { FORMATTING_TYPE, DATATYPE, VERTICAL_ALIGNMENT, HORIZONTAL_ALIGNMENT, CellFormatting, CellDataFormatting, AXIS } from './types'
@@ -41,7 +41,10 @@ export interface Sheet {
   scrollState: ScrollCoords;
   columnSizes?: SizeType;
   rowSizes?: SizeType;
-  mergedCells?: AreaProps[]
+  mergedCells?: AreaProps[];
+  borderStyles?: StylingProps;
+  frozenRows?: number;
+  frozenColumns?: number
 }
 
 export type SizeType = {
@@ -65,23 +68,39 @@ const defaultSheets: Sheet[] = [
   {
     id: defaultActiveSheet,
     name: 'Sheet1',
+    frozenColumns: 2,
+    frozenRows: 2,
     activeCell: {
       rowIndex: 1,
       columnIndex: 1
     },
     selections: [],
+    borderStyles: [
+      // {
+      //   bounds: {
+      //     top: 3,
+      //     left: 3,
+      //     right: 6,
+      //     bottom: 7
+      //   },
+      //   style: {
+      //     stroke: 'red',
+      //     strokeWidth: 1
+      //   }
+      // },      
+    ],
     cells: {
       1: {
         1: {
-          text: 'Hello world',
-          fill: 'green',
+          text: 'Hello world',          
           color: 'red',
           bold: true,
           italic: true,
           verticalAlign: VERTICAL_ALIGNMENT.MIDDLE,
           horizontalAlign: HORIZONTAL_ALIGNMENT.LEFT,
           strike: true,
-          underline: true,          
+          underline: true,       
+          fill: 'green'
         },
         2: {
           text: '2',
@@ -157,6 +176,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       const sheet = draft.find(sheet => sheet.id === id)
       if (sheet) {
         for (const key in changes) {
+          // @ts-ignore
           sheet[key as keyof Sheet] = changes[key]
         }
       }

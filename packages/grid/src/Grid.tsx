@@ -37,7 +37,7 @@ import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
 import Selection from "./Selection";
 import FillHandle from "./FillHandle";
-import { createHTMLBox } from "./utils";
+import { createHTMLBox, createCanvasBox } from "./utils";
 import invariant from "tiny-invariant";
 import { StageConfig } from "konva/types/Stage";
 import { Direction } from "./types";
@@ -1475,6 +1475,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             rowIndex,
             columnIndex,
             key: itemKey({ rowIndex, columnIndex }),
+            globalCompositeOperation: 'source-over',
           })
         );
       }
@@ -1617,15 +1618,17 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         getColumnWidth(actualRight, instanceProps.current);
 
       if (isLeftBoundFrozen) {
-        const frozenColumnSelectionWidth = Math.min(
-          selectionBounds.width,
-          getColumnOffset({
-            index: frozenColumns - left,
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current,
-          })
-        );
+        const frozenColumnSelectionWidth = getColumnOffset({          
+          index: Math.min(right + 1, frozenColumns),
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        }) - getColumnOffset({
+          index: left,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        })
         selectionAreasFrozenColumns.push(
           selectionRenderer({
             ...styles,
@@ -1643,15 +1646,17 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       }
 
       if (isTopBoundFrozen) {
-        const frozenRowSelectionHeight = Math.min(
-          selectionBounds.height,
-          getRowOffset({
-            index: frozenRows - top,
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current,
-          })
-        );
+        const frozenRowSelectionHeight = getRowOffset({          
+          index: Math.min(bottom + 1, frozenRows),
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        }) - getRowOffset({
+          index: top,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        })
         selectionAreasFrozenRows.push(
           selectionRenderer({
             ...styles,
@@ -1810,7 +1815,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           }) - y;
 
         borderStyleCells.push(
-          createHTMLBox({
+          createCanvasBox({
             x,
             y,
             width,
@@ -1839,10 +1844,11 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         : null;
     const stageChildren = (
       <>
-        <Layer offsetY={scrollTop} offsetX={scrollLeft}>
+        <Layer offsetY={scrollTop} offsetX={scrollLeft}>          
           {cells}
           {mergedCellAreas}
           {ranges}
+          {borderStylesCells}
         </Layer>
 
         <Layer>
@@ -1907,8 +1913,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 scrollTop + frozenRowHeight
               }px)`,
             }}
-          >
-            {borderStylesCells}
+          >            
             {fillSelections}
             {selectionAreas}
             {activeCellSelection}

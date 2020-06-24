@@ -41,6 +41,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
     percent,
     currency,
     format = defaultFormat,
+    globalCompositeOperation
   } = props;
   const fontWeight = bold ? FONT_WEIGHT.BOLD : FONT_WEIGHT.NORMAL;
   const fontStyle = italic ? FONT_STYLE.ITALIC : FONT_STYLE.NORMAL;
@@ -70,6 +71,8 @@ const Cell: React.FC<CellProps> = memo((props) => {
       fontStyle={fontStyle}
       verticalAlign={vAlign}
       fill={fill}
+      globalCompositeOperation={globalCompositeOperation !== void 0 ? globalCompositeOperation : isLightMode ? 'multiply': 'destination-over'}
+      alpha={0}
       stroke={stroke}
       textColor={textColor}
       value={text}

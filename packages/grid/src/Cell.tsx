@@ -38,9 +38,11 @@ const Cell: React.FC<CellProps> = (props) => {
     fontWeight = 'normal',
     fontStyle = 'normal',
     textDecoration,
+    alpha=1,
+    globalCompositeOperation = 'multiply',
     ...rest
   } = props;
-
+  const fillEnabled = !!fill
   const textStyle = `${fontWeight} ${fontStyle}`
   return (
     <Group {...rest}>
@@ -54,6 +56,9 @@ const Cell: React.FC<CellProps> = (props) => {
         strokeWidth={strokeWidth}
         shadowForStrokeEnabled={false}
         hitStrokeWidth={0}
+        alpha={alpha}
+        fillEnabled={fillEnabled}
+        globalCompositeOperation={globalCompositeOperation}
       />
       {isNull(value) ? null : (
         <Text
