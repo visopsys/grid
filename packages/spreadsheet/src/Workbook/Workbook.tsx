@@ -131,10 +131,7 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
     );
     return (
       <>
-        <Flex
-          flex={1}
-          ref={containerRef}
-        >
+        <Flex flex={1} ref={containerRef}>
           <Grid
             // @ts-ignore
             ref={forwardedRef}

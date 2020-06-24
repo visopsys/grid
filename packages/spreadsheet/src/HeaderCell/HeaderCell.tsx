@@ -119,7 +119,7 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
   const handleAdjustColumn = useCallback(() => {
     onAdjustColumn?.(columnIndex);
   }, []);
-  const globalCompositeOperation = 'source-over'
+  const globalCompositeOperation = "source-over";
   return (
     <Cell
       {...props}

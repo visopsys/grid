@@ -62,7 +62,7 @@ import {
 import { translations } from "../translations";
 import { CellConfig } from "../Spreadsheet";
 import { SketchPicker, ColorResult } from "react-color";
-import useDidUpdate from './../hooks/useDidUpdate'
+import useDidUpdate from "./../hooks/useDidUpdate";
 
 export interface ToolbarProps extends CellConfig {
   onFormattingChange?: (
@@ -72,11 +72,11 @@ export interface ToolbarProps extends CellConfig {
   ) => void;
   onClearFormatting?: () => void;
   onMergeCells?: () => void;
-  onFrozenColumnChange?: (num: number) => void
+  onFrozenColumnChange?: (num: number) => void;
   onFrozenRowChange?: (num: number) => void;
   frozenRows?: number;
   frozenColumns?: number;
-  onBorderChange?: (color: string, variant?: BORDER_VARIANT) => void
+  onBorderChange?: (color: string, variant?: BORDER_VARIANT) => void;
 }
 
 const Toolbar: React.FC<ToolbarProps> = (props) => {
@@ -369,8 +369,12 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
           hasArrow
           aria-label={translations.borders}
           label={translations.borders}
-        >          
-          <BorderSelection onBorderChange={onBorderChange} iconColor={iconColor} activeIconColor={activeIconColor} />
+        >
+          <BorderSelection
+            onBorderChange={onBorderChange}
+            iconColor={iconColor}
+            activeIconColor={activeIconColor}
+          />
         </Tooltip>
 
         <Tooltip
@@ -393,7 +397,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
           hasArrow
           aria-label={translations.freeze}
           label={translations.freeze}
-        >          
+        >
           <Popover usePortal placement="top-start">
             {({ onClose }) => {
               return (
@@ -413,7 +417,13 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                     <PopoverBody>
                       <FormControl mb={1}>
                         <FormLabel fontSize={12}>Frozen rows</FormLabel>
-                        <Select size='sm' value={frozenRows} onChange={(e) => onFrozenRowChange?.(Number(e.target.value))}>
+                        <Select
+                          size="sm"
+                          value={frozenRows}
+                          onChange={(e) =>
+                            onFrozenRowChange?.(Number(e.target.value))
+                          }
+                        >
                           <option>0</option>
                           <option>1</option>
                           <option>2</option>
@@ -423,14 +433,19 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 
                       <FormControl>
                         <FormLabel fontSize={12}>Frozen columns</FormLabel>
-                        <Select size='sm' value={frozenColumns} onChange={(e) => onFrozenColumnChange?.(Number(e.target.value))}>
+                        <Select
+                          size="sm"
+                          value={frozenColumns}
+                          onChange={(e) =>
+                            onFrozenColumnChange?.(Number(e.target.value))
+                          }
+                        >
                           <option>0</option>
                           <option>1</option>
                           <option>2</option>
                           <option>3</option>
                         </Select>
                       </FormControl>
-
                     </PopoverBody>
                   </PopoverContent>
                 </>
@@ -666,164 +681,228 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
   );
 };
 
-
 export interface BorderProps {
   iconColor: string;
   activeIconColor: string;
-  onBorderChange?: (color: string, variant?: BORDER_VARIANT) => void
+  onBorderChange?: (color: string, variant?: BORDER_VARIANT) => void;
 }
-const BorderSelection: React.FC<BorderProps> = ({ iconColor, activeIconColor, onBorderChange }) => {
-  const [ borderColor, setBorderColor ] = useState('#000000')
-  const [ borderVariant, setBorderVariant ] = useState<BORDER_VARIANT>()
+const BorderSelection: React.FC<BorderProps> = ({
+  iconColor,
+  activeIconColor,
+  onBorderChange,
+}) => {
+  const [borderColor, setBorderColor] = useState("#000000");
+  const [borderVariant, setBorderVariant] = useState<BORDER_VARIANT>();
   const handleChangeColor = (e: ColorResult) => {
-    setBorderColor(e.hex)
-    onBorderChange?.(e.hex, borderVariant)
-  }
+    setBorderColor(e.hex);
+    onBorderChange?.(e.hex, borderVariant);
+  };
   const handleChangeVariant = (value: BORDER_VARIANT) => {
-    setBorderVariant(value)
-    onBorderChange?.(borderColor, value)
-  }
+    setBorderVariant(value);
+    onBorderChange?.(borderColor, value);
+  };
 
   return (
     <Popover placement="top-start">
-        <PopoverTrigger>
-          <IconButton
-            aria-label={translations.borders}
-            variant="ghost"
-            color={iconColor}
-            icon={MdBorderAll}
-            fontSize={20}
-            size="sm"
-          />
-        </PopoverTrigger>
-        <PopoverContent width={240} zIndex={2}>
-          <PopoverArrow />
-          <Box display='flex'>
-            <Box flex={1} display='flex' p={2} flexWrap='wrap' width={180}>
-              <IconButton
-                aria-label={translations.border_all}
-                variant={borderVariant === BORDER_VARIANT.ALL ? 'solid' : 'ghost'}
-                color={borderVariant === BORDER_VARIANT.ALL ? activeIconColor : iconColor}
-                onClick={() => handleChangeVariant(BORDER_VARIANT.ALL)}
-                isDisabled
-                icon={MdBorderAll}
-                fontSize={20}
-                size="sm"                
-              />
-              <IconButton
-                aria-label={translations.border_inner}
-                variant={borderVariant === BORDER_VARIANT.INNER ? 'solid' : 'ghost'}
-                color={borderVariant === BORDER_VARIANT.INNER ? activeIconColor : iconColor}
-                onClick={() => handleChangeVariant(BORDER_VARIANT.INNER)}
-                icon={MdBorderInner}
-                fontSize={20}
-                size="sm"
-                isDisabled
-              />
-              <IconButton
-                aria-label={translations.border_horizontal}
-                variant={borderVariant === BORDER_VARIANT.HORIZONTAL ? 'solid' : 'ghost'}
-                color={borderVariant === BORDER_VARIANT.HORIZONTAL ? activeIconColor : iconColor}
-                onClick={() => handleChangeVariant(BORDER_VARIANT.HORIZONTAL)}
-                icon={MdBorderHorizontal}
-                fontSize={20}
-                size="sm"
-                isDisabled
-              />
-              <IconButton
-                aria-label={translations.border_vertical}
-                variant={borderVariant === BORDER_VARIANT.VERTICAL ? 'solid' : 'ghost'}
-                color={borderVariant === BORDER_VARIANT.VERTICAL ? activeIconColor : iconColor}
-                onClick={() => handleChangeVariant(BORDER_VARIANT.VERTICAL)}
-                icon={MdBorderVertical}
-                fontSize={20}
-                size="sm"
-                isDisabled
-              />
-              <IconButton
-                aria-label={translations.border_outer}
-                variant={borderVariant === BORDER_VARIANT.OUTER ? 'solid' : 'ghost'}
-                color={borderVariant === BORDER_VARIANT.OUTER ? activeIconColor : iconColor}
-                onClick={() => handleChangeVariant(BORDER_VARIANT.OUTER)}
-                icon={MdBorderOuter}
-                fontSize={20}
-                size="sm"
-              />
-              <IconButton
-                aria-label={translations.border_left}
-                variant={borderVariant === BORDER_VARIANT.LEFT ? 'solid' : 'ghost'}
-                color={borderVariant === BORDER_VARIANT.LEFT ? activeIconColor : iconColor}
-                onClick={() => handleChangeVariant(BORDER_VARIANT.LEFT)}
-                icon={MdBorderLeft}
-                fontSize={20}
-                size="sm"
-              />
-              <IconButton
-                aria-label={translations.border_right}
-                variant={borderVariant === BORDER_VARIANT.RIGHT ? 'solid' : 'ghost'}
-                color={borderVariant === BORDER_VARIANT.RIGHT ? activeIconColor : iconColor}
-                onClick={() => handleChangeVariant(BORDER_VARIANT.RIGHT)}
-                icon={MdBorderRight}
-                fontSize={20}
-                size="sm"
-              />
-              <IconButton
-                aria-label={translations.border_top}
-                variant={borderVariant === BORDER_VARIANT.TOP ? 'solid' : 'ghost'}
-                color={borderVariant === BORDER_VARIANT.TOP ? activeIconColor : iconColor}
-                onClick={() => handleChangeVariant(BORDER_VARIANT.TOP)}
-                icon={MdBorderTop}
-                fontSize={20}
-                size="sm"
-              />
-              <IconButton
-                aria-label={translations.border_bottom}
-                variant={borderVariant === BORDER_VARIANT.BOTTOM ? 'solid' : 'ghost'}
-                color={borderVariant === BORDER_VARIANT.BOTTOM ? activeIconColor : iconColor}
-                onClick={() => handleChangeVariant(BORDER_VARIANT.BOTTOM)}
-                icon={MdBorderBottom}
-                fontSize={20}
-                size="sm"
-              />
-              <IconButton
-                aria-label={translations.border_none}
-                variant={borderVariant === BORDER_VARIANT.NONE ? 'solid' : 'ghost'}
-                color={borderVariant === BORDER_VARIANT.NONE ? activeIconColor : iconColor}
-                onClick={() => handleChangeVariant(BORDER_VARIANT.NONE)}
-                icon={MdBorderClear}
-                fontSize={20}
-                size="sm"
-              />
-            </Box>
-            <Box p={2} borderLeft='gray.300' borderLeftWidth={1} borderLeftStyle='solid'>
-              <Popover placement="top-start">
-                <PopoverTrigger>
-                  <Button
-                    size="sm"
-                    color={iconColor}
-                    variant="ghost"
-                    pl={0}
-                    pr={0}
-                    flexDirection="column"
-                    aria-label={translations.border_color}
-                  >
-                    <MdEdit />
-                    <Rect color={borderColor} />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent width={220}>
-                  <PopoverArrow />
-                  <SketchPicker
-                    color={borderColor}
-                    onChange={handleChangeColor}
-                  />
-                </PopoverContent>
-              </Popover>
-            </Box>
+      <PopoverTrigger>
+        <IconButton
+          aria-label={translations.borders}
+          variant="ghost"
+          color={iconColor}
+          icon={MdBorderAll}
+          fontSize={20}
+          size="sm"
+        />
+      </PopoverTrigger>
+      <PopoverContent width={240} zIndex={2}>
+        <PopoverArrow />
+        <Box display="flex">
+          <Box flex={1} display="flex" p={2} flexWrap="wrap" width={180}>
+            <IconButton
+              aria-label={translations.border_all}
+              variant={borderVariant === BORDER_VARIANT.ALL ? "solid" : "ghost"}
+              color={
+                borderVariant === BORDER_VARIANT.ALL
+                  ? activeIconColor
+                  : iconColor
+              }
+              onClick={() => handleChangeVariant(BORDER_VARIANT.ALL)}
+              isDisabled
+              icon={MdBorderAll}
+              fontSize={20}
+              size="sm"
+            />
+            <IconButton
+              aria-label={translations.border_inner}
+              variant={
+                borderVariant === BORDER_VARIANT.INNER ? "solid" : "ghost"
+              }
+              color={
+                borderVariant === BORDER_VARIANT.INNER
+                  ? activeIconColor
+                  : iconColor
+              }
+              onClick={() => handleChangeVariant(BORDER_VARIANT.INNER)}
+              icon={MdBorderInner}
+              fontSize={20}
+              size="sm"
+              isDisabled
+            />
+            <IconButton
+              aria-label={translations.border_horizontal}
+              variant={
+                borderVariant === BORDER_VARIANT.HORIZONTAL ? "solid" : "ghost"
+              }
+              color={
+                borderVariant === BORDER_VARIANT.HORIZONTAL
+                  ? activeIconColor
+                  : iconColor
+              }
+              onClick={() => handleChangeVariant(BORDER_VARIANT.HORIZONTAL)}
+              icon={MdBorderHorizontal}
+              fontSize={20}
+              size="sm"
+              isDisabled
+            />
+            <IconButton
+              aria-label={translations.border_vertical}
+              variant={
+                borderVariant === BORDER_VARIANT.VERTICAL ? "solid" : "ghost"
+              }
+              color={
+                borderVariant === BORDER_VARIANT.VERTICAL
+                  ? activeIconColor
+                  : iconColor
+              }
+              onClick={() => handleChangeVariant(BORDER_VARIANT.VERTICAL)}
+              icon={MdBorderVertical}
+              fontSize={20}
+              size="sm"
+              isDisabled
+            />
+            <IconButton
+              aria-label={translations.border_outer}
+              variant={
+                borderVariant === BORDER_VARIANT.OUTER ? "solid" : "ghost"
+              }
+              color={
+                borderVariant === BORDER_VARIANT.OUTER
+                  ? activeIconColor
+                  : iconColor
+              }
+              onClick={() => handleChangeVariant(BORDER_VARIANT.OUTER)}
+              icon={MdBorderOuter}
+              fontSize={20}
+              size="sm"
+            />
+            <IconButton
+              aria-label={translations.border_left}
+              variant={
+                borderVariant === BORDER_VARIANT.LEFT ? "solid" : "ghost"
+              }
+              color={
+                borderVariant === BORDER_VARIANT.LEFT
+                  ? activeIconColor
+                  : iconColor
+              }
+              onClick={() => handleChangeVariant(BORDER_VARIANT.LEFT)}
+              icon={MdBorderLeft}
+              fontSize={20}
+              size="sm"
+            />
+            <IconButton
+              aria-label={translations.border_right}
+              variant={
+                borderVariant === BORDER_VARIANT.RIGHT ? "solid" : "ghost"
+              }
+              color={
+                borderVariant === BORDER_VARIANT.RIGHT
+                  ? activeIconColor
+                  : iconColor
+              }
+              onClick={() => handleChangeVariant(BORDER_VARIANT.RIGHT)}
+              icon={MdBorderRight}
+              fontSize={20}
+              size="sm"
+            />
+            <IconButton
+              aria-label={translations.border_top}
+              variant={borderVariant === BORDER_VARIANT.TOP ? "solid" : "ghost"}
+              color={
+                borderVariant === BORDER_VARIANT.TOP
+                  ? activeIconColor
+                  : iconColor
+              }
+              onClick={() => handleChangeVariant(BORDER_VARIANT.TOP)}
+              icon={MdBorderTop}
+              fontSize={20}
+              size="sm"
+            />
+            <IconButton
+              aria-label={translations.border_bottom}
+              variant={
+                borderVariant === BORDER_VARIANT.BOTTOM ? "solid" : "ghost"
+              }
+              color={
+                borderVariant === BORDER_VARIANT.BOTTOM
+                  ? activeIconColor
+                  : iconColor
+              }
+              onClick={() => handleChangeVariant(BORDER_VARIANT.BOTTOM)}
+              icon={MdBorderBottom}
+              fontSize={20}
+              size="sm"
+            />
+            <IconButton
+              aria-label={translations.border_none}
+              variant={
+                borderVariant === BORDER_VARIANT.NONE ? "solid" : "ghost"
+              }
+              color={
+                borderVariant === BORDER_VARIANT.NONE
+                  ? activeIconColor
+                  : iconColor
+              }
+              onClick={() => handleChangeVariant(BORDER_VARIANT.NONE)}
+              icon={MdBorderClear}
+              fontSize={20}
+              size="sm"
+            />
           </Box>
-        </PopoverContent>
+          <Box
+            p={2}
+            borderLeft="gray.300"
+            borderLeftWidth={1}
+            borderLeftStyle="solid"
+          >
+            <Popover placement="top-start">
+              <PopoverTrigger>
+                <Button
+                  size="sm"
+                  color={iconColor}
+                  variant="ghost"
+                  pl={0}
+                  pr={0}
+                  flexDirection="column"
+                  aria-label={translations.border_color}
+                >
+                  <MdEdit />
+                  <Rect color={borderColor} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent width={220}>
+                <PopoverArrow />
+                <SketchPicker
+                  color={borderColor}
+                  onChange={handleChangeColor}
+                />
+              </PopoverContent>
+            </Popover>
+          </Box>
+        </Box>
+      </PopoverContent>
     </Popover>
-  )
-}
+  );
+};
 
 export default Toolbar;

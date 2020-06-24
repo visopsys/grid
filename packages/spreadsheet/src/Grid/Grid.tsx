@@ -77,7 +77,7 @@ export interface SheetGridProps {
   mergedCells?: AreaProps[];
   borderStyles?: StylingProps;
   frozenRows?: number;
-  frozenColumns?: number
+  frozenColumns?: number;
 }
 
 export interface RowColSelection {
@@ -364,10 +364,13 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     /**
      * Adjusts a column
      */
-    const handleAdjustColumn = useCallback((columnIndex: number) => {
-      const width = getColumnWidth(columnIndex);
-      onResize?.(AXIS.X, columnIndex, width);
-    }, [ cells ]);
+    const handleAdjustColumn = useCallback(
+      (columnIndex: number) => {
+        const width = getColumnWidth(columnIndex);
+        onResize?.(AXIS.X, columnIndex, width);
+      },
+      [cells]
+    );
 
     const itemRenderer = useCallback(
       (props: RendererProps) => {
@@ -403,8 +406,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       [cells, selectedRowsAndCols, activeCell]
     );
     const fillhandleBorderColor = isLightMode ? "white" : DARK_MODE_COLOR_LIGHT;
-    const _frozenRows = Math.max(1, frozenRows + 1)
-    const _frozenColumns = Math.max(1, frozenColumns + 1)
+    const _frozenRows = Math.max(1, frozenRows + 1);
+    const _frozenColumns = Math.max(1, frozenColumns + 1);
     return (
       <GridWrapper>
         <Grid
