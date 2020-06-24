@@ -22,5 +22,6 @@
     "react-icons": "^3.10.0",
     "react-use": "^15.3.0",
     "use-immer": "^0.4.0"
-  }
+  },
+  "gitHead": "619ea4a89c363efaacd101747fb14ec82e722a2e"
 }

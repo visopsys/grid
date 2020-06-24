@@ -13,7 +13,6 @@
     "build:watch": "tsc -p . --watch",
     "check:types": "tsc --noEmit",
     "prepublish": "yarn build",
-    "postpublish": "yarn deploy-storybook",
     "prettier": "prettier src/**/*.{ts,tsx} --write",
     "test": "jest",
     "precommit": "yarn test && yarn check:types"
@@ -42,5 +41,5 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
   },
-  "gitHead": "28451ee6c02cf6e579c19fcdbe46d5caea9b37f3"
+  "gitHead": "619ea4a89c363efaacd101747fb14ec82e722a2e"
 }
