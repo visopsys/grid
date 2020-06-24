@@ -30,6 +30,7 @@ export const createNewSheet = ({ count }: { count: number }): Sheet => ({
   cells: {},
   activeCell: null,
   selections: [],
+  borderStyles: [],
   scrollState: { scrollTop: 0, scrollLeft: 0 },
   columnSizes: {},
   rowSizes: {}

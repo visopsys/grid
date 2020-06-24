@@ -64,6 +64,8 @@ export interface UseEditableOptions {
    * Callback fired before editing. Can be used to prevent editing. Do not use it, Can be removed in next release.
    */
   canEdit?: (coords: CellInterface) => boolean;
+  frozenColumns?: number;
+  frozenRows?: number;
 }
 
 export interface EditableResults {
@@ -78,7 +80,7 @@ export interface EditableResults {
   /**
    * OnScroll listener to align the editor
    */
-  onScroll: (props: ScrollCoords) => void;
+  onScroll?: (props: ScrollCoords) => void;
   /**
    * Key down listeners
    */
@@ -316,6 +318,8 @@ const useEditable = ({
   selections = [],
   activeCell,
   canEdit = defaultCanEdit,
+  frozenRows = 0,
+  frozenColumns = 0,
 }: UseEditableOptions): EditableResults => {
   const [isEditorShown, setShowEditor] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
@@ -334,13 +338,14 @@ const useEditable = ({
   const [autoFocus, setAutoFocus] = useState<boolean>(true);
   const isDirtyRef = useRef<boolean>(false);
   const currentValueRef = useRef(value);
-  const showEditor = () => setShowEditor(true);
-  const hideEditor = () => {
+  const showEditor = useCallback(() => setShowEditor(true), []);
+  const hideEditor = useCallback(() => {
     setShowEditor(false);
     currentActiveCellRef.current = null;
-  };
-  const focusGrid = () =>
-    requestAnimationFrame(() => gridRef.current && gridRef.current.focus());
+  }, []);
+  const focusGrid = useCallback(() => {
+    requestAnimationFrame(() => gridRef.current && gridRef.current.focus())
+  }, []);
 
   /* Keep ref in sync */
   useEffect(() => {
@@ -366,11 +371,13 @@ const useEditable = ({
     if (canEdit(coords)) {
       currentActiveCellRef.current = coords;
       const pos = gridRef.current.getCellOffsetFromCoords(coords);
+      const scrollPosition = gridRef.current.getScrollPosition()
       const value = initialValue || getValue(coords) || "";
+      setScrollPosition(scrollPosition)
       setValue(value);
-      setAutoFocus(autoFocus);
-      showEditor();
+      setAutoFocus(autoFocus);      
       setPosition(pos);
+      showEditor();
       if (value) handleChange(value, coords);
     }
   };
@@ -390,7 +397,7 @@ const useEditable = ({
     [getValue]
   );
 
-  const isSelectionKey = (keyCode: number) => {
+  const isSelectionKey = useCallback((keyCode: number) => {
     return [
       KeyCodes.Right,
       KeyCodes.Left,
@@ -403,7 +410,7 @@ const useEditable = ({
       KeyCodes.End,
       KeyCodes.CapsLock,
     ].includes(keyCode);
-  };
+  }, []);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>) => {
@@ -562,6 +569,7 @@ const useEditable = ({
   }, []);
 
   const handleScroll = useCallback((scrollPos: ScrollCoords) => {
+    if (!currentActiveCellRef.current) return
     setScrollPosition(scrollPos);
   }, []);
 
@@ -577,12 +585,15 @@ const useEditable = ({
    * Position of the cell
    */
   const cellPositon: CellPosition = useMemo(() => {
+    if (!currentActiveCellRef.current) return { x: 0, y: 0}
+    const isFrozenRow = currentActiveCellRef.current?.rowIndex < frozenRows
+    const isFrozenColumn = currentActiveCellRef.current?.columnIndex < frozenColumns
     return {
       ...position,
-      x: (position.x as number) - scrollPosition.scrollLeft,
-      y: (position.y as number) - scrollPosition.scrollTop,
+      x: (position.x as number) - (isFrozenColumn ? 0 : scrollPosition.scrollLeft),
+      y: (position.y as number) - (isFrozenRow ? 0 : scrollPosition.scrollTop),
     };
-  }, [position, scrollPosition]);
+  }, [position, scrollPosition, frozenRows, frozenColumns]);
 
   const handleBlur = useCallback((e: React.FocusEvent) => {
     if (currentActiveCellRef.current) {
@@ -608,11 +619,10 @@ const useEditable = ({
         onBlur={handleBlur}
       />
     ) : null;
-
+  
   return {
     editorComponent,
-    onDoubleClick: handleDoubleClick,
-    onScroll: handleScroll,
+    onDoubleClick: handleDoubleClick,    
     onKeyDown: handleKeyDown,
     nextFocusableCell,
     isEditInProgress: !!editingCell,
@@ -624,6 +634,7 @@ const useEditable = ({
     submitEditor: handleSubmit,
     cancelEditor: handleCancel,
     onMouseDown: handleMouseDown,
+    onScroll: handleScroll
   };
 };
 

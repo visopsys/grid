@@ -108,6 +108,7 @@ export type WorkbookGridRef = {
   resizeColumns?: (indices: number[]) => void;
   resizeRows?: (indices: number[]) => void;
   getCellBounds?: (coords: CellInterface) => AreaProps;
+  getScrollPosition?: () => ScrollCoords
 };
 
 /**
@@ -144,13 +145,15 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       rowSizes = {},
       mergedCells,
       borderStyles,
-      frozenRows = 1,
-      frozenColumns = 1,
+      frozenRows = 0,
+      frozenColumns = 0,
     } = props;
     const gridRef = useRef<GridRef | null>(null);
     const { colorMode } = useColorMode();
     const isLightMode = colorMode === "light";
     const onSheetChangeRef = useRef(debounce(onSheetChange, 100));
+    const actualFrozenRows = Math.max(1, frozenRows + 1);
+    const actualFrozenColumns = Math.max(1, frozenColumns + 1);
 
     useImperativeHandle(forwardedRef, () => {
       return {
@@ -166,6 +169,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         resizeColumns: gridRef.current?.resizeColumns,
         resizeRows: gridRef.current?.resizeRows,
         getCellBounds: gridRef.current?.getCellBounds,
+        getScrollPosition: gridRef.current?.getScrollPosition
       };
     });
 
@@ -290,6 +294,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       showEditor,
       ...editableProps
     } = useEditable({
+      frozenRows: actualFrozenRows,
+      frozenColumns: actualFrozenColumns,
       gridRef,
       selections,
       activeCell,
@@ -405,9 +411,12 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       },
       [cells, selectedRowsAndCols, activeCell]
     );
-    const fillhandleBorderColor = isLightMode ? "white" : DARK_MODE_COLOR_LIGHT;
-    const _frozenRows = Math.max(1, frozenRows + 1);
-    const _frozenColumns = Math.max(1, frozenColumns + 1);
+
+    const handleScroll = useCallback((scrollState: ScrollCoords) => {      
+      editableProps.onScroll?.(scrollState);
+      onScroll?.(scrollState)
+    }, [ selectedSheet ])
+    const fillhandleBorderColor = isLightMode ? "white" : DARK_MODE_COLOR_LIGHT;    
     return (
       <GridWrapper>
         <Grid
@@ -426,14 +435,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           showFillHandle={!isEditInProgress}
           mergedCells={mergedCells}
           borderStyles={borderStyles}
-          frozenRows={_frozenRows}
-          frozenColumns={_frozenColumns}
+          frozenRows={actualFrozenRows}
+          frozenColumns={actualFrozenColumns}
           {...selectionProps}
           {...editableProps}
-          onScroll={(scrollState: ScrollCoords) => {
-            editableProps.onScroll(scrollState);
-            onScroll(scrollState);
-          }}
+          onScroll={handleScroll}
           onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
             selectionProps.onMouseDown(e);
             editableProps.onMouseDown(e);

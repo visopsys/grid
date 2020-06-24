@@ -84,6 +84,10 @@ export interface GridProps {
    */
   onScroll?: ({ scrollLeft, scrollTop }: ScrollCoords) => void;
   /**
+   * Called immediately on scroll
+   */
+  onImmediateScroll?: ({ scrollLeft, scrollTop }: ScrollCoords) => void;
+  /**
    * Show scrollbars on the left and right of the grid
    */
   showScrollbar?: boolean;
@@ -351,7 +355,7 @@ const defaultColumnWidth = () => 60;
 const defaultSelectionRenderer = (props: SelectionProps) => {
   return <Selection {...props} />;
 };
-const RESET_SCROLL_EVENTS_DEBOUNCE_INTERVAL = 150;
+export const RESET_SCROLL_EVENTS_DEBOUNCE_INTERVAL = 150;
 
 /**
  * Grid component using React Konva
@@ -370,6 +374,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       columnCount = 0,
       scrollbarSize = 13,
       onScroll,
+      onImmediateScroll,
       showScrollbar = true,
       selectionBackgroundColor = "rgb(14, 101, 235, 0.1)",
       selectionBorderColor = "#1a73e8",
@@ -463,6 +468,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const focusContainer = useCallback(() => {
       return containerRef.current?.focus();
     }, []);
+
+    /**
+     * onScroll callback
+     */
+    useEffect(() => {
+      onScroll?.({ scrollTop, scrollLeft })
+    }, [ scrollTop, scrollLeft])
 
     /**
      * Handle mouse wheeel
@@ -908,7 +920,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         }));
 
         /* Scroll callbacks */
-        onScroll && onScroll({ scrollTop, scrollLeft });
+        onImmediateScroll?.({ scrollTop, scrollLeft });
 
         /* Reset isScrolling if required */
         resetIsScrollingDebounced();
@@ -927,8 +939,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             prev.scrollLeft > scrollLeft ? Direction.Left : Direction.Right,
           scrollLeft,
         }));
+
         /* Scroll callbacks */
-        onScroll && onScroll({ scrollLeft, scrollTop });
+        onImmediateScroll?.({ scrollLeft, scrollTop });
 
         /* Reset isScrolling if required */
         resetIsScrollingDebounced();

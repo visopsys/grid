@@ -68,27 +68,14 @@ const defaultSheets: Sheet[] = [
   {
     id: defaultActiveSheet,
     name: 'Sheet1',
-    frozenColumns: 0,
-    frozenRows: 0,
+    frozenColumns: 2,
+    frozenRows: 2,
     activeCell: {
       rowIndex: 1,
       columnIndex: 1
     },
     selections: [],
-    borderStyles: [
-      // {
-      //   bounds: {
-      //     top: 3,
-      //     left: 3,
-      //     right: 6,
-      //     bottom: 7
-      //   },
-      //   style: {
-      //     stroke: 'red',
-      //     strokeWidth: 1
-      //   }
-      // },      
-    ],
+    borderStyles: [],
     cells: {
       1: {
         1: {
@@ -105,7 +92,6 @@ const defaultSheets: Sheet[] = [
         2: {
           text: '2',
           datatype: DATATYPE.NUMBER,
-          // percent: true,
           decimals: 4
         }
       }
@@ -277,7 +263,6 @@ const Spreadsheet = (props: SpreadSheetProps) => {
    */
   const handleFormulabarFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     const input = e.target
-    // TODO
     if (activeCell) {
       currentGrid.current?.makeEditable(activeCell, input.value, false)
       requestAnimationFrame(() => input?.focus())
@@ -418,14 +403,17 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       if (sheet) {
         if (axis === AXIS.X) {
           if (!('columnSizes' in sheet)) sheet.columnSizes = {}
-          if (sheet.columnSizes) sheet.columnSizes[index] = dimension
-          currentGrid.current?.resizeColumns?.([ index])
+          if (sheet.columnSizes) sheet.columnSizes[index] = dimension          
         } else {
           if (!('rowSizes' in sheet)) sheet.rowSizes = {}
-          if (sheet.rowSizes) sheet.rowSizes[index] = dimension
-          currentGrid.current?.resizeRows?.([ index])
+          if (sheet.rowSizes) sheet.rowSizes[index] = dimension          
         }
       }
+    })
+    requestAnimationFrame(() => {
+      axis === AXIS.X
+        ? currentGrid.current?.resizeColumns?.([ index])
+        : currentGrid.current?.resizeRows?.([ index])
     })
   }, [])
 
