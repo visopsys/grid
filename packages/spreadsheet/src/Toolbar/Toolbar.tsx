@@ -482,7 +482,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                 </PopoverTrigger>
                 <PopoverContent width={220}>
                   <PopoverArrow />
-                  <PopoverBody>
+                  <PopoverBody color={foregroundColor}>
                     <FormControl mb={1}>
                       <FormLabel fontSize={14}>
                         {translations.freeze_rows}
