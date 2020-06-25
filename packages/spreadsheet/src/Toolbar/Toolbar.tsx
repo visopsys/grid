@@ -27,7 +27,8 @@ import {
   MdBorderRight,
   MdBorderTop,
   MdBorderClear,
-  MdEdit
+  MdEdit,
+  MdFormatColorReset
 } from "react-icons/md";
 import { AiOutlineMergeCells } from "react-icons/ai";
 import { BsColumns } from "react-icons/bs";
@@ -61,7 +62,7 @@ import {
 } from "./../types";
 import { translations } from "../translations";
 import { CellConfig } from "../Spreadsheet";
-import { SketchPicker, ColorResult } from "react-color";
+import { CirclePicker, ColorResult } from "react-color";
 import useDidUpdate from "./../hooks/useDidUpdate";
 
 export interface ToolbarProps extends CellConfig {
@@ -76,13 +77,51 @@ export interface ToolbarProps extends CellConfig {
   onFrozenRowChange?: (num: number) => void;
   frozenRows?: number;
   frozenColumns?: number;
-  onBorderChange?: (color: string, variant?: BORDER_VARIANT) => void;
+  onBorderChange?: (
+    color: string | undefined,
+    variant?: BORDER_VARIANT
+  ) => void;
   canRedo?: boolean;
   canUndo?: boolean;
   onUndo?: () => void;
   onRedo?: () => void;
   enableDarkMode?: boolean;
 }
+interface ColorPickerProps {
+  resetLabel?: string;
+  color?: string;
+  onChange: (value: string | undefined) => void;
+}
+const ColorPicker: React.FC<ColorPickerProps> = ({
+  color,
+  onChange,
+  resetLabel = "Reset"
+}) => {
+  return (
+    <Box pb={2}>
+      <Button
+        variant="ghost"
+        isFullWidth
+        justifyContent="left"
+        size="sm"
+        mb={2}
+        onClick={() => onChange(undefined)}
+      >
+        <Box mr={2}>
+          <MdFormatColorReset />
+        </Box>
+        {resetLabel}
+      </Button>
+      <CirclePicker
+        color={color}
+        onChangeComplete={(e: ColorResult) => onChange(e.hex)}
+        circleSpacing={5}
+        circleSize={20}
+        width="230px"
+      />
+    </Box>
+  );
+};
 
 const Toolbar: React.FC<ToolbarProps> = props => {
   const {
@@ -326,14 +365,17 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                       <Rect color={color} />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent width={220}>
+                  <PopoverContent width={250}>
                     <PopoverArrow />
-                    <SketchPicker
-                      onChange={e => {
-                        onFormattingChange?.(FORMATTING_TYPE.COLOR, e.hex);
-                        // onClose?.();
-                      }}
-                    />
+                    <PopoverBody>
+                      <ColorPicker
+                        color={color}
+                        onChange={(value: string | undefined) => {
+                          onFormattingChange?.(FORMATTING_TYPE.COLOR, value);
+                          onClose?.();
+                        }}
+                      />
+                    </PopoverBody>
                   </PopoverContent>
                 </>
               );
@@ -366,14 +408,17 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                       <Rect color={fill} />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent width={220}>
+                  <PopoverContent width={250}>
                     <PopoverArrow />
-                    <SketchPicker
-                      onChange={e => {
-                        onFormattingChange?.(FORMATTING_TYPE.FILL, e.hex);
-                        // onClose?.();
-                      }}
-                    />
+                    <PopoverBody>
+                      <ColorPicker
+                        color={fill}
+                        onChange={(value: string | undefined) => {
+                          onFormattingChange?.(FORMATTING_TYPE.FILL, value);
+                          onClose?.();
+                        }}
+                      />
+                    </PopoverBody>
                   </PopoverContent>
                 </>
               );
@@ -706,18 +751,21 @@ const Toolbar: React.FC<ToolbarProps> = props => {
 export interface BorderProps {
   iconColor: string;
   activeIconColor: string;
-  onBorderChange?: (color: string, variant?: BORDER_VARIANT) => void;
+  onBorderChange?: (
+    color: string | undefined,
+    variant?: BORDER_VARIANT
+  ) => void;
 }
 const BorderSelection: React.FC<BorderProps> = ({
   iconColor,
   activeIconColor,
   onBorderChange
 }) => {
-  const [borderColor, setBorderColor] = useState("#000000");
+  const [borderColor, setBorderColor] = useState<string | undefined>("#000000");
   const [borderVariant, setBorderVariant] = useState<BORDER_VARIANT>();
-  const handleChangeColor = (e: ColorResult) => {
-    setBorderColor(e.hex);
-    onBorderChange?.(e.hex, borderVariant);
+  const handleChangeColor = (value: string | undefined) => {
+    setBorderColor(value);
+    onBorderChange?.(value, borderVariant);
   };
   const handleChangeVariant = (value: BORDER_VARIANT) => {
     setBorderVariant(value);
@@ -898,27 +946,39 @@ const BorderSelection: React.FC<BorderProps> = ({
             borderLeftStyle="solid"
           >
             <Popover placement="top-start">
-              <PopoverTrigger>
-                <Button
-                  size="sm"
-                  color={iconColor}
-                  variant="ghost"
-                  pl={0}
-                  pr={0}
-                  flexDirection="column"
-                  aria-label={translations.border_color}
-                >
-                  <MdEdit />
-                  <Rect color={borderColor} />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent width={220}>
-                <PopoverArrow />
-                <SketchPicker
-                  color={borderColor}
-                  onChange={handleChangeColor}
-                />
-              </PopoverContent>
+              {({ onClose }) => {
+                return (
+                  <>
+                    <PopoverTrigger>
+                      <Button
+                        size="sm"
+                        color={iconColor}
+                        variant="ghost"
+                        pl={0}
+                        pr={0}
+                        flexDirection="column"
+                        aria-label={translations.border_color}
+                      >
+                        <MdEdit />
+                        <Rect color={borderColor} />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent width={250}>
+                      <PopoverArrow />
+                      <PopoverBody>
+                        <ColorPicker
+                          color={borderColor}
+                          onChange={value => {
+                            handleChangeColor(value);
+                            onClose?.();
+                          }}
+                          resetLabel="No borders"
+                        />
+                      </PopoverBody>
+                    </PopoverContent>
+                  </>
+                );
+              }}
             </Popover>
           </Box>
         </Box>

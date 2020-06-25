@@ -113,7 +113,10 @@ const defaultSheets: Sheet[] = [
     name: "Sheet1",
     frozenColumns: 0,
     frozenRows: 0,
-    activeCell: null,
+    activeCell: {
+      rowIndex: 1,
+      columnIndex: 1
+    },
     selections: [],
     borderStyles: [],
     cells: {},
@@ -834,7 +837,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   );
 
   const handleBorderChange = useCallback(
-    (color: string, variant?: BORDER_VARIANT) => {
+    (color: string | undefined, variant?: BORDER_VARIANT) => {
       /* Create a border style based on variant */
       const borderVariantStyle = createBorderStyle(variant);
       setSheets(draft => {
