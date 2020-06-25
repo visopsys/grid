@@ -27,7 +27,7 @@ import {
   MdBorderRight,
   MdBorderTop,
   MdBorderClear,
-  MdEdit,
+  MdEdit
 } from "react-icons/md";
 import { AiOutlineMergeCells } from "react-icons/ai";
 import { BsColumns } from "react-icons/bs";
@@ -48,7 +48,7 @@ import {
   Box,
   Select,
   FormControl,
-  FormLabel,
+  FormLabel
 } from "@chakra-ui/core";
 import { StyledToolbar, Rect, Separator, PercentIcon } from "./../styled";
 import { DARK_MODE_COLOR } from "./../constants";
@@ -57,7 +57,7 @@ import {
   CellFormatting,
   VERTICAL_ALIGNMENT,
   HORIZONTAL_ALIGNMENT,
-  BORDER_VARIANT,
+  BORDER_VARIANT
 } from "./../types";
 import { translations } from "../translations";
 import { CellConfig } from "../Spreadsheet";
@@ -77,9 +77,14 @@ export interface ToolbarProps extends CellConfig {
   frozenRows?: number;
   frozenColumns?: number;
   onBorderChange?: (color: string, variant?: BORDER_VARIANT) => void;
+  canRedo?: boolean;
+  canUndo?: boolean;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  enableDarkMode?: boolean;
 }
 
-const Toolbar: React.FC<ToolbarProps> = (props) => {
+const Toolbar: React.FC<ToolbarProps> = props => {
   const {
     bold,
     italic,
@@ -99,6 +104,11 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
     frozenRows = 0,
     frozenColumns = 0,
     onBorderChange,
+    canUndo,
+    canRedo,
+    onRedo,
+    onUndo,
+    enableDarkMode
   } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const theme = useTheme();
@@ -131,6 +141,8 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             color={iconColor}
             icon={MdUndo}
             size="sm"
+            isDisabled={!canUndo}
+            onClick={onUndo}
           />
         </Tooltip>
 
@@ -146,10 +158,12 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             color={iconColor}
             icon={MdRedo}
             size="sm"
+            isDisabled={!canRedo}
+            onClick={onRedo}
           />
         </Tooltip>
 
-        <Tooltip
+        {/* <Tooltip
           hasArrow
           aria-label={translations.print}
           label={translations.print}
@@ -161,7 +175,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             icon={MdPrint}
             size="sm"
           />
-        </Tooltip>
+        </Tooltip> */}
 
         <Tooltip
           hasArrow
@@ -313,7 +327,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                   <PopoverContent width={220}>
                     <PopoverArrow />
                     <SketchPicker
-                      onChange={(e) => {
+                      onChange={e => {
                         onFormattingChange?.(FORMATTING_TYPE.COLOR, e.hex);
                         // onClose?.();
                       }}
@@ -353,7 +367,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                   <PopoverContent width={220}>
                     <PopoverArrow />
                     <SketchPicker
-                      onChange={(e) => {
+                      onChange={e => {
                         onFormattingChange?.(FORMATTING_TYPE.FILL, e.hex);
                         // onClose?.();
                       }}
@@ -420,7 +434,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                         <Select
                           size="sm"
                           value={frozenRows}
-                          onChange={(e) =>
+                          onChange={e =>
                             onFrozenRowChange?.(Number(e.target.value))
                           }
                         >
@@ -436,7 +450,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                         <Select
                           size="sm"
                           value={frozenColumns}
-                          onChange={(e) =>
+                          onChange={e =>
                             onFrozenColumnChange?.(Number(e.target.value))
                           }
                         >
@@ -649,33 +663,35 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
         </Tooltip>
       </Flex>
       <Flex alignItems="flex-end">
-        <Tooltip
-          hasArrow
-          aria-label={
-            isLightMode
-              ? translations.switch_dark_mode
-              : translations.switch_light_mode
-          }
-          label={
-            isLightMode
-              ? translations.switch_dark_mode
-              : translations.switch_light_mode
-          }
-        >
-          <IconButton
+        {enableDarkMode && (
+          <Tooltip
+            hasArrow
             aria-label={
               isLightMode
                 ? translations.switch_dark_mode
                 : translations.switch_light_mode
             }
-            variant="ghost"
-            color={iconColor}
-            icon={isLightMode ? IoMdMoon : MdWbSunny}
-            fontSize={20}
-            size="sm"
-            onClick={toggleColorMode}
-          />
-        </Tooltip>
+            label={
+              isLightMode
+                ? translations.switch_dark_mode
+                : translations.switch_light_mode
+            }
+          >
+            <IconButton
+              aria-label={
+                isLightMode
+                  ? translations.switch_dark_mode
+                  : translations.switch_light_mode
+              }
+              variant="ghost"
+              color={iconColor}
+              icon={isLightMode ? IoMdMoon : MdWbSunny}
+              fontSize={20}
+              size="sm"
+              onClick={toggleColorMode}
+            />
+          </Tooltip>
+        )}
       </Flex>
     </StyledToolbar>
   );
@@ -689,7 +705,7 @@ export interface BorderProps {
 const BorderSelection: React.FC<BorderProps> = ({
   iconColor,
   activeIconColor,
-  onBorderChange,
+  onBorderChange
 }) => {
   const [borderColor, setBorderColor] = useState("#000000");
   const [borderVariant, setBorderVariant] = useState<BORDER_VARIANT>();

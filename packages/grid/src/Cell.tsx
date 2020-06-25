@@ -17,7 +17,7 @@ export interface CellProps extends RendererProps {
  * Default cell component
  * @param props
  */
-const Cell: React.FC<CellProps> = (props) => {
+const Cell: React.FC<CellProps> = props => {
   const {
     x,
     y,
@@ -31,19 +31,19 @@ const Cell: React.FC<CellProps> = (props) => {
     verticalAlign = "middle",
     textColor = "#333",
     padding = 5,
-    fontFamily = "Arial, sans-serif",
+    fontFamily = "Arial",
     fontSize = 12,
     children,
     wrap = "none",
-    fontWeight = 'normal',
-    fontStyle = 'normal',
+    fontWeight = "normal",
+    fontStyle = "normal",
     textDecoration,
-    alpha=1,
-    globalCompositeOperation = 'multiply',
+    alpha = 1,
+    globalCompositeOperation = "multiply",
     ...rest
   } = props;
-  const fillEnabled = !!fill
-  const textStyle = `${fontWeight} ${fontStyle}`
+  const fillEnabled = !!fill;
+  const textStyle = `${fontWeight} ${fontStyle}`;
   return (
     <Group {...rest}>
       <Rect

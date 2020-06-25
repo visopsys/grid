@@ -5,7 +5,7 @@ import { Flex, useColorMode } from "@chakra-ui/core";
 import { BottomPanel, ThemeType } from "./../styled";
 import Tabs from "./../Tabs";
 import { SpreadSheetProps, Sheet, Cells, SizeType } from "../Spreadsheet";
-import { CellInterface, SelectionArea } from "@rowsncolumns/grid";
+import { CellInterface, SelectionArea, ScrollCoords } from "@rowsncolumns/grid";
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
 import { DARK_MODE_COLOR_LIGHT } from "../constants";
@@ -30,6 +30,7 @@ export interface WorkbookProps extends SpreadSheetProps {
   onChangeSelectedSheet: (id: string) => void;
   onNewSheet?: () => void;
   onSheetChange?: (id: string, props: any) => void;
+  onScroll?: (id: string, scrollState: ScrollCoords) => void;
   onChangeSheetName?: (id: string, value: string) => void;
   onDeleteSheet?: (id: string) => void;
   onDuplicateSheet?: (id: string) => void;
@@ -37,6 +38,7 @@ export interface WorkbookProps extends SpreadSheetProps {
   onActiveCellValueChange: (value: string) => void;
   rowSizes?: SizeType;
   columnSizes?: SizeType;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
 }
 
 export type RefAttributeWorkbook = {
@@ -71,8 +73,10 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       onDelete,
       format,
       onResize,
+      onScroll,
+      onKeyDown
     } = props;
-    console.log('rnder')
+
     const { colorMode } = useColorMode();
     const isLight = colorMode === "light";
     const [containerRef, { width, height }] = useMeasure();
@@ -86,7 +90,7 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       mergedCells,
       borderStyles,
       frozenRows,
-      frozenColumns,
+      frozenColumns
     } = currentSheet;
     const selectedSheetRef = useRef(selectedSheet);
     useEffect(() => {
@@ -110,9 +114,9 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       if (!selectedSheetRef.current) return;
       onSheetChange?.(selectedSheetRef.current, args);
     }, []);
-    const handleScroll = useCallback((scrollState) => {
+    const handleScroll = useCallback((scrollState: ScrollCoords) => {
       if (!selectedSheetRef.current) return;
-      onSheetChange?.(selectedSheetRef.current, { scrollState });
+      onScroll?.(selectedSheetRef.current, scrollState);
     }, []);
     const handleDelete = useCallback(
       (activeCell: CellInterface, selections: SelectionArea[]) => {
@@ -161,6 +165,7 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
             borderStyles={borderStyles}
             frozenRows={frozenRows}
             frozenColumns={frozenColumns}
+            onKeyDown={onKeyDown}
           />
         </Flex>
         <Flex>

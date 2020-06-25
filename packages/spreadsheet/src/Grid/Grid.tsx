@@ -5,7 +5,7 @@ import React, {
   useEffect,
   memo,
   useImperativeHandle,
-  forwardRef,
+  forwardRef
 } from "react";
 import Grid, {
   RendererProps,
@@ -17,20 +17,20 @@ import Grid, {
   SelectionArea,
   ScrollCoords,
   AreaProps,
-  StylingProps,
+  StylingProps
 } from "@rowsncolumns/grid";
 import { debounce } from "@rowsncolumns/grid/dist/helpers";
 import {
   ThemeProvider,
   ColorModeProvider,
-  useColorMode,
+  useColorMode
 } from "@chakra-ui/core";
 import {
   COLUMN_HEADER_WIDTH,
   DEFAULT_COLUMN_WIDTH,
   ROW_HEADER_HEIGHT,
   DEFAULT_ROW_HEIGHT,
-  DARK_MODE_COLOR_LIGHT,
+  DARK_MODE_COLOR_LIGHT
 } from "./../constants";
 import HeaderCell from "./../HeaderCell";
 import Cell from "./../Cell";
@@ -78,6 +78,7 @@ export interface SheetGridProps {
   borderStyles?: StylingProps;
   frozenRows?: number;
   frozenColumns?: number;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
 }
 
 export interface RowColSelection {
@@ -108,7 +109,7 @@ export type WorkbookGridRef = {
   resizeColumns?: (indices: number[]) => void;
   resizeRows?: (indices: number[]) => void;
   getCellBounds?: (coords: CellInterface) => AreaProps;
-  getScrollPosition?: () => ScrollCoords
+  getScrollPosition?: () => ScrollCoords;
 };
 
 /**
@@ -147,6 +148,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       borderStyles,
       frozenRows = 0,
       frozenColumns = 0,
+      onKeyDown
     } = props;
     const gridRef = useRef<GridRef | null>(null);
     const { colorMode } = useColorMode();
@@ -198,7 +200,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       getValue,
       columnSizes,
       autoResize: false,
-      resizeOnScroll: false,
+      resizeOnScroll: false
     });
 
     /**
@@ -219,7 +221,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       gridRef,
       rowCount,
       columnCount,
-      onFill,
+      onFill
     });
 
     /**
@@ -243,7 +245,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       const colIndices = Object.keys(columnSizes).map(Number);
       gridRef.current?.resetAfterIndices?.({
         rowIndex: rowIndices.length ? Math.min(...rowIndices) : 0,
-        columnIndex: colIndices.length ? Math.min(...colIndices) : 0,
+        columnIndex: colIndices.length ? Math.min(...colIndices) : 0
       });
     }, [selectedSheet]);
 
@@ -265,9 +267,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const changes = {
           [rowIndex]: {
             [columnIndex]: {
-              text: value,
-            },
-          },
+              text: value
+            }
+          }
         };
 
         onChange?.(changes);
@@ -306,7 +308,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         if (cell.rowIndex === 0 || cell.columnIndex === 0) return false;
         return true;
       },
-      onDelete: onDelete,
+      onDelete: onDelete
     });
 
     const getNextFocusableCell = useCallback(
@@ -322,7 +324,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     useCopyPaste({
       gridRef,
       getValue,
-      selections,
+      selections
     });
 
     /* Width calculator */
@@ -341,7 +343,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       [minColumnWidth, rowSizes, selectedSheet]
     );
     const contextWrapper = useCallback(
-      (children) => {
+      children => {
         return (
           <ThemeProvider theme={theme}>
             <ColorModeProvider>{children}</ColorModeProvider>
@@ -412,11 +414,15 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       [cells, selectedRowsAndCols, activeCell]
     );
 
-    const handleScroll = useCallback((scrollState: ScrollCoords) => {      
-      editableProps.onScroll?.(scrollState);
-      onScroll?.(scrollState)
-    }, [ selectedSheet ])
-    const fillhandleBorderColor = isLightMode ? "white" : DARK_MODE_COLOR_LIGHT;    
+    const handleScroll = useCallback(
+      (scrollState: ScrollCoords) => {
+        editableProps.onScroll?.(scrollState);
+        // Save scroll state in sheet
+        // onScroll?.(scrollState);
+      },
+      [selectedSheet]
+    );
+    const fillhandleBorderColor = isLightMode ? "white" : DARK_MODE_COLOR_LIGHT;
     return (
       <GridWrapper>
         <Grid
@@ -447,6 +453,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
             selectionProps.onKeyDown(e);
             editableProps.onKeyDown(e);
+            onKeyDown?.(e);
           }}
         />
         {editorComponent}

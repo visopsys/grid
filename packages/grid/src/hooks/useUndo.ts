@@ -1,4 +1,4 @@
-import React, { useReducer, useRef, useCallback } from "react";
+import React, { useReducer, useRef, useCallback, useEffect } from "react";
 import { KeyCodes } from "../types";
 
 /**
@@ -26,12 +26,12 @@ export interface UndoResults {
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
 }
 
-export type Path = [string, any];
+export type Path = any[];
 
 export interface Patches {
   path: Path;
   value: any;
-  op: Operator;
+  op: PatchOperator;
 }
 
 export interface Stack {
@@ -39,7 +39,12 @@ export interface Stack {
   inversePatches: Patches;
 }
 
-export type Operator = "add" | "remove" | "replace" | "move";
+export enum PatchOperator {
+  ADD = "add",
+  REMOVE = "remove",
+  REPLACE = "replace",
+  MOVE = "move"
+}
 
 /**
  * Create patches
@@ -50,12 +55,13 @@ export type Operator = "add" | "remove" | "replace" | "move";
  */
 export function createPatches(
   path: Path,
-  value: any,
-  previousValue: any,
-  op: Operator = "replace"
+  value?: any,
+  previousValue?: any,
+  op: PatchOperator = PatchOperator.REPLACE,
+  opInverse: PatchOperator = op
 ): Stack {
   const patches: Patches = { op, value, path };
-  const inversePatches: Patches = { op, value: previousValue, path };
+  const inversePatches: Patches = { op: opInverse, value: previousValue, path };
   return { patches, inversePatches };
 }
 
@@ -67,7 +73,15 @@ const useUndo = (props: UndoProps = {}): UndoResults => {
   const { onRedo, onUndo } = props;
   const undoStack = useRef<Stack[]>([]);
   const undoStackPointer = useRef<number>(-1);
-  const [_, forceRender] = useReducer((s) => s + 1, 0);
+  const [_, forceRender] = useReducer(s => s + 1, 0);
+
+  // Enable global undo
+  // useEffect(() => {
+  //   document.addEventListener('keydown', handleKeyDown)
+  //   return () => {
+  //     document.removeEventListener('keydown', handleKeyDown)
+  //   }
+  // }, [])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -112,9 +126,9 @@ const useUndo = (props: UndoProps = {}): UndoResults => {
     undo: handleUndo,
     redo: handleRedo,
     add: addUndoable,
-    canUndo: !(undoStackPointer.current < 0),
-    canRedo: !(undoStackPointer.current === undoStack.current.length - 1),
     onKeyDown: handleKeyDown,
+    canUndo: !(undoStackPointer.current < 0),
+    canRedo: !(undoStackPointer.current === undoStack.current.length - 1)
   };
 };
 

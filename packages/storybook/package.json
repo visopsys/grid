@@ -13,6 +13,6 @@
   },
   "dependencies": {
     "@rowsncolumns/grid": "^3.1.13",
-    "@rowsncolumns/spreadsheet": "^1.0.4"
+    "@rowsncolumns/spreadsheet": "^1.0.3"
   }
 }
