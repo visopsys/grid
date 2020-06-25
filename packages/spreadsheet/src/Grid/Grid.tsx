@@ -19,7 +19,7 @@ import Grid, {
   AreaProps,
   StylingProps
 } from "@rowsncolumns/grid";
-import { debounce } from "@rowsncolumns/grid/dist/helpers";
+import { debounce, throttle } from "@rowsncolumns/grid/dist/helpers";
 import {
   ThemeProvider,
   ColorModeProvider,
@@ -39,6 +39,7 @@ import { Cells, CellConfig, SizeType } from "../Spreadsheet";
 import { Direction } from "@rowsncolumns/grid/dist/types";
 import { DATATYPE, CellDataFormatting, AXIS } from "../types";
 import useAutoSizer from "@rowsncolumns/grid/dist/hooks/useSizer";
+import Editor from "./../Editor";
 
 export interface SheetGridProps {
   theme?: ThemeType;
@@ -156,6 +157,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const onSheetChangeRef = useRef(debounce(onSheetChange, 100));
     const actualFrozenRows = Math.max(1, frozenRows + 1);
     const actualFrozenColumns = Math.max(1, frozenColumns + 1);
+    const debounceScroll = useRef(debounce(onScroll, 1000));
 
     useImperativeHandle(forwardedRef, () => {
       return {
@@ -223,6 +225,17 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       columnCount,
       onFill
     });
+
+    /**
+     * Adjusts a column
+     */
+    const handleAdjustColumn = useCallback(
+      (columnIndex: number) => {
+        const width = getColumnWidth(columnIndex);
+        onResize?.(AXIS.X, columnIndex, width);
+      },
+      [cells]
+    );
 
     /**
      * Check if selections are in
@@ -296,6 +309,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       showEditor,
       ...editableProps
     } = useEditable({
+      getEditor: () => Editor,
       frozenRows: actualFrozenRows,
       frozenColumns: actualFrozenColumns,
       gridRef,
@@ -369,17 +383,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       [selections]
     );
 
-    /**
-     * Adjusts a column
-     */
-    const handleAdjustColumn = useCallback(
-      (columnIndex: number) => {
-        const width = getColumnWidth(columnIndex);
-        onResize?.(AXIS.X, columnIndex, width);
-      },
-      [cells]
-    );
-
     const itemRenderer = useCallback(
       (props: RendererProps) => {
         const { rowIndex, columnIndex } = props;
@@ -418,7 +421,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       (scrollState: ScrollCoords) => {
         editableProps.onScroll?.(scrollState);
         // Save scroll state in sheet
-        // onScroll?.(scrollState);
+        debounceScroll.current?.(scrollState);
       },
       [selectedSheet]
     );

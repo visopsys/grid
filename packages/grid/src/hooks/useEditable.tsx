@@ -255,7 +255,8 @@ const DefaultEditor: React.FC<EditorProps> = props => {
           outline: "none",
           resize: "none",
           overflow: "hidden",
-          verticalAlign: "top"
+          verticalAlign: "top",
+          background: "transparent"
         }}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
           onChange(e.target.value, cell);

@@ -29,7 +29,7 @@
     "url": "https://github.com/rowsncolumns/grid/issues"
   },
   "dependencies": {
-    "konva": "6",
+    "konva": "^7.0.0",
     "react-konva": "^16.13.0-3",
     "tiny-invariant": "^1.1.0"
   },

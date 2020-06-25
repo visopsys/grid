@@ -62,7 +62,7 @@ const Cell: React.FC<CellProps> = memo(props => {
     : isLightMode
     ? "white"
     : DARK_MODE_COLOR_LIGHT;
-  const stroke = isLightMode ? theme.colors.gray[300] : theme.colors.gray[600];
+  const stroke = isLightMode ? theme.colors.gray[200] : theme.colors.gray[500];
   const textColor = userColor ? userColor : isLightMode ? "#333" : "white";
   return (
     <DefaultCell

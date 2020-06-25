@@ -113,32 +113,10 @@ const defaultSheets: Sheet[] = [
     name: "Sheet1",
     frozenColumns: 0,
     frozenRows: 0,
-    activeCell: {
-      rowIndex: 1,
-      columnIndex: 1
-    },
+    activeCell: null,
     selections: [],
     borderStyles: [],
-    cells: {
-      1: {
-        1: {
-          text: "Hello world",
-          color: "red",
-          bold: true,
-          italic: true,
-          verticalAlign: VERTICAL_ALIGNMENT.MIDDLE,
-          horizontalAlign: HORIZONTAL_ALIGNMENT.LEFT,
-          strike: true,
-          underline: true,
-          fill: "green"
-        },
-        2: {
-          text: "2",
-          datatype: DATATYPE.NUMBER,
-          decimals: 4
-        }
-      }
-    },
+    cells: {},
     scrollState: { scrollTop: 0, scrollLeft: 0 }
   }
 ];

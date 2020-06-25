@@ -121,12 +121,14 @@ const Toolbar: React.FC<ToolbarProps> = props => {
     ? theme.colors.gray[300]
     : theme.colors.gray[600];
   const backgroundColor = isLightMode ? "white" : DARK_MODE_COLOR;
+  const foregroundColor = isLightMode ? DARK_MODE_COLOR : "white";
   return (
     <StyledToolbar
       pr={2}
       pl={2}
       borderColor={borderColor}
       backgroundColor={backgroundColor}
+      color={foregroundColor}
     >
       <Flex flex={1} alignItems="center">
         <Tooltip
@@ -412,7 +414,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
           aria-label={translations.freeze}
           label={translations.freeze}
         >
-          <Popover usePortal placement="top-start">
+          <Popover placement="top-start">
             {({ onClose }) => {
               return (
                 <>
@@ -426,11 +428,13 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                       size="sm"
                     />
                   </PopoverTrigger>
-                  <PopoverContent width={220}>
+                  <PopoverContent width={220} zIndex={2}>
                     <PopoverArrow />
                     <PopoverBody>
                       <FormControl mb={1}>
-                        <FormLabel fontSize={12}>Frozen rows</FormLabel>
+                        <FormLabel fontSize={14}>
+                          {translations.freeze_rows}
+                        </FormLabel>
                         <Select
                           size="sm"
                           value={frozenRows}
@@ -445,8 +449,10 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                         </Select>
                       </FormControl>
 
-                      <FormControl>
-                        <FormLabel fontSize={12}>Frozen columns</FormLabel>
+                      <FormControl mb={1}>
+                        <FormLabel fontSize={14}>
+                          {translations.freeze_columns}
+                        </FormLabel>
                         <Select
                           size="sm"
                           value={frozenColumns}
