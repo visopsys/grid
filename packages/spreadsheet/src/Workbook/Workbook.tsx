@@ -8,7 +8,7 @@ import { SpreadSheetProps, Sheet, Cells, SizeType } from "../Spreadsheet";
 import { CellInterface, SelectionArea, ScrollCoords } from "@rowsncolumns/grid";
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
-import { DARK_MODE_COLOR_LIGHT } from "../constants";
+import QuickInfo from "./../QuickInfo";
 
 export interface WorkbookProps extends SpreadSheetProps {
   currentSheet: Sheet;
@@ -184,6 +184,7 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
               onDeleteSheet={onDeleteSheet}
               onDuplicateSheet={onDuplicateSheet}
             />
+            <QuickInfo selections={selections} cells={cells} />
           </BottomPanel>
         </Flex>
       </>

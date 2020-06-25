@@ -46,7 +46,7 @@ const Tabs: React.FC<TabProps> = props => {
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
   return (
-    <Flex pl={COLUMN_HEADER_WIDTH} alignItems="center">
+    <Flex pl={COLUMN_HEADER_WIDTH} alignItems="center" minWidth={0} flex={1}>
       <Tooltip
         placement="top-start"
         hasArrow

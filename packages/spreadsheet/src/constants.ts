@@ -1,4 +1,4 @@
-import { Sheet } from "./Spreadsheet";
+import { Sheet, Cell, CellConfig } from "./Spreadsheet";
 import { DATATYPE, CellDataFormatting, BORDER_VARIANT } from "./types";
 import { isNull } from "@rowsncolumns/grid";
 
@@ -11,7 +11,7 @@ export const DARK_MODE_COLOR_LIGHT = "#252E3E";
 
 /**
  * Number to alphabet
- * @param i 
+ * @param i
  */
 export const number2Alpha = (i: number): string => {
   return (
@@ -22,7 +22,7 @@ export const number2Alpha = (i: number): string => {
 
 /**
  * Create a new sheet
- * @param param0 
+ * @param param0
  */
 export const createNewSheet = ({ count }: { count: number }): Sheet => ({
   id: uuid(),
@@ -47,16 +47,17 @@ export const uuid = () =>
 
 /**
  * Format a string
- * @param value 
- * @param datatype 
- * @param formatting 
+ * @param value
+ * @param datatype
+ * @param formatting
  */
 export const format = (
   value?: string,
   datatype?: DATATYPE,
   formatting?: CellDataFormatting
 ): string | undefined => {
-  if (value === void 0 || isNull(value) || datatype !== DATATYPE.NUMBER) return value;
+  if (value === void 0 || isNull(value) || datatype !== DATATYPE.NUMBER)
+    return value;
   if (!formatting) return value;
   let num = parseFloat(value);
   if (formatting.decimals) {
@@ -66,43 +67,53 @@ export const format = (
     value = (num * 100).toFixed(2);
   }
   if (formatting.currency) {
-    value = `${formatting.currencySymbol || '$'}${num.toFixed(2)}`;
+    value = `${formatting.currencySymbol || "$"}${num.toFixed(2)}`;
   }
   return "" + value;
 };
 
 /**
+ * Check if a cell is numeric
+ */
+export const isNumeric = (cell: CellConfig) => {
+  return cell && cell.datatype === DATATYPE.NUMBER;
+};
+
+/**
  * Detect datatype of a string
- * @param value 
+ * @param value
  */
 export const detectDataType = (value?: string): DATATYPE | undefined => {
-  if (isNull(value)) return undefined
-  if (!isNaN(Number(value))) return DATATYPE.NUMBER
-  return undefined
-}
+  if (isNull(value)) return undefined;
+  if (!isNaN(Number(value))) return DATATYPE.NUMBER;
+  return undefined;
+};
 
-export const createBorderStyle = (variant?: BORDER_VARIANT, thickness: number = 1) => {
-  if (variant === void 0) return {}
+export const createBorderStyle = (
+  variant?: BORDER_VARIANT,
+  thickness: number = 1
+) => {
+  if (variant === void 0) return {};
   switch (variant) {
     case BORDER_VARIANT.OUTER:
       return {
         strokeWidth: thickness
-      }
-    
+      };
+
     case BORDER_VARIANT.BOTTOM:
       return {
         strokeBottomWidth: thickness
-      }
-    
+      };
+
     case BORDER_VARIANT.RIGHT:
       return {
         strokeRightWidth: thickness
-      }
-    
+      };
+
     case BORDER_VARIANT.LEFT:
       return {
         strokeLeftWidth: thickness
-      }
+      };
   }
-  return null
-}
+  return null;
+};

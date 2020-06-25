@@ -8,13 +8,7 @@ import React, {
 import Toolbar from "./Toolbar";
 import Formulabar from "./Formulabar";
 import Workbook from "./Workbook";
-import {
-  theme,
-  ThemeProvider,
-  ColorModeProvider,
-  CSSReset,
-  Flex
-} from "@chakra-ui/core";
+import { theme, ThemeProvider, ColorModeProvider, Flex } from "@chakra-ui/core";
 import { Global, css } from "@emotion/core";
 import {
   RendererProps,
@@ -119,7 +113,21 @@ const defaultSheets: Sheet[] = [
     },
     selections: [],
     borderStyles: [],
-    cells: {},
+    cells: {
+      1: {
+        2: {
+          text: "10",
+          datatype: DATATYPE.NUMBER
+        },
+        3: {
+          text: "20",
+          datatype: DATATYPE.NUMBER
+        },
+        4: {
+          text: "hello"
+        }
+      }
+    },
     scrollState: { scrollTop: 0, scrollLeft: 0 }
   }
 ];
@@ -903,7 +911,6 @@ const Spreadsheet = (props: SpreadSheetProps) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <CSSReset />
       <Global
         styles={css`
           .rowsncolumns-grid-container:focus {

@@ -50,6 +50,7 @@ export const Rect = styled(Box)`
 export const BottomPanel = styled(Box)`
   display: flex;
   flex: 1;
+  min-width: 0;
   height: 40px;
 `;
 
