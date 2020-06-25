@@ -22,21 +22,26 @@ export const createCanvasBox = ({
   strokeRightWidth = strokeWidth,
   strokeBottomWidth = strokeWidth,
   strokeLeftWidth = strokeWidth,
-  key,
+  dash,
+  dashEnabled,
+  lineCap = "square",
+  key
 }: ShapeConfig) => {
   const commonProps = {
     perfectDrawEnabled: false,
     shadowForStrokeEnabled: false,
     hitStrokeWidth: 0,
-    listening: false,
-    lineCap: "square",    
+    listening: false
   };
-  const composite = undefined
+  const composite = undefined;
   const lines = [
     <Line
       points={[x, y, x + width, y]}
       stroke={strokeTopColor}
       strokeWidth={strokeTopWidth}
+      dash={dash}
+      dashEnabled={dashEnabled}
+      lineCap={lineCap}
       key="top"
       globalCompositeOperation={composite}
       {...commonProps}
@@ -45,6 +50,9 @@ export const createCanvasBox = ({
       points={[x + width, y, x + width, y + height]}
       stroke={strokeRightColor}
       strokeWidth={strokeRightWidth}
+      dash={dash}
+      dashEnabled={dashEnabled}
+      lineCap={lineCap}
       key="right"
       globalCompositeOperation={composite}
       {...commonProps}
@@ -53,6 +61,9 @@ export const createCanvasBox = ({
       points={[x + width, y + height, x, y + height]}
       stroke={strokeBottomColor}
       strokeWidth={strokeBottomWidth}
+      dash={dash}
+      dashEnabled={dashEnabled}
+      lineCap={lineCap}
       key="bottom"
       globalCompositeOperation={composite}
       {...commonProps}
@@ -61,10 +72,13 @@ export const createCanvasBox = ({
       points={[x, y + height, x, y]}
       stroke={strokeLeftColor}
       strokeWidth={strokeLeftWidth}
+      dash={dash}
+      dashEnabled={dashEnabled}
+      lineCap={lineCap}
       key="left"
       globalCompositeOperation={composite}
       {...commonProps}
-    />,
+    />
   ];
 
   return (
@@ -73,7 +87,7 @@ export const createCanvasBox = ({
       {fill && (
         <Rect
           globalCompositeOperation={composite}
-          fill={fill}          
+          fill={fill}
           x={x}
           y={y}
           width={width}
@@ -102,7 +116,7 @@ export const createHTMLBox = ({
   strokeBottomWidth = strokeWidth,
   strokeLeftWidth = strokeWidth,
   key,
-  strokeStyle = "solid",
+  strokeStyle = "solid"
 }: ShapeConfig) => {
   const commonProps = {};
   width = width - Math.floor(strokeWidth);
@@ -118,7 +132,7 @@ export const createHTMLBox = ({
         borderWidth: 0,
         borderColor: strokeTopColor,
         borderTopWidth: strokeTopWidth,
-        borderStyle: strokeStyle,
+        borderStyle: strokeStyle
       }}
       key="top"
       {...commonProps}
@@ -133,7 +147,7 @@ export const createHTMLBox = ({
         borderWidth: 0,
         borderColor: strokeRightColor,
         borderRightWidth: strokeRightWidth,
-        borderStyle: strokeStyle,
+        borderStyle: strokeStyle
       }}
       key="right"
       {...commonProps}
@@ -149,7 +163,7 @@ export const createHTMLBox = ({
         borderWidth: 0,
         borderColor: strokeBottomColor,
         borderBottomWidth: strokeBottomWidth,
-        borderStyle: strokeStyle,
+        borderStyle: strokeStyle
       }}
       key="bottom"
       {...commonProps}
@@ -164,11 +178,11 @@ export const createHTMLBox = ({
         borderWidth: 0,
         borderColor: strokeLeftColor,
         borderLeftWidth: strokeLeftWidth,
-        borderStyle: strokeStyle,
+        borderStyle: strokeStyle
       }}
       key="left"
       {...commonProps}
-    />,
+    />
   ];
 
   return (
@@ -184,7 +198,7 @@ export const createHTMLBox = ({
             width,
             backgroundColor: fill,
             userSelect: "none",
-            pointerEvents: "none",
+            pointerEvents: "none"
           }}
           {...commonProps}
         />

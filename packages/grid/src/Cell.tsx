@@ -55,6 +55,7 @@ const Cell: React.FC<CellProps> = memo(props => {
         stroke={stroke}
         strokeWidth={strokeWidth}
         shadowForStrokeEnabled={false}
+        strokeScaleEnabled={false}
         hitStrokeWidth={0}
         alpha={alpha}
         fillEnabled={fillEnabled}

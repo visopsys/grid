@@ -95,3 +95,12 @@ export enum RESOURCE_TYPE {
   CELL = "cell",
   SELECTION = "selection"
 }
+
+export enum BORDER_STYLE {
+  "THIN" = "thin",
+  "MEDIUM" = "medium",
+  "THICK" = "thick",
+  "DASHED" = "dashed",
+  "DOTTED" = "dotted",
+  "DOUBLE" = "double"
+}

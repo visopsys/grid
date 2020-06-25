@@ -35,7 +35,8 @@ import {
   AXIS,
   BORDER_VARIANT,
   OPERATION_TYPE,
-  RESOURCE_TYPE
+  RESOURCE_TYPE,
+  BORDER_STYLE
 } from "./types";
 import { useImmer } from "use-immer";
 import { WorkbookGridRef } from "./Grid/Grid";
@@ -841,9 +842,13 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   );
 
   const handleBorderChange = useCallback(
-    (color: string | undefined, variant?: BORDER_VARIANT) => {
+    (
+      color: string | undefined,
+      borderStyle: BORDER_STYLE,
+      variant?: BORDER_VARIANT
+    ) => {
       /* Create a border style based on variant */
-      const borderVariantStyle = createBorderStyle(variant);
+      const borderVariantStyle = createBorderStyle(variant, borderStyle);
       setSheets(draft => {
         const sheet = draft.find(sheet => sheet.id === selectedSheet);
         if (sheet) {

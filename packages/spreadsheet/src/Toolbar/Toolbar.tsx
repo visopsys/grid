@@ -27,7 +27,8 @@ import {
   MdBorderTop,
   MdBorderClear,
   MdEdit,
-  MdFormatColorReset
+  MdFormatColorReset,
+  MdLineStyle
 } from "react-icons/md";
 import { AiOutlineMergeCells } from "react-icons/ai";
 import { BsColumns } from "react-icons/bs";
@@ -56,11 +57,13 @@ import {
   CellFormatting,
   VERTICAL_ALIGNMENT,
   HORIZONTAL_ALIGNMENT,
-  BORDER_VARIANT
+  BORDER_VARIANT,
+  BORDER_STYLE
 } from "./../types";
 import { translations } from "../translations";
 import { CellConfig } from "../Spreadsheet";
 import { CirclePicker, ColorResult } from "react-color";
+import { Global, css } from "@emotion/core";
 
 export interface ToolbarProps extends CellConfig {
   onFormattingChange?: (
@@ -76,6 +79,7 @@ export interface ToolbarProps extends CellConfig {
   frozenColumns?: number;
   onBorderChange?: (
     color: string | undefined,
+    borderStyle: BORDER_STYLE,
     variant?: BORDER_VARIANT
   ) => void;
   canRedo?: boolean;
@@ -96,6 +100,16 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
 }) => {
   return (
     <Box pb={2}>
+      <Global
+        styles={css`
+          .circle-picker div[title="#efefef"],
+          .circle-picker div[title="#f3f3f3"],
+          .circle-picker div[title="#ffffff"] {
+            border: 1px solid #dadce0;
+            border-radius: 50%;
+          }
+        `}
+      />
       <Button
         variant="ghost"
         isFullWidth
@@ -114,7 +128,89 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
         onChangeComplete={(e: ColorResult) => onChange(e.hex)}
         circleSpacing={5}
         circleSize={20}
-        width="230px"
+        width="260px"
+        colors={[
+          "#000000",
+          "#434343",
+          "#666666",
+          "#999999",
+          "#b7b7b7",
+          "#cccccc",
+          "#d9d9d9",
+          "#efefef",
+          "#f3f3f3",
+          "#ffffff",
+          "#980000",
+          "#ff0000",
+          "#ff9900",
+          "#ffff00",
+          "#00ff00",
+          "#00ffff",
+          "#4a86e8",
+          "#0000ff",
+          "#9900ff",
+          "#ff00ff",
+          "#e6b8af",
+          "#f4cccc",
+          "#fce5cd",
+          "#fff2cc",
+          "#d9ead3",
+          "#d0e0e3",
+          "#c9daf8",
+          "#cfe2f3",
+          "#d9d2e9",
+          "#ead1dc",
+          "#dd7e6b",
+          "#ea9999",
+          "#f9cb9c",
+          "#ffe599",
+          "#b6d7a8",
+          "#a2c4c9",
+          "#a4c2f4",
+          "#9fc5e8",
+          "#b4a7d6",
+          "#d5a6bd",
+          "#cc4125",
+          "#e06666",
+          "#f6b26b",
+          "#ffd966",
+          "#93c47d",
+          "#76a5af",
+          "#6d9eeb",
+          "#6fa8dc",
+          "#8e7cc3",
+          "#c27ba0",
+          "#a61c00",
+          "#cc0000",
+          "#e69138",
+          "#f1c232",
+          "#6aa84f",
+          "#45818e",
+          "#3c78d8",
+          "#3d85c6",
+          "#674ea7",
+          "#a64d79",
+          "#85200c",
+          "#990000",
+          "#b45f06",
+          "#bf9000",
+          "#38761d",
+          "#134f5c",
+          "#1155cc",
+          "#0b5394",
+          "#351c75",
+          "#741b47",
+          "#5b0f00",
+          "#660000",
+          "#783f04",
+          "#7f6000",
+          "#274e13",
+          "#0c343d",
+          "#1c4587",
+          "#073763",
+          "#20124d",
+          "#4c1130"
+        ]}
       />
     </Box>
   );
@@ -365,7 +461,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                     </Tooltip>
                   </Box>
                 </PopoverTrigger>
-                <PopoverContent width={250}>
+                <PopoverContent width={280}>
                   <PopoverArrow />
                   <PopoverBody>
                     <ColorPicker
@@ -410,7 +506,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                     </Tooltip>
                   </Box>
                 </PopoverTrigger>
-                <PopoverContent width={250}>
+                <PopoverContent width={280}>
                   <PopoverArrow />
                   <PopoverBody>
                     <ColorPicker
@@ -760,6 +856,7 @@ export interface BorderProps {
   activeIconColor: string;
   onBorderChange?: (
     color: string | undefined,
+    borderStyle: BORDER_STYLE,
     variant?: BORDER_VARIANT
   ) => void;
 }
@@ -770,13 +867,20 @@ const BorderSelection: React.FC<BorderProps> = ({
 }) => {
   const [borderColor, setBorderColor] = useState<string | undefined>("#000000");
   const [borderVariant, setBorderVariant] = useState<BORDER_VARIANT>();
+  const [borderStyle, setBorderStyle] = useState<BORDER_STYLE>(
+    BORDER_STYLE.THIN
+  );
   const handleChangeColor = (value: string | undefined) => {
     setBorderColor(value);
-    onBorderChange?.(value, borderVariant);
+    onBorderChange?.(value, borderStyle, borderVariant);
   };
   const handleChangeVariant = (value: BORDER_VARIANT) => {
     setBorderVariant(value);
-    onBorderChange?.(borderColor, value);
+    onBorderChange?.(borderColor, borderStyle, value);
+  };
+  const handleChangeBorderStyle = (value: BORDER_STYLE) => {
+    setBorderStyle(value);
+    onBorderChange?.(borderColor, value, borderVariant);
   };
 
   return (
@@ -800,7 +904,7 @@ const BorderSelection: React.FC<BorderProps> = ({
           </Tooltip>
         </Box>
       </PopoverTrigger>
-      <PopoverContent width={240}>
+      <PopoverContent width={240} zIndex={1}>
         <PopoverArrow />
         <Box display="flex">
           <Box flex={1} display="flex" p={2} flexWrap="wrap" width={180}>
@@ -960,26 +1064,36 @@ const BorderSelection: React.FC<BorderProps> = ({
             borderLeft="gray.300"
             borderLeftWidth={1}
             borderLeftStyle="solid"
+            flexDirection="column"
+            display="flex"
           >
             <Popover placement="top-start">
               {({ onClose }) => {
                 return (
                   <>
                     <PopoverTrigger>
-                      <Button
-                        size="sm"
-                        color={iconColor}
-                        variant="ghost"
-                        pl={0}
-                        pr={0}
-                        flexDirection="column"
-                        aria-label={translations.border_color}
-                      >
-                        <MdEdit />
-                        <Rect color={borderColor} />
-                      </Button>
+                      <Box>
+                        <Tooltip
+                          hasArrow
+                          aria-label={translations.border_color}
+                          label={translations.border_color}
+                        >
+                          <Button
+                            size="sm"
+                            color={iconColor}
+                            variant="ghost"
+                            pl={0}
+                            pr={0}
+                            flexDirection="column"
+                            aria-label={translations.border_color}
+                          >
+                            <MdEdit />
+                            <Rect color={borderColor} />
+                          </Button>
+                        </Tooltip>
+                      </Box>
                     </PopoverTrigger>
-                    <PopoverContent width={250}>
+                    <PopoverContent width={280}>
                       <PopoverArrow />
                       <PopoverBody>
                         <ColorPicker
@@ -990,6 +1104,209 @@ const BorderSelection: React.FC<BorderProps> = ({
                           }}
                           resetLabel="No borders"
                         />
+                      </PopoverBody>
+                    </PopoverContent>
+                  </>
+                );
+              }}
+            </Popover>
+            <Popover placement="top-start">
+              {({ onClose }) => {
+                return (
+                  <>
+                    <PopoverTrigger>
+                      <Box>
+                        <Tooltip
+                          hasArrow
+                          aria-label={translations.border_style}
+                          label={translations.border_style}
+                        >
+                          <IconButton
+                            aria-label={translations.border_style}
+                            variant="ghost"
+                            color={iconColor}
+                            icon={MdLineStyle}
+                            fontSize={20}
+                            size="sm"
+                          />
+                        </Tooltip>
+                      </Box>
+                    </PopoverTrigger>
+                    <PopoverContent width={100}>
+                      <PopoverArrow />
+                      <PopoverBody>
+                        <Button
+                          variant={
+                            borderStyle === BORDER_STYLE.THIN
+                              ? "solid"
+                              : "ghost"
+                          }
+                          color={
+                            borderStyle === BORDER_STYLE.THIN
+                              ? activeIconColor
+                              : iconColor
+                          }
+                          size="sm"
+                          onClick={() => {
+                            handleChangeBorderStyle(BORDER_STYLE.THIN);
+                            onClose?.();
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="50"
+                            height="1"
+                            style={{ userSelect: "none" }}
+                          >
+                            <line
+                              x1="0"
+                              y1="0.5"
+                              x2="50"
+                              y2="0.5"
+                              stroke-width="1"
+                              stroke="black"
+                              style={{ userSelect: "none" }}
+                            ></line>
+                          </svg>
+                        </Button>
+                        <Button
+                          variant={
+                            borderStyle === BORDER_STYLE.MEDIUM
+                              ? "solid"
+                              : "ghost"
+                          }
+                          color={
+                            borderStyle === BORDER_STYLE.MEDIUM
+                              ? activeIconColor
+                              : iconColor
+                          }
+                          size="sm"
+                          onClick={() => {
+                            handleChangeBorderStyle(BORDER_STYLE.MEDIUM);
+                            onClose?.();
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="50"
+                            height="2"
+                            style={{ userSelect: "none" }}
+                          >
+                            <line
+                              x1="0"
+                              y1="1.0"
+                              x2="50"
+                              y2="1.0"
+                              stroke-width="2"
+                              stroke="black"
+                              style={{ userSelect: "none" }}
+                            ></line>
+                          </svg>
+                        </Button>
+                        <Button
+                          variant={
+                            borderStyle === BORDER_STYLE.THICK
+                              ? "solid"
+                              : "ghost"
+                          }
+                          color={
+                            borderStyle === BORDER_STYLE.THICK
+                              ? activeIconColor
+                              : iconColor
+                          }
+                          size="sm"
+                          onClick={() => {
+                            handleChangeBorderStyle(BORDER_STYLE.THICK);
+                            onClose?.();
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="50"
+                            height="3"
+                            style={{ userSelect: "none" }}
+                          >
+                            <line
+                              x1="0"
+                              y1="1.5"
+                              x2="50"
+                              y2="1.5"
+                              stroke-width="3"
+                              stroke="black"
+                              style={{ userSelect: "none" }}
+                            ></line>
+                          </svg>
+                        </Button>
+                        <Button
+                          variant={
+                            borderStyle === BORDER_STYLE.DASHED
+                              ? "solid"
+                              : "ghost"
+                          }
+                          color={
+                            borderStyle === BORDER_STYLE.DASHED
+                              ? activeIconColor
+                              : iconColor
+                          }
+                          size="sm"
+                          onClick={() => {
+                            handleChangeBorderStyle(BORDER_STYLE.DASHED);
+                            onClose?.();
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="50"
+                            height="1"
+                            style={{ userSelect: "none" }}
+                          >
+                            <line
+                              x1="0"
+                              y1="0.5"
+                              x2="50"
+                              y2="0.5"
+                              stroke-width="1"
+                              stroke="black"
+                              stroke-dasharray="2"
+                              style={{ userSelect: "none" }}
+                            ></line>
+                          </svg>
+                        </Button>
+                        <Button
+                          variant={
+                            borderStyle === BORDER_STYLE.DOTTED
+                              ? "solid"
+                              : "ghost"
+                          }
+                          color={
+                            borderStyle === BORDER_STYLE.DOTTED
+                              ? activeIconColor
+                              : iconColor
+                          }
+                          size="sm"
+                          onClick={() => {
+                            handleChangeBorderStyle(BORDER_STYLE.DOTTED);
+                            onClose?.();
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="50"
+                            height="1"
+                            style={{ userSelect: "none" }}
+                          >
+                            <line
+                              x1="0"
+                              y1="0.5"
+                              x2="50"
+                              y2="0.5"
+                              stroke-width="1"
+                              stroke="black"
+                              stroke-dasharray="1"
+                              style={{ userSelect: "none" }}
+                            ></line>
+                          </svg>
+                        </Button>
                       </PopoverBody>
                     </PopoverContent>
                   </>

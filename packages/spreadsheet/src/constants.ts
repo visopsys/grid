@@ -1,5 +1,10 @@
 import { Sheet, CellConfig } from "./Spreadsheet";
-import { DATATYPE, CellDataFormatting, BORDER_VARIANT } from "./types";
+import {
+  DATATYPE,
+  CellDataFormatting,
+  BORDER_VARIANT,
+  BORDER_STYLE
+} from "./types";
 import { isNull } from "@rowsncolumns/grid";
 
 export const COLUMN_HEADER_WIDTH = 46;
@@ -91,28 +96,56 @@ export const detectDataType = (value?: string): DATATYPE | undefined => {
 
 export const createBorderStyle = (
   variant?: BORDER_VARIANT,
-  thickness: number = 1
+  borderStyle: BORDER_STYLE = BORDER_STYLE.THIN
 ) => {
   if (variant === void 0) return {};
+  const thickness =
+    borderStyle === BORDER_STYLE.MEDIUM
+      ? 2
+      : borderStyle === BORDER_STYLE.THICK
+      ? 3
+      : 1;
+  const dash =
+    borderStyle === BORDER_STYLE.DASHED
+      ? [3, 2]
+      : borderStyle === BORDER_STYLE.DOTTED
+      ? [1, 1]
+      : [];
+  const dashEnabled = dash.length ? true : false;
+
+  const lineCap = dashEnabled ? "butt" : "square";
+
   switch (variant) {
     case BORDER_VARIANT.OUTER:
       return {
-        strokeWidth: thickness
+        strokeWidth: thickness,
+        dash,
+        dashEnabled,
+        lineCap
       };
 
     case BORDER_VARIANT.BOTTOM:
       return {
-        strokeBottomWidth: thickness
+        strokeBottomWidth: thickness,
+        dash,
+        dashEnabled,
+        lineCap
       };
 
     case BORDER_VARIANT.RIGHT:
       return {
-        strokeRightWidth: thickness
+        strokeRightWidth: thickness,
+        dash,
+        dashEnabled,
+        lineCap
       };
 
     case BORDER_VARIANT.LEFT:
       return {
-        strokeLeftWidth: thickness
+        strokeLeftWidth: thickness,
+        dash,
+        dashEnabled,
+        lineCap
       };
   }
   return null;

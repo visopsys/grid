@@ -22,6 +22,7 @@ export const translations = {
   border_top: "Top border",
   border_none: "Clear borders",
   border_color: "Border color",
+  border_style: "Border style",
   merge_cells: "Merge cells",
   freeze: "Freeze rows and columns",
   freeze_rows: "Freeze rows",
