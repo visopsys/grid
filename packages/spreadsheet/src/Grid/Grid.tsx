@@ -19,7 +19,7 @@ import Grid, {
   AreaProps,
   StylingProps
 } from "@rowsncolumns/grid";
-import { debounce, throttle } from "@rowsncolumns/grid/dist/helpers";
+import { debounce } from "@rowsncolumns/grid/dist/helpers";
 import {
   ThemeProvider,
   ColorModeProvider,
@@ -276,7 +276,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         nextActiveCell?: CellInterface | null
       ) => {
         const { rowIndex, columnIndex } = cell;
-        const previousCell = getValue(cell, true);
         const changes = {
           [rowIndex]: {
             [columnIndex]: {
@@ -309,7 +308,12 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       showEditor,
       ...editableProps
     } = useEditable({
-      getEditor: () => Editor,
+      getEditor: (cell: CellInterface | null) => {
+        const config = getValue(cell, true) as CellConfig;
+        return props => (
+          <Editor {...props} background={config?.fill} color={config?.color} />
+        );
+      },
       frozenRows: actualFrozenRows,
       frozenColumns: actualFrozenColumns,
       gridRef,

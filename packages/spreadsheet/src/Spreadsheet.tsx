@@ -30,8 +30,6 @@ import {
 import {
   FORMATTING_TYPE,
   DATATYPE,
-  VERTICAL_ALIGNMENT,
-  HORIZONTAL_ALIGNMENT,
   CellFormatting,
   CellDataFormatting,
   AXIS,
@@ -610,8 +608,6 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       /* Check if user is trying to extend a selection */
       const { bounds } = fillSelection;
       const changes: Cells = {};
-      const sheet = sheets.find(sheet => sheet.id === id);
-      const value = {};
       const previousValue: { [key: string]: any } = {};
       setSheets(draft => {
         const sheet = draft.find(sheet => sheet.id === id);

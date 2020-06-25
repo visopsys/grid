@@ -5,11 +5,16 @@ import { KeyCodes, Direction } from "@rowsncolumns/grid/dist/types";
 import { useColorMode } from "@chakra-ui/core";
 import { DARK_MODE_COLOR_LIGHT } from "../constants";
 
+interface CustomEditorProps extends EditorProps {
+  background?: string;
+  color?: string;
+}
+
 /**
  * Default cell editor
  * @param props
  */
-const Editor: React.FC<EditorProps> = props => {
+const Editor: React.FC<CustomEditorProps> = props => {
   const {
     rowIndex,
     columnIndex,
@@ -22,12 +27,24 @@ const Editor: React.FC<EditorProps> = props => {
     value = "",
     activeCell,
     autoFocus = true,
+    background: cellBackground,
+    color: cellColor,
     ...rest
   } = props;
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
-  const backgroundColor = isLight ? "white" : DARK_MODE_COLOR_LIGHT;
-  const color = isLight ? DARK_MODE_COLOR_LIGHT : "white";
+  const backgroundColor =
+    cellBackground !== void 0
+      ? cellBackground
+      : isLight
+      ? "white"
+      : DARK_MODE_COLOR_LIGHT;
+  const color =
+    cellColor !== void 0
+      ? cellColor
+      : isLight
+      ? DARK_MODE_COLOR_LIGHT
+      : "white";
   const borderWidth = 2;
   const padding = 10; /* 2 + 1 + 1 + 2 + 2 */
   const textSizer = useRef(AutoSizerCanvas("12px Arial"));

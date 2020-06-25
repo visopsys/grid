@@ -1,4 +1,4 @@
-import { Sheet, Cell, CellConfig } from "./Spreadsheet";
+import { Sheet, CellConfig } from "./Spreadsheet";
 import { DATATYPE, CellDataFormatting, BORDER_VARIANT } from "./types";
 import { isNull } from "@rowsncolumns/grid";
 

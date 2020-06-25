@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import {
   MdUndo,
   MdRedo,
-  MdPrint,
   MdAttachMoney,
   MdFormatBold,
   MdFormatItalic,
@@ -45,7 +44,6 @@ import {
   PopoverContent,
   PopoverBody,
   PopoverArrow,
-  PopoverContext,
   Box,
   Select,
   FormControl,
@@ -63,7 +61,6 @@ import {
 import { translations } from "../translations";
 import { CellConfig } from "../Spreadsheet";
 import { CirclePicker, ColorResult } from "react-color";
-import useDidUpdate from "./../hooks/useDidUpdate";
 
 export interface ToolbarProps extends CellConfig {
   onFormattingChange?: (
@@ -459,7 +456,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
         </Tooltip>
 
         <Popover usePortal placement="top-start">
-          {({ onClose }) => {
+          {() => {
             return (
               <>
                 <PopoverTrigger>
@@ -528,7 +525,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
         <Separator borderColor={borderColor} />
 
         <Popover usePortal placement="top-start">
-          {({ onClose }) => {
+          {() => {
             return (
               <>
                 <PopoverTrigger>
@@ -626,7 +623,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
         </Popover>
 
         <Popover usePortal placement="top-start">
-          {({ onClose }) => {
+          {() => {
             return (
               <>
                 <PopoverTrigger>
