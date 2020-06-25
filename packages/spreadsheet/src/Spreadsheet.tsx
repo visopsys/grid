@@ -219,9 +219,11 @@ const Spreadsheet = (props: SpreadSheetProps) => {
             selections.forEach(sel => {
               const { bounds } = sel;
               for (let i = bounds.top; i <= bounds.bottom; i++) {
+                if (!(i in sheet.cells)) sheet.cells[i] = {};
                 for (let j = bounds.left; j <= bounds.right; j++) {
+                  if (!(j in sheet.cells[i])) sheet.cells[i][j] = {};
                   if (atttribute) {
-                    if (!(i in sheet.cells) || !(j in sheet.cells[i])) continue;
+                    // if (!(i in sheet.cells) || !(j in sheet.cells[i])) continue;
                     sheet.cells[i][j][atttribute as keyof CellFormatting] =
                       typeof value === "object"
                         ? value[i]?.[j]?.[atttribute]
@@ -781,11 +783,9 @@ const Spreadsheet = (props: SpreadSheetProps) => {
           }
         }
       });
-      requestAnimationFrame(() => {
-        axis === AXIS.X
-          ? currentGrid.current?.resizeColumns?.([index])
-          : currentGrid.current?.resizeRows?.([index]);
-      });
+      axis === AXIS.X
+        ? currentGrid.current?.resizeColumns?.([index])
+        : currentGrid.current?.resizeRows?.([index]);
     },
     []
   );

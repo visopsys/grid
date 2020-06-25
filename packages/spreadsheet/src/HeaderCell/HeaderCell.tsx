@@ -87,10 +87,9 @@ const HeaderCell: React.FC<HeaderCellProps> = memo(props => {
     x = 0,
     y = 0,
     width = 0,
-    height = 0,
-    onResize,
-    onAdjustColumn
+    height = 0
   } = props;
+  const { onResize, onAdjustColumn, ...rest } = props;
   const isCorner = rowIndex === columnIndex;
   const value = isCorner
     ? ""
@@ -122,7 +121,7 @@ const HeaderCell: React.FC<HeaderCellProps> = memo(props => {
   const globalCompositeOperation = "source-over";
   return (
     <Cell
-      {...props}
+      {...rest}
       fill={fill}
       align="center"
       value={value}

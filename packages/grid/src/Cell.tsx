@@ -17,7 +17,7 @@ export interface CellProps extends RendererProps {
  * Default cell component
  * @param props
  */
-const Cell: React.FC<CellProps> = props => {
+const Cell: React.FC<CellProps> = memo(props => {
   const {
     x,
     y,
@@ -82,7 +82,7 @@ const Cell: React.FC<CellProps> = props => {
       {children}
     </Group>
   );
-};
+});
 
 /**
  * Default CellRenderer
