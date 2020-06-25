@@ -211,7 +211,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       }
 
       if (subresource === RESOURCE_TYPE.SELECTION) {
-        const [selectionStr, atttribute] = values;
+        const [selectionStr, atttribute, activeCell] = values;
         const selections: SelectionArea[] = JSON.parse(selectionStr);
         setSheets(draft => {
           const sheet = draft.find(sheet => sheet.id === id);
@@ -220,13 +220,26 @@ const Spreadsheet = (props: SpreadSheetProps) => {
               const { bounds } = sel;
               for (let i = bounds.top; i <= bounds.bottom; i++) {
                 for (let j = bounds.left; j <= bounds.right; j++) {
-                  sheet.cells[i][j][atttribute as keyof CellFormatting] =
-                    typeof value === "object" ? value[i]?.[j]?.[type] : value;
+                  if (atttribute) {
+                    if (!(i in sheet.cells) || !(j in sheet.cells[i])) continue;
+                    sheet.cells[i][j][atttribute as keyof CellFormatting] =
+                      typeof value === "object"
+                        ? value[i]?.[j]?.[atttribute]
+                        : value;
+                  } else {
+                    if (j in value[i]) {
+                      sheet.cells[i][j] = value[i]?.[j];
+                    }
+                  }
                 }
               }
             });
           }
         });
+
+        if (activeCell) {
+          currentGrid.current?.setActiveCell(activeCell);
+        }
       }
 
       // Sheet name change
@@ -463,7 +476,8 @@ const Spreadsheet = (props: SpreadSheetProps) => {
                   selectedSheet,
                   RESOURCE_TYPE.SELECTION,
                   JSON.stringify(selections),
-                  type
+                  type,
+                  { ...activeCell }
                 ],
                 value,
                 previousValue
@@ -604,6 +618,9 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       /* Check if user is trying to extend a selection */
       const { bounds } = fillSelection;
       const changes: Cells = {};
+      const sheet = sheets.find(sheet => sheet.id === id);
+      const value = {};
+      const previousValue: { [key: string]: any } = {};
       setSheets(draft => {
         const sheet = draft.find(sheet => sheet.id === id);
         if (sheet) {
@@ -611,23 +628,41 @@ const Spreadsheet = (props: SpreadSheetProps) => {
           const currentValue =
             cells[activeCell.rowIndex]?.[activeCell.columnIndex];
           for (let i = bounds.top; i <= bounds.bottom; i++) {
+            if (!(i in previousValue)) previousValue[i] = {};
             if (!(i in cells)) cells[i] = {};
             if (!(i in changes)) changes[i] = {};
             for (let j = bounds.left; j <= bounds.right; j++) {
               if (i === activeCell.rowIndex && j === activeCell.columnIndex)
                 continue;
+              if (!(j in previousValue[i])) previousValue[i][j] = {};
               if (!(j in cells[i])) cells[i][j] = {};
               if (!(j in changes[i])) changes[i][j] = {};
+              previousValue[i][j] = { ...cells[i][j] };
               cells[i][j] = currentValue;
-              changes[i][j] = currentValue;
+              changes[i][j] = { ...currentValue };
             }
           }
         }
       });
 
+      pushToUndoStack(
+        createPatches(
+          [
+            RESOURCE_TYPE.SHEET,
+            selectedSheet,
+            RESOURCE_TYPE.SELECTION,
+            JSON.stringify([fillSelection]),
+            null,
+            activeCell
+          ],
+          changes,
+          previousValue
+        )
+      );
+
       onChange?.(id, changes);
     },
-    []
+    [sheets]
   );
 
   /**
@@ -637,8 +672,11 @@ const Spreadsheet = (props: SpreadSheetProps) => {
     (id: string, activeCell: CellInterface, selections: SelectionArea[]) => {
       setSheets(draft => {
         const sheet = draft.find(sheet => sheet.id === id);
+        const attribute = "text";
         if (sheet) {
           const { cells } = sheet;
+          const value: { [key: string]: any } = {};
+          const previousValue: { [key: string]: any } = {};
           if (selections.length) {
             selections.forEach(sel => {
               const { bounds } = sel;
@@ -646,15 +684,51 @@ const Spreadsheet = (props: SpreadSheetProps) => {
                 if (!(i in cells)) continue;
                 for (let j = bounds.left; j <= bounds.right; j++) {
                   if (!(j in cells[i]) || cells[i][j] === void 0) continue;
-                  cells[i][j].text = "";
+                  if (!(i in value)) value[i] = {};
+                  if (!(i in previousValue)) previousValue[i] = {};
+                  if (!(j in previousValue[i])) previousValue[i][j] = {};
+                  if (!(j in value[i])) value[i][j] = {};
+                  previousValue[i][j][attribute] = cells[i][j][attribute];
+                  cells[i][j][attribute] = "";
+                  value[i][j][attribute] = "";
                 }
               }
             });
+
+            pushToUndoStack(
+              createPatches(
+                [
+                  RESOURCE_TYPE.SHEET,
+                  id,
+                  RESOURCE_TYPE.SELECTION,
+                  JSON.stringify(selections),
+                  attribute,
+                  activeCell
+                ],
+                value,
+                previousValue
+              )
+            );
           } else {
             const { rowIndex, columnIndex } = activeCell;
+            const previousValue = { ...cells[rowIndex]?.[columnIndex] };
             if (cells[rowIndex]?.[columnIndex]) {
               cells[rowIndex][columnIndex].text = "";
             }
+
+            pushToUndoStack(
+              createPatches(
+                [
+                  RESOURCE_TYPE.SHEET,
+                  id,
+                  RESOURCE_TYPE.CELL,
+                  rowIndex,
+                  columnIndex
+                ],
+                { ...cells[rowIndex][columnIndex] },
+                previousValue
+              )
+            );
           }
         }
       });
