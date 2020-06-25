@@ -3,14 +3,14 @@ import { Cell as DefaultCell, RendererProps, isNull } from "@rowsncolumns/grid";
 import {
   DARK_MODE_COLOR,
   DARK_MODE_COLOR_LIGHT,
-  format as defaultFormat,
+  format as defaultFormat
 } from "../constants";
 import {
   DATATYPE,
   FONT_WEIGHT,
   FONT_STYLE,
   HORIZONTAL_ALIGNMENT,
-  TEXT_DECORATION,
+  TEXT_DECORATION
 } from "./../types";
 import { useColorMode, useTheme } from "@chakra-ui/core";
 import { CellConfig } from "../Spreadsheet";
@@ -23,7 +23,7 @@ export interface CellProps extends RendererProps, CellConfig {
  * Cell renderer
  * @param props
  */
-const Cell: React.FC<CellProps> = memo((props) => {
+const Cell: React.FC<CellProps> = memo(props => {
   const { colorMode } = useColorMode();
   const theme = useTheme();
   const {
@@ -41,7 +41,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
     percent,
     currency,
     format = defaultFormat,
-    globalCompositeOperation,
+    globalCompositeOperation
   } = props;
   const fontWeight = bold ? FONT_WEIGHT.BOLD : FONT_WEIGHT.NORMAL;
   const fontStyle = italic ? FONT_STYLE.ITALIC : FONT_STYLE.NORMAL;

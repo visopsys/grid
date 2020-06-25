@@ -15,7 +15,7 @@ import {
   PopoverContent,
   PopoverBody,
   PopoverArrow,
-  IconButton,
+  IconButton
 } from "@chakra-ui/core";
 import { MdArrowDropDown } from "react-icons/md";
 import { KeyCodes } from "@rowsncolumns/grid/dist/types";
@@ -39,7 +39,7 @@ const TabItem: React.FC<TabItemProps> = ({
   onSelect,
   onChangeSheetName,
   onDeleteSheet,
-  onDuplicateSheet,
+  onDuplicateSheet
 }) => {
   const theme = useTheme();
   const [isEditmode, setIsEditmode] = useState(false);
@@ -108,7 +108,7 @@ const TabItem: React.FC<TabItemProps> = ({
                 ? bg
                 : isLight
                 ? theme.colors.gray[200]
-                : theme.colors.gray[800],
+                : theme.colors.gray[800]
             }}
           >
             {name}
@@ -144,7 +144,7 @@ const TabItem: React.FC<TabItemProps> = ({
                           textAlign="left"
                           justifyContent="left"
                           borderRadius={0}
-                          onClick={(e) => {
+                          onClick={e => {
                             onClose?.();
                             onDeleteSheet?.(id);
                             e.preventDefault();
@@ -161,7 +161,7 @@ const TabItem: React.FC<TabItemProps> = ({
                           textAlign="left"
                           justifyContent="left"
                           borderRadius={0}
-                          onClick={(e) => {
+                          onClick={e => {
                             onClose?.();
                             onDuplicateSheet?.(id);
                             e.preventDefault();
@@ -178,7 +178,7 @@ const TabItem: React.FC<TabItemProps> = ({
                           textAlign="left"
                           justifyContent="left"
                           borderRadius={0}
-                          onClick={(e) => {
+                          onClick={e => {
                             enableEditmode();
                             e.preventDefault();
                             e.stopPropagation();

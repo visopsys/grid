@@ -53,7 +53,7 @@ const useCopyPaste = ({
   getValue,
   gridRef,
   onPaste,
-  onCut,
+  onCut
 }: CopyProps): CopyResults => {
   const selectionRef = useRef({ selections, activeCell, getValue });
   const cutSelections = useRef<SelectionArea | null>(null);
@@ -72,17 +72,17 @@ const useCopyPaste = ({
 
   useEffect(() => {
     if (!gridRef.current) return;
-    document.addEventListener("copy", (e) => {
+    document.addEventListener("copy", e => {
       if (gridRef.current?.container !== document.activeElement) return;
       handleCopy(e);
     });
 
-    document.addEventListener("paste", (e) => {
+    document.addEventListener("paste", e => {
       if (gridRef.current?.container !== document.activeElement) return;
       handlePaste(e);
     });
 
-    document.addEventListener("cut", (e) => {
+    document.addEventListener("cut", e => {
       if (gridRef.current?.container !== document.activeElement) return;
       cutSelections.current = currentSelections();
       handleCopy(e);
@@ -196,7 +196,7 @@ const useCopyPaste = ({
 
   return {
     copy: handleProgramaticCopy,
-    paste: handleProgramaticPaste,
+    paste: handleProgramaticPaste
   };
 };
 

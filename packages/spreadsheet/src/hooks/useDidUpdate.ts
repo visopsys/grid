@@ -2,7 +2,7 @@ import React, {
   EffectCallback,
   useRef,
   useEffect,
-  DependencyList,
+  DependencyList
 } from "react";
 
 const useDidUpdate = (callback: EffectCallback, deps: DependencyList) => {
