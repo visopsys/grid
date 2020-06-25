@@ -483,7 +483,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      */
     useEffect(() => {
       containerRef.current?.addEventListener("wheel", handleWheel, {
-        passive: true
+        passive: false
       });
       isMounted.current = true;
     }, []);
@@ -1095,6 +1095,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      */
     const handleWheel = useCallback(
       (event: globalThis.MouseWheelEvent) => {
+        /* Prevent browser back in Mac */
+        event.preventDefault();
         const { deltaX, deltaY, deltaMode } = event;
         /* If snaps are active */
         if (snap) {
