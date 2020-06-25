@@ -457,13 +457,14 @@ const Spreadsheet = (props: SpreadSheetProps) => {
               for (let i = bounds.top; i <= bounds.bottom; i++) {
                 if (!(i in cells)) {
                   cells[i] = {};
-                  previousValue[i] = {};
                 }
+                if (!(i in previousValue)) previousValue[i] = {};
                 for (let j = bounds.left; j <= bounds.right; j++) {
                   if (!(j in cells[i])) {
                     cells[i][j] = {};
-                    previousValue[i][j] = {};
                   }
+                  if (!(j in previousValue[i])) previousValue[i][j] = {};
+
                   previousValue[i][j] = { ...cells[i][j] };
                   cells[i][j][type as keyof CellFormatting] = value;
                 }
