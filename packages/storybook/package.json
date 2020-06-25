@@ -1,7 +1,7 @@
 {
   "name": "@rowsncolumns/storybook",
   "private": true,
-  "version": "1.0.7",
+  "version": "1.0.8",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
@@ -13,6 +13,6 @@
   },
   "dependencies": {
     "@rowsncolumns/grid": "^3.2.1",
-    "@rowsncolumns/spreadsheet": "^1.1.1"
+    "@rowsncolumns/spreadsheet": "^1.1.2"
   }
 }
