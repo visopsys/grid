@@ -297,6 +297,7 @@ export interface SnapRowProps {
   rowStartIndex: number;
   rowCount: number;
   deltaY: number;
+  frozenRows: number;
 }
 
 export interface SnapColumnProps {
@@ -493,59 +494,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       });
       isMounted.current = true;
     }, []);
-    /**
-     * Snaps vertical scrollbar to the next/prev visible row
-     */
-    const snapToRowFn = useCallback(
-      ({ rowStartIndex, rowCount, deltaY }: SnapRowProps) => {
-        if (!verticalScrollRef.current) return;
-        if (deltaY !== 0) {
-          const nextRowIndex =
-            deltaY < 0
-              ? // User is scrolling up
-                Math.max(0, rowStartIndex)
-              : Math.min(rowStartIndex + frozenRows, rowCount - 1);
-          /* TODO: Fix bug when frozenRowHeight > minRow height, which causes rowStartIndex to be 1 even after a scroll */
-          const rowHeight = getRowHeight(nextRowIndex, instanceProps.current);
-          verticalScrollRef.current.scrollTop +=
-            (deltaY < 0 ? -1 : 1) * rowHeight;
-        }
-      },
-      []
-    );
-
-    /**
-     * Snaps horizontal scrollbar to the next/prev visible column
-     */
-    const snapToColumnFn = useCallback(
-      ({
-        columnStartIndex,
-        columnCount,
-        deltaX,
-        frozenColumns
-      }: SnapColumnProps) => {
-        if (!horizontalScrollRef.current) return;
-        if (deltaX !== 0) {
-          const nextColumnIndex =
-            deltaX < 0
-              ? Math.max(0, columnStartIndex)
-              : Math.min(columnStartIndex + frozenColumns, columnCount - 1);
-          const columnWidth = getColumnWidth(
-            nextColumnIndex,
-            instanceProps.current
-          );
-          horizontalScrollRef.current.scrollLeft +=
-            (deltaX < 0 ? -1 : 1) * columnWidth;
-        }
-      },
-      []
-    );
-    const snapToRowThrottler = useRef(
-      throttle(snapToRowFn, scrollThrottleTimeout)
-    );
-    const snapToColumnThrottler = useRef(
-      throttle(snapToColumnFn, scrollThrottleTimeout)
-    );
 
     /**
      * Imperatively get the current scroll position
@@ -730,6 +678,60 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const estimatedTotalWidth = getEstimatedTotalWidth(
       columnCount,
       instanceProps.current
+    );
+
+    /**
+     * Snaps vertical scrollbar to the next/prev visible row
+     */
+    const snapToRowFn = useCallback(
+      ({ rowStartIndex, rowCount, deltaY, frozenRows }: SnapRowProps) => {
+        if (!verticalScrollRef.current) return;
+        if (deltaY !== 0) {
+          const nextRowIndex =
+            deltaY < 0
+              ? // User is scrolling up
+                Math.max(0, rowStartIndex)
+              : Math.min(rowStartIndex + frozenRows, rowCount - 1);
+          /* TODO: Fix bug when frozenRowHeight > minRow height, which causes rowStartIndex to be 1 even after a scroll */
+          const rowHeight = getRowHeight(nextRowIndex, instanceProps.current);
+          verticalScrollRef.current.scrollTop +=
+            (deltaY < 0 ? -1 : 1) * rowHeight;
+        }
+      },
+      []
+    );
+
+    /**
+     * Snaps horizontal scrollbar to the next/prev visible column
+     */
+    const snapToColumnFn = useCallback(
+      ({
+        columnStartIndex,
+        columnCount,
+        deltaX,
+        frozenColumns
+      }: SnapColumnProps) => {
+        if (!horizontalScrollRef.current) return;
+        if (deltaX !== 0) {
+          const nextColumnIndex =
+            deltaX < 0
+              ? Math.max(0, columnStartIndex)
+              : Math.min(columnStartIndex + frozenColumns, columnCount - 1);
+          const columnWidth = getColumnWidth(
+            nextColumnIndex,
+            instanceProps.current
+          );
+          horizontalScrollRef.current.scrollLeft +=
+            (deltaX < 0 ? -1 : 1) * columnWidth;
+        }
+      },
+      []
+    );
+    const snapToRowThrottler = useRef(
+      throttle(snapToRowFn, scrollThrottleTimeout)
+    );
+    const snapToColumnThrottler = useRef(
+      throttle(snapToColumnFn, scrollThrottleTimeout)
     );
 
     /* Find frozen column boundary */

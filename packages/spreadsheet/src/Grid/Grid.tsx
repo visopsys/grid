@@ -18,7 +18,8 @@ import Grid, {
   SelectionArea,
   ScrollCoords,
   AreaProps,
-  StylingProps
+  StylingProps,
+  useSizer as useAutoSizer
 } from "@rowsncolumns/grid";
 import { debounce } from "@rowsncolumns/grid/dist/helpers";
 import {
@@ -39,7 +40,6 @@ import { GridWrapper, ThemeType } from "./../styled";
 import { Cells, CellConfig, SizeType } from "../Spreadsheet";
 import { Direction } from "@rowsncolumns/grid/dist/types";
 import { DATATYPE, CellDataFormatting, AXIS } from "../types";
-import useAutoSizer from "@rowsncolumns/grid/dist/hooks/useSizer";
 import Editor from "./../Editor";
 import ContextMenu from "./../ContextMenu";
 
