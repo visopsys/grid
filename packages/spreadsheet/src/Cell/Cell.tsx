@@ -10,7 +10,8 @@ import {
   FONT_WEIGHT,
   FONT_STYLE,
   HORIZONTAL_ALIGNMENT,
-  TEXT_DECORATION
+  TEXT_DECORATION,
+  VERTICAL_ALIGNMENT
 } from "./../types";
 import { useColorMode, useTheme } from "@chakra-ui/core";
 import { CellConfig } from "../Spreadsheet";
@@ -34,7 +35,7 @@ const Cell: React.FC<CellProps> = memo(props => {
     italic,
     bold,
     horizontalAlign,
-    verticalAlign,
+    verticalAlign = VERTICAL_ALIGNMENT.MIDDLE,
     underline,
     strike,
     decimals,

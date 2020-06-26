@@ -29,6 +29,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
     autoFocus = true,
     background: cellBackground,
     color: cellColor,
+    selections,
     ...rest
   } = props;
   const { colorMode } = useColorMode();

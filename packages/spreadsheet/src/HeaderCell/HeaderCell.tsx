@@ -39,7 +39,7 @@ const DraggableRect: React.FC<DraggableRectProps> = memo(props => {
     parentX = 0,
     parentY = 0
   } = props;
-  const cursor = axis === AXIS.X ? "ew-resize" : "ns-resize";
+  const cursor = axis === AXIS.X ? "e-resize" : "n-resize";
   const index = useMemo(() => (axis === AXIS.X ? columnIndex : rowIndex), [
     axis
   ]);

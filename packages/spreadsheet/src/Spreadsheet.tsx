@@ -25,7 +25,9 @@ import {
   createNewSheet,
   uuid,
   detectDataType,
-  createBorderStyle
+  createBorderStyle,
+  DEFAULT_COLUMN_WIDTH,
+  DEFAULT_ROW_HEIGHT
 } from "./constants";
 import {
   FORMATTING_TYPE,
@@ -135,8 +137,8 @@ const Spreadsheet = (props: SpreadSheetProps) => {
     initialSheets = defaultSheets,
     onChange,
     showFormulabar = true,
-    minColumnWidth,
-    minRowHeight,
+    minColumnWidth = DEFAULT_COLUMN_WIDTH,
+    minRowHeight = DEFAULT_ROW_HEIGHT,
     CellRenderer,
     HeaderCellRenderer,
     initialActiveSheet = defaultActiveSheet,
