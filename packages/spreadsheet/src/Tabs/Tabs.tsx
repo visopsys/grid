@@ -62,7 +62,20 @@ const Tabs: React.FC<TabProps> = props => {
       </Tooltip>
       <Popover placement="top" usePortal>
         <PopoverTrigger>
-          <IconButton aria-label="All sheets" icon={MdMenu} variant="ghost" />
+          <Box>
+            <Tooltip
+              placement="top-start"
+              hasArrow
+              aria-label={translations.all_sheets}
+              label={translations.all_sheets}
+            >
+              <IconButton
+                aria-label={translations.all_sheets}
+                icon={MdMenu}
+                variant="ghost"
+              />
+            </Tooltip>
+          </Box>
         </PopoverTrigger>
         <PopoverContent
           width={200}
