@@ -244,16 +244,12 @@ const Toolbar: React.FC<ToolbarProps> = props => {
   } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const theme = useTheme();
-  const isLightMode = colorMode === "light";
+  const isLight = colorMode === "light";
   const activeIconColor = theme.colors.teal[500];
-  const iconColor = isLightMode
-    ? theme.colors.gray[600]
-    : theme.colors.gray[50];
-  const borderColor = isLightMode
-    ? theme.colors.gray[300]
-    : theme.colors.gray[600];
-  const backgroundColor = isLightMode ? "white" : DARK_MODE_COLOR;
-  const foregroundColor = isLightMode ? DARK_MODE_COLOR : "white";
+  const iconColor = isLight ? theme.colors.gray[600] : theme.colors.gray[50];
+  const borderColor = isLight ? theme.colors.gray[300] : theme.colors.gray[600];
+  const backgroundColor = isLight ? "white" : DARK_MODE_COLOR;
+  const foregroundColor = isLight ? DARK_MODE_COLOR : "white";
   return (
     <StyledToolbar
       pr={2}
@@ -461,7 +457,10 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                     </Tooltip>
                   </Box>
                 </PopoverTrigger>
-                <PopoverContent width={280}>
+                <PopoverContent
+                  width={280}
+                  borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                >
                   <PopoverArrow />
                   <PopoverBody>
                     <ColorPicker
@@ -506,7 +505,10 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                     </Tooltip>
                   </Box>
                 </PopoverTrigger>
-                <PopoverContent width={280}>
+                <PopoverContent
+                  width={280}
+                  borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                >
                   <PopoverArrow />
                   <PopoverBody>
                     <ColorPicker
@@ -532,6 +534,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
             onBorderChange={onBorderChange}
             iconColor={iconColor}
             activeIconColor={activeIconColor}
+            isLight={isLight}
           />
         </Tooltip>
 
@@ -573,7 +576,10 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                     </Tooltip>
                   </Box>
                 </PopoverTrigger>
-                <PopoverContent width={220}>
+                <PopoverContent
+                  width={220}
+                  borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                >
                   <PopoverArrow />
                   <PopoverBody color={foregroundColor}>
                     <FormControl mb={1}>
@@ -642,7 +648,10 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                     </Tooltip>
                   </Box>
                 </PopoverTrigger>
-                <PopoverContent width="auto">
+                <PopoverContent
+                  width="auto"
+                  borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                >
                   <PopoverArrow />
                   <Box display="flex">
                     <IconButton
@@ -740,7 +749,10 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                     </Tooltip>
                   </Box>
                 </PopoverTrigger>
-                <PopoverContent width="auto">
+                <PopoverContent
+                  width="auto"
+                  borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                >
                   <PopoverArrow />
                   <Box display="flex">
                     <IconButton
@@ -821,25 +833,25 @@ const Toolbar: React.FC<ToolbarProps> = props => {
           <Tooltip
             hasArrow
             aria-label={
-              isLightMode
+              isLight
                 ? translations.switch_dark_mode
                 : translations.switch_light_mode
             }
             label={
-              isLightMode
+              isLight
                 ? translations.switch_dark_mode
                 : translations.switch_light_mode
             }
           >
             <IconButton
               aria-label={
-                isLightMode
+                isLight
                   ? translations.switch_dark_mode
                   : translations.switch_light_mode
               }
               variant="ghost"
               color={iconColor}
-              icon={isLightMode ? IoMdMoon : MdWbSunny}
+              icon={isLight ? IoMdMoon : MdWbSunny}
               fontSize={20}
               size="sm"
               onClick={toggleColorMode}
@@ -859,11 +871,13 @@ export interface BorderProps {
     borderStyle: BORDER_STYLE,
     variant?: BORDER_VARIANT
   ) => void;
+  isLight?: boolean;
 }
 const BorderSelection: React.FC<BorderProps> = ({
   iconColor,
   activeIconColor,
-  onBorderChange
+  onBorderChange,
+  isLight
 }) => {
   const [borderColor, setBorderColor] = useState<string | undefined>("#000000");
   const [borderVariant, setBorderVariant] = useState<BORDER_VARIANT>();
@@ -904,7 +918,10 @@ const BorderSelection: React.FC<BorderProps> = ({
           </Tooltip>
         </Box>
       </PopoverTrigger>
-      <PopoverContent width={240} zIndex={1}>
+      <PopoverContent
+        width={240}
+        borderColor={isLight ? undefined : DARK_MODE_COLOR}
+      >
         <PopoverArrow />
         <Box display="flex">
           <Box flex={1} display="flex" p={2} flexWrap="wrap" width={180}>
@@ -1093,7 +1110,11 @@ const BorderSelection: React.FC<BorderProps> = ({
                         </Tooltip>
                       </Box>
                     </PopoverTrigger>
-                    <PopoverContent width={280}>
+                    <PopoverContent
+                      zIndex={1}
+                      width={280}
+                      borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                    >
                       <PopoverArrow />
                       <PopoverBody>
                         <ColorPicker
@@ -1132,7 +1153,10 @@ const BorderSelection: React.FC<BorderProps> = ({
                         </Tooltip>
                       </Box>
                     </PopoverTrigger>
-                    <PopoverContent width={100}>
+                    <PopoverContent
+                      width={100}
+                      borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                    >
                       <PopoverArrow />
                       <PopoverBody>
                         <Button

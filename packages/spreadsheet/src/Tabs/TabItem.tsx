@@ -19,6 +19,7 @@ import {
 } from "@chakra-ui/core";
 import { MdArrowDropDown } from "react-icons/md";
 import { KeyCodes } from "@rowsncolumns/grid/dist/types";
+import { DARK_MODE_COLOR } from "../constants";
 
 interface TabItemProps {
   name: string;
@@ -133,7 +134,11 @@ const TabItem: React.FC<TabItemProps> = ({
                         color="gray.400"
                       />
                     </PopoverTrigger>
-                    <PopoverContent width={200} zIndex={1}>
+                    <PopoverContent
+                      width={200}
+                      zIndex={1}
+                      borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                    >
                       <PopoverArrow />
                       <PopoverBody>
                         <Button

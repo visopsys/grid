@@ -1,8 +1,18 @@
 import React from "react";
-import { Box, Menu, MenuList, MenuItem, MenuDivider } from "@chakra-ui/core";
+import {
+  Box,
+  Menu,
+  MenuList,
+  MenuItem,
+  MenuDivider,
+  useColorMode,
+  theme,
+  useTheme
+} from "@chakra-ui/core";
 import { MdContentCut, MdContentCopy, MdContentPaste } from "react-icons/md";
 import { ContextMenuProps } from "../Grid/Grid";
 import { CellInterface, SelectionArea } from "@rowsncolumns/grid";
+import { DARK_MODE_COLOR } from "../constants";
 
 export interface CMProps extends ContextMenuProps {
   activeCell: CellInterface | null;
@@ -43,6 +53,10 @@ const ContextMenu: React.FC<CMProps> = ({
   selections,
   onRequestClose
 }) => {
+  const theme = useTheme();
+  const { colorMode } = useColorMode();
+  const isLight = colorMode === "light";
+  const color = isLight ? theme.colors.gray[800] : theme.colors.gray[100];
   return (
     <Box
       left={0}
@@ -51,7 +65,11 @@ const ContextMenu: React.FC<CMProps> = ({
       transform={`translate(${left}px, ${top}px)`}
     >
       <Menu isOpen>
-        <MenuList fontSize={14}>
+        <MenuList
+          fontSize={14}
+          color={color}
+          borderColor={isLight ? undefined : DARK_MODE_COLOR}
+        >
           <MenuItem
             alignItems="center"
             onClick={() => {

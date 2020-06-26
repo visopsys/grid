@@ -11,7 +11,7 @@ import {
   useColorMode,
   Tooltip
 } from "@chakra-ui/core";
-import { COLUMN_HEADER_WIDTH } from "../constants";
+import { COLUMN_HEADER_WIDTH, DARK_MODE_COLOR } from "../constants";
 import {
   Popover,
   PopoverTrigger,
@@ -64,7 +64,10 @@ const Tabs: React.FC<TabProps> = props => {
         <PopoverTrigger>
           <IconButton aria-label="All sheets" icon={MdMenu} variant="ghost" />
         </PopoverTrigger>
-        <PopoverContent width={200}>
+        <PopoverContent
+          width={200}
+          borderColor={isLight ? undefined : DARK_MODE_COLOR}
+        >
           <PopoverArrow />
           <PopoverBody overflow="auto" maxHeight={400}>
             {sheets.map((sheet, idx) => {
