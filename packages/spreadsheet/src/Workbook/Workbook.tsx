@@ -39,6 +39,34 @@ export interface WorkbookProps extends SpreadSheetProps {
   rowSizes?: SizeType;
   columnSizes?: SizeType;
   onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  hiddenRows?: number[];
+  hiddenColumns?: number[];
+  onPaste?: (
+    id: string,
+    rows: (string | null)[][],
+    activeCell: CellInterface | null
+  ) => void;
+  onCut?: (id: string, selection: SelectionArea) => void;
+  onInsertRow?: (
+    id: string,
+    cell: CellInterface | null,
+    selections: SelectionArea[]
+  ) => void;
+  onDeleteRow?: (
+    id: string,
+    cell: CellInterface | null,
+    selections: SelectionArea[]
+  ) => void;
+  onInsertColumn?: (
+    id: string,
+    cell: CellInterface | null,
+    selections: SelectionArea[]
+  ) => void;
+  onDeleteColumn?: (
+    id: string,
+    cell: CellInterface | null,
+    selections: SelectionArea[]
+  ) => void;
 }
 
 export type RefAttributeWorkbook = {
@@ -74,7 +102,15 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       format,
       onResize,
       onScroll,
-      onKeyDown
+      onKeyDown,
+      hiddenRows,
+      hiddenColumns,
+      onPaste,
+      onCut,
+      onInsertRow,
+      onInsertColumn,
+      onDeleteColumn,
+      onDeleteRow
     } = props;
 
     const { colorMode } = useColorMode();
@@ -133,6 +169,43 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       },
       []
     );
+
+    const handlePaste = useCallback((rows, activeCell) => {
+      onPaste?.(selectedSheetRef.current, rows, activeCell);
+    }, []);
+
+    const handleCut = useCallback((selection: SelectionArea) => {
+      onCut?.(selectedSheetRef.current, selection);
+    }, []);
+
+    const handleInsertRow = useCallback(
+      (cell: CellInterface | null, selections: SelectionArea[]) => {
+        onInsertRow?.(selectedSheetRef.current, cell, selections);
+      },
+      []
+    );
+
+    const handleInsertColumn = useCallback(
+      (cell: CellInterface | null, selections: SelectionArea[]) => {
+        onInsertColumn?.(selectedSheetRef.current, cell, selections);
+      },
+      []
+    );
+
+    const handleDeleteRow = useCallback(
+      (cell: CellInterface | null, selections: SelectionArea[]) => {
+        onDeleteRow?.(selectedSheetRef.current, cell, selections);
+      },
+      []
+    );
+
+    const handleDeleteColumn = useCallback(
+      (cell: CellInterface | null, selections: SelectionArea[]) => {
+        onDeleteColumn?.(selectedSheetRef.current, cell, selections);
+      },
+      []
+    );
+
     return (
       <>
         <Flex flex={1} ref={containerRef}>
@@ -166,6 +239,14 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
             frozenRows={frozenRows}
             frozenColumns={frozenColumns}
             onKeyDown={onKeyDown}
+            hiddenRows={hiddenRows}
+            hiddenColumns={hiddenColumns}
+            onPaste={handlePaste}
+            onCut={handleCut}
+            onInsertRow={handleInsertRow}
+            onInsertColumn={handleInsertColumn}
+            onDeleteRow={handleDeleteRow}
+            onDeleteColumn={handleDeleteColumn}
           />
         </Flex>
         <Flex>

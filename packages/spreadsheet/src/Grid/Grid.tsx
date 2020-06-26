@@ -5,7 +5,8 @@ import React, {
   useEffect,
   memo,
   useImperativeHandle,
-  forwardRef
+  forwardRef,
+  useState
 } from "react";
 import Grid, {
   RendererProps,
@@ -40,6 +41,7 @@ import { Direction } from "@rowsncolumns/grid/dist/types";
 import { DATATYPE, CellDataFormatting, AXIS } from "../types";
 import useAutoSizer from "@rowsncolumns/grid/dist/hooks/useSizer";
 import Editor from "./../Editor";
+import ContextMenu from "./../ContextMenu";
 
 export interface SheetGridProps {
   theme?: ThemeType;
@@ -80,6 +82,29 @@ export interface SheetGridProps {
   frozenRows?: number;
   frozenColumns?: number;
   onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  hiddenRows?: number[];
+  hiddenColumns?: number[];
+  onPaste?: (
+    rows: (string | null)[][],
+    activeCell: CellInterface | null
+  ) => void;
+  onCut?: (selection: SelectionArea) => void;
+  onInsertRow?: (
+    cell: CellInterface | null,
+    selections: SelectionArea[]
+  ) => void;
+  onDeleteRow?: (
+    cell: CellInterface | null,
+    selections: SelectionArea[]
+  ) => void;
+  onInsertColumn?: (
+    cell: CellInterface | null,
+    selections: SelectionArea[]
+  ) => void;
+  onDeleteColumn?: (
+    cell: CellInterface | null,
+    selections: SelectionArea[]
+  ) => void;
 }
 
 export interface RowColSelection {
@@ -97,6 +122,7 @@ export type WorkbookGridRef = {
     direction: Direction
   ) => CellInterface;
   setActiveCell: (cell: CellInterface | null) => void;
+  setSelections: (selection: SelectionArea[]) => void;
   focus: () => void;
   makeEditable: (cell: CellInterface, value?: string, focus?: boolean) => void;
   setEditorValue: (value: string, activeCell: CellInterface) => void;
@@ -112,6 +138,11 @@ export type WorkbookGridRef = {
   getCellBounds?: (coords: CellInterface) => AreaProps;
   getScrollPosition?: () => ScrollCoords;
 };
+
+export interface ContextMenuProps {
+  left: number;
+  top: number;
+}
 
 /**
  * Grid component
@@ -149,7 +180,15 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       borderStyles,
       frozenRows = 0,
       frozenColumns = 0,
-      onKeyDown
+      onKeyDown,
+      hiddenColumns,
+      hiddenRows,
+      onPaste,
+      onCut,
+      onInsertRow,
+      onInsertColumn,
+      onDeleteColumn,
+      onDeleteRow
     } = props;
     const gridRef = useRef<GridRef | null>(null);
     const { colorMode } = useColorMode();
@@ -158,11 +197,16 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const actualFrozenRows = Math.max(1, frozenRows + 1);
     const actualFrozenColumns = Math.max(1, frozenColumns + 1);
     const debounceScroll = useRef(debounce(onScroll, 1000));
+    const [
+      contextMenuProps,
+      setContextMenuProps
+    ] = useState<ContextMenuProps | null>(null);
 
     useImperativeHandle(forwardedRef, () => {
       return {
         getNextFocusableCell,
         setActiveCell,
+        setSelections,
         focus: () => gridRef.current?.focus(),
         resetAfterIndices: gridRef.current?.resetAfterIndices,
         makeEditable,
@@ -186,8 +230,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const { rowIndex, columnIndex } = cell;
         return rowIndex in cells
           ? obj
-            ? cells[rowIndex][columnIndex]
-            : cells[rowIndex][columnIndex]?.text
+            ? cells[rowIndex]?.[columnIndex]
+            : cells[rowIndex]?.[columnIndex]?.text
           : void 0;
       },
       [cells]
@@ -227,6 +271,18 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     });
 
     /**
+     * Copy paste
+     */
+    const { copy, paste, cut } = useCopyPaste({
+      gridRef,
+      selections,
+      activeCell,
+      getValue,
+      onPaste,
+      onCut
+    });
+
+    /**
      * Adjusts a column
      */
     const handleAdjustColumn = useCallback(
@@ -248,6 +304,14 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     }, [activeCell]);
 
     /**
+     * Save it back to sheet
+     */
+    useEffect(() => {
+      /* Batch this cos of debounce */
+      onSheetChangeRef.current?.({ selections, activeCell });
+    }, [activeCell, selections]);
+
+    /**
      * If grid changes, lets restore the state
      */
     useEffect(() => {
@@ -261,13 +325,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         columnIndex: colIndices.length ? Math.min(...colIndices) : 0
       });
     }, [selectedSheet]);
-
-    /**
-     * Save it back to sheet
-     */
-    useEffect(() => {
-      onSheetChangeRef.current?.({ activeCell, selections });
-    }, [activeCell, selections]);
 
     const handleSubmit = useCallback(
       (
@@ -336,19 +393,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       []
     );
 
-    /**
-     * Copy paste
-     */
-    useCopyPaste({
-      gridRef,
-      getValue,
-      selections
-    });
-
     /* Width calculator */
     const columnWidth = useCallback(
       (columnIndex: number) => {
         if (columnIndex === 0) return COLUMN_HEADER_WIDTH;
+        if (hiddenRows?.indexOf(columnIndex) !== -1) return 0;
         return columnSizes[columnIndex] || minColumnWidth;
       },
       [minColumnWidth, columnSizes, selectedSheet]
@@ -356,9 +405,10 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const rowHeight = useCallback(
       (rowIndex: number) => {
         if (rowIndex === 0) return ROW_HEADER_HEIGHT;
+        if (hiddenRows?.indexOf(rowIndex) !== -1) return 0;
         return rowSizes[rowIndex] || minRowHeight;
       },
-      [minColumnWidth, rowSizes, selectedSheet]
+      [minColumnWidth, hiddenRows, rowSizes, selectedSheet]
     );
     const contextWrapper = useCallback(
       children => {
@@ -392,6 +442,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const { rowIndex, columnIndex } = props;
         const isRowHeader = rowIndex === 0;
         const isColumnHeader = columnIndex === 0;
+        const isHidden =
+          hiddenRows?.indexOf(rowIndex) !== -1 ||
+          hiddenColumns?.indexOf(columnIndex) !== -1;
         const isHeaderActive =
           isRowHeader || isColumnHeader
             ? isRowHeader
@@ -405,6 +458,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           return (
             <HeaderCellRenderer
               {...props}
+              isHidden={isHidden}
               isActive={isHeaderActive}
               onResize={onResize}
               onAdjustColumn={handleAdjustColumn}
@@ -415,10 +469,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             {...props}
             {...(getValue(cell, true) as CellConfig)}
             format={format}
+            isHidden={isHidden}
           />
         );
       },
-      [cells, selectedRowsAndCols, activeCell]
+      [cells, selectedRowsAndCols, activeCell, hiddenRows, hiddenColumns]
     );
 
     const handleScroll = useCallback(
@@ -429,7 +484,35 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       },
       [selectedSheet]
     );
+
+    /**
+     * Show context menu
+     */
+    const showContextMenu = useCallback(
+      (e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        const padding = 10;
+        const left = e.clientX;
+        const top = e.clientY;
+        const pos = gridRef.current?.getRelativePositionFromOffset(left, top);
+        if (!pos) return;
+        const { x, y } = pos;
+        setContextMenuProps({
+          left: x,
+          top: y
+        });
+      },
+      []
+    );
+    /**
+     * Hides context menu
+     */
+    const hideContextMenu = useCallback(() => {
+      setContextMenuProps(null);
+      gridRef.current?.focus();
+    }, []);
     const fillhandleBorderColor = isLightMode ? "white" : DARK_MODE_COLOR_LIGHT;
+
     return (
       <GridWrapper>
         <Grid
@@ -456,14 +539,31 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
             selectionProps.onMouseDown(e);
             editableProps.onMouseDown(e);
+            hideContextMenu();
           }}
           onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
             selectionProps.onKeyDown(e);
             editableProps.onKeyDown(e);
             onKeyDown?.(e);
           }}
+          onContextMenu={showContextMenu}
         />
         {editorComponent}
+        {contextMenuProps && (
+          <ContextMenu
+            onRequestClose={hideContextMenu}
+            activeCell={activeCell}
+            selections={selections}
+            onCopy={copy}
+            onPaste={paste}
+            onCut={cut}
+            onInsertRow={onInsertRow}
+            onInsertColumn={onInsertColumn}
+            onDeleteColumn={onDeleteColumn}
+            onDeleteRow={onDeleteRow}
+            {...contextMenuProps}
+          />
+        )}
       </GridWrapper>
     );
   })

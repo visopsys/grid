@@ -18,6 +18,7 @@ import { CellConfig } from "../Spreadsheet";
 
 export interface CellProps extends RendererProps, CellConfig {
   text?: string;
+  isHidden?: boolean;
 }
 
 /**
@@ -42,8 +43,10 @@ const Cell: React.FC<CellProps> = memo(props => {
     percent,
     currency,
     format = defaultFormat,
-    globalCompositeOperation
+    globalCompositeOperation,
+    isHidden
   } = props;
+  if (isHidden) return null;
   const fontWeight = bold ? FONT_WEIGHT.BOLD : FONT_WEIGHT.NORMAL;
   const fontStyle = italic ? FONT_STYLE.ITALIC : FONT_STYLE.NORMAL;
   const text = format(props.text, datatype, { decimals, percent, currency });

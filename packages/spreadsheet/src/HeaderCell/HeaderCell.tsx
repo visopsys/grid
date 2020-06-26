@@ -12,6 +12,7 @@ import { AXIS } from "../types";
 
 interface HeaderCellProps extends RendererProps {
   isActive?: boolean;
+  isHidden?: boolean;
   onResize?: (axis: AXIS, index: number, dimension: number) => void;
 }
 
@@ -87,8 +88,10 @@ const HeaderCell: React.FC<HeaderCellProps> = memo(props => {
     x = 0,
     y = 0,
     width = 0,
-    height = 0
+    height = 0,
+    isHidden
   } = props;
+  if (isHidden) return null;
   const { onResize, onAdjustColumn, ...rest } = props;
   const isCorner = rowIndex === columnIndex;
   const value = isCorner

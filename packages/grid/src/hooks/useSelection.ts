@@ -380,6 +380,12 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         return;
       }
 
+      /**
+       * If user is selecting the same same,
+       * let not trigger another state change
+       */
+      // if (isSameAsActiveCell) return
+
       /* Trigger new selection */
       newSelection(coords);
     },
@@ -422,6 +428,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     /* Update last selection */
     setSelections(prevSelection => {
       const len = prevSelection.length;
+      if (!len) return EMPTY_SELECTION;
       return prevSelection.map((sel, i) => {
         if (len - 1 === i) {
           return {
@@ -825,9 +832,9 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   /**
    * Remove the last selection from state
    */
-  const handleClearLastSelection = () => {
+  const handleClearLastSelection = useCallback(() => {
     setSelections(prev => prev.slice(0, -1));
-  };
+  }, []);
 
   return {
     activeCell,

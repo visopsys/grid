@@ -13,7 +13,7 @@ export const DEFAULT_ROW_HEIGHT = 20;
 export const DEFAULT_COLUMN_WIDTH = 100;
 export const DARK_MODE_COLOR = "rgb(26, 32, 44)";
 export const DARK_MODE_COLOR_LIGHT = "#252E3E";
-
+export const EMPTY_ARRAY = [];
 /**
  * Number to alphabet
  * @param i

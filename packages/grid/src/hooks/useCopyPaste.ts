@@ -36,6 +36,7 @@ export interface CopyProps {
 export interface CopyResults {
   copy: () => void;
   paste: () => void;
+  cut: () => void;
 }
 
 /**
@@ -87,6 +88,11 @@ const useCopyPaste = ({
       cutSelections.current = currentSelections();
       handleCopy(e);
     });
+  }, []);
+
+  const handleCut = useCallback(() => {
+    cutSelections.current = currentSelections();
+    handleProgramaticCopy();
   }, []);
 
   const handleCopy = useCallback(
@@ -196,7 +202,8 @@ const useCopyPaste = ({
 
   return {
     copy: handleProgramaticCopy,
-    paste: handleProgramaticPaste
+    paste: handleProgramaticPaste,
+    cut: handleCut
   };
 };
 

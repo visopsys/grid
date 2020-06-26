@@ -27,7 +27,8 @@ import {
   detectDataType,
   createBorderStyle,
   DEFAULT_COLUMN_WIDTH,
-  DEFAULT_ROW_HEIGHT
+  DEFAULT_ROW_HEIGHT,
+  EMPTY_ARRAY
 } from "./constants";
 import {
   FORMATTING_TYPE,
@@ -44,6 +45,7 @@ import { useImmer } from "use-immer";
 import { WorkbookGridRef } from "./Grid/Grid";
 import { KeyCodes, Direction } from "@rowsncolumns/grid/dist/types";
 import { Patches, PatchOperator } from "@rowsncolumns/grid/dist/hooks/useUndo";
+import { current } from "immer";
 
 export interface SpreadSheetProps {
   minColumnWidth?: number;
@@ -57,6 +59,8 @@ export interface SpreadSheetProps {
   onNewSheet?: () => void;
   activeSheet?: string;
   initialActiveSheet?: string;
+  initialHiddenRows?: number[];
+  initialHiddenColumns?: number[];
   onChange?: (id: string, changes: Cells) => void;
   onChangeSelectedSheet?: (id: string) => void;
   onChangeSheets?: (sheets: Sheet[]) => void;
@@ -114,21 +118,7 @@ const defaultSheets: Sheet[] = [
     },
     selections: [],
     borderStyles: [],
-    cells: {
-      1: {
-        2: {
-          text: "10",
-          datatype: DATATYPE.NUMBER
-        },
-        3: {
-          text: "20",
-          datatype: DATATYPE.NUMBER
-        },
-        4: {
-          text: "hello"
-        }
-      }
-    },
+    cells: {},
     scrollState: { scrollTop: 0, scrollLeft: 0 }
   }
 ];
@@ -147,7 +137,9 @@ const Spreadsheet = (props: SpreadSheetProps) => {
     onChangeSheets,
     showToolbar = true,
     format,
-    enableDarkMode = true
+    enableDarkMode = true,
+    initialHiddenRows = EMPTY_ARRAY,
+    initialHiddenColumns = EMPTY_ARRAY
   } = props;
   const [selectedSheet, setSelectedSheet] = useControllableState<string>({
     defaultValue: initialActiveSheet,
@@ -158,6 +150,8 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   const currentGrid = useRef<WorkbookGridRef>();
   const [sheets, setSheets] = useImmer<Sheet[]>(initialSheets);
   const [formulaInput, setFormulaInput] = useState("");
+  const [hiddenColumns, setHiddenColumns] = useState(initialHiddenColumns);
+  const [hiddenRows, setHiddenRows] = useState(initialHiddenRows);
 
   /* Callback when sheets is changed */
   useEffect(() => {
@@ -315,17 +309,16 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       const sheet = draft.find(sheet => sheet.id === id);
       if (sheet) {
         for (const row in changes) {
-          if (!(row in sheet.cells)) sheet.cells[row] = {};
+          sheet.cells[row] = sheet.cells[row] ?? {};
           for (const col in changes[row]) {
             /* Grab the previous value for undo */
-            const previousValue = sheet.cells[row][col];
-            if (!(col in sheet.cells[row])) sheet.cells[row][col] = {};
+            const previousValue = sheet.cells[row]?.[col];
+            sheet.cells[row][col] = sheet.cells[row][col] ?? {};
             const cell = sheet.cells[row][col];
             const value = changes[row][col].text;
-            cell.text = value;
-
             /* Get datatype of user input */
             const datatype = detectDataType(value);
+            cell.text = value;
             cell.datatype = datatype;
 
             pushToUndoStack(
@@ -912,6 +905,192 @@ const Spreadsheet = (props: SpreadSheetProps) => {
     });
   }, []);
 
+  /**.
+   * On Paste
+   * TODO: Preserve formatting
+   */
+  const handlePaste = useCallback((id, rows, activeCell) => {
+    const { rowIndex, columnIndex } = activeCell;
+    const endRowIndex = Math.max(rowIndex, rowIndex + rows.length - 1);
+    const endColumnIndex = Math.max(
+      columnIndex,
+      columnIndex + (rows.length && rows[0].length - 1)
+    );
+
+    setSheets(draft => {
+      const sheet = draft.find(sheet => sheet.id === id);
+      if (sheet) {
+        const { cells } = sheet;
+        for (const [i, row] of rows.entries()) {
+          const r = rowIndex + i;
+          if (!(r in cells)) cells[r] = {};
+          for (const [j, text] of row.entries()) {
+            const c = columnIndex + j;
+            if (!(c in cells[r])) cells[r][c] = {};
+            cells[r][c].text = text;
+          }
+        }
+      }
+    });
+
+    /* Should select */
+    if (rowIndex === endRowIndex && columnIndex === endColumnIndex) return;
+
+    currentGrid.current?.setSelections([
+      {
+        bounds: {
+          top: rowIndex,
+          left: columnIndex,
+          bottom: endRowIndex,
+          right: endColumnIndex
+        }
+      }
+    ]);
+  }, []);
+
+  /**
+   * Handle cut event
+   */
+  const handleCut = useCallback((id: string, selection: SelectionArea) => {
+    const { bounds } = selection;
+    const changes = {};
+
+    setSheets(draft => {
+      const sheet = draft.find(sheet => sheet.id === id);
+      if (sheet) {
+        const { cells } = sheet;
+        for (let i = bounds.top; i <= bounds.bottom; i++) {
+          if (!(i in cells)) continue;
+          for (let j = bounds.left; j <= bounds.right; j++) {
+            if (!(j in cells[i])) continue;
+            delete cells[i][j];
+          }
+        }
+      }
+    });
+  }, []);
+
+  /**
+   * Insert new row
+   */
+  const handleInsertRow = useCallback(
+    (
+      id: string,
+      activeCell: CellInterface | null,
+      selections: SelectionArea[]
+    ) => {
+      if (activeCell === null) return;
+      setSheets(draft => {
+        const sheet = draft.find(sheet => sheet.id === id);
+        if (sheet) {
+          const { rowIndex } = activeCell;
+          const { cells } = sheet;
+          const maxRow = Math.max(...Object.keys(cells).map(Number));
+          const changes: { [key: string]: any } = {};
+          for (let i = rowIndex; i <= maxRow; i++) {
+            changes[i + 1] = cells[i];
+          }
+          for (const index in changes) {
+            cells[index] = changes[index];
+          }
+          delete cells[rowIndex];
+        }
+      });
+    },
+    []
+  );
+
+  /**
+   * Insert new row
+   */
+  const handleInsertColumn = useCallback(
+    (
+      id: string,
+      activeCell: CellInterface | null,
+      selections: SelectionArea[]
+    ) => {
+      if (activeCell === null) return;
+      setSheets(draft => {
+        const sheet = draft.find(sheet => sheet.id === id);
+        if (sheet) {
+          const { columnIndex } = activeCell;
+          const { cells } = sheet;
+
+          const changes: { [key: string]: any } = {};
+          for (const row in cells) {
+            const maxCol = Math.max(...Object.keys(cells[row]).map(Number));
+            if (!(row in changes)) changes[row] = {};
+            for (let i = columnIndex; i <= maxCol; i++) {
+              if (!(i in changes[row])) changes[row][i] = {};
+              changes[row][i + 1] = cells[row]?.[i];
+            }
+          }
+
+          for (const row in changes) {
+            for (const col in changes[row]) {
+              cells[row][col] = changes[row][col];
+            }
+          }
+        }
+      });
+    },
+    []
+  );
+
+  /* Handle delete row */
+  const handleDeleteRow = useCallback(
+    (id: string, activeCell: CellInterface | null) => {
+      if (activeCell === null) return;
+      setSheets(draft => {
+        const sheet = draft.find(sheet => sheet.id === id);
+        if (sheet) {
+          const { rowIndex } = activeCell;
+          const { cells } = sheet;
+          const maxRow = Math.max(...Object.keys(cells).map(Number));
+          const changes: { [key: string]: any } = {};
+          for (let i = rowIndex; i <= maxRow; i++) {
+            changes[i] = cells[i + 1];
+          }
+          for (const index in changes) {
+            cells[index] = changes[index];
+          }
+        }
+      });
+    },
+    []
+  );
+
+  /* Handle delete row */
+  const handleDeleteColumn = useCallback(
+    (id: string, activeCell: CellInterface | null) => {
+      if (activeCell === null) return;
+      setSheets(draft => {
+        const sheet = draft.find(sheet => sheet.id === id);
+        if (sheet) {
+          const { columnIndex } = activeCell;
+          const { cells } = sheet;
+
+          const changes: { [key: string]: any } = {};
+          for (const row in cells) {
+            const maxCol = Math.max(...Object.keys(cells[row]).map(Number));
+            if (!(row in changes)) changes[row] = {};
+            for (let i = columnIndex; i <= maxCol; i++) {
+              if (!(i in changes[row])) changes[row][i] = {};
+              changes[row][i] = cells[row]?.[i + 1];
+            }
+          }
+
+          for (const row in changes) {
+            for (const col in changes[row]) {
+              cells[row][col] = changes[row][col];
+            }
+          }
+        }
+      });
+    },
+    []
+  );
+
   return (
     <ThemeProvider theme={theme}>
       <Global
@@ -983,6 +1162,14 @@ const Spreadsheet = (props: SpreadSheetProps) => {
             onDuplicateSheet={handleDuplicateSheet}
             onScroll={handleScroll}
             onKeyDown={handleUndoKeyDown}
+            hiddenRows={hiddenRows}
+            hiddenColumns={hiddenColumns}
+            onPaste={handlePaste}
+            onCut={handleCut}
+            onInsertRow={handleInsertRow}
+            onInsertColumn={handleInsertColumn}
+            onDeleteRow={handleDeleteRow}
+            onDeleteColumn={handleDeleteColumn}
           />
         </Flex>
       </ColorModeProvider>

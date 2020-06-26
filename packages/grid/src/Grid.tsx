@@ -37,12 +37,13 @@ import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
 import Selection from "./Selection";
 import FillHandle from "./FillHandle";
-import { createHTMLBox, createCanvasBox } from "./utils";
+import { createCanvasBox } from "./utils";
 import invariant from "tiny-invariant";
 import { StageConfig } from "konva/types/Stage";
 import { Direction } from "./types";
 
-export interface GridProps {
+export interface GridProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onScroll"> {
   /**
    * Width of the grid
    */
@@ -200,8 +201,6 @@ export interface GridProps {
    * Border color of fill handle
    */
   fillhandleBorderColor?: string;
-  onMouseDown?: (e: React.MouseEvent<HTMLDivElement>) => void;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
 }
 
 export interface CellRangeArea extends CellInterface {
@@ -312,6 +311,11 @@ export interface PosXY {
   y?: number;
 }
 
+export interface PosXYRequired {
+  x: number;
+  y: number;
+}
+
 export type GridRef = {
   scrollTo: (scrollPosition: ScrollCoords) => void;
   scrollBy: (pos: PosXY) => void;
@@ -332,6 +336,7 @@ export type GridRef = {
   resizeColumns: (indices: number[]) => void;
   resizeRows: (indices: number[]) => void;
   getViewPort: () => ViewPortProps;
+  getRelativePositionFromOffset: (x: number, y: number) => PosXYRequired | null;
 };
 
 export type MergedCellMap = Map<string, AreaProps>;
@@ -405,7 +410,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       fillhandleBorderColor = "white",
       ...rest
     } = props;
-
+    const hiddenRows = [5, 6];
     invariant(
       !(children && typeof children !== "function"),
       "Children should be a function"
@@ -429,7 +434,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         focus: focusContainer,
         resizeColumns,
         resizeRows,
-        getViewPort
+        getViewPort,
+        getRelativePositionFromOffset
       };
     });
 
@@ -759,10 +765,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     );
 
     /**
-     * Get cell cordinates from current mouse x/y positions
+     * Get relative mouse position
      */
-    const getCellCoordsFromOffset = useCallback(
-      (left: number, top: number): CellInterface | null => {
+    const getRelativePositionFromOffset = useCallback(
+      (left: number, top: number): PosXYRequired | null => {
         invariant(
           typeof left === "number" && typeof top === "number",
           "Top and left should be a number"
@@ -779,6 +785,20 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           .copy()
           .invert()
           .point({ x: left, y: top });
+
+        return { x, y };
+      },
+      []
+    );
+
+    /**
+     * Get cell cordinates from current mouse x/y positions
+     */
+    const getCellCoordsFromOffset = useCallback(
+      (left: number, top: number): CellInterface | null => {
+        const pos = getRelativePositionFromOffset(left, top);
+        if (!pos) return null;
+        const { x, y } = pos;
         const rowIndex = getRowStartIndexForOffset({
           rowHeight,
           columnWidth,
