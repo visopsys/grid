@@ -440,16 +440,11 @@ const Spreadsheet = (props: SpreadSheetProps) => {
             selections.forEach(sel => {
               const { bounds } = sel;
               for (let i = bounds.top; i <= bounds.bottom; i++) {
-                if (!(i in cells)) {
-                  cells[i] = {};
-                }
-                if (!(i in previousValue)) previousValue[i] = {};
+                cells[i] = cells[i] ?? {};
+                previousValue[i] = previousValue[i] ?? {};
                 for (let j = bounds.left; j <= bounds.right; j++) {
-                  if (!(j in cells[i])) {
-                    cells[i][j] = {};
-                  }
-                  if (!(j in previousValue[i])) previousValue[i][j] = {};
-
+                  cells[i][j] = cells[i][j] ?? {};
+                  previousValue[i][j] = previousValue[i][j] ?? {};
                   previousValue[i][j] = { ...cells[i][j] };
                   cells[i][j][type as keyof CellFormatting] = value;
                 }
@@ -471,11 +466,10 @@ const Spreadsheet = (props: SpreadSheetProps) => {
             );
           } else if (activeCell) {
             const { rowIndex, columnIndex } = activeCell;
-            if (!(rowIndex in cells)) cells[rowIndex] = {};
+            cells[rowIndex] = cells[rowIndex] ?? {};
             const previousValue =
               cells[rowIndex][columnIndex]?.[type as keyof CellFormatting];
-            if (!(columnIndex in cells[rowIndex]))
-              cells[rowIndex][columnIndex] = {};
+            cells[rowIndex][columnIndex] = cells[rowIndex][columnIndex] ?? {};
             cells[rowIndex][columnIndex][type as keyof CellFormatting] = value;
 
             pushToUndoStack(
@@ -735,7 +729,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
               for (let j = bounds.left; j <= bounds.right; j++) {
                 if (!(j in cells[i])) continue;
                 Object.values(FORMATTING_TYPE).forEach(key => {
-                  delete cells[i][j][key];
+                  delete cells[i]?.[j]?.[key];
                 });
               }
             }
