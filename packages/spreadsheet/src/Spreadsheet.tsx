@@ -606,15 +606,15 @@ const Spreadsheet = (props: SpreadSheetProps) => {
           const currentValue =
             cells[activeCell.rowIndex]?.[activeCell.columnIndex];
           for (let i = bounds.top; i <= bounds.bottom; i++) {
-            if (!(i in previousValue)) previousValue[i] = {};
-            if (!(i in cells)) cells[i] = {};
-            if (!(i in changes)) changes[i] = {};
+            previousValue[i] = previousValue[i] ?? {};
+            cells[i] = cells[i] ?? {};
+            changes[i] = changes[i] ?? {};
             for (let j = bounds.left; j <= bounds.right; j++) {
               if (i === activeCell.rowIndex && j === activeCell.columnIndex)
                 continue;
-              if (!(j in previousValue[i])) previousValue[i][j] = {};
-              if (!(j in cells[i])) cells[i][j] = {};
-              if (!(j in changes[i])) changes[i][j] = {};
+              previousValue[i][j] = previousValue[i][j] ?? {};
+              cells[i][j] = cells[i][j] ?? {};
+              changes[i][j] = changes[i][j] ?? {};
               previousValue[i][j] = { ...cells[i][j] };
               cells[i][j] = currentValue;
               changes[i][j] = { ...currentValue };
@@ -659,13 +659,13 @@ const Spreadsheet = (props: SpreadSheetProps) => {
             selections.forEach(sel => {
               const { bounds } = sel;
               for (let i = bounds.top; i <= bounds.bottom; i++) {
-                if (!(i in cells)) continue;
+                if (cells[i] === void 0) continue;
                 for (let j = bounds.left; j <= bounds.right; j++) {
                   if (!(j in cells[i]) || cells[i][j] === void 0) continue;
-                  if (!(i in value)) value[i] = {};
-                  if (!(i in previousValue)) previousValue[i] = {};
-                  if (!(j in previousValue[i])) previousValue[i][j] = {};
-                  if (!(j in value[i])) value[i][j] = {};
+                  value[i] = value[i] ?? {};
+                  previousValue[i] = previousValue[i] ?? {};
+                  previousValue[i][j] = previousValue[i][j] ?? {};
+                  value[i][j] = value[i][j] ?? {};
                   previousValue[i][j][attribute] = cells[i][j][attribute];
                   cells[i][j][attribute] = "";
                   value[i][j][attribute] = "";
@@ -917,10 +917,10 @@ const Spreadsheet = (props: SpreadSheetProps) => {
         const { cells } = sheet;
         for (const [i, row] of rows.entries()) {
           const r = rowIndex + i;
-          if (!(r in cells)) cells[r] = {};
+          cells[r] = cells[r] ?? {};
           for (const [j, text] of row.entries()) {
             const c = columnIndex + j;
-            if (!(c in cells[r])) cells[r][c] = {};
+            cells[r][c] = cells[r][c] ?? {};
             cells[r][c].text = text;
           }
         }
@@ -1013,9 +1013,9 @@ const Spreadsheet = (props: SpreadSheetProps) => {
           const changes: { [key: string]: any } = {};
           for (const row in cells) {
             const maxCol = Math.max(...Object.keys(cells[row]).map(Number));
-            if (!(row in changes)) changes[row] = {};
+            changes[row] = changes[row] ?? {};
             for (let i = columnIndex; i <= maxCol; i++) {
-              if (!(i in changes[row])) changes[row][i] = {};
+              changes[row][i] = changes[row][i] ?? {};
               changes[row][i + 1] = cells[row]?.[i];
             }
           }
@@ -1067,9 +1067,9 @@ const Spreadsheet = (props: SpreadSheetProps) => {
           const changes: { [key: string]: any } = {};
           for (const row in cells) {
             const maxCol = Math.max(...Object.keys(cells[row]).map(Number));
-            if (!(row in changes)) changes[row] = {};
+            changes[row] = changes[row] ?? {};
             for (let i = columnIndex; i <= maxCol; i++) {
-              if (!(i in changes[row])) changes[row][i] = {};
+              changes[row][i] = changes[row][i] ?? {};
               changes[row][i] = cells[row]?.[i + 1];
             }
           }
