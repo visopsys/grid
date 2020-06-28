@@ -37,7 +37,7 @@ import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
 import Selection from "./Selection";
 import FillHandle from "./FillHandle";
-import { createCanvasBox } from "./utils";
+import { createCanvasBox, createLine } from "./utils";
 import invariant from "tiny-invariant";
 import { StageConfig } from "konva/types/Stage";
 import { Direction } from "./types";
@@ -1184,6 +1184,73 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         });
     }, [rowStartIndex, rowStopIndex, columnStartIndex, columnStopIndex]);
 
+    const horizontalLines = [];
+    const verticalLines = [];
+    for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
+      const x1 = getColumnOffset({
+        index: frozenColumns,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current
+      });
+      const x2 = getColumnOffset({
+        index: columnStopIndex,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current
+      });
+      const y1 =
+        getRowOffset({
+          index: rowIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        }) + 0.5;
+      const y2 = y1;
+      horizontalLines.push(
+        createLine({
+          x1,
+          x2,
+          y1,
+          y2
+        })
+      );
+    }
+    for (
+      let columnIndex = columnStartIndex;
+      columnIndex <= columnStopIndex;
+      columnIndex++
+    ) {
+      const x1 =
+        getColumnOffset({
+          index: columnIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        }) + 0.5;
+      const x2 = x1;
+      const y1 = getRowOffset({
+        index: frozenRows,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current
+      });
+      const y2 = getRowOffset({
+        index: rowStopIndex,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current
+      });
+      verticalLines.push(
+        createLine({
+          x1,
+          x2,
+          y1,
+          y2
+        })
+      );
+    }
+
     /* Draw all cells */
     const cells = [];
     if (columnCount > 0 && rowCount) {
@@ -1585,7 +1652,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         fill: "transparent",
         x: x,
         y: y,
-        width: width,
+        width: width + 0.5,
         height: height
       });
 
@@ -1780,8 +1847,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           ...styles,
           key: i,
           x: selectionBounds.x,
-          y: selectionBounds.y,
-          width: selectionBounds.width,
+          y: selectionBounds.y + 0.5,
+          width: selectionBounds.width + 0.5,
           height: selectionBounds.height
         })
       );
@@ -1907,6 +1974,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const stageChildren = (
       <>
         <Layer offsetY={scrollTop} offsetX={scrollLeft}>
+          {verticalLines}
+          {horizontalLines}
           {cells}
           {mergedCellAreas}
           {ranges}

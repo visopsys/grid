@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { RendererProps } from "./Grid";
-import { Group, Rect, Text } from "react-konva";
+import { Group, Rect, Text, Line } from "react-konva";
 import { KonvaEventObject } from "konva/types/Node";
 import { isNull } from "./helpers";
 
@@ -39,7 +39,7 @@ const Cell: React.FC<CellProps> = memo(props => {
     fontStyle = "normal",
     textDecoration,
     alpha = 1,
-    globalCompositeOperation = "multiply",
+    // globalCompositeOperation = "multiply",
     ...rest
   } = props;
   const fillEnabled = !!fill;
@@ -52,15 +52,36 @@ const Cell: React.FC<CellProps> = memo(props => {
         height={height}
         width={width}
         fill={fill}
-        stroke={stroke}
+        stroke={"red"}
         strokeWidth={strokeWidth}
         shadowForStrokeEnabled={false}
         strokeScaleEnabled={false}
         hitStrokeWidth={0}
         alpha={alpha}
-        fillEnabled={fillEnabled}
-        globalCompositeOperation={globalCompositeOperation}
+        // fillEnabled={false}
+        strokeEnabled={false}
+        globalCompositeOperation="multiply"
       />
+      {fill !== "white" && (
+        <Line
+          points={[
+            x + 0.5,
+            y + 0.5,
+            x + width + 0.5,
+            y + 0.5,
+            x + width + 0.5,
+            y + height + 0.5,
+            x + 0.5,
+            y + height + 0.5,
+            x + 0.5,
+            y + 0.5
+          ]}
+          stroke={fill}
+          strokeWidth={1}
+          strokeEnabled={false}
+          // globalCompositeOperation=''
+        />
+      )}
       {isNull(value) ? null : (
         <Text
           x={x}

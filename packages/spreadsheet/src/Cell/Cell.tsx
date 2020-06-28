@@ -75,13 +75,13 @@ const Cell: React.FC<CellProps> = memo(props => {
       fontStyle={fontStyle}
       verticalAlign={vAlign}
       fill={fill}
-      globalCompositeOperation={
-        globalCompositeOperation !== void 0
-          ? globalCompositeOperation
-          : isLightMode
-          ? "multiply"
-          : "destination-over"
-      }
+      // globalCompositeOperation={
+      //   globalCompositeOperation !== void 0
+      //     ? globalCompositeOperation
+      //     : isLightMode
+      //     ? "multiply"
+      //     : "destination-over"
+      // }
       stroke={stroke}
       textColor={textColor}
       value={text}

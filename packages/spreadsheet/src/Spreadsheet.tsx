@@ -116,6 +116,14 @@ const defaultSheets: Sheet[] = [
       rowIndex: 1,
       columnIndex: 1
     },
+    mergedCells: [
+      {
+        top: 5,
+        bottom: 8,
+        left: 2,
+        right: 4
+      }
+    ],
     selections: [],
     borderStyles: [],
     cells: {},

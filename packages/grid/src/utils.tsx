@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { ShapeConfig } from "konva/types/Shape";
 import { Line, Rect } from "react-konva";
 
@@ -33,7 +33,7 @@ export const createCanvasBox = ({
     hitStrokeWidth: 0,
     listening: false
   };
-  const composite = undefined;
+  const composite = "darken";
   const lines = [
     <Line
       points={[x, y, x + width, y]}
@@ -206,3 +206,24 @@ export const createHTMLBox = ({
     </React.Fragment>
   );
 };
+
+export const createLine = props => {
+  return <NewLine {...props} />;
+};
+
+const NewLine = memo(({ x1, y1, x2, y2 }) => {
+  return (
+    <Line
+      points={[x1, y1, x2, y2]}
+      stroke="#E2E3E3"
+      strokeWidth={1}
+      // dash={dash}
+      // dashEnabled={dashEnabled}
+      lineCap="square"
+      lineJoin="round"
+      // key="top"
+      // globalCompositeOperation='color'
+      // {...commonProps}
+    />
+  );
+});
