@@ -111,7 +111,7 @@ const HeaderCell: React.FC<HeaderCellProps> = memo(props => {
     ? theme.colors.gray[700]
     : DARK_MODE_COLOR;
   const textColor = isLightMode ? "#333" : "white";
-  const stroke = isLightMode ? theme.colors.gray[400] : theme.colors.gray[600];
+  const stroke = isLightMode ? "#C0C0C0" : theme.colors.gray[600];
   const handleMouseEnter = useCallback(() => {
     setShowResizer(true);
   }, []);
@@ -133,7 +133,6 @@ const HeaderCell: React.FC<HeaderCellProps> = memo(props => {
       fontSize={10}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      globalCompositeOperation={globalCompositeOperation}
     >
       {!isCorner && showResizer ? (
         <DraggableRect

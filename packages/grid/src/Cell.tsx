@@ -25,7 +25,7 @@ const Cell: React.FC<CellProps> = memo(props => {
     height,
     value,
     fill = "white",
-    strokeWidth = 0.5,
+    strokeWidth = 1,
     stroke = "#d9d9d9",
     align = "left",
     verticalAlign = "middle",
@@ -59,7 +59,6 @@ const Cell: React.FC<CellProps> = memo(props => {
         hitStrokeWidth={0}
         alpha={alpha}
         fillEnabled={fillEnabled}
-        globalCompositeOperation={globalCompositeOperation}
       />
       {isNull(value) ? null : (
         <Text

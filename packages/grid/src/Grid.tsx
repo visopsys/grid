@@ -1527,8 +1527,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             height,
             rowIndex,
             columnIndex,
-            key: itemKey({ rowIndex, columnIndex }),
-            globalCompositeOperation: "source-over"
+            key: itemKey({ rowIndex, columnIndex })
           })
         );
       }
