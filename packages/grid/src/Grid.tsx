@@ -1247,7 +1247,11 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const ranges = [];
     for (const { rowIndex, columnIndex, toColumnIndex } of cellAreas) {
       /* Skip merged cells, Merged  cell cannot be extended */
-      if (isMergedCell({ rowIndex, columnIndex })) {
+      if (
+        rowIndex < frozenRows ||
+        columnIndex < frozenColumns ||
+        isMergedCell({ rowIndex, columnIndex })
+      ) {
         continue;
       }
       const x = getColumnOffset({
@@ -1363,7 +1367,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnIndex++
       ) {
         /* Skip merged cells columns */
-        if (isMergedCell({ rowIndex, columnIndex })) {
+        if (
+          columnIndex < frozenColumns ||
+          isMergedCell({ rowIndex, columnIndex })
+        ) {
           continue;
         }
         const x = getColumnOffset({
@@ -1398,6 +1405,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     /* Draw frozen columns */
     const frozenColumnCells = [];
     for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
+      if (rowIndex < frozenRows) {
+        continue;
+      }
       /**
        * Do any pre-processing of the row before being renderered.
        * Useful for `react-table` to call `prepareRow(row)`
@@ -1486,12 +1496,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       rowIndex < Math.min(rowStopIndex, frozenRows);
       rowIndex++
     ) {
-      /**
-       * Do any pre-processing of the row before being renderered.
-       * Useful for `react-table` to call `prepareRow(row)`
-       */
-      onBeforeRenderRow && onBeforeRenderRow(rowIndex);
-
       for (
         let columnIndex = 0;
         columnIndex < Math.min(columnStopIndex, frozenColumns);
