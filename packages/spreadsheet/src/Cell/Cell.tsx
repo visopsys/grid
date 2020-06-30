@@ -69,25 +69,9 @@ const Cell: React.FC<CellProps> = memo(props => {
   const stroke = isLightMode ? theme.colors.gray[200] : theme.colors.gray[600];
   const textColor = userColor ? userColor : isLightMode ? "#333" : "white";
   return (
-    <DefaultCell
-      {...props}
-      fontWeight={fontWeight}
-      fontStyle={fontStyle}
-      verticalAlign={vAlign}
-      fill={fill}
-      globalCompositeOperation={
-        globalCompositeOperation !== void 0
-          ? globalCompositeOperation
-          : isLightMode
-          ? "multiply"
-          : "destination-over"
-      }
-      stroke={stroke}
-      textColor={textColor}
-      value={text}
-      align={hAlign}
-      textDecoration={textDecoration}
-    />
+    <>
+      
+    </>
   );
 });
 

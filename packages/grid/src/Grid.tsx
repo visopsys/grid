@@ -201,6 +201,19 @@ export interface GridProps
    * Border color of fill handle
    */
   fillhandleBorderColor?: string;
+  /**
+   * Show grid lines.
+   * Useful for spreadsheets
+   */
+  showGridLines?: boolean;
+  /**
+   * Customize grid line color
+   */
+  gridLineColor?: string;
+  /**
+   * Width of the grid line
+   */
+  gridLineWidth?: number;
 }
 
 export interface CellRangeArea extends CellInterface {
@@ -409,6 +422,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       overscanCount = 1,
       fillHandleProps,
       fillhandleBorderColor = "white",
+      showGridLines = false,
+      gridLineColor = '#E3E2E2',
+      gridLineWidth = 1,
       ...rest
     } = props;
     const hiddenRows = [5, 6];
@@ -1184,6 +1200,63 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         });
     }, [rowStartIndex, rowStopIndex, columnStartIndex, columnStopIndex]);
 
+    /* Draw gridlines */
+    const gridLines = []
+    if (showGridLines) {
+      for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
+        const x1 = 0
+        const x2 = getColumnOffset({
+          index: columnStopIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        })
+        const y1 = getRowOffset({
+          index: rowIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        })
+        const y2 = y1
+        gridLines.push(
+          <Line
+            points={[ x1, y1, x2, y2]}
+            stroke={gridLineColor}
+            strokeWidth={gridLineWidth}
+            offsetY={-0.5}
+          />
+        )
+      }
+      for (
+        let columnIndex = columnStartIndex;
+        columnIndex <= columnStopIndex;
+        columnIndex++
+      ) {
+        const x1 = getColumnOffset({
+          index: columnIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        })
+        const x2 = x1
+        const y1 = 0
+        const y2 = getRowOffset({
+          index: rowStopIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        })
+        gridLines.push(
+          <Line
+            points={[ x1, y1, x2, y2]}
+            stroke={gridLineColor}
+            strokeWidth={gridLineWidth}
+            offsetX={-0.5}
+          />
+        )
+      }
+    }
+
     /* Draw all cells */
     const cells = [];
     if (columnCount > 0 && rowCount) {
@@ -1331,6 +1404,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         height,
         rowIndex,
         columnIndex,
+        isMergedCell: true,
         key: itemKey({ rowIndex, columnIndex })
       });
 
@@ -1909,21 +1983,23 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         : null;
     const stageChildren = (
       <>
-        <Layer
-          clipX={frozenColumnWidth}
-          clipY={frozenRowHeight}
-          clipWidth={containerWidth - frozenColumnWidth}
-          clipHeight={containerHeight - frozenRowHeight}
+        <Layer          
         >
-          <Group offsetY={scrollTop} offsetX={scrollLeft}>
+          <Group
+            clipX={frozenColumnWidth}
+            clipY={frozenRowHeight}
+            clipWidth={containerWidth - frozenColumnWidth}
+            clipHeight={containerHeight - frozenRowHeight}
+          >
+          <Group offsetY={scrollTop} offsetX={scrollLeft}>      
+            {gridLines}
             {cells}
             {mergedCellAreas}
             {ranges}
-            {borderStylesCells}
+            {borderStylesCells}            
           </Group>
-        </Layer>
+          </Group>
 
-        <Layer>
           {frozenRowShadowComponent}
           {frozenColumnShadowComponent}
           <Group
@@ -1940,7 +2016,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           <Group
             clipX={0}
             clipY={frozenRowHeight}
-            clipWidth={frozenColumnWidth + 1}
+            clipWidth={frozenColumnWidth}
             clipHeight={containerHeight - frozenRowHeight}
           >
             <Group offsetY={scrollTop} offsetX={0}>
@@ -1948,7 +2024,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               {frozenColumnMergedCellAreas}
             </Group>
           </Group>
-          <Group offsetY={0} offsetX={0}>
+          <Group offsetY={0} offsetX={0}
+            clipX={0}
+            clipY={0}
+            clipWidth={frozenColumnWidth}
+            clipHeight={frozenRowHeight}
+          >
             {frozenIntersectionCells}
             {frozenIntersectionMergedCells}
           </Group>

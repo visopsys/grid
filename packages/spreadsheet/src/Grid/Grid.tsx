@@ -516,6 +516,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     return (
       <GridWrapper>
         <Grid
+          showGridLines={true}
           ref={gridRef}
           rowCount={rowCount}
           columnCount={columnCount}
