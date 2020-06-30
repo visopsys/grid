@@ -91,7 +91,7 @@ export interface EditableResults {
   nextFocusableCell: (
     currentCell: CellInterface,
     direction: Direction
-  ) => CellInterface;
+  ) => CellInterface | null;
   /**
    * Is editing in progress
    */
@@ -458,36 +458,38 @@ const useEditable = ({
     (
       currentCell: CellInterface,
       direction: Direction = Direction.Right
-    ): CellInterface => {
+    ): CellInterface | null => {
       /* Next immediate cell */
+      const bounds = gridRef.current?.getCellBounds(currentCell);
+      if (!bounds) return null;
       let nextActiveCell = currentCell;
       switch (direction) {
         case Direction.Right:
           nextActiveCell = {
-            rowIndex: currentCell.rowIndex,
-            columnIndex: currentCell.columnIndex + 1
+            rowIndex: bounds.top,
+            columnIndex: bounds.right + 1
           };
           break;
         case Direction.Up:
           nextActiveCell = {
-            rowIndex: currentCell.rowIndex - 1,
-            columnIndex: currentCell.columnIndex
+            rowIndex: bounds.top - 1,
+            columnIndex: bounds.left
           };
           break;
 
         case Direction.Left:
           nextActiveCell = {
-            rowIndex: currentCell.rowIndex,
-            columnIndex: currentCell.columnIndex - 1
+            rowIndex: bounds.top,
+            columnIndex: bounds.left - 1
           };
           break;
 
         default:
+          // Down
           nextActiveCell = {
             rowIndex:
-              (initialActiveCell.current?.rowIndex ?? currentCell.rowIndex) + 1,
-            columnIndex:
-              initialActiveCell.current?.columnIndex ?? currentCell.columnIndex
+              (initialActiveCell.current?.rowIndex ?? bounds.bottom) + 1,
+            columnIndex: initialActiveCell.current?.columnIndex ?? bounds.left
           };
           break;
       }

@@ -1909,28 +1909,44 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         : null;
     const stageChildren = (
       <>
-        <Layer offsetY={scrollTop} offsetX={scrollLeft}>
-          {cells}
-          {mergedCellAreas}
-          {ranges}
-          {borderStylesCells}
+        <Layer
+          clipX={frozenColumnWidth}
+          clipY={frozenRowHeight}
+          clipWidth={containerWidth - frozenColumnWidth}
+          clipHeight={containerHeight - frozenRowHeight}
+        >
+          <Group offsetY={scrollTop} offsetX={scrollLeft}>
+            {cells}
+            {mergedCellAreas}
+            {ranges}
+            {borderStylesCells}
+          </Group>
         </Layer>
 
         <Layer>
-          <Group
-            offsetY={scrollTop}
-            offsetX={scrollLeft}
-            listening={false}
-          ></Group>
           {frozenRowShadowComponent}
           {frozenColumnShadowComponent}
-          <Group offsetY={0} offsetX={scrollLeft}>
-            {frozenRowCells}
-            {frozenRowMergedCellAreas}
+          <Group
+            clipX={frozenColumnWidth}
+            clipY={0}
+            clipWidth={containerWidth - frozenColumnWidth}
+            clipHeight={frozenRowHeight}
+          >
+            <Group offsetY={0} offsetX={scrollLeft}>
+              {frozenRowCells}
+              {frozenRowMergedCellAreas}
+            </Group>
           </Group>
-          <Group offsetY={scrollTop} offsetX={0}>
-            {frozenColumnCells}
-            {frozenColumnMergedCellAreas}
+          <Group
+            clipX={0}
+            clipY={frozenRowHeight}
+            clipWidth={frozenColumnWidth + 1}
+            clipHeight={containerHeight - frozenRowHeight}
+          >
+            <Group offsetY={scrollTop} offsetX={0}>
+              {frozenColumnCells}
+              {frozenColumnMergedCellAreas}
+            </Group>
           </Group>
           <Group offsetY={0} offsetX={0}>
             {frozenIntersectionCells}
