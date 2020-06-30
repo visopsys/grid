@@ -126,7 +126,7 @@ export interface EditableResults {
   submitEditor: (
     value: string,
     activeCell: CellInterface,
-    nextActiveCell?: CellInterface
+    nextActiveCell?: CellInterface | null
   ) => void;
   /**
    * Cancels an edit
@@ -523,7 +523,7 @@ const useEditable = ({
     (
       value: string,
       activeCell: CellInterface,
-      nextActiveCell?: CellInterface
+      nextActiveCell?: CellInterface | null
     ) => {
       /**
        * Hide the editor first, so that we can handle onBlur events

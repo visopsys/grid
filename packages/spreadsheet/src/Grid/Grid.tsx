@@ -120,7 +120,7 @@ export type WorkbookGridRef = {
   getNextFocusableCell: (
     cell: CellInterface,
     direction: Direction
-  ) => CellInterface;
+  ) => CellInterface | null;
   setActiveCell: (cell: CellInterface | null) => void;
   setSelections: (selection: SelectionArea[]) => void;
   focus: () => void;
@@ -130,7 +130,7 @@ export type WorkbookGridRef = {
   submitEditor: (
     value: string,
     activeCell: CellInterface,
-    nextActiveCell?: CellInterface
+    nextActiveCell?: CellInterface | null
   ) => void;
   cancelEditor: () => void;
   resizeColumns?: (indices: number[]) => void;
@@ -387,7 +387,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     });
 
     const getNextFocusableCell = useCallback(
-      (cell: CellInterface, direction: Direction): CellInterface => {
+      (cell: CellInterface, direction: Direction): CellInterface | null => {
         return nextFocusableCell(cell, direction);
       },
       []
