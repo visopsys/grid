@@ -513,9 +513,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       },
       []
     );
-    const hasStroke = (value = {}) => {
-      return Object.keys(value).some(key => key.startsWith('stroke'))
-    }
+    // const hasStroke = (value = {}) => {
+    //   return Object.keys(value).some(key => key.startsWith("stroke"));
+    // };
 
     /**
      * Hides context menu
