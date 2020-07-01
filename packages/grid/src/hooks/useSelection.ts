@@ -706,6 +706,10 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     firstActiveCell.current = coords;
     selectionEnd.current = coords;
     setActiveCell(coords);
+    /* Scroll to the cell */
+    if (coords && gridRef?.current) {
+      gridRef.current.scrollToItem(coords);
+    }
   }, []);
 
   const handleFillHandleMouseDown = useCallback(

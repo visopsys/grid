@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useEffect, memo, forwardRef } from "react";
 import { useMeasure } from "react-use";
 import Grid from "./../Grid";
-import { Flex, useColorMode } from "@chakra-ui/core";
+import { Flex, useColorMode, useTheme } from "@chakra-ui/core";
 import { BottomPanel, ThemeType } from "./../styled";
 import Tabs from "./../Tabs";
 import { SpreadSheetProps, Sheet, Cells, SizeType } from "../Spreadsheet";
@@ -9,6 +9,7 @@ import { CellInterface, SelectionArea, ScrollCoords } from "@rowsncolumns/grid";
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
 import QuickInfo from "./../QuickInfo";
+import { DARK_MODE_COLOR_LIGHT, DARK_MODE_COLOR } from "../constants";
 
 export interface WorkbookProps extends SpreadSheetProps {
   currentSheet: Sheet;
@@ -208,7 +209,11 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
 
     return (
       <>
-        <Flex flex={1} ref={containerRef}>
+        <Flex
+          flex={1}
+          ref={containerRef}
+          background={isLight ? "white" : DARK_MODE_COLOR_LIGHT}
+        >
           <Grid
             // @ts-ignore
             ref={forwardedRef}
@@ -247,6 +252,7 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
             onInsertColumn={handleInsertColumn}
             onDeleteRow={handleDeleteRow}
             onDeleteColumn={handleDeleteColumn}
+            theme={theme}
           />
         </Flex>
         <Flex>

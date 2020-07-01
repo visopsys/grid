@@ -46,6 +46,24 @@ export enum DATATYPE {
   STRING = "string"
 }
 
+export enum STROKE_FORMATTING {
+  STROKE = 'stroke',
+  STROKE_TOP_COLOR = 'strokeTopColor',
+  STROKE_RIGHT_COLOR = 'strokeRightColor',
+  STROKE_BOTTOM_COLOR = 'strokeBottomColor',
+  STROKE_LEFT_COLOR = 'strokeLeftColor',
+  STROKE_WIDTH = 'strokeWidth',
+  STROKE_TOP_WIDTH = 'strokeTopWidth',
+  STROKE_RIGHT_WIDTH = 'strokeRightWidth',
+  STROKE_BOTTOM_WIDTH = 'strokeBottomWidth',
+  STROKE_LEFT_WIDTH = 'strokeLeftWidth',
+  STROKE_DASH = 'strokeDash',
+  STROKE_TOP_DASH = 'strokeTopDash',
+  STROKE_RIGHT_DASH = 'strokeRightDash',
+  STROKE_BOTTOM_DASH = 'strokeBottomDash',
+  STROKE_LEFT_DASH = 'strokeLeftDash',
+}
+
 export interface CellFormatting extends CellDataFormatting {
   datatype?: DATATYPE;
   [FORMATTING_TYPE.BOLD]?: boolean;
@@ -56,6 +74,23 @@ export interface CellFormatting extends CellDataFormatting {
   [FORMATTING_TYPE.UNDERLINE]?: boolean;
   [FORMATTING_TYPE.STRIKE]?: boolean;
   [FORMATTING_TYPE.FILL]?: string;
+
+  stroke?: string;
+  strokeTopColor?: string;
+  strokeRightColor?: string;
+  strokeBottomColor?: string;
+  strokeLeftColor?: string;
+  strokeWidth?: number
+  strokeTopWidth?: number;
+  strokeRightWidth?: number;
+  strokeBottomWidth?: number;
+  strokeLeftWidth?: number;
+  strokeDash?: number[];
+  strokeTopDash?: number[];
+  strokeRightDash?: number[]
+  strokeBottomDash?: number[]
+  strokeLeftDash?: number[]
+  lineCap?: string;
 }
 
 export interface CellDataFormatting {

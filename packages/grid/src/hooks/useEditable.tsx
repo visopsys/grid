@@ -172,6 +172,10 @@ export interface EditorProps extends CellInterface {
    */
   cell: CellInterface;
   /**
+   * Scroll position of the grid
+   */
+  scrollPosition: ScrollCoords;
+  /**
    * Next cell that should receive focus
    */
   nextFocusableCell: (
@@ -209,7 +213,7 @@ const DefaultEditor: React.FC<EditorProps> = props => {
   const getWidth = useCallback(
     text => {
       const textWidth = textSizer.current.measureText(text)?.width || 0;
-      return Math.max(textWidth + padding, width);
+      return Math.max(textWidth + padding, width + borderWidth / 2);
     },
     [width]
   );
@@ -374,13 +378,34 @@ const useEditable = ({
       const pos = gridRef.current.getCellOffsetFromCoords(coords);
       const scrollPosition = gridRef.current.getScrollPosition();
       const value = initialValue || getValue(coords) || "";
-      setScrollPosition(scrollPosition);
       setValue(value);
       setAutoFocus(autoFocus);
-      setPosition(pos);
+      setPosition(getCellPosition(pos, scrollPosition));
       showEditor();
       if (value) handleChange(value, coords);
     }
+  };
+
+  /**
+   * Get current cell position based on scroll position
+   * @param position
+   * @param scrollPosition
+   */
+  const getCellPosition = (
+    position: CellPosition,
+    scrollPosition: ScrollCoords
+  ) => {
+    if (!currentActiveCellRef.current) return { x: 0, y: 0 };
+    const isFrozenRow = currentActiveCellRef.current?.rowIndex < frozenRows;
+    const isFrozenColumn =
+      currentActiveCellRef.current?.columnIndex < frozenColumns;
+    return {
+      ...position,
+      x:
+        (position.x as number) -
+        (isFrozenColumn ? 0 : scrollPosition.scrollLeft),
+      y: (position.y as number) - (isFrozenRow ? 0 : scrollPosition.scrollTop)
+    };
   };
 
   /* Activate edit mode */
@@ -584,23 +609,6 @@ const useEditable = ({
       : null;
   }, [editingCell]);
 
-  /**
-   * Position of the cell
-   */
-  const cellPositon: CellPosition = useMemo(() => {
-    if (!currentActiveCellRef.current) return { x: 0, y: 0 };
-    const isFrozenRow = currentActiveCellRef.current?.rowIndex < frozenRows;
-    const isFrozenColumn =
-      currentActiveCellRef.current?.columnIndex < frozenColumns;
-    return {
-      ...position,
-      x:
-        (position.x as number) -
-        (isFrozenColumn ? 0 : scrollPosition.scrollLeft),
-      y: (position.y as number) - (isFrozenRow ? 0 : scrollPosition.scrollTop)
-    };
-  }, [position, scrollPosition, frozenRows, frozenColumns]);
-
   const handleBlur = useCallback((e: React.FocusEvent) => {
     if (currentActiveCellRef.current) {
       /* Keep the focus */
@@ -620,7 +628,8 @@ const useEditable = ({
         onChange={handleChange}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
-        position={cellPositon}
+        position={position}
+        scrollPosition={scrollPosition}
         nextFocusableCell={nextFocusableCell}
         onBlur={handleBlur}
       />

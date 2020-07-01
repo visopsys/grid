@@ -119,8 +119,9 @@ export const createHTMLBox = ({
   strokeStyle = "solid"
 }: ShapeConfig) => {
   const commonProps = {};
-  width = width - Math.floor(strokeWidth);
-  y = y - Math.ceil(strokeWidth / 2);
+  width = width - Math.floor(strokeWidth/2);
+  height = height - Math.floor(strokeWidth/2);
+  // y = y - Math.ceil(strokeWidth / 2);
   const lines = [
     <div
       style={{

@@ -6,8 +6,7 @@ import {
   useColorMode,
   useTheme
 } from "@chakra-ui/core";
-import { COLUMN_HEADER_WIDTH, DARK_MODE_COLOR } from "./../constants";
-import { KeyCodes } from "@rowsncolumns/grid/dist/types";
+import { DARK_MODE_COLOR, FORMULABAR_LEFT_CORNER_WIDTH } from "./../constants";
 
 interface FormulabarProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -36,12 +35,12 @@ const Formulabar: React.FC<FormulabarProps & FormulaRef> = memo(
     return (
       <InputGroup
         size="sm"
-        borderBottomWidth={1}
+        borderBottomWidth={0}
         borderBottomColor={borderColor}
         height={height}
       >
         <InputLeftAddon
-          width={COLUMN_HEADER_WIDTH}
+          width={FORMULABAR_LEFT_CORNER_WIDTH}
           justifyContent="center"
           bg={backgroundColor}
           color={color}

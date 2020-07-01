@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   MdUndo,
   MdRedo,
@@ -898,7 +898,13 @@ const BorderSelection: React.FC<BorderProps> = ({
   };
 
   return (
-    <Popover usePortal placement="top-start">
+    <Popover
+      usePortal
+      placement="top-start"
+      onClose={() => {
+        setBorderVariant(undefined);
+      }}
+    >
       <PopoverTrigger>
         <Box>
           <Tooltip
@@ -934,7 +940,6 @@ const BorderSelection: React.FC<BorderProps> = ({
                   : iconColor
               }
               onClick={() => handleChangeVariant(BORDER_VARIANT.ALL)}
-              isDisabled
               icon={MdBorderAll}
               fontSize={20}
               size="sm"
@@ -953,7 +958,6 @@ const BorderSelection: React.FC<BorderProps> = ({
               icon={MdBorderInner}
               fontSize={20}
               size="sm"
-              isDisabled
             />
             <IconButton
               aria-label={translations.border_horizontal}
@@ -969,7 +973,6 @@ const BorderSelection: React.FC<BorderProps> = ({
               icon={MdBorderHorizontal}
               fontSize={20}
               size="sm"
-              isDisabled
             />
             <IconButton
               aria-label={translations.border_vertical}
@@ -985,7 +988,6 @@ const BorderSelection: React.FC<BorderProps> = ({
               icon={MdBorderVertical}
               fontSize={20}
               size="sm"
-              isDisabled
             />
             <IconButton
               aria-label={translations.border_outer}

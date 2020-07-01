@@ -37,6 +37,7 @@ import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
 import Selection from "./Selection";
 import FillHandle from "./FillHandle";
+import GridLine from './GridLine'
 import { createCanvasBox } from "./utils";
 import invariant from "tiny-invariant";
 import { StageConfig } from "konva/types/Stage";
@@ -214,6 +215,14 @@ export interface GridProps
    * Width of the grid line
    */
   gridLineWidth?: number;
+  /**
+   * Gridline component
+   */
+  gridLineRenderer?: (props: ShapeConfig) => React.ReactNode;
+  /**
+   * Shadow stroke color
+   */
+  shadowStroke?: string
 }
 
 export interface CellRangeArea extends CellInterface {
@@ -253,6 +262,7 @@ export interface RendererProps
     CellPosition,
     ShapeConfig {
   key: Key;
+  isMergedCell?: boolean
 }
 
 export type ItemSizer = (index: number) => number;
@@ -363,17 +373,16 @@ export interface AreaStyle {
 
 const DEFAULT_ESTIMATED_ITEM_SIZE = 50;
 const defaultShadowSettings: ShapeConfig = {
-  stroke: "#000",
-  shadowColor: "black",
-  shadowBlur: 5,
-  shadowOpacity: 0.4,
-  shadowOffsetX: 2
+  strokeWidth: 1
 };
 const defaultRowHeight = () => 20;
 const defaultColumnWidth = () => 60;
 const defaultSelectionRenderer = (props: SelectionProps) => {
   return <Selection {...props} />;
 };
+const defaultGridLineRenderer = (props: ShapeConfig) => {
+  return <GridLine {...props} />
+}
 export const RESET_SCROLL_EVENTS_DEBOUNCE_INTERVAL = 150;
 
 /**
@@ -425,9 +434,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       showGridLines = false,
       gridLineColor = '#E3E2E2',
       gridLineWidth = 1,
+      gridLineRenderer = defaultGridLineRenderer,
       ...rest
     } = props;
-    const hiddenRows = [5, 6];
+
     invariant(
       !(children && typeof children !== "function"),
       "Children should be a function"
@@ -751,22 +761,18 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     );
 
     /* Find frozen column boundary */
-    const frozenColumnWidth = useMemo(() => {
-      return getColumnOffset({
-        index: frozenColumns,
-        rowHeight,
-        columnWidth,
-        instanceProps: instanceProps.current
-      });
-    }, [frozenColumns]);
-    const frozenRowHeight = useMemo(() => {
-      return getRowOffset({
-        index: frozenRows,
-        rowHeight,
-        columnWidth,
-        instanceProps: instanceProps.current
-      });
-    }, [frozenRows]);
+    const frozenColumnWidth = getColumnOffset({
+      index: frozenColumns,
+      rowHeight,
+      columnWidth,
+      instanceProps: instanceProps.current
+    });
+    const frozenRowHeight = getRowOffset({
+      index: frozenRows,
+      rowHeight,
+      columnWidth,
+      instanceProps: instanceProps.current
+    });
     const isWithinFrozenColumnBoundary = useCallback(
       (x: number) => {
         return frozenColumns > 0 && x < frozenColumnWidth;
@@ -1202,6 +1208,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
     /* Draw gridlines */
     const gridLines = []
+    const gridLinesFrozenRow = []
+    const gridLinesFrozenColumn = []
+    const gridLinesFrozenIntersection = []
     if (showGridLines) {
       for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
         const x1 = 0
@@ -1219,12 +1228,20 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         })
         const y2 = y1
         gridLines.push(
-          <Line
-            points={[ x1, y1, x2, y2]}
-            stroke={gridLineColor}
-            strokeWidth={gridLineWidth}
-            offsetY={-0.5}
-          />
+          gridLineRenderer({
+            points: [x1, y1, x2, y2],
+            stroke: gridLineColor,
+            strokeWidth: gridLineWidth,
+            offsetY: -0.5
+          })
+        )
+        gridLinesFrozenColumn.push(
+          gridLineRenderer({
+            points: [x1, y1, x2, y2],
+            stroke: gridLineColor,
+            strokeWidth: gridLineWidth,
+            offsetY: -0.5
+          })
         )
       }
       for (
@@ -1247,12 +1264,93 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           instanceProps: instanceProps.current
         })
         gridLines.push(
-          <Line
-            points={[ x1, y1, x2, y2]}
-            stroke={gridLineColor}
-            strokeWidth={gridLineWidth}
-            offsetX={-0.5}
-          />
+          gridLineRenderer({
+            points: [x1, y1, x2, y2],
+            stroke: gridLineColor,
+            strokeWidth: gridLineWidth,
+            offsetX: -0.5
+          })
+        )
+        gridLinesFrozenRow.push(
+          gridLineRenderer({
+            points: [x1, y1, x2, y2],
+            stroke: gridLineColor,
+            strokeWidth: gridLineWidth,
+            offsetX: -0.5
+          })
+        )
+      }
+      for (
+        let rowIndex = 0;
+        rowIndex < Math.min(columnStopIndex, frozenRows);
+        rowIndex++
+      ) {
+        const x1 = 0
+        const x2 = getColumnOffset({
+          index: columnStopIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        })
+        const y1 = getRowOffset({
+          index: rowIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        })
+        const y2 = y1
+        gridLinesFrozenRow.push(
+          gridLineRenderer({
+            points: [x1, y1, x2, y2],
+            stroke: gridLineColor,
+            strokeWidth: gridLineWidth,
+            offsetY: -0.5
+          })
+        )
+        gridLinesFrozenIntersection.push(
+          gridLineRenderer({
+            points: [x1, y1, x2, y2],
+            stroke: gridLineColor,
+            strokeWidth: gridLineWidth,
+            offsetY: -0.5
+          })
+        )
+      }
+
+      for (
+        let columnIndex = 0;
+        columnIndex < Math.min(columnStopIndex, frozenColumns);
+        columnIndex++
+      ) {
+        const x1 = getColumnOffset({
+          index: columnIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        })
+        const x2 = x1
+        const y1 = 0
+        const y2 = getRowOffset({
+          index: rowStopIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        })
+        gridLinesFrozenColumn.push(
+          gridLineRenderer({
+            points: [x1, y1, x2, y2],
+            stroke: gridLineColor,
+            strokeWidth: gridLineWidth,
+            offsetX: -0.5
+          })
+        )
+        gridLinesFrozenIntersection.push(
+          gridLineRenderer({
+            points: [x1, y1, x2, y2],
+            stroke: gridLineColor,
+            strokeWidth: gridLineWidth,
+            offsetX: -0.5
+          })
         )
       }
     }
@@ -1538,7 +1636,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       return (
         <Line
           points={[frozenColumnLineX, 0, frozenColumnLineX, containerHeight]}
-          offsetX={1}
+          offsetX={-0.5}
+          strokeWidth={1}
           {...shadowSettings}
         />
       );
@@ -1557,7 +1656,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       return (
         <Line
           points={[0, frozenRowLineY, containerWidth, frozenRowLineY]}
-          offsetY={1}
+          offsetY={-0.5}
+          strokeWidth={1}
           {...shadowSettings}
         />
       );
@@ -1973,12 +2073,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const listenToEvents = !isScrolling;
     /* Frozen row shadow */
     const frozenRowShadowComponent =
-      showFrozenShadow && frozenRows !== 0 && scrollTop !== 0
+      showFrozenShadow && frozenRows !== 0
         ? frozenRowShadow
         : null;
     /* Frozen column shadow */
     const frozenColumnShadowComponent =
-      showFrozenShadow && frozenColumns !== 0 && scrollLeft !== 0
+      showFrozenShadow && frozenColumns !== 0
         ? frozenColumnShadow
         : null;
     const stageChildren = (
@@ -1991,17 +2091,15 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             clipWidth={containerWidth - frozenColumnWidth}
             clipHeight={containerHeight - frozenRowHeight}
           >
-          <Group offsetY={scrollTop} offsetX={scrollLeft}>      
-            {gridLines}
-            {cells}
-            {mergedCellAreas}
-            {ranges}
-            {borderStylesCells}            
+            <Group offsetY={scrollTop} offsetX={scrollLeft}>      
+              {gridLines}
+              {cells}
+              {mergedCellAreas}
+              {ranges}
+              {borderStylesCells}            
+            </Group>
           </Group>
-          </Group>
-
-          {frozenRowShadowComponent}
-          {frozenColumnShadowComponent}
+          
           <Group
             clipX={frozenColumnWidth}
             clipY={0}
@@ -2009,6 +2107,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             clipHeight={frozenRowHeight}
           >
             <Group offsetY={0} offsetX={scrollLeft}>
+              {gridLinesFrozenRow}
               {frozenRowCells}
               {frozenRowMergedCellAreas}
             </Group>
@@ -2020,6 +2119,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             clipHeight={containerHeight - frozenRowHeight}
           >
             <Group offsetY={scrollTop} offsetX={0}>
+              {gridLinesFrozenColumn}
               {frozenColumnCells}
               {frozenColumnMergedCellAreas}
             </Group>
@@ -2030,9 +2130,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             clipWidth={frozenColumnWidth}
             clipHeight={frozenRowHeight}
           >
+            {gridLinesFrozenIntersection}
             {frozenIntersectionCells}
             {frozenIntersectionMergedCells}
           </Group>
+
+          {frozenRowShadowComponent}
+          {frozenColumnShadowComponent}
         </Layer>
         {children && typeof children === "function"
           ? children({

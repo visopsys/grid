@@ -1,9 +1,15 @@
-import React, { useRef, useCallback, useEffect, useState } from "react";
+import React, {
+  useRef,
+  useCallback,
+  useEffect,
+  useState,
+  useMemo
+} from "react";
 import { EditorProps } from "@rowsncolumns/grid/dist/hooks/useEditable";
 import { AutoSizerCanvas } from "@rowsncolumns/grid";
 import { KeyCodes, Direction } from "@rowsncolumns/grid/dist/types";
 import { useColorMode } from "@chakra-ui/core";
-import { DARK_MODE_COLOR_LIGHT } from "../constants";
+import { DARK_MODE_COLOR_LIGHT, cellLocation } from "../constants";
 
 interface CustomEditorProps extends EditorProps {
   background?: string;
@@ -30,6 +36,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
     background: cellBackground,
     color: cellColor,
     selections,
+    scrollPosition,
     ...rest
   } = props;
   const { colorMode } = useColorMode();
@@ -48,13 +55,15 @@ const Editor: React.FC<CustomEditorProps> = props => {
       : "white";
   const borderWidth = 2;
   const padding = 10; /* 2 + 1 + 1 + 2 + 2 */
+  const hasScrollPositionChanged = useRef(false);
+  const isMounted = useRef(false);
   const textSizer = useRef(AutoSizerCanvas("12px Arial"));
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { x = 0, y = 0, width = 0, height = 0 } = position;
   const getWidth = useCallback(
     text => {
       const textWidth = textSizer.current.measureText(text)?.width || 0;
-      return Math.max(textWidth + padding, width);
+      return Math.max(textWidth + padding, width + borderWidth / 2);
     },
     [width]
   );
@@ -63,26 +72,56 @@ const Editor: React.FC<CustomEditorProps> = props => {
   }, [value]);
   const [inputWidth, setInputWidth] = useState(() => getWidth(value));
   useEffect(() => {
+    if (!isMounted.current) return;
+    hasScrollPositionChanged.current = true;
+  }, [scrollPosition]);
+  useEffect(() => {
+    /* Set mounted ref */
+    isMounted.current = true;
     if (!inputRef.current) return;
     if (autoFocus) inputRef.current.focus();
     /* Focus cursor at the end */
     inputRef.current.selectionStart = value.length;
   }, []);
+  const location = useMemo(
+    () => hasScrollPositionChanged.current && cellLocation(activeCell),
+    [activeCell, hasScrollPositionChanged.current]
+  );
   const inputHeight = height;
   return (
     <div
       style={{
-        top: y - borderWidth / 2,
+        top: y,
         left: x,
         position: "absolute",
         width: inputWidth,
-        height: inputHeight + borderWidth,
+        height: inputHeight + borderWidth / 2,
         padding: borderWidth,
         boxShadow: "0 2px 6px 2px rgba(60,64,67,.15)",
         border: "2px #1a73e8 solid",
         background: backgroundColor
       }}
     >
+      {location ? (
+        <div
+          style={{
+            position: "absolute",
+            left: -2,
+            marginBottom: 4,
+            fontSize: 12,
+            lineHeight: "14px",
+            padding: 6,
+            paddingTop: 4,
+            paddingBottom: 4,
+            boxShadow: "0px 1px 2px rgba(0,0,0,0.5)",
+            bottom: "100%",
+            background: "#4589eb",
+            color: "white"
+          }}
+        >
+          {location}
+        </div>
+      ) : null}
       <textarea
         rows={1}
         cols={1}

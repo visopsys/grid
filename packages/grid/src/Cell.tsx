@@ -39,6 +39,7 @@ const Cell: React.FC<CellProps> = memo(props => {
     fontStyle = "normal",
     textDecoration,
     alpha = 1,
+    strokeEnabled = true,
     globalCompositeOperation = "multiply",
     ...rest
   } = props;
@@ -59,6 +60,7 @@ const Cell: React.FC<CellProps> = memo(props => {
         hitStrokeWidth={0}
         alpha={alpha}
         fillEnabled={fillEnabled}
+        strokeEnabled={strokeEnabled}
       />
       {isNull(value) ? null : (
         <Text

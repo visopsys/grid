@@ -18,7 +18,8 @@ import {
   useUndo,
   AreaProps,
   StylingProps,
-  createPatches
+  createPatches,
+  selectionFromActiveCell
 } from "@rowsncolumns/grid";
 import useControllableState from "./useControllableState";
 import {
@@ -28,7 +29,8 @@ import {
   createBorderStyle,
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_ROW_HEIGHT,
-  EMPTY_ARRAY
+  EMPTY_ARRAY,
+  cellsInSelectionVariant
 } from "./constants";
 import {
   FORMATTING_TYPE,
@@ -39,7 +41,8 @@ import {
   BORDER_VARIANT,
   OPERATION_TYPE,
   RESOURCE_TYPE,
-  BORDER_STYLE
+  BORDER_STYLE,
+  STROKE_FORMATTING
 } from "./types";
 import { useImmer } from "use-immer";
 import { WorkbookGridRef } from "./Grid/Grid";
@@ -102,7 +105,8 @@ export interface CellConfig extends CellFormatting {
 /**
  * Spreadsheet component
  * TODO
- * 1. Reduce scroll jump
+ * 1. Undo/redo
+ * 2. Order of cell rendering
  * @param props
  */
 const defaultActiveSheet = uuid();
@@ -110,18 +114,25 @@ const defaultSheets: Sheet[] = [
   {
     id: defaultActiveSheet,
     name: "Sheet1",
-    frozenColumns: 2,
+    frozenColumns: 0,
     frozenRows: 0,
     activeCell: {
       rowIndex: 1,
       columnIndex: 1
     },
+    mergedCells: [],
     selections: [],
-    borderStyles: [],
-    cells: {},
+    cells: {
+      
+    },
     scrollState: { scrollTop: 0, scrollLeft: 0 }
   }
 ];
+
+/**
+ * Spreadsheet component
+ * @param props 
+ */
 const Spreadsheet = (props: SpreadSheetProps) => {
   const {
     initialSheets = defaultSheets,
@@ -467,8 +478,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
           } else if (activeCell) {
             const { rowIndex, columnIndex } = activeCell;
             cells[rowIndex] = cells[rowIndex] ?? {};
-            const previousValue =
-              cells[rowIndex][columnIndex]?.[type as keyof CellFormatting];
+            const previousValue = cells[rowIndex][columnIndex]?.[type as keyof CellFormatting];
             cells[rowIndex][columnIndex] = cells[rowIndex][columnIndex] ?? {};
             cells[rowIndex][columnIndex][type as keyof CellFormatting] = value;
 
@@ -731,12 +741,18 @@ const Spreadsheet = (props: SpreadSheetProps) => {
                 Object.values(FORMATTING_TYPE).forEach(key => {
                   delete cells[i]?.[j]?.[key];
                 });
+                Object.values(STROKE_FORMATTING).forEach(key => {
+                  delete cells[i]?.[j]?.[key];
+                });
               }
             }
           });
         } else if (activeCell) {
           const { rowIndex, columnIndex } = activeCell;
           Object.values(FORMATTING_TYPE).forEach(key => {
+            if (key) delete cells[rowIndex]?.[columnIndex]?.[key];
+          });
+          Object.values(STROKE_FORMATTING).forEach(key => {
             if (key) delete cells[rowIndex]?.[columnIndex]?.[key];
           });
         }
@@ -837,52 +853,35 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       variant?: BORDER_VARIANT
     ) => {
       /* Create a border style based on variant */
-      const borderVariantStyle = createBorderStyle(variant, borderStyle);
+      const borderVariantStyle = createBorderStyle(variant, borderStyle, color);
       setSheets(draft => {
         const sheet = draft.find(sheet => sheet.id === selectedSheet);
         if (sheet) {
-          const { activeCell, selections, borderStyles } = sheet;
-          if (!activeCell) return;
-          const { bounds: cellBounds } = selections.length
-            ? selections[selections.length - 1]
-            : {
-                bounds: currentGrid.current?.getCellBounds?.(
-                  activeCell as CellInterface
-                )
-              };
-          const index = borderStyles?.findIndex(({ bounds }) => {
-            return (
-              bounds.left === cellBounds?.left &&
-              bounds.right === cellBounds.right &&
-              bounds.top === cellBounds.top &&
-              bounds.bottom === cellBounds.bottom
-            );
-          });
-          if (!cellBounds) return;
-          /* This bound does not exist */
-          if (!sheet.borderStyles) sheet.borderStyles = [];
-
-          /* Create border style */
-          const newStyle = {
-            ...borderVariantStyle,
-            stroke: color
-          };
-
-          /* Add borders */
-          if (index === -1) {
-            sheet.borderStyles.push({
-              bounds: cellBounds,
-              style: newStyle
-            });
-          } else if (index !== void 0) {
-            if (variant === BORDER_VARIANT.NONE) {
-              sheet.borderStyles.splice(index, 1);
-            } else {
-              sheet.borderStyles[index].style = newStyle;
+          const { selections, cells, activeCell } = sheet
+          const sel = selections.length
+          ? selections
+          : selectionFromActiveCell(activeCell);
+          const boundedCells = cellsInSelectionVariant(sel as SelectionArea[], variant, borderStyle, color, currentGrid.current?.getCellBounds)
+          for (const row in boundedCells) {
+            for (const col in boundedCells[row]) {
+              if (variant === BORDER_VARIANT.NONE) {
+                // Delete all stroke formatting rules
+                Object.values(STROKE_FORMATTING).forEach(key => {
+                  delete cells[row]?.[col]?.[key];
+                });
+              } else {
+                const styles = boundedCells[row][col]
+                Object.keys(styles).forEach(key => {
+                  cells[row] = cells[row] ?? {}
+                  cells[row][col] = cells[row][col] ?? {}
+                  // @ts-ignore
+                  cells[row][col][key] = styles[key]
+                })
+              }
             }
           }
         }
-      });
+      })
     },
     [selectedSheet]
   );

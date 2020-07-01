@@ -32,14 +32,22 @@ import {
   DEFAULT_COLUMN_WIDTH,
   ROW_HEADER_HEIGHT,
   DEFAULT_ROW_HEIGHT,
-  DARK_MODE_COLOR_LIGHT
+  DARK_MODE_COLOR_LIGHT,
+  DARK_MODE_COLOR,
+  HEADER_BORDER_COLOR,
+  CELL_BORDER_COLOR
 } from "./../constants";
 import HeaderCell from "./../HeaderCell";
 import Cell from "./../Cell";
 import { GridWrapper, ThemeType } from "./../styled";
 import { Cells, CellConfig, SizeType } from "../Spreadsheet";
 import { Direction } from "@rowsncolumns/grid/dist/types";
-import { DATATYPE, CellDataFormatting, AXIS } from "../types";
+import {
+  DATATYPE,
+  CellDataFormatting,
+  AXIS,
+  STROKE_FORMATTING
+} from "../types";
 import Editor from "./../Editor";
 import ContextMenu from "./../ContextMenu";
 
@@ -144,6 +152,7 @@ export interface ContextMenuProps {
   top: number;
 }
 
+const strokeValues = Object.values(STROKE_FORMATTING);
 /**
  * Grid component
  * @param props
@@ -512,10 +521,20 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       gridRef.current?.focus();
     }, []);
     const fillhandleBorderColor = isLightMode ? "white" : DARK_MODE_COLOR_LIGHT;
-
+    const gridLineColor = isLightMode
+      ? CELL_BORDER_COLOR
+      : theme?.colors.gray[600];
+    const shadowStroke = isLightMode
+      ? HEADER_BORDER_COLOR
+      : theme?.colors.gray[600];
     return (
       <GridWrapper>
         <Grid
+          shadowSettings={{
+            stroke: shadowStroke
+          }}
+          showFrozenShadow
+          gridLineColor={gridLineColor}
           showGridLines={true}
           ref={gridRef}
           rowCount={rowCount}

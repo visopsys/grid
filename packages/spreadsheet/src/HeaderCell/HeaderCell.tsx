@@ -3,7 +3,8 @@ import { Cell, RendererProps } from "@rowsncolumns/grid";
 import {
   number2Alpha,
   DARK_MODE_COLOR,
-  DARK_MODE_COLOR_LIGHT
+  DARK_MODE_COLOR_LIGHT,
+  HEADER_BORDER_COLOR
 } from "../constants";
 import { useColorMode, useTheme } from "@chakra-ui/core";
 import { Rect } from "react-konva";
@@ -111,7 +112,7 @@ const HeaderCell: React.FC<HeaderCellProps> = memo(props => {
     ? theme.colors.gray[700]
     : DARK_MODE_COLOR;
   const textColor = isLightMode ? "#333" : "white";
-  const stroke = isLightMode ? "#C0C0C0" : theme.colors.gray[600];
+  const stroke = isLightMode ? HEADER_BORDER_COLOR : theme.colors.gray[600];
   const handleMouseEnter = useCallback(() => {
     setShowResizer(true);
   }, []);
@@ -125,6 +126,8 @@ const HeaderCell: React.FC<HeaderCellProps> = memo(props => {
   return (
     <Cell
       {...rest}
+      x={x + 0.5}
+      y={y + 0.5}
       fill={fill}
       align="center"
       value={value}
