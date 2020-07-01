@@ -174,120 +174,21 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   useEffect(() => {
     selectedSheetRef.current = selectedSheet;
   });
-
-  /**
-   * Handles undo/redo
-   */
-  const onUndoRedo = useCallback((type: string, patches: Patches) => {
-    const { path, value, op } = patches;
-    const [resource, id, subresource, ...values] = path;
-    /* Select active sheet */
-    if (id !== selectedSheetRef.current) setSelectedSheet(id);
-
-    if (resource === RESOURCE_TYPE.SHEET) {
-      /* Cell edits */
-      if (subresource === RESOURCE_TYPE.CELL) {
-        const [rowIndex, columnIndex, attribute] = values;
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === id);
-          if (sheet) {
-            if (value !== void 0) {
-              if (!(rowIndex in sheet.cells)) sheet.cells[rowIndex] = {};
-            }
-            if (attribute) {
-              sheet.cells[rowIndex][columnIndex][
-                attribute as keyof CellFormatting
-              ] = value;
-            } else {
-              sheet.cells[rowIndex][columnIndex] = value;
-            }
-          }
-        });
-
-        currentGrid.current?.setActiveCell({ rowIndex, columnIndex });
-      }
-
-      if (subresource === RESOURCE_TYPE.SELECTION) {
-        const [selectionStr, atttribute, activeCell] = values;
-        const selections: SelectionArea[] = JSON.parse(selectionStr);
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === id);
-          if (sheet) {
-            selections.forEach(sel => {
-              const { bounds } = sel;
-              for (let i = bounds.top; i <= bounds.bottom; i++) {
-                if (!(i in sheet.cells)) sheet.cells[i] = {};
-                for (let j = bounds.left; j <= bounds.right; j++) {
-                  if (!(j in sheet.cells[i])) sheet.cells[i][j] = {};
-                  if (atttribute) {
-                    // if (!(i in sheet.cells) || !(j in sheet.cells[i])) continue;
-                    sheet.cells[i][j][atttribute as keyof CellFormatting] =
-                      typeof value === "object"
-                        ? value[i]?.[j]?.[atttribute]
-                        : value;
-                  } else {
-                    if (j in value[i]) {
-                      sheet.cells[i][j] = value[i]?.[j];
-                    }
-                  }
-                }
-              }
-            });
-          }
-        });
-
-        if (activeCell) {
-          currentGrid.current?.setActiveCell(activeCell);
-        }
-      }
-
-      // Sheet name change
-      if (subresource === OPERATION_TYPE.CHANGE_SHEET_NAME) {
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === id);
-          if (sheet) {
-            sheet.name = value;
-          }
-        });
-      }
-
-      if (op === PatchOperator.ADD) {
-        const [index] = values;
-        // Add sheet
-        setSheets(draft => {
-          draft.splice(index, 0, value);
-        });
-        setSelectedSheet(value.id);
-      }
-
-      if (op === PatchOperator.REMOVE) {
-        // Remove sheet
-        const previousSelectedSheet = subresource;
-        setSelectedSheet(previousSelectedSheet);
-        setSheets(draft => {
-          const index = draft.findIndex(sheet => sheet.id === id);
-          if (index !== -1) {
-            draft.splice(index, 1);
-          }
-        });
-      }
-    }
-  }, []);
-
+  
   /**
    * Undo/redo
    */
-  const {
-    undo,
-    redo,
-    add: pushToUndoStack,
-    canUndo,
-    canRedo,
-    onKeyDown: handleUndoKeyDown
-  } = useUndo({
-    onRedo: patches => onUndoRedo("redo", patches),
-    onUndo: patches => onUndoRedo("undo", patches)
-  });
+  // const {
+  //   undo,
+  //   redo,
+  //   add: pushToUndoStack,
+  //   canUndo,
+  //   canRedo,
+  //   onKeyDown: handleUndoKeyDown
+  // } = useUndo({
+  //   onRedo: patches => onUndoRedo("redo", patches),
+  //   onUndo: patches => onUndoRedo("undo", patches)
+  // });
 
   /**
    * Handle add new sheet
@@ -302,16 +203,6 @@ const Spreadsheet = (props: SpreadSheetProps) => {
     /* Focus on the new grid */
     currentGrid.current?.focus();
 
-    /* Add to stack */
-    pushToUndoStack(
-      createPatches(
-        [RESOURCE_TYPE.SHEET, newSheet.id, selectedSheet, count],
-        newSheet,
-        undefined,
-        PatchOperator.ADD,
-        PatchOperator.REMOVE
-      )
-    );
   }, [sheets, selectedSheet]);
 
   /**
@@ -333,14 +224,6 @@ const Spreadsheet = (props: SpreadSheetProps) => {
             const datatype = detectDataType(value);
             cell.text = value;
             cell.datatype = datatype;
-
-            pushToUndoStack(
-              createPatches(
-                [RESOURCE_TYPE.SHEET, id, RESOURCE_TYPE.CELL, row, col],
-                { ...cell },
-                { ...previousValue }
-              )
-            );
           }
         }
       }
@@ -369,13 +252,6 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       if (sheet) {
         const previousValue = sheet.name;
         sheet.name = name;
-        pushToUndoStack(
-          createPatches(
-            [RESOURCE_TYPE.SHEET, id, OPERATION_TYPE.CHANGE_SHEET_NAME],
-            name,
-            previousValue
-          )
-        );
       }
     });
   }, []);
@@ -397,15 +273,6 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       /* Focus on the new grid */
       currentGrid.current?.focus();
 
-      pushToUndoStack(
-        createPatches(
-          [RESOURCE_TYPE.SHEET, id, newSelectedSheet, index],
-          undefined,
-          sheets[index],
-          PatchOperator.REMOVE,
-          PatchOperator.ADD
-        )
-      );
     },
     [sheets, selectedSheet]
   );
@@ -426,15 +293,6 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       });
       setSelectedSheet(newSheetId);
 
-      pushToUndoStack(
-        createPatches(
-          [RESOURCE_TYPE.SHEET, newSheetId, selectedSheet, index + 1],
-          newSheet,
-          undefined,
-          PatchOperator.ADD,
-          PatchOperator.REMOVE
-        )
-      );
     },
     [sheets, selectedSheet]
   );
@@ -463,41 +321,12 @@ const Spreadsheet = (props: SpreadSheetProps) => {
                 }
               }
             });
-            pushToUndoStack(
-              createPatches(
-                [
-                  RESOURCE_TYPE.SHEET,
-                  selectedSheet,
-                  RESOURCE_TYPE.SELECTION,
-                  JSON.stringify(selections),
-                  type,
-                  { ...activeCell }
-                ],
-                value,
-                previousValue
-              )
-            );
           } else if (activeCell) {
             const { rowIndex, columnIndex } = activeCell;
             cells[rowIndex] = cells[rowIndex] ?? {};
             const previousValue = cells[rowIndex][columnIndex]?.[type as keyof CellFormatting];
             cells[rowIndex][columnIndex] = cells[rowIndex][columnIndex] ?? {};
             cells[rowIndex][columnIndex][type as keyof CellFormatting] = value;
-
-            pushToUndoStack(
-              createPatches(
-                [
-                  RESOURCE_TYPE.SHEET,
-                  selectedSheet,
-                  RESOURCE_TYPE.CELL,
-                  rowIndex,
-                  columnIndex,
-                  type
-                ],
-                value,
-                previousValue
-              )
-            );
           }
         }
       });
@@ -635,21 +464,6 @@ const Spreadsheet = (props: SpreadSheetProps) => {
         }
       });
 
-      pushToUndoStack(
-        createPatches(
-          [
-            RESOURCE_TYPE.SHEET,
-            selectedSheet,
-            RESOURCE_TYPE.SELECTION,
-            JSON.stringify([fillSelection]),
-            null,
-            activeCell
-          ],
-          changes,
-          previousValue
-        )
-      );
-
       onChange?.(id, changes);
     },
     [sheets]
@@ -685,20 +499,6 @@ const Spreadsheet = (props: SpreadSheetProps) => {
               }
             });
 
-            pushToUndoStack(
-              createPatches(
-                [
-                  RESOURCE_TYPE.SHEET,
-                  id,
-                  RESOURCE_TYPE.SELECTION,
-                  JSON.stringify(selections),
-                  attribute,
-                  activeCell
-                ],
-                value,
-                previousValue
-              )
-            );
           } else {
             const { rowIndex, columnIndex } = activeCell;
             const previousValue = { ...cells[rowIndex]?.[columnIndex] };
@@ -706,19 +506,6 @@ const Spreadsheet = (props: SpreadSheetProps) => {
               cells[rowIndex][columnIndex].text = "";
             }
 
-            pushToUndoStack(
-              createPatches(
-                [
-                  RESOURCE_TYPE.SHEET,
-                  id,
-                  RESOURCE_TYPE.CELL,
-                  rowIndex,
-                  columnIndex
-                ],
-                { ...cells[rowIndex][columnIndex] },
-                previousValue
-              )
-            );
           }
         }
       });
@@ -1117,10 +904,10 @@ const Spreadsheet = (props: SpreadSheetProps) => {
               onFrozenRowChange={handleFrozenRowChange}
               onFrozenColumnChange={handleFrozenColumnChange}
               onBorderChange={handleBorderChange}
-              onRedo={redo}
-              onUndo={undo}
-              canRedo={canRedo}
-              canUndo={canUndo}
+              // onRedo={redo}
+              // onUndo={undo}
+              // canRedo={canRedo}
+              // canUndo={canUndo}
               enableDarkMode={enableDarkMode}
             />
           ) : null}
@@ -1158,7 +945,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
             onDeleteSheet={handleDeleteSheet}
             onDuplicateSheet={handleDuplicateSheet}
             onScroll={handleScroll}
-            onKeyDown={handleUndoKeyDown}
+            // onKeyDown={handleUndoKeyDown}
             hiddenRows={hiddenRows}
             hiddenColumns={hiddenColumns}
             onPaste={handlePaste}

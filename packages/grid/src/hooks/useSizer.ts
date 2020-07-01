@@ -3,6 +3,13 @@ import { ViewPortProps, GridRef, CellInterface, ItemSizer } from "./../Grid";
 import { debounce, AutoSizerCanvas } from "./../helpers";
 import invariant from "tiny-invariant";
 
+interface TextFormattingOptions {
+  bold?: boolean;
+  italic?: boolean;
+  strike?: boolean;
+  underline?: boolean
+}
+
 export interface IProps {
   /**
    * Used to access grid functions
@@ -35,7 +42,10 @@ export interface IProps {
   /**
    * Font used to calculate width
    */
-  font?: string;
+  fontFamily?: string;
+  fontSize?: number;
+  fontWeight?: string;
+  fontStyle?: string;
   /**
    * Strategy used to calculate column width
    * lazy = visible rows
@@ -103,7 +113,10 @@ const useAutoSizer = ({
   resizeStrategy = ResizeStrategy.lazy,
   rowCount,
   resizeOnScroll = true,
-  font = "12px Arial",
+  fontFamily = 'Arial',
+  fontSize = 12,
+  fontWeight = 'normal',
+  fontStyle = 'italic',
   autoResize = true,
   columnSizes = {}
 }: IProps): AutoResizerResults => {
@@ -112,7 +125,7 @@ const useAutoSizer = ({
     "Row count should be specified if resize stragtegy is full"
   );
 
-  const autoSizer = useRef(AutoSizerCanvas(font));
+  const autoSizer = useRef(AutoSizerCanvas({ fontFamily, fontSize, fontWeight, fontStyle }));
   const [viewport, setViewport] = useState<ViewPortProps>({
     rowStartIndex: 0,
     rowStopIndex: 0,
@@ -140,8 +153,8 @@ const useAutoSizer = ({
 
   /* Update any styles, fonts if necessary */
   useEffect(() => {
-    autoSizer.current.setFont(font);
-  }, [font]);
+    autoSizer.current.setFont({ fontFamily, fontSize, fontWeight, fontStyle });
+  }, [ fontFamily, fontSize, fontWeight, fontStyle ]);
 
   const getTextMetrics = (text: string) => {
     return autoSizer.current.measureText(text);
@@ -160,13 +173,27 @@ const useAutoSizer = ({
         return Math.max(minColumnWidth, columnSizes[columnIndex]);
       }
       while (start < visibleRows) {
-        const value =
+        const cellValue =
           getValueRef.current({
             rowIndex: start,
             columnIndex
           }) ?? null;
-        if (value !== null) {
-          const metrics = autoSizer.current.measureText(value);
+
+        /* Check if its null */
+        if (cellValue !== null) {
+          const text = typeof cellValue === 'object'
+            ? cellValue.text
+            : cellValue
+          
+          /* Reset fonts */
+          autoSizer.current.reset()
+          
+          /* Apply formatting */
+          if ((cellValue as TextFormattingOptions).bold) {
+            autoSizer.current.setFont({ fontWeight: 'bold' })
+          }
+
+          const metrics = autoSizer.current.measureText(text);
           if (metrics) {
             const width = Math.ceil(metrics.width) + cellSpacing;
             if (width > maxWidth) maxWidth = width;

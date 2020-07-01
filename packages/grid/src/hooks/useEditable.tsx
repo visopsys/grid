@@ -207,7 +207,7 @@ const DefaultEditor: React.FC<EditorProps> = props => {
   } = props;
   const borderWidth = 2;
   const padding = 10; /* 2 + 1 + 1 + 2 + 2 */
-  const textSizer = useRef(AutoSizerCanvas("12px Arial"));
+  const textSizer = useRef(AutoSizerCanvas());
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { x = 0, y = 0, width = 0, height = 0 } = position;
   const getWidth = useCallback(
