@@ -7,7 +7,7 @@ interface TextFormattingOptions {
   bold?: boolean;
   italic?: boolean;
   strike?: boolean;
-  underline?: boolean
+  underline?: boolean;
 }
 
 export interface IProps {
@@ -113,10 +113,10 @@ const useAutoSizer = ({
   resizeStrategy = ResizeStrategy.lazy,
   rowCount,
   resizeOnScroll = true,
-  fontFamily = 'Arial',
+  fontFamily = "Arial",
   fontSize = 12,
-  fontWeight = 'normal',
-  fontStyle = 'italic',
+  fontWeight = "normal",
+  fontStyle = "italic",
   autoResize = true,
   columnSizes = {}
 }: IProps): AutoResizerResults => {
@@ -125,7 +125,9 @@ const useAutoSizer = ({
     "Row count should be specified if resize stragtegy is full"
   );
 
-  const autoSizer = useRef(AutoSizerCanvas({ fontFamily, fontSize, fontWeight, fontStyle }));
+  const autoSizer = useRef(
+    AutoSizerCanvas({ fontFamily, fontSize, fontWeight, fontStyle })
+  );
   const [viewport, setViewport] = useState<ViewPortProps>({
     rowStartIndex: 0,
     rowStopIndex: 0,
@@ -154,7 +156,7 @@ const useAutoSizer = ({
   /* Update any styles, fonts if necessary */
   useEffect(() => {
     autoSizer.current.setFont({ fontFamily, fontSize, fontWeight, fontStyle });
-  }, [ fontFamily, fontSize, fontWeight, fontStyle ]);
+  }, [fontFamily, fontSize, fontWeight, fontStyle]);
 
   const getTextMetrics = (text: string) => {
     return autoSizer.current.measureText(text);
@@ -181,16 +183,15 @@ const useAutoSizer = ({
 
         /* Check if its null */
         if (cellValue !== null) {
-          const text = typeof cellValue === 'object'
-            ? cellValue.text
-            : cellValue
-          
+          const text =
+            typeof cellValue === "object" ? cellValue.text : cellValue;
+
           /* Reset fonts */
-          autoSizer.current.reset()
-          
+          autoSizer.current.reset();
+
           /* Apply formatting */
           if ((cellValue as TextFormattingOptions).bold) {
-            autoSizer.current.setFont({ fontWeight: 'bold' })
+            autoSizer.current.setFont({ fontWeight: "bold" });
           }
 
           const metrics = autoSizer.current.measureText(text);
