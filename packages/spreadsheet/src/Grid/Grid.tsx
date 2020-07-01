@@ -19,7 +19,8 @@ import Grid, {
   ScrollCoords,
   AreaProps,
   StylingProps,
-  useSizer as useAutoSizer
+  useSizer as useAutoSizer,
+  CellOverlay
 } from "@rowsncolumns/grid";
 import { debounce } from "@rowsncolumns/grid/dist/helpers";
 import {
@@ -50,6 +51,7 @@ import {
 } from "../types";
 import Editor from "./../Editor";
 import ContextMenu from "./../ContextMenu";
+import { Layer } from "react-konva";
 
 export interface SheetGridProps {
   theme?: ThemeType;
@@ -485,6 +487,24 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       [cells, selectedRowsAndCols, activeCell, hiddenRows, hiddenColumns]
     );
 
+    const overlayRenderer = useCallback(
+      (props: RendererProps) => {
+        const { rowIndex, columnIndex } = props;
+        const isHidden =
+          hiddenRows?.indexOf(rowIndex) !== -1 ||
+          hiddenColumns?.indexOf(columnIndex) !== -1;
+        const cell = { rowIndex, columnIndex };
+        return (
+          <CellOverlay
+            {...props}
+            {...(getValue(cell, true) as CellConfig)}
+            isHidden={isHidden}
+          />
+        );
+      },
+      [cells, selectedRowsAndCols, activeCell, hiddenRows, hiddenColumns]
+    );
+
     const handleScroll = useCallback(
       (scrollState: ScrollCoords) => {
         editableProps.onScroll?.(scrollState);
@@ -534,6 +554,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     return (
       <GridWrapper>
         <Grid
+          enableCellOverlay
           shadowSettings={{
             stroke: shadowStroke
           }}
@@ -548,6 +569,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           width={width}
           height={height}
           itemRenderer={itemRenderer}
+          overlayRenderer={overlayRenderer}
           wrapper={contextWrapper}
           selections={selections}
           activeCell={activeCell}
@@ -571,23 +593,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             onKeyDown?.(e);
           }}
           onContextMenu={showContextMenu}
-          // cellComparator={(a , b) => {
-          //   const { rowIndex: ar, columnIndex: ac } = a.props
-          //   const { rowIndex: br, columnIndex: bc } = a.props
-          //   const aValue = getValue({rowIndex: ar, columnIndex: ac}, true)
-          //   const bValue = getValue({rowIndex: br, columnIndex: bc}, true)
-          //   if (aValue || bValue) {
-          //     const aHasStroke = hasStroke(aValue)
-          //     const bHasStroke = hasStroke(bValue)
-          //     if (aHasStroke && bHasStroke) {
-          //       return ar > br && ac > br
-          //         ? -1
-          //         : 1
-          //     }
-          //     if (aHasStroke || bHasStroke) return 1
-          //   }
-          //   return -1
-          // }}
         />
         {editorComponent}
         {contextMenuProps && (

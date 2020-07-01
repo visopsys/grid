@@ -68,6 +68,21 @@ const QuickInfo: React.FC<QuickInfoProps> = memo(({ selections, cells }) => {
           <Text fontSize="xs">Sum: {sum}</Text>
         </Box>
       )}
+      {count > 0 && (
+        <Box
+          ml={2}
+          boxShadow={shadow}
+          bg={bg}
+          color={color}
+          borderRadius={5}
+          pl={2}
+          pr={2}
+          pt={1}
+          pb={1}
+        >
+          <Text fontSize="xs">Avg: {avg}</Text>
+        </Box>
+      )}
     </Box>
   );
 });

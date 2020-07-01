@@ -35,6 +35,7 @@ import {
 } from "./helpers";
 import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
+import { CellRenderer as defaultOverlayRenderer } from "./CellOverlay";
 import Selection from "./Selection";
 import FillHandle from "./FillHandle";
 import GridLine from './GridLine'
@@ -162,6 +163,10 @@ export interface GridProps
    */
   itemRenderer?: (props: RendererProps) => React.ReactNode;
   /**
+   * Render custom overlays like stroke on top of cell
+   */
+  overlayRenderer?: (props: RendererProps) => React.ReactNode;
+  /**
    * Allow users to customize selected cells design
    */
   selectionRenderer?: (props: SelectionProps) => React.ReactNode;
@@ -222,11 +227,12 @@ export interface GridProps
   /**
    * Shadow stroke color
    */
-  shadowStroke?: string
+  shadowStroke?: string;
   /**
-   * Change the order of cell rendering
+   * Draw overlay for each cell.
+   * Can be used to apply stroke or draw on top of a cell
    */
-  cellComparator?: (a: any, b: any) => any
+  enableCellOverlay?: boolean;
 }
 
 export interface CellRangeArea extends CellInterface {
@@ -266,7 +272,8 @@ export interface RendererProps
     CellPosition,
     ShapeConfig {
   key: Key;
-  isMergedCell?: boolean
+  isMergedCell?: boolean,
+  isOverlay?: boolean
 }
 
 export type ItemSizer = (index: number) => number;
@@ -388,7 +395,7 @@ const defaultGridLineRenderer = (props: ShapeConfig) => {
   return <GridLine {...props} />
 }
 export const RESET_SCROLL_EVENTS_DEBOUNCE_INTERVAL = 150;
-
+export const EMPTY_ARRAY = []
 /**
  * Grid component using React Konva
  * @param props
@@ -413,11 +420,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       selectionStrokeWidth = 1,
       activeCellStrokeWidth = 2,
       activeCell,
-      selections = [],
+      selections = EMPTY_ARRAY,
       frozenRows = 0,
       frozenColumns = 0,
       itemRenderer = defaultItemRenderer,
-      mergedCells = [],
+      enableCellOverlay = false,
+      overlayRenderer = defaultOverlayRenderer,
+      mergedCells = EMPTY_ARRAY,
       snap = false,
       scrollThrottleTimeout = 100,
       onViewChange,
@@ -425,11 +434,11 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       onBeforeRenderRow,
       showFrozenShadow = false,
       shadowSettings = defaultShadowSettings,
-      borderStyles = [],
+      borderStyles = EMPTY_ARRAY,
       children,
       stageProps,
       wrapper = (children: React.ReactNode): React.ReactNode => children,
-      cellAreas = [],
+      cellAreas = EMPTY_ARRAY,
       showFillHandle = true,
       fillSelection,
       overscanCount = 1,
@@ -439,7 +448,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       gridLineColor = '#E3E2E2',
       gridLineWidth = 1,
       gridLineRenderer = defaultGridLineRenderer,
-      cellComparator,
       ...rest
     } = props;
 
@@ -1234,7 +1242,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             points: [x1, y1, x2, y2],
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
-            offsetY: -0.5
+            offsetY: -0.5,
           })
         )
         gridLinesFrozenColumn.push(
@@ -1360,6 +1368,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
     /* Draw all cells */
     const cells: React.ReactNodeArray = [];
+    /**
+     * Lets users draw cells on top of existing canvas
+     */
+    const cellOverlays: React.ReactNodeArray = []
     if (columnCount > 0 && rowCount) {
       for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
         /* Skip frozen rows */
@@ -1376,28 +1388,58 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           let columnIndex = columnStartIndex;
           columnIndex <= columnStopIndex;
           columnIndex++
-        ) {
-          /* Skip frozen columns and merged cells */
+        ) {          
+          /**
+           * Skip frozen columns
+           * Skip merged cells that are out of bounds
+           */
           if (
-            columnIndex < frozenColumns ||
-            isMergedCell({ rowIndex, columnIndex })
+            columnIndex < frozenColumns
           ) {
             continue;
           }
-          const x = getColumnOffset({
-            index: columnIndex,
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current
-          });
+
+          const isMerged = isMergedCell({ rowIndex, columnIndex })
+          const bounds = getCellBounds({ rowIndex, columnIndex})
+          const actualBottom = Math.max(rowIndex, bounds.bottom);
+          const actualRight = Math.max(columnIndex, bounds.right);          
+          if (isMerged && !(bounds.top === rowIndex && bounds.left === columnIndex)) {
+            continue
+          }
+
           const y = getRowOffset({
             index: rowIndex,
             rowHeight,
             columnWidth,
             instanceProps: instanceProps.current
           });
-          const width = getColumnWidth(columnIndex, instanceProps.current);
-          const height = getRowHeight(rowIndex, instanceProps.current);
+          const height =
+            getRowOffset({
+              index: actualBottom,
+              rowHeight,
+              columnWidth,
+              instanceProps: instanceProps.current
+            }) -
+            y +
+            getRowHeight(actualBottom, instanceProps.current);
+    
+          const x = getColumnOffset({
+            index: columnIndex,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current
+          });
+    
+          const width =
+            getColumnOffset({
+              index: actualRight,
+              rowHeight,
+              columnWidth,
+              instanceProps: instanceProps.current
+            }) -
+            x +
+            getColumnWidth(actualRight, instanceProps.current);
+          
           cells.push(
             itemRenderer({
               x,
@@ -1406,9 +1448,23 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               height,
               rowIndex,
               columnIndex,
+              isMergedCell: isMerged,
               key: itemKey({ rowIndex, columnIndex })
             })
           );
+          
+          if (enableCellOverlay) {
+            cellOverlays.push(overlayRenderer({
+              x,
+              y,
+              width,
+              height,
+              rowIndex,
+              columnIndex,
+              isMergedCell: isMerged,
+              key: itemKey({ rowIndex, columnIndex })
+            }))
+          }
         }
       }
     }
@@ -1458,73 +1514,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       );
     }
 
-    /* Draw merged cells */
-    const mergedCellAreas = [];
-    const frozenColumnMergedCellAreas = [];
-    const frozenRowMergedCellAreas = [];
-    const frozenIntersectionMergedCells = [];
-    for (let i = 0; i < mergedCells.length; i++) {
-      const { top: rowIndex, left: columnIndex, right, bottom } = mergedCells[
-        i
-      ];
-      const isLeftBoundFrozen = columnIndex < frozenColumns;
-      const isTopBoundFrozen = rowIndex < frozenRows;
-      const isIntersectionFrozen =
-        rowIndex < frozenRows && columnIndex < frozenColumns;
-      const x = getColumnOffset({
-        index: columnIndex,
-        rowHeight,
-        columnWidth,
-        instanceProps: instanceProps.current
-      });
-      const y = getRowOffset({
-        index: rowIndex,
-        rowHeight,
-        columnWidth,
-        instanceProps: instanceProps.current
-      });
-      const width =
-        getColumnOffset({
-          index: right + 1,
-          rowHeight,
-          columnWidth,
-          instanceProps: instanceProps.current
-        }) - x;
-      const height =
-        getRowOffset({
-          index: bottom + 1,
-          rowHeight,
-          columnWidth,
-          instanceProps: instanceProps.current
-        }) - y;
-
-      const cellRenderer = itemRenderer({
-        x,
-        y,
-        width,
-        height,
-        rowIndex,
-        columnIndex,
-        isMergedCell: true,
-        key: itemKey({ rowIndex, columnIndex })
-      });
-
-      if (isLeftBoundFrozen) {
-        frozenColumnMergedCellAreas.push(cellRenderer);
-      }
-
-      if (isTopBoundFrozen) {
-        frozenRowMergedCellAreas.push(cellRenderer);
-      }
-
-      if (isIntersectionFrozen)
-        frozenIntersectionMergedCells.push(cellRenderer);
-
-      mergedCellAreas.push(cellRenderer);
-    }
-
     /* Draw frozen rows */
     const frozenRowCells = [];
+    const frozenRowCellOverlays: React.ReactNodeArray = []
     for (
       let rowIndex = 0;
       rowIndex < Math.min(columnStopIndex, frozenRows);
@@ -1543,25 +1535,51 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       ) {
         /* Skip merged cells columns */
         if (
-          columnIndex < frozenColumns ||
-          isMergedCell({ rowIndex, columnIndex })
+          columnIndex < frozenColumns
         ) {
           continue;
         }
-        const x = getColumnOffset({
-          index: columnIndex,
-          rowHeight,
-          columnWidth,
-          instanceProps: instanceProps.current
-        });
+
+        const isMerged = isMergedCell({ rowIndex, columnIndex })
+        const bounds = getCellBounds({ rowIndex, columnIndex})
+        const actualBottom = Math.max(rowIndex, bounds.bottom);
+        const actualRight = Math.max(columnIndex, bounds.right);          
+        if (isMerged && !(bounds.top === rowIndex && bounds.left === columnIndex)) {
+          continue
+        }
+
         const y = getRowOffset({
           index: rowIndex,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current
         });
-        const width = getColumnWidth(columnIndex, instanceProps.current);
-        const height = getRowHeight(rowIndex, instanceProps.current);
+        const height =
+          getRowOffset({
+            index: actualBottom,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current
+          }) -
+          y +
+          getRowHeight(actualBottom, instanceProps.current);
+  
+        const x = getColumnOffset({
+          index: columnIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        });
+  
+        const width =
+          getColumnOffset({
+            index: actualRight,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current
+          }) -
+          x +
+          getColumnWidth(actualRight, instanceProps.current);
 
         frozenRowCells.push(
           itemRenderer({
@@ -1571,14 +1589,29 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             height,
             rowIndex,
             columnIndex,
+            isMergedCell: isMerged,
             key: itemKey({ rowIndex, columnIndex })
           })
         );
+
+        if (enableCellOverlay) {
+          frozenRowCellOverlays.push(overlayRenderer({
+            x,
+            y,
+            width,
+            height,
+            rowIndex,
+            columnIndex,
+            isMergedCell: isMerged,
+            key: itemKey({ rowIndex, columnIndex })
+          }))
+        }
       }
     }
 
     /* Draw frozen columns */
     const frozenColumnCells = [];
+    const frozenColumnCellOverlays = []
     for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
       if (rowIndex < frozenRows) {
         continue;
@@ -1594,24 +1627,48 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnIndex < Math.min(columnStopIndex, frozenColumns);
         columnIndex++
       ) {
-        /* Skip merged cells columns */
-        if (isMergedCell({ rowIndex, columnIndex })) {
-          continue;
+        
+        const isMerged = isMergedCell({ rowIndex, columnIndex })
+        const bounds = getCellBounds({ rowIndex, columnIndex})
+        const actualBottom = Math.max(rowIndex, bounds.bottom);
+        const actualRight = Math.max(columnIndex, bounds.right);          
+        if (isMerged && !(bounds.top === rowIndex && bounds.left === columnIndex)) {
+          continue
         }
-        const x = getColumnOffset({
-          index: columnIndex,
-          rowHeight,
-          columnWidth,
-          instanceProps: instanceProps.current
-        });
+
         const y = getRowOffset({
           index: rowIndex,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current
         });
-        const width = getColumnWidth(columnIndex, instanceProps.current);
-        const height = getRowHeight(rowIndex, instanceProps.current);
+        const height =
+          getRowOffset({
+            index: actualBottom,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current
+          }) -
+          y +
+          getRowHeight(actualBottom, instanceProps.current);
+  
+        const x = getColumnOffset({
+          index: columnIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        });
+  
+        const width =
+          getColumnOffset({
+            index: actualRight,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current
+          }) -
+          x +
+          getColumnWidth(actualRight, instanceProps.current);
+
         frozenColumnCells.push(
           itemRenderer({
             x,
@@ -1620,9 +1677,23 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             height,
             rowIndex,
             columnIndex,
+            isMergedCell: isMerged,
             key: itemKey({ rowIndex, columnIndex })
           })
         );
+
+        if (enableCellOverlay) {
+          frozenColumnCellOverlays.push(overlayRenderer({
+            x,
+            y,
+            width,
+            height,
+            rowIndex,
+            columnIndex,
+            isMergedCell: isMerged,
+            key: itemKey({ rowIndex, columnIndex })
+          }))
+        }
       }
     }
 
@@ -1668,6 +1739,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
     /* Draw frozen intersection cells */
     const frozenIntersectionCells = [];
+    const frozenIntersectionCellOverlays = [];
     for (
       let rowIndex = 0;
       rowIndex < Math.min(rowStopIndex, frozenRows);
@@ -1678,24 +1750,47 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnIndex < Math.min(columnStopIndex, frozenColumns);
         columnIndex++
       ) {
-        /* Skip merged cells columns */
-        if (isMergedCell({ rowIndex, columnIndex })) {
-          continue;
+        const isMerged = isMergedCell({ rowIndex, columnIndex })
+        const bounds = getCellBounds({ rowIndex, columnIndex})
+        const actualBottom = Math.max(rowIndex, bounds.bottom);
+        const actualRight = Math.max(columnIndex, bounds.right);          
+        if (isMerged && !(bounds.top === rowIndex && bounds.left === columnIndex)) {
+          continue
         }
-        const x = getColumnOffset({
-          index: columnIndex,
-          rowHeight,
-          columnWidth,
-          instanceProps: instanceProps.current
-        });
+
         const y = getRowOffset({
           index: rowIndex,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current
         });
-        const width = getColumnWidth(columnIndex, instanceProps.current);
-        const height = getRowHeight(rowIndex, instanceProps.current);
+        const height =
+          getRowOffset({
+            index: actualBottom,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current
+          }) -
+          y +
+          getRowHeight(actualBottom, instanceProps.current);
+  
+        const x = getColumnOffset({
+          index: columnIndex,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        });
+  
+        const width =
+          getColumnOffset({
+            index: actualRight,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current
+          }) -
+          x +
+          getColumnWidth(actualRight, instanceProps.current);
+
         frozenIntersectionCells.push(
           itemRenderer({
             x,
@@ -1704,9 +1799,23 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             height,
             rowIndex,
             columnIndex,
+            isMergedCell: isMerged,
             key: itemKey({ rowIndex, columnIndex })
           })
         );
+
+        if (enableCellOverlay) {
+          frozenIntersectionCellOverlays.push(overlayRenderer({
+            x,
+            y,
+            width,
+            height,
+            rowIndex,
+            columnIndex,
+            isMergedCell: isMerged,
+            key: itemKey({ rowIndex, columnIndex })
+          }))
+        }
       }
     }
 
@@ -2086,8 +2195,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         : null;
     const stageChildren = (
       <>
-        <Layer          
-        >
+        <Layer>
           <Group
             clipX={frozenColumnWidth}
             clipY={frozenRowHeight}
@@ -2097,7 +2205,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             <Group offsetY={scrollTop} offsetX={scrollLeft}>      
               {gridLines}              
               {cells}
-              {mergedCellAreas}          
+              {cellOverlays}
               {ranges}
               {borderStylesCells}            
             </Group>
@@ -2112,7 +2220,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             <Group offsetY={0} offsetX={scrollLeft}>
               {gridLinesFrozenRow}
               {frozenRowCells}
-              {frozenRowMergedCellAreas}
+              {frozenRowCellOverlays}
             </Group>
           </Group>
           <Group
@@ -2124,7 +2232,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             <Group offsetY={scrollTop} offsetX={0}>
               {gridLinesFrozenColumn}
               {frozenColumnCells}
-              {frozenColumnMergedCellAreas}
+              {frozenColumnCellOverlays}
             </Group>
           </Group>
           <Group offsetY={0} offsetX={0}
@@ -2135,7 +2243,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           >
             {gridLinesFrozenIntersection}
             {frozenIntersectionCells}
-            {frozenIntersectionMergedCells}
+            {frozenIntersectionCellOverlays}
           </Group>
 
           {frozenRowShadowComponent}

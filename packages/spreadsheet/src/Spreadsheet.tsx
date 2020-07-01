@@ -126,7 +126,6 @@ const defaultSheets: Sheet[] = [
  * Spreadsheet component
  * TODO
  * 1. Undo/redo
- * 2. Order of cell rendering
  * @param props
  */
 const Spreadsheet = (props: SpreadSheetProps) => {

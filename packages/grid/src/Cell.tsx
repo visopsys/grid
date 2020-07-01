@@ -41,8 +41,10 @@ const Cell: React.FC<CellProps> = memo(props => {
     alpha = 1,
     strokeEnabled = true,
     globalCompositeOperation = "multiply",
+    isOverlay,
     ...rest
   } = props;
+  if (isOverlay) return null
   const fillEnabled = !!fill;
   const textStyle = `${fontWeight} ${fontStyle}`;
   return (

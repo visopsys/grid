@@ -1,5 +1,6 @@
 import Grid from "./Grid";
 import { CellRenderer, Cell } from "./Cell";
+import { CellOverlay } from './CellOverlay'
 import useEditable from "./hooks/useEditable";
 import useSelection from "./hooks/useSelection";
 import useTooltip from "./hooks/useTooltip";
@@ -13,6 +14,7 @@ export {
   Grid,
   CellRenderer,
   Cell,
+  CellOverlay,
   useEditable,
   useSelection,
   useTooltip,
