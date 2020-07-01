@@ -74,7 +74,7 @@ export interface SelectionResults {
   /**
    * Set the currently active cell
    */
-  setActiveCell: (coords: CellInterface | null) => void;
+  setActiveCell: (coords: CellInterface | null, shouldScroll?: boolean) => void;
   /**
    * Array of all selection bounds
    */
@@ -701,13 +701,13 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   /**
    * User modified active cell deliberately
    */
-  const handleSetActiveCell = useCallback((coords: CellInterface | null) => {
+  const handleSetActiveCell = useCallback((coords: CellInterface | null, shouldScroll = true) => {
     selectionStart.current = coords;
     firstActiveCell.current = coords;
     selectionEnd.current = coords;
     setActiveCell(coords);
     /* Scroll to the cell */
-    if (coords && gridRef?.current) {
+    if (shouldScroll && coords && gridRef?.current) {
       gridRef.current.scrollToItem(coords);
     }
   }, []);

@@ -1210,18 +1210,21 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const gridLines = []
     const gridLinesFrozenRow = []
     const gridLinesFrozenColumn = []
-    const gridLinesFrozenIntersection = []
+    const gridLinesFrozenIntersection = []    
     if (showGridLines) {
+      // Horizontal
       for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
+        /* Ignore frozen rows */
+        if (rowIndex < frozenRows) continue
         const x1 = 0
         const x2 = getColumnOffset({
-          index: columnStopIndex,
+          index: Math.min(columnStopIndex + 1, columnCount),
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current
         })
         const y1 = getRowOffset({
-          index: rowIndex,
+          index: Math.min(rowIndex + 1, rowCount),
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current
@@ -1244,13 +1247,14 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           })
         )
       }
+      // Vertical
       for (
         let columnIndex = columnStartIndex;
         columnIndex <= columnStopIndex;
         columnIndex++
       ) {
         const x1 = getColumnOffset({
-          index: columnIndex,
+          index: Math.min(columnIndex + 1, columnCount),
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current
@@ -1258,7 +1262,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         const x2 = x1
         const y1 = 0
         const y2 = getRowOffset({
-          index: rowStopIndex,
+          index: Math.min(rowStopIndex + 1, rowCount),
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current
@@ -1287,13 +1291,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       ) {
         const x1 = 0
         const x2 = getColumnOffset({
-          index: columnStopIndex,
+          index: Math.min(columnStopIndex + 1, columnCount),
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current
         })
         const y1 = getRowOffset({
-          index: rowIndex,
+          index: Math.min(rowIndex + 1, rowCount),
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current
@@ -1323,7 +1327,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnIndex++
       ) {
         const x1 = getColumnOffset({
-          index: columnIndex,
+          index: Math.min(columnIndex + 1, columnCount),
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current
@@ -1331,7 +1335,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         const x2 = x1
         const y1 = 0
         const y2 = getRowOffset({
-          index: rowStopIndex,
+          index: Math.min(rowStopIndex + 1, rowCount),
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current

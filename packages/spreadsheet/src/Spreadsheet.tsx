@@ -150,7 +150,9 @@ const Spreadsheet = (props: SpreadSheetProps) => {
     format,
     enableDarkMode = true,
     initialHiddenRows = EMPTY_ARRAY,
-    initialHiddenColumns = EMPTY_ARRAY
+    initialHiddenColumns = EMPTY_ARRAY,
+    rowCount = 1000,
+    columnCount = 1000,
   } = props;
   const [selectedSheet, setSelectedSheet] = useControllableState<string>({
     defaultValue: initialActiveSheet,
@@ -1131,6 +1133,8 @@ const Spreadsheet = (props: SpreadSheetProps) => {
             />
           ) : null}
           <Workbook
+            rowCount={rowCount}
+            columnCount={columnCount}
             onResize={handleResize}
             format={format}
             ref={currentGrid}

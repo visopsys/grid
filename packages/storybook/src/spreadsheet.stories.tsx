@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react'
 import Spreadsheet, { Sheet } from '@rowsncolumns/spreadsheet'
 
@@ -6,6 +7,7 @@ export default {
   component: Spreadsheet
 }
 
+// @ts-ignore
 const newSheet = ({ count }: { count: number}): Sheet => ({
   name: `Sheet${count}`,
   cells: {}
@@ -28,6 +30,8 @@ export const Default = () => {
     return (
       <div style={{margin: 10, display: 'flex', flexDirection: 'column', minHeight: 800}}>
         <Spreadsheet
+          // rowCount={10}
+          // columnCount={5}
           // sheets={sheets}
           // onNewSheet={handleNewSheet}
           onChange={(...args) => {

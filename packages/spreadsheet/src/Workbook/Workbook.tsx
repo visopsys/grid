@@ -111,7 +111,9 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       onInsertRow,
       onInsertColumn,
       onDeleteColumn,
-      onDeleteRow
+      onDeleteRow,
+      rowCount,
+      columnCount,
     } = props;
 
     const { colorMode } = useColorMode();
@@ -253,6 +255,8 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
             onDeleteRow={handleDeleteRow}
             onDeleteColumn={handleDeleteColumn}
             theme={theme}
+            rowCount={rowCount}
+            columnCount={columnCount}
           />
         </Flex>
         <Flex>

@@ -325,7 +325,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
      */
     useEffect(() => {
       if (scrollState) gridRef.current?.scrollTo(scrollState);
-      setActiveCell(initialActiveCell);
+      setActiveCell(initialActiveCell, false);
       setSelections(initialSelections);
       const rowIndices = Object.keys(rowSizes).map(Number);
       const colIndices = Object.keys(columnSizes).map(Number);
@@ -353,7 +353,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         onChange?.(changes);
 
         /* Focus on next active cell */
-        if (nextActiveCell) setActiveCell(nextActiveCell);
+        if (nextActiveCell) setActiveCell(nextActiveCell, true);
       },
       [cells]
     );
