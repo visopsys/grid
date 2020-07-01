@@ -75,7 +75,7 @@ export interface UseEditableOptions {
   /**
    * Hide editor on blur
    */
-  hideOnBlur?: boolean
+  hideOnBlur?: boolean;
 }
 
 export interface EditableResults {
@@ -335,7 +335,7 @@ const useEditable = ({
   canEdit = defaultCanEdit,
   frozenRows = 0,
   frozenColumns = 0,
-  hideOnBlur = true,
+  hideOnBlur = true
 }: UseEditableOptions): EditableResults => {
   const [isEditorShown, setShowEditor] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
@@ -577,20 +577,23 @@ const useEditable = ({
     []
   );
 
-  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    /* Persistent input, hides only during Enter key or during submit or cancel calls */
-    if (!hideOnBlur) {
-      return
-    }
-    if (currentActiveCellRef.current) {
-      if (isDirtyRef.current) {
-        handleSubmit(currentValueRef.current, currentActiveCellRef.current);
-      } else {
-        handleCancel();
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      /* Persistent input, hides only during Enter key or during submit or cancel calls */
+      if (!hideOnBlur) {
+        return;
       }
-    }
-    initialActiveCell.current = undefined;
-  }, [ hideOnBlur ]);
+      if (currentActiveCellRef.current) {
+        if (isDirtyRef.current) {
+          handleSubmit(currentValueRef.current, currentActiveCellRef.current);
+        } else {
+          handleCancel();
+        }
+      }
+      initialActiveCell.current = undefined;
+    },
+    [hideOnBlur]
+  );
 
   const handleChange = useCallback(
     (newValue: string, activeCell) => {
