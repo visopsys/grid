@@ -701,16 +701,19 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   /**
    * User modified active cell deliberately
    */
-  const handleSetActiveCell = useCallback((coords: CellInterface | null, shouldScroll = true) => {
-    selectionStart.current = coords;
-    firstActiveCell.current = coords;
-    selectionEnd.current = coords;
-    setActiveCell(coords);
-    /* Scroll to the cell */
-    if (shouldScroll && coords && gridRef?.current) {
-      gridRef.current.scrollToItem(coords);
-    }
-  }, []);
+  const handleSetActiveCell = useCallback(
+    (coords: CellInterface | null, shouldScroll = true) => {
+      selectionStart.current = coords;
+      firstActiveCell.current = coords;
+      selectionEnd.current = coords;
+      setActiveCell(coords);
+      /* Scroll to the cell */
+      if (shouldScroll && coords && gridRef?.current) {
+        gridRef.current.scrollToItem(coords);
+      }
+    },
+    []
+  );
 
   const handleFillHandleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {

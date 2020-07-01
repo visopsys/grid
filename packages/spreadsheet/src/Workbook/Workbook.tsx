@@ -113,7 +113,7 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       onDeleteColumn,
       onDeleteRow,
       rowCount,
-      columnCount,
+      columnCount
     } = props;
 
     const { colorMode } = useColorMode();
