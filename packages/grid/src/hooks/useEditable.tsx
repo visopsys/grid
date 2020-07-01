@@ -420,7 +420,7 @@ const useEditable = ({
       const { rowIndex, columnIndex } = coords;
       makeEditable({ rowIndex, columnIndex });
     },
-    [getValue]
+    [getValue, frozenRows, frozenColumns]
   );
 
   const isSelectionKey = useCallback((keyCode: number) => {

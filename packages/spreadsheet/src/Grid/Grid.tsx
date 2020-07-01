@@ -513,6 +513,10 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       },
       []
     );
+    const hasStroke = (value = {}) => {
+      return Object.keys(value).some(key => key.startsWith('stroke'))
+    }
+
     /**
      * Hides context menu
      */
@@ -567,6 +571,23 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             onKeyDown?.(e);
           }}
           onContextMenu={showContextMenu}
+          // cellComparator={(a , b) => {
+          //   const { rowIndex: ar, columnIndex: ac } = a.props
+          //   const { rowIndex: br, columnIndex: bc } = a.props
+          //   const aValue = getValue({rowIndex: ar, columnIndex: ac}, true)
+          //   const bValue = getValue({rowIndex: br, columnIndex: bc}, true)
+          //   if (aValue || bValue) {
+          //     const aHasStroke = hasStroke(aValue)
+          //     const bHasStroke = hasStroke(bValue)
+          //     if (aHasStroke && bHasStroke) {
+          //       return ar > br && ac > br
+          //         ? -1
+          //         : 1
+          //     }
+          //     if (aHasStroke || bHasStroke) return 1
+          //   }
+          //   return -1
+          // }}
         />
         {editorComponent}
         {contextMenuProps && (

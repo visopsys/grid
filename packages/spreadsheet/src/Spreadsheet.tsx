@@ -102,13 +102,6 @@ export interface CellConfig extends CellFormatting {
   text?: string;
 }
 
-/**
- * Spreadsheet component
- * TODO
- * 1. Undo/redo
- * 2. Order of cell rendering
- * @param props
- */
 const defaultActiveSheet = uuid();
 const defaultSheets: Sheet[] = [
   {
@@ -131,7 +124,10 @@ const defaultSheets: Sheet[] = [
 
 /**
  * Spreadsheet component
- * @param props 
+ * TODO
+ * 1. Undo/redo
+ * 2. Order of cell rendering
+ * @param props
  */
 const Spreadsheet = (props: SpreadSheetProps) => {
   const {

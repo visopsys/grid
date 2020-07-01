@@ -223,6 +223,10 @@ export interface GridProps
    * Shadow stroke color
    */
   shadowStroke?: string
+  /**
+   * Change the order of cell rendering
+   */
+  cellComparator?: (a: any, b: any) => any
 }
 
 export interface CellRangeArea extends CellInterface {
@@ -435,6 +439,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       gridLineColor = '#E3E2E2',
       gridLineWidth = 1,
       gridLineRenderer = defaultGridLineRenderer,
+      cellComparator,
       ...rest
     } = props;
 
@@ -1052,12 +1057,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         { rowIndex, columnIndex }: OptionalCellInterface,
         align: Align = Align.smart
       ) => {
-        /* Do not scroll if the row or column is frozen */
-        if (
-          (rowIndex && rowIndex < frozenRows) ||
-          (columnIndex && columnIndex < frozenColumns)
-        )
-          return;
         const frozenColumnOffset = getColumnOffset({
           index: frozenColumns,
           rowHeight,
@@ -1360,7 +1359,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     }
 
     /* Draw all cells */
-    const cells = [];
+    const cells: React.ReactNodeArray = [];
     if (columnCount > 0 && rowCount) {
       for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
         /* Skip frozen rows */
@@ -2096,9 +2095,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             clipHeight={containerHeight - frozenRowHeight}
           >
             <Group offsetY={scrollTop} offsetX={scrollLeft}>      
-              {gridLines}
+              {gridLines}              
               {cells}
-              {mergedCellAreas}
+              {mergedCellAreas}          
               {ranges}
               {borderStylesCells}            
             </Group>
