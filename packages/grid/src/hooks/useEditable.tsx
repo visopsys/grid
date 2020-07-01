@@ -64,8 +64,18 @@ export interface UseEditableOptions {
    * Callback fired before editing. Can be used to prevent editing. Do not use it, Can be removed in next release.
    */
   canEdit?: (coords: CellInterface) => boolean;
+  /**
+   * Number of frozen columns
+   */
   frozenColumns?: number;
+  /**
+   * Number of frozen rows
+   */
   frozenRows?: number;
+  /**
+   * Hide editor on blur
+   */
+  hideOnBlur?: boolean
 }
 
 export interface EditableResults {
@@ -324,7 +334,8 @@ const useEditable = ({
   activeCell,
   canEdit = defaultCanEdit,
   frozenRows = 0,
-  frozenColumns = 0
+  frozenColumns = 0,
+  hideOnBlur = true,
 }: UseEditableOptions): EditableResults => {
   const [isEditorShown, setShowEditor] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
@@ -567,6 +578,10 @@ const useEditable = ({
   );
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    /* Persistent input, hides only during Enter key or during submit or cancel calls */
+    if (!hideOnBlur) {
+      return
+    }
     if (currentActiveCellRef.current) {
       if (isDirtyRef.current) {
         handleSubmit(currentValueRef.current, currentActiveCellRef.current);
@@ -575,7 +590,7 @@ const useEditable = ({
       }
     }
     initialActiveCell.current = undefined;
-  }, []);
+  }, [ hideOnBlur ]);
 
   const handleChange = useCallback(
     (newValue: string, activeCell) => {

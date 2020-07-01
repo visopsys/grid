@@ -2179,6 +2179,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       return borderStyleCells;
     }, [borderStyles, columnStopIndex, rowStopIndex, columnCount, rowCount]);
 
+    /* Spacing for frozen row/column clip */
+    const frozenSpacing = 1
     /**
      * Prevents drawing hit region when scrolling
      */
@@ -2215,7 +2217,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             clipX={frozenColumnWidth}
             clipY={0}
             clipWidth={containerWidth - frozenColumnWidth}
-            clipHeight={frozenRowHeight}
+            clipHeight={frozenRowHeight + frozenSpacing}
           >
             <Group offsetY={0} offsetX={scrollLeft}>
               {gridLinesFrozenRow}
@@ -2226,7 +2228,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           <Group
             clipX={0}
             clipY={frozenRowHeight}
-            clipWidth={frozenColumnWidth}
+            clipWidth={frozenColumnWidth + frozenSpacing}
             clipHeight={containerHeight - frozenRowHeight}
           >
             <Group offsetY={scrollTop} offsetX={0}>
@@ -2238,8 +2240,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           <Group offsetY={0} offsetX={0}
             clipX={0}
             clipY={0}
-            clipWidth={frozenColumnWidth}
-            clipHeight={frozenRowHeight}
+            clipWidth={frozenColumnWidth + frozenSpacing}
+            clipHeight={frozenRowHeight + frozenSpacing}
           >
             {gridLinesFrozenIntersection}
             {frozenIntersectionCells}

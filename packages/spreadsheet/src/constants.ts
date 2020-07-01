@@ -247,23 +247,13 @@ export const cellsInSelectionVariant = (selections: SelectionArea[], variant: BO
               strokeLeftColor: color,
               strokeLeftWidth: thickness,
               strokeLeftDash: dash,
+              strokeRightColor: color,
+              strokeRightDash: dash,
+              strokeRightWidth: thickness,
+              strokeBottomColor: color,
+              strokeBottomDash: dash,
+              strokeBottomWidth: thickness,
               lineCap
-            }
-            if (k === bounds.right) {
-              cells[rowIndex][columnIndex] = {
-                ...cells[rowIndex][columnIndex],
-                strokeRightColor: color,
-                strokeRightDash: dash,
-                strokeRightWidth: thickness
-              }
-            }
-            if (j === bounds.bottom) {
-              cells[rowIndex][columnIndex] = {
-                ...cells[rowIndex][columnIndex],
-                strokeBottomColor: color,
-                strokeBottomDash: dash,
-                strokeBottomWidth: thickness
-              }
             }
             break
           
