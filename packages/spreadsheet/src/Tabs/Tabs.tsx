@@ -5,14 +5,13 @@ import { MdMenu, MdCheck } from "react-icons/md";
 import {
   // IconButton,
   Flex,
-  Button,
   Box,
   useTheme,
   useColorMode
   // Tooltip,
 } from "@chakra-ui/core";
 import { COLUMN_HEADER_WIDTH, DARK_MODE_COLOR } from "../constants";
-import { IconButton, Tooltip } from "./../styled";
+import { IconButton, Tooltip, Button } from "./../styled";
 import {
   Popover,
   PopoverTrigger,
@@ -61,7 +60,7 @@ const Tabs: React.FC<TabProps> = props => {
           variant="ghost"
         />
       </Tooltip>
-      <Popover placement="top" usePortal>
+      <Popover placement="top">
         <PopoverTrigger>
           <Box>
             <Tooltip

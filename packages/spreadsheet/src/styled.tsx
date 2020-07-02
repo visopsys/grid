@@ -1,14 +1,18 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import defaultStyled, { CreateStyled } from "@emotion/styled";
 import {
   theme,
   IconButton as ChakraIconButtonButton,
   Button as ChakraButton,
   Tooltip as ChakraTooltip,
-  PopoverContent as ChakraPopoverContent
+  PopoverContent as ChakraPopoverContent,
+  ButtonProps,
+  IconButtonProps,
+  PopoverContentProps
 } from "@chakra-ui/core";
 import { Box } from "@chakra-ui/core";
 import { SYSTEM_FONT } from "./constants";
+import { css } from "@emotion/core";
 
 export type ThemeType = typeof theme;
 const styled = defaultStyled as CreateStyled<ThemeType>;
@@ -45,6 +49,7 @@ export const Separator = styled(SeparatorComponent)`
   border-color: ${props => props.borderColor};
   border-width: 0 1px 0 0;
   height: 24px;
+  border-style: solid;
   margin: 0 ${props => props.theme.space[1]};
 `;
 
@@ -71,37 +76,61 @@ export const GridWrapper = styled.div`
 
 export const PercentIcon = () => <>%</>;
 
-export const IconButton = styled(ChakraIconButtonButton)`
-  font-family: inherit;
-  font-size: 100%;
-  line-height: 1.15;
-  margin: 0;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  padding: 0;
-  line-height: inherit;
-  color: inherit;
-  overflow: visible;
-  text-transform: none;
-  border-style: none;
-`;
+export const IconButton = forwardRef((props: IconButtonProps, ref) => {
+  return (
+    <ChakraIconButtonButton
+      ref={ref}
+      css={css`
+        font-family: ${SYSTEM_FONT};
+        line-height: 1.2;
+        background: transparent;
+        cursor: pointer;
+        line-height: inherit;
+        color: inherit;
+        overflow: visible;
+        text-transform: none;
+        border-style: none;
+      `}
+      {...props}
+    />
+  );
+});
 
-export const Button = styled(ChakraButton)`
-  font-family: ${SYSTEM_FONT};
-  font-size: 100%;
-  line-height: 1.15;
-  margin: 0;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  padding: 0;
-  line-height: inherit;
-  color: inherit;
-  overflow: visible;
-  text-transform: none;
-  border-style: none;
-`;
+export const PopoverContent = forwardRef((props: PopoverContentProps, ref) => {
+  return (
+    <ChakraPopoverContent
+      ref={ref}
+      css={css`
+        font-family: ${SYSTEM_FONT};
+      `}
+      {...props}
+    />
+  );
+});
+
+export const Button = forwardRef((props: ButtonProps, ref) => {
+  return (
+    <ChakraButton
+      ref={ref}
+      css={css`
+        font-family: ${SYSTEM_FONT};
+        line-height: 1.2;
+        background: transparent;
+        cursor: pointer;
+        line-height: inherit;
+        color: inherit;
+        overflow: visible;
+        text-transform: none;
+        border-style: none;
+      `}
+      {...props}
+    />
+  );
+});
 export const Tooltip = styled(ChakraTooltip)`
   font-family: ${SYSTEM_FONT};
+  line-height: 1.2;
+  font-size: 0.8rem;
+  padding-top: 4px;
+  padding-bottom: 4px;
 `;

@@ -42,7 +42,7 @@ import {
   useTheme,
   Popover,
   PopoverTrigger,
-  PopoverContent,
+  // PopoverContent,
   PopoverBody,
   PopoverArrow,
   Box,
@@ -57,7 +57,8 @@ import {
   Tooltip,
   Rect,
   Separator,
-  PercentIcon
+  PercentIcon,
+  PopoverContent
 } from "./../styled";
 import { DARK_MODE_COLOR } from "./../constants";
 import {

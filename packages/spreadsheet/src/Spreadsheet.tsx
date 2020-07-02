@@ -892,7 +892,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
     <ThemeProvider theme={theme}>
       <Global
         styles={css`
-          .rowsmncolumns-spreadsheet {
+          .rowsncolumns-spreadsheet {
             font-family: ${fontFamily};
           }
           .rowsncolumns-grid-container:focus {
