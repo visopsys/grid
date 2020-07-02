@@ -2222,6 +2222,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             <Group offsetY={0} offsetX={scrollLeft}>
               {gridLinesFrozenRow}
               {frozenRowCells}
+              {frozenRowShadowComponent}
               {frozenRowCellOverlays}
             </Group>
           </Group>
@@ -2234,6 +2235,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             <Group offsetY={scrollTop} offsetX={0}>
               {gridLinesFrozenColumn}
               {frozenColumnCells}
+              {frozenColumnShadowComponent}
               {frozenColumnCellOverlays}
             </Group>
           </Group>
@@ -2245,11 +2247,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           >
             {gridLinesFrozenIntersection}
             {frozenIntersectionCells}
+            {frozenRowShadowComponent}
+            {frozenColumnShadowComponent}
             {frozenIntersectionCellOverlays}
           </Group>
 
-          {frozenRowShadowComponent}
-          {frozenColumnShadowComponent}
+          
         </Layer>
         {children && typeof children === "function"
           ? children({

@@ -108,7 +108,7 @@ const defaultSheets: Sheet[] = [
     id: defaultActiveSheet,
     name: "Sheet1",
     frozenColumns: 0,
-    frozenRows: 3,
+    frozenRows: 0,
     activeCell: {
       rowIndex: 1,
       columnIndex: 1
