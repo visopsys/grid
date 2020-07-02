@@ -1,7 +1,14 @@
 import React from "react";
 import defaultStyled, { CreateStyled } from "@emotion/styled";
-import { theme } from "@chakra-ui/core";
+import {
+  theme,
+  IconButton as ChakraIconButtonButton,
+  Button as ChakraButton,
+  Tooltip as ChakraTooltip,
+  PopoverContent as ChakraPopoverContent
+} from "@chakra-ui/core";
 import { Box } from "@chakra-ui/core";
+import { SYSTEM_FONT } from "./constants";
 
 export type ThemeType = typeof theme;
 const styled = defaultStyled as CreateStyled<ThemeType>;
@@ -19,6 +26,7 @@ const Toolbar: React.FC<ToolbarProps> = props => <Box {...props} />;
 export const StyledToolbar = styled(Toolbar)`
   min-height: 40px;
   border-color: ${props => props.borderColor};
+  border-style: solid;
   background: ${props => props.backgroundColor};
   border-width: 1px 0;
   display: flex;
@@ -62,3 +70,38 @@ export const GridWrapper = styled.div`
 `;
 
 export const PercentIcon = () => <>%</>;
+
+export const IconButton = styled(ChakraIconButtonButton)`
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  padding: 0;
+  line-height: inherit;
+  color: inherit;
+  overflow: visible;
+  text-transform: none;
+  border-style: none;
+`;
+
+export const Button = styled(ChakraButton)`
+  font-family: ${SYSTEM_FONT};
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  padding: 0;
+  line-height: inherit;
+  color: inherit;
+  overflow: visible;
+  text-transform: none;
+  border-style: none;
+`;
+export const Tooltip = styled(ChakraTooltip)`
+  font-family: ${SYSTEM_FONT};
+`;

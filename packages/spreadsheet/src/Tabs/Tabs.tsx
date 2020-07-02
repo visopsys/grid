@@ -3,21 +3,22 @@ import { Sheet } from "../Spreadsheet";
 import { GoPlus } from "react-icons/go";
 import { MdMenu, MdCheck } from "react-icons/md";
 import {
-  IconButton,
+  // IconButton,
   Flex,
   Button,
   Box,
   useTheme,
-  useColorMode,
-  Tooltip,
+  useColorMode
+  // Tooltip,
 } from "@chakra-ui/core";
 import { COLUMN_HEADER_WIDTH, DARK_MODE_COLOR } from "../constants";
+import { IconButton, Tooltip } from "./../styled";
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  PopoverArrow,
+  PopoverArrow
 } from "@chakra-ui/core";
 import TabItem from "./TabItem";
 import { translations } from "../translations";
@@ -32,7 +33,7 @@ interface TabProps {
   onDuplicateSheet?: (id: string) => void;
 }
 
-const Tabs: React.FC<TabProps> = (props) => {
+const Tabs: React.FC<TabProps> = props => {
   const {
     sheets,
     onSelect,
@@ -40,7 +41,7 @@ const Tabs: React.FC<TabProps> = (props) => {
     selectedSheet,
     onChangeSheetName,
     onDeleteSheet,
-    onDuplicateSheet,
+    onDuplicateSheet
   } = props;
   const theme = useTheme();
   const { colorMode } = useColorMode();

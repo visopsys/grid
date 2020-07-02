@@ -6,7 +6,7 @@ import React, {
   memo,
   useImperativeHandle,
   forwardRef,
-  useState,
+  useState
 } from "react";
 import Grid, {
   RendererProps,
@@ -20,13 +20,13 @@ import Grid, {
   AreaProps,
   StylingProps,
   useSizer as useAutoSizer,
-  CellOverlay,
+  CellOverlay
 } from "@rowsncolumns/grid";
 import { debounce } from "@rowsncolumns/grid/dist/helpers";
 import {
   ThemeProvider,
   ColorModeProvider,
-  useColorMode,
+  useColorMode
 } from "@chakra-ui/core";
 import {
   COLUMN_HEADER_WIDTH,
@@ -36,7 +36,7 @@ import {
   DARK_MODE_COLOR_LIGHT,
   DARK_MODE_COLOR,
   HEADER_BORDER_COLOR,
-  CELL_BORDER_COLOR,
+  CELL_BORDER_COLOR
 } from "./../constants";
 import HeaderCell from "./../HeaderCell";
 import Cell from "./../Cell";
@@ -48,7 +48,7 @@ import {
   CellDataFormatting,
   AXIS,
   STROKE_FORMATTING,
-  FormatType,
+  FormatType
 } from "../types";
 import Editor from "./../Editor";
 import ContextMenu from "./../ContextMenu";
@@ -198,7 +198,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       onInsertRow,
       onInsertColumn,
       onDeleteColumn,
-      onDeleteRow,
+      onDeleteRow
     } = props;
     const gridRef = useRef<GridRef | null>(null);
     const { colorMode } = useColorMode();
@@ -209,7 +209,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const debounceScroll = useRef(debounce(onScroll, 1000));
     const [
       contextMenuProps,
-      setContextMenuProps,
+      setContextMenuProps
     ] = useState<ContextMenuProps | null>(null);
 
     useImperativeHandle(forwardedRef, () => {
@@ -227,7 +227,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         resizeColumns: gridRef.current?.resizeColumns,
         resizeRows: gridRef.current?.resizeRows,
         getCellBounds: gridRef.current?.getCellBounds,
-        getScrollPosition: gridRef.current?.getScrollPosition,
+        getScrollPosition: gridRef.current?.getScrollPosition
       };
     });
 
@@ -256,7 +256,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       getValue: (cell: CellInterface) => getValue(cell, true),
       columnSizes,
       autoResize: false,
-      resizeOnScroll: false,
+      resizeOnScroll: false
     });
 
     /**
@@ -277,7 +277,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       gridRef,
       rowCount,
       columnCount,
-      onFill,
+      onFill
     });
 
     /**
@@ -289,7 +289,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       activeCell,
       getValue,
       onPaste,
-      onCut,
+      onCut
     });
 
     /**
@@ -332,7 +332,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       const colIndices = Object.keys(columnSizes).map(Number);
       gridRef.current?.resetAfterIndices?.({
         rowIndex: rowIndices.length ? Math.min(...rowIndices) : 0,
-        columnIndex: colIndices.length ? Math.min(...colIndices) : 0,
+        columnIndex: colIndices.length ? Math.min(...colIndices) : 0
       });
     }, [selectedSheet]);
 
@@ -346,9 +346,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const changes = {
           [rowIndex]: {
             [columnIndex]: {
-              text: value,
-            },
-          },
+              text: value
+            }
+          }
         };
 
         onChange?.(changes);
@@ -377,7 +377,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     } = useEditable({
       getEditor: (cell: CellInterface | null) => {
         const config = getValue(cell, true) as CellConfig;
-        return (props) => (
+        return props => (
           <Editor {...props} background={config?.fill} color={config?.color} />
         );
       },
@@ -393,7 +393,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         if (cell.rowIndex === 0 || cell.columnIndex === 0) return false;
         return true;
       },
-      onDelete: onDelete,
+      onDelete: onDelete
     });
 
     const getNextFocusableCell = useCallback(
@@ -421,7 +421,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       [minColumnWidth, hiddenRows, rowSizes, selectedSheet]
     );
     const contextWrapper = useCallback(
-      (children) => {
+      children => {
         return (
           <ThemeProvider theme={theme}>
             <ColorModeProvider>{children}</ColorModeProvider>
@@ -527,7 +527,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const { x, y } = pos;
         setContextMenuProps({
           left: x,
-          top: y,
+          top: y
         });
       },
       []
@@ -555,7 +555,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         <Grid
           enableCellOverlay
           shadowSettings={{
-            stroke: shadowStroke,
+            stroke: shadowStroke
           }}
           showFrozenShadow
           gridLineColor={gridLineColor}

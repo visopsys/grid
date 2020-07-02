@@ -3,9 +3,9 @@
   "exclude": ["node_modules"],
   "compilerOptions": {
     "declaration": true,
-    "module": "commonjs",
+    "module": "esnext",
     "noImplicitAny": true,
-    "target": "es6",
+    "target": "es5",
     "moduleResolution": "node",
     "jsx": "react",
     "skipLibCheck": true,

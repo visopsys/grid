@@ -43,7 +43,7 @@ export enum PatchOperator {
   ADD = "add",
   REMOVE = "remove",
   REPLACE = "replace",
-  MOVE = "move",
+  MOVE = "move"
 }
 
 /**
@@ -73,7 +73,7 @@ const useUndo = (props: UndoProps = {}): UndoResults => {
   const { onRedo, onUndo } = props;
   const undoStack = useRef<Stack[]>([]);
   const undoStackPointer = useRef<number>(-1);
-  const [_, forceRender] = useReducer((s) => s + 1, 0);
+  const [_, forceRender] = useReducer(s => s + 1, 0);
 
   // Enable global undo
   // useEffect(() => {
@@ -128,7 +128,7 @@ const useUndo = (props: UndoProps = {}): UndoResults => {
     add: addUndoable,
     onKeyDown: handleKeyDown,
     canUndo: !(undoStackPointer.current < 0),
-    canRedo: !(undoStackPointer.current === undoStack.current.length - 1),
+    canRedo: !(undoStackPointer.current === undoStack.current.length - 1)
   };
 };
 

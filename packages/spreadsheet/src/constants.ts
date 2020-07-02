@@ -4,13 +4,13 @@ import {
   CellDataFormatting,
   BORDER_VARIANT,
   BORDER_STYLE,
-  CellFormatting,
+  CellFormatting
 } from "./types";
 import {
   isNull,
   SelectionArea,
   CellInterface,
-  AreaProps,
+  AreaProps
 } from "@rowsncolumns/grid";
 import SSF from "ssf";
 
@@ -25,7 +25,9 @@ export const EMPTY_ARRAY = [];
 export const HEADER_BORDER_COLOR = "#C0C0C0";
 export const CELL_BORDER_COLOR = "#E3E2E2";
 export const FORMAT_PERCENT = "#.00";
-export const FORMAT_CURRENCY = "$#.00";
+export const FORMAT_CURRENCY = "#.00";
+export const SYSTEM_FONT =
+  "-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji";
 
 /**
  * Number to alphabet
@@ -55,13 +57,17 @@ export const createNewSheet = ({ count }: { count: number }): Sheet => ({
   selections: [],
   scrollState: { scrollTop: 0, scrollLeft: 0 },
   columnSizes: {},
-  rowSizes: {},
+  rowSizes: {}
 });
 
 /**
  * UUID generator
  */
-export const uuid = () => "_" + Math.random().toString(36).substr(2, 9);
+export const uuid = () =>
+  "_" +
+  Math.random()
+    .toString(36)
+    .substr(2, 9);
 
 /**
  * Converts a value to string
@@ -88,21 +94,28 @@ export const format = (
   if (value === void 0 || isNull(value) || datatype !== DATATYPE.NUMBER)
     return castToString(value);
   if (!formatting) return castToString(value);
-  let num = parseFloat(typeof value !== "string" ? value.toString() : value);
-  if (formatting.decimals) {
-    let fmt = Array.from({ length: formatting.decimals })
-      .map((_, i) => "0")
-      .join("");
-    value = SSF.format(`#.${fmt}`, num);
-  }
-  if (formatting.percent) {
-    value = SSF.format(FORMAT_PERCENT, num);
-  }
-  if (formatting.currency) {
-    value = SSF.format(FORMAT_CURRENCY, num);
-  }
-  if (formatting.customFormat) {
-    value = SSF.format(formatting.customFormat, num);
+  const num = parseFloat(typeof value !== "string" ? "" + value : value);
+  try {
+    if (formatting.decimals) {
+      let fmt = Array.from({ length: formatting.decimals })
+        .map((_, i) => "0")
+        .join("");
+      value = SSF.format(`#.${fmt}`, num);
+    }
+    if (formatting.percent) {
+      value = SSF.format(FORMAT_PERCENT, num);
+    }
+    if (formatting.currency) {
+      value = SSF.format(
+        `${formatting.currencySymbol || "$"}${FORMAT_CURRENCY}`,
+        num
+      );
+    }
+    if (formatting.customFormat) {
+      value = SSF.format(formatting.customFormat, num);
+    }
+  } catch (err) {
+    console.error("Error while formatting ", num, err);
   }
   return "" + value;
 };
@@ -152,7 +165,7 @@ export const createBorderStyle = (
         stroke: color,
         strokeWidth: thickness,
         strokeDash: dash,
-        lineCap,
+        lineCap
       };
 
     case BORDER_VARIANT.BOTTOM:
@@ -160,7 +173,7 @@ export const createBorderStyle = (
         strokeBottomColor: color,
         strokeBottomWidth: thickness,
         strokeBottomDash: dash,
-        lineCap,
+        lineCap
       };
 
     case BORDER_VARIANT.RIGHT:
@@ -168,7 +181,7 @@ export const createBorderStyle = (
         strokeRightColor: color,
         strokeRightWidth: thickness,
         strokeRightDash: dash,
-        lineCap,
+        lineCap
       };
 
     case BORDER_VARIANT.LEFT:
@@ -176,7 +189,7 @@ export const createBorderStyle = (
         strokeLeftColor: color,
         strokeLeftWidth: thickness,
         strokeLeftDash: dash,
-        lineCap,
+        lineCap
       };
   }
   return {};
@@ -193,7 +206,7 @@ export const luminance = (color: string | undefined, amount: number) => {
     "#" +
     color
       .replace(/^#/, "")
-      .replace(/../g, (color) =>
+      .replace(/../g, color =>
         (
           "0" +
           Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)
@@ -244,7 +257,7 @@ export const cellsInSelectionVariant = (
                 strokeTopColor: color,
                 strokeTopWidth: thickness,
                 strokeTopDash: dash,
-                lineCap,
+                lineCap
               };
             }
             if (k === bounds.right) {
@@ -253,7 +266,7 @@ export const cellsInSelectionVariant = (
                 strokeRightColor: color,
                 strokeRightWidth: thickness,
                 strokeRightDash: dash,
-                lineCap,
+                lineCap
               };
             }
             if (j === bounds.bottom) {
@@ -262,7 +275,7 @@ export const cellsInSelectionVariant = (
                 strokeBottomColor: color,
                 strokeBottomWidth: thickness,
                 strokeBottomDash: dash,
-                lineCap,
+                lineCap
               };
             }
             if (k === bounds.left) {
@@ -271,7 +284,7 @@ export const cellsInSelectionVariant = (
                 strokeLeftColor: color,
                 strokeLeftWidth: thickness,
                 strokeLeftDash: dash,
-                lineCap,
+                lineCap
               };
             }
             break;
@@ -290,7 +303,7 @@ export const cellsInSelectionVariant = (
               strokeBottomColor: color,
               strokeBottomDash: dash,
               strokeBottomWidth: thickness,
-              lineCap,
+              lineCap
             };
             break;
 
@@ -302,14 +315,14 @@ export const cellsInSelectionVariant = (
               strokeBottomColor: color,
               strokeBottomDash: dash,
               strokeBottomWidth: thickness,
-              lineCap,
+              lineCap
             };
             if (k === bounds.right) {
               cells[rowIndex][columnIndex] = {
                 strokeBottomColor: color,
                 strokeBottomDash: dash,
                 strokeBottomWidth: thickness,
-                lineCap,
+                lineCap
               };
             }
             if (j === bounds.bottom) {
@@ -328,7 +341,7 @@ export const cellsInSelectionVariant = (
               strokeBottomColor: color,
               strokeBottomDash: dash,
               strokeBottomWidth: thickness,
-              lineCap,
+              lineCap
             };
             if (j === bounds.bottom) {
               cells[rowIndex][columnIndex] = {};
@@ -340,7 +353,7 @@ export const cellsInSelectionVariant = (
               strokeRightColor: color,
               strokeRightDash: dash,
               strokeRightWidth: thickness,
-              lineCap,
+              lineCap
             };
             if (k === bounds.right) {
               cells[rowIndex][columnIndex] = {};
@@ -353,7 +366,7 @@ export const cellsInSelectionVariant = (
                 strokeLeftColor: color,
                 strokeLeftDash: dash,
                 strokeLeftWidth: thickness,
-                lineCap,
+                lineCap
               };
             }
             break;
@@ -364,7 +377,7 @@ export const cellsInSelectionVariant = (
                 strokeRightColor: color,
                 strokeRightDash: dash,
                 strokeRightWidth: thickness,
-                lineCap,
+                lineCap
               };
             }
             break;
@@ -375,7 +388,7 @@ export const cellsInSelectionVariant = (
                 strokeTopColor: color,
                 strokeTopDash: dash,
                 strokeTopWidth: thickness,
-                lineCap,
+                lineCap
               };
             }
             break;
@@ -386,7 +399,7 @@ export const cellsInSelectionVariant = (
                 strokeBottomColor: color,
                 strokeBottomDash: dash,
                 strokeBottomWidth: thickness,
-                lineCap,
+                lineCap
               };
             }
             break;
