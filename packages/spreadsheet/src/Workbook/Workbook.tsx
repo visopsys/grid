@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useEffect, memo, forwardRef } from "react";
 import { useMeasure } from "react-use";
 import Grid from "./../Grid";
-import { Flex, useColorMode, useTheme } from "@chakra-ui/core";
+import { Flex, useColorMode } from "@chakra-ui/core";
 import { BottomPanel, ThemeType } from "./../styled";
 import Tabs from "./../Tabs";
 import { SpreadSheetProps, Sheet, Cells, SizeType } from "../Spreadsheet";
@@ -9,9 +9,9 @@ import { CellInterface, SelectionArea, ScrollCoords } from "@rowsncolumns/grid";
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
 import QuickInfo from "./../QuickInfo";
-import { DARK_MODE_COLOR_LIGHT, DARK_MODE_COLOR } from "../constants";
+import { DARK_MODE_COLOR_LIGHT } from "../constants";
 
-export interface WorkbookProps extends SpreadSheetProps {
+export interface WorkbookProps extends Omit<SpreadSheetProps, "onChange"> {
   currentSheet: Sheet;
   theme: ThemeType;
   sheets: Sheet[];
@@ -42,6 +42,7 @@ export interface WorkbookProps extends SpreadSheetProps {
   onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
   hiddenRows?: number[];
   hiddenColumns?: number[];
+  onChange?: (id: string, changes: Cells) => void;
   onPaste?: (
     id: string,
     rows: (string | null)[][],

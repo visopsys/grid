@@ -11,7 +11,7 @@ import { Rect } from "react-konva";
 import { ShapeConfig } from "konva/types/Shape";
 import { AXIS } from "../types";
 
-interface HeaderCellProps extends RendererProps {
+export interface HeaderCellProps extends RendererProps {
   isActive?: boolean;
   isHidden?: boolean;
   onResize?: (axis: AXIS, index: number, dimension: number) => void;

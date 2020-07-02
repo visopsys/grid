@@ -10,58 +10,58 @@ export enum FORMATTING_TYPE {
   PERCENT = "percent",
   DECIMALS = "decimals",
   CURRENCY = "currency",
-  CURRENCY_SYMBOL = "currencySymbol"
+  CURRENCY_SYMBOL = "currencySymbol",
 }
 
 export enum FONT_WEIGHT {
   BOLD = "bold",
-  NORMAL = "normal"
+  NORMAL = "normal",
 }
 
 export enum FONT_STYLE {
   ITALIC = "italic",
-  NORMAL = "normal"
+  NORMAL = "normal",
 }
 
 export enum TEXT_DECORATION {
   STRIKE = "line-through",
   NONE = "",
-  UNDERLINE = "underline"
+  UNDERLINE = "underline",
 }
 
 export enum VERTICAL_ALIGNMENT {
   TOP = "top",
   MIDDLE = "middle",
-  BOTTOM = "bottom"
+  BOTTOM = "bottom",
 }
 
 export enum HORIZONTAL_ALIGNMENT {
   LEFT = "left",
   CENTER = "center",
-  RIGHT = "right"
+  RIGHT = "right",
 }
 
 export enum DATATYPE {
   NUMBER = "number",
-  STRING = "string"
+  STRING = "string",
 }
 
 export enum STROKE_FORMATTING {
-  STROKE = 'stroke',
-  STROKE_TOP_COLOR = 'strokeTopColor',
-  STROKE_RIGHT_COLOR = 'strokeRightColor',
-  STROKE_BOTTOM_COLOR = 'strokeBottomColor',
-  STROKE_LEFT_COLOR = 'strokeLeftColor',
-  STROKE_WIDTH = 'strokeWidth',
-  STROKE_TOP_WIDTH = 'strokeTopWidth',
-  STROKE_RIGHT_WIDTH = 'strokeRightWidth',
-  STROKE_BOTTOM_WIDTH = 'strokeBottomWidth',
-  STROKE_LEFT_WIDTH = 'strokeLeftWidth',
-  STROKE_DASH = 'strokeDash',
-  STROKE_TOP_DASH = 'strokeTopDash',
-  STROKE_RIGHT_DASH = 'strokeRightDash',
-  STROKE_BOTTOM_DASH = 'strokeBottomDash',
-  STROKE_LEFT_DASH = 'strokeLeftDash',
+  STROKE = "stroke",
+  STROKE_TOP_COLOR = "strokeTopColor",
+  STROKE_RIGHT_COLOR = "strokeRightColor",
+  STROKE_BOTTOM_COLOR = "strokeBottomColor",
+  STROKE_LEFT_COLOR = "strokeLeftColor",
+  STROKE_WIDTH = "strokeWidth",
+  STROKE_TOP_WIDTH = "strokeTopWidth",
+  STROKE_RIGHT_WIDTH = "strokeRightWidth",
+  STROKE_BOTTOM_WIDTH = "strokeBottomWidth",
+  STROKE_LEFT_WIDTH = "strokeLeftWidth",
+  STROKE_DASH = "strokeDash",
+  STROKE_TOP_DASH = "strokeTopDash",
+  STROKE_RIGHT_DASH = "strokeRightDash",
+  STROKE_BOTTOM_DASH = "strokeBottomDash",
+  STROKE_LEFT_DASH = "strokeLeftDash",
 }
 
 export interface CellFormatting extends CellDataFormatting {
@@ -80,16 +80,16 @@ export interface CellFormatting extends CellDataFormatting {
   strokeRightColor?: string;
   strokeBottomColor?: string;
   strokeLeftColor?: string;
-  strokeWidth?: number
+  strokeWidth?: number;
   strokeTopWidth?: number;
   strokeRightWidth?: number;
   strokeBottomWidth?: number;
   strokeLeftWidth?: number;
   strokeDash?: number[];
   strokeTopDash?: number[];
-  strokeRightDash?: number[]
-  strokeBottomDash?: number[]
-  strokeLeftDash?: number[]
+  strokeRightDash?: number[];
+  strokeBottomDash?: number[];
+  strokeLeftDash?: number[];
   lineCap?: string;
 }
 
@@ -98,11 +98,12 @@ export interface CellDataFormatting {
   [FORMATTING_TYPE.DECIMALS]?: number;
   [FORMATTING_TYPE.CURRENCY]?: boolean;
   [FORMATTING_TYPE.CURRENCY_SYMBOL]?: string;
+  customFormat?: string;
 }
 
 export enum AXIS {
   X = "x",
-  Y = "y"
+  Y = "y",
 }
 
 export enum BORDER_VARIANT {
@@ -115,20 +116,20 @@ export enum BORDER_VARIANT {
   RIGHT = "right",
   BOTTOM = "bottom",
   TOP = "top",
-  NONE = "none"
+  NONE = "none",
 }
 
 export enum OPERATION_TYPE {
   CELL_ATTRIBUTE = "cell_attribute",
   CHANGE_SHEET_NAME = "change_sheet_name",
   SHEET_ADD = "sheet_add",
-  SHEET_REMOVE = "sheet_remove"
+  SHEET_REMOVE = "sheet_remove",
 }
 
 export enum RESOURCE_TYPE {
   SHEET = "sheet",
   CELL = "cell",
-  SELECTION = "selection"
+  SELECTION = "selection",
 }
 
 export enum BORDER_STYLE {
@@ -137,5 +138,11 @@ export enum BORDER_STYLE {
   "THICK" = "thick",
   "DASHED" = "dashed",
   "DOTTED" = "dotted",
-  "DOUBLE" = "double"
+  "DOUBLE" = "double",
 }
+
+export type FormatType = (
+  value: React.ReactText | undefined,
+  datatype?: DATATYPE,
+  formatting?: CellDataFormatting
+) => string | undefined;

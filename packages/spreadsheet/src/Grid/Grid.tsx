@@ -48,10 +48,13 @@ import {
   CellDataFormatting,
   AXIS,
   STROKE_FORMATTING,
+  FormatType,
 } from "../types";
 import Editor from "./../Editor";
 import ContextMenu from "./../ContextMenu";
 import { Layer } from "react-konva";
+import { CellProps } from "../Cell/Cell";
+import { HeaderCellProps } from "../HeaderCell/HeaderCell";
 
 export interface SheetGridProps {
   theme?: ThemeType;
@@ -59,8 +62,8 @@ export interface SheetGridProps {
   minRowHeight?: number;
   rowCount?: number;
   columnCount?: number;
-  CellRenderer?: React.FC<RendererProps>;
-  HeaderCellRenderer?: React.FC<RendererProps>;
+  CellRenderer?: React.FC<CellProps>;
+  HeaderCellRenderer?: React.FC<HeaderCellProps>;
   width?: number;
   height?: number;
   cells: Cells;
@@ -79,11 +82,7 @@ export interface SheetGridProps {
   onActiveCellChange: (cell: CellInterface | null, value?: string) => void;
   onActiveCellValueChange: (value: string) => void;
   onDelete?: (activeCell: CellInterface, selections: SelectionArea[]) => void;
-  format?: (
-    value: string,
-    datatype?: DATATYPE,
-    formatting?: CellDataFormatting
-  ) => string;
+  format?: FormatType;
   onResize?: (axis: AXIS, index: number, dimension: number) => void;
   columnSizes?: SizeType;
   rowSizes?: SizeType;
@@ -339,7 +338,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
 
     const handleSubmit = useCallback(
       (
-        value: string,
+        value: React.ReactText,
         cell: CellInterface,
         nextActiveCell?: CellInterface | null
       ) => {

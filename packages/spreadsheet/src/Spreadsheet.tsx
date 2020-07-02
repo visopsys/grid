@@ -3,7 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
-  useRef
+  useRef,
 } from "react";
 import Toolbar from "./Toolbar";
 import Formulabar from "./Formulabar";
@@ -15,22 +15,18 @@ import {
   CellInterface,
   SelectionArea,
   ScrollCoords,
-  useUndo,
   AreaProps,
   StylingProps,
-  createPatches,
-  selectionFromActiveCell
+  selectionFromActiveCell,
 } from "@rowsncolumns/grid";
-import useControllableState from "./useControllableState";
 import {
   createNewSheet,
   uuid,
   detectDataType,
-  createBorderStyle,
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_ROW_HEIGHT,
   EMPTY_ARRAY,
-  cellsInSelectionVariant
+  cellsInSelectionVariant,
 } from "./constants";
 import {
   FORMATTING_TYPE,
@@ -39,41 +35,83 @@ import {
   CellDataFormatting,
   AXIS,
   BORDER_VARIANT,
-  OPERATION_TYPE,
-  RESOURCE_TYPE,
   BORDER_STYLE,
-  STROKE_FORMATTING
+  STROKE_FORMATTING,
+  FormatType,
 } from "./types";
 import { useImmer } from "use-immer";
 import { WorkbookGridRef } from "./Grid/Grid";
 import { KeyCodes, Direction } from "@rowsncolumns/grid/dist/types";
-import { Patches, PatchOperator } from "@rowsncolumns/grid/dist/hooks/useUndo";
-import { current } from "immer";
+import invariant from "tiny-invariant";
 
 export interface SpreadSheetProps {
+  /**
+   * Minimum column width of the grid
+   */
   minColumnWidth?: number;
+  /**
+   * Minimum row height of the grid
+   */
   minRowHeight?: number;
+  /**
+   * Total number of rows to render
+   */
   rowCount?: number;
+  /**
+   * Total number of columns to render
+   */
   columnCount?: number;
+  /**
+   * Customize cell rendering
+   */
   CellRenderer?: React.FC<RendererProps>;
+  /**
+   * Custom header cell
+   */
   HeaderCellRenderer?: React.FC<RendererProps>;
+  /**
+   * Array of sheets to render
+   */
   sheets?: Sheet[];
-  initialSheets?: Sheet[];
-  onNewSheet?: () => void;
+  /**
+   * Active  sheet on the workbook
+   */
   activeSheet?: string;
-  initialActiveSheet?: string;
-  initialHiddenRows?: number[];
-  initialHiddenColumns?: number[];
-  onChange?: (id: string, changes: Cells) => void;
+  /**
+   * Hide rows
+   */
+  hiddenRows?: number[];
+  /**
+   * Hide columns
+   */
+  hiddenColumns?: number[];
+  /**
+   * Callback fired when cells are modified
+   */
+  onChangeCells?: (id: string, changes: Cells) => void;
+  /**
+   * Get the new selected sheet
+   */
   onChangeSelectedSheet?: (id: string) => void;
-  onChangeSheets?: (sheets: Sheet[]) => void;
+  /**
+   * Listen to changes to all the sheets
+   */
+  onChange?: (sheets: Sheet[]) => void;
+  /**
+   * Show formula bar
+   */
   showFormulabar?: boolean;
+  /**
+   * Show hide toolbar
+   */
   showToolbar?: boolean;
-  format?: (
-    value: string,
-    datatype?: DATATYPE,
-    formatting?: CellDataFormatting
-  ) => string;
+  /**
+   * Conditionally format cell text
+   */
+  format?: FormatType;
+  /**
+   * Enabled or disable dark mode
+   */
   enableDarkMode?: true;
 }
 
@@ -99,7 +137,7 @@ export type SizeType = {
 export type Cells = Record<string, Cell>;
 export type Cell = Record<string, CellConfig>;
 export interface CellConfig extends CellFormatting {
-  text?: string;
+  text?: string | number;
 }
 
 const defaultActiveSheet = uuid();
@@ -111,15 +149,20 @@ const defaultSheets: Sheet[] = [
     frozenRows: 0,
     activeCell: {
       rowIndex: 1,
-      columnIndex: 1
+      columnIndex: 1,
     },
     mergedCells: [],
     selections: [],
     cells: {
-      
+      4: {
+        5: {
+          text: 100,
+          datatype: DATATYPE.NUMBER,
+        },
+      },
     },
-    scrollState: { scrollTop: 0, scrollLeft: 0 }
-  }
+    scrollState: { scrollTop: 0, scrollLeft: 0 },
+  },
 ];
 
 /**
@@ -130,60 +173,52 @@ const defaultSheets: Sheet[] = [
  */
 const Spreadsheet = (props: SpreadSheetProps) => {
   const {
-    initialSheets = defaultSheets,
-    onChange,
+    sheets: initialSheets = defaultSheets,
     showFormulabar = true,
     minColumnWidth = DEFAULT_COLUMN_WIDTH,
     minRowHeight = DEFAULT_ROW_HEIGHT,
     CellRenderer,
     HeaderCellRenderer,
-    initialActiveSheet = defaultActiveSheet,
-    activeSheet,
+    activeSheet = defaultActiveSheet,
     onChangeSelectedSheet,
-    onChangeSheets,
+    onChange,
+    onChangeCells,
     showToolbar = true,
     format,
     enableDarkMode = true,
-    initialHiddenRows = EMPTY_ARRAY,
-    initialHiddenColumns = EMPTY_ARRAY,
+    hiddenRows: initialHiddenRows = EMPTY_ARRAY,
+    hiddenColumns: initialHiddenColumns = EMPTY_ARRAY,
     rowCount = 1000,
     columnCount = 1000,
   } = props;
-  const [selectedSheet, setSelectedSheet] = useControllableState<string>({
-    defaultValue: initialActiveSheet,
-    value: activeSheet,
-    onChange: onChangeSelectedSheet
+  const [selectedSheet, setSelectedSheet] = useState<string | null>(() => {
+    return activeSheet || initialSheets.length ? initialSheets[0].id : null;
   });
   const selectedSheetRef = useRef(selectedSheet);
   const currentGrid = useRef<WorkbookGridRef>();
   const [sheets, setSheets] = useImmer<Sheet[]>(initialSheets);
   const [formulaInput, setFormulaInput] = useState("");
-  const [hiddenColumns, setHiddenColumns] = useState(initialHiddenColumns);
-  const [hiddenRows, setHiddenRows] = useState(initialHiddenRows);
+  const [hiddenColumns] = useState(initialHiddenColumns);
+  const [hiddenRows] = useState(initialHiddenRows);
+
+  invariant(
+    selectedSheet,
+    "Exception, selectedSheet is empty, Please specify a selected sheet using `selectedSheet` prop"
+  );
 
   /* Callback when sheets is changed */
   useEffect(() => {
-    onChangeSheets?.(sheets);
+    onChange?.(sheets);
   }, [sheets]);
+
+  /* Change selected sheet */
+  useEffect(() => {
+    onChangeSelectedSheet?.(selectedSheet);
+  }, [selectedSheet]);
 
   useEffect(() => {
     selectedSheetRef.current = selectedSheet;
   });
-  
-  /**
-   * Undo/redo
-   */
-  // const {
-  //   undo,
-  //   redo,
-  //   add: pushToUndoStack,
-  //   canUndo,
-  //   canRedo,
-  //   onKeyDown: handleUndoKeyDown
-  // } = useUndo({
-  //   onRedo: patches => onUndoRedo("redo", patches),
-  //   onUndo: patches => onUndoRedo("undo", patches)
-  // });
 
   /**
    * Handle add new sheet
@@ -191,27 +226,25 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   const handleNewSheet = useCallback(() => {
     const count = sheets.length;
     const newSheet = createNewSheet({ count: count + 1 });
-    setSheets(draft => {
+    setSheets((draft) => {
       (draft as Sheet[]).push(newSheet);
     });
     setSelectedSheet(newSheet.id);
     /* Focus on the new grid */
     currentGrid.current?.focus();
-
   }, [sheets, selectedSheet]);
 
   /**
    * Cell changes on user input
    */
   const handleChange = useCallback((id: string, changes: Cells) => {
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === id);
+    setSheets((draft) => {
+      const sheet = draft.find((sheet) => sheet.id === id);
       if (sheet) {
         for (const row in changes) {
           sheet.cells[row] = sheet.cells[row] ?? {};
           for (const col in changes[row]) {
             /* Grab the previous value for undo */
-            const previousValue = sheet.cells[row]?.[col];
             sheet.cells[row][col] = sheet.cells[row][col] ?? {};
             const cell = sheet.cells[row][col];
             const value = changes[row][col].text;
@@ -223,13 +256,13 @@ const Spreadsheet = (props: SpreadSheetProps) => {
         }
       }
     });
-    onChange?.(id, changes);
+    onChangeCells?.(id, changes);
   }, []);
 
   const handleSheetAttributesChange = useCallback(
     (id: string, changes: any) => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === id);
         if (sheet) {
           for (const key in changes) {
             // @ts-ignore
@@ -242,10 +275,9 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   );
 
   const handleChangeSheetName = useCallback((id: string, name: string) => {
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === id);
+    setSheets((draft) => {
+      const sheet = draft.find((sheet) => sheet.id === id);
       if (sheet) {
-        const previousValue = sheet.name;
         sheet.name = name;
       }
     });
@@ -254,20 +286,19 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   const handleDeleteSheet = useCallback(
     (id: string) => {
       if (sheets.length === 1) return;
-      const index = sheets.findIndex(sheet => sheet.id === id);
-      const newSheets = sheets.filter(sheet => sheet.id !== id);
+      const index = sheets.findIndex((sheet) => sheet.id === id);
+      const newSheets = sheets.filter((sheet) => sheet.id !== id);
       const newSelectedSheet =
         selectedSheet === sheets[index].id
           ? newSheets[Math.max(0, index - 1)].id
           : selectedSheet;
       setSelectedSheet(newSelectedSheet);
-      setSheets(draft => {
+      setSheets((draft) => {
         draft.splice(index, 1);
       });
 
       /* Focus on the new grid */
       currentGrid.current?.focus();
-
     },
     [sheets, selectedSheet]
   );
@@ -275,19 +306,18 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   const handleDuplicateSheet = useCallback(
     (id: string) => {
       const newSheetId = uuid();
-      const index = sheets.findIndex(sheet => sheet.id === id);
+      const index = sheets.findIndex((sheet) => sheet.id === id);
       if (index === -1) return;
       const newSheet = {
         ...sheets[index],
         id: newSheetId,
-        name: `Copy of ${currentSheet.name}`
+        name: `Copy of ${currentSheet.name}`,
       };
-      setSheets(draft => {
+      setSheets((draft) => {
         // @ts-ignore
         draft.splice(index + 1, 0, newSheet);
       });
       setSelectedSheet(newSheetId);
-
     },
     [sheets, selectedSheet]
   );
@@ -297,13 +327,13 @@ const Spreadsheet = (props: SpreadSheetProps) => {
    */
   const handleFormattingChange = useCallback(
     (type, value) => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === selectedSheet);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === selectedSheet);
         if (sheet) {
           const { activeCell, selections, cells } = sheet;
           if (selections.length) {
             const previousValue: { [key: string]: any } = {};
-            selections.forEach(sel => {
+            selections.forEach((sel) => {
               const { bounds } = sel;
               for (let i = bounds.top; i <= bounds.bottom; i++) {
                 cells[i] = cells[i] ?? {};
@@ -319,7 +349,6 @@ const Spreadsheet = (props: SpreadSheetProps) => {
           } else if (activeCell) {
             const { rowIndex, columnIndex } = activeCell;
             cells[rowIndex] = cells[rowIndex] ?? {};
-            const previousValue = cells[rowIndex][columnIndex]?.[type as keyof CellFormatting];
             cells[rowIndex][columnIndex] = cells[rowIndex][columnIndex] ?? {};
             cells[rowIndex][columnIndex][type as keyof CellFormatting] = value;
           }
@@ -333,7 +362,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
    * Pass active cell config back to toolbars
    */
   const currentSheet = useMemo(() => {
-    return sheets.find(sheet => sheet.id === selectedSheet) as Sheet;
+    return sheets.find((sheet) => sheet.id === selectedSheet) as Sheet;
   }, [sheets, selectedSheet]);
 
   const [activeCellConfig, activeCell] = useMemo(() => {
@@ -352,7 +381,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
     []
   );
 
-  const handleActiveCellValueChange = useCallback(value => {
+  const handleActiveCellValueChange = useCallback((value) => {
     setFormulaInput(value);
   }, []);
 
@@ -411,7 +440,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       }
       if (e.which === KeyCodes.Escape) {
         currentGrid.current?.cancelEditor();
-        setFormulaInput(activeCellConfig?.text || "");
+        setFormulaInput(activeCellConfig?.text?.toString() || "");
       }
       if (e.which === KeyCodes.Tab) {
         submitEditor(formulaInput, activeCell, Direction.Right);
@@ -435,8 +464,8 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       const { bounds } = fillSelection;
       const changes: Cells = {};
       const previousValue: { [key: string]: any } = {};
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === id);
         if (sheet) {
           const { cells } = sheet;
           const currentValue =
@@ -459,7 +488,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
         }
       });
 
-      onChange?.(id, changes);
+      onChangeCells?.(id, changes);
     },
     [sheets]
   );
@@ -469,15 +498,15 @@ const Spreadsheet = (props: SpreadSheetProps) => {
    */
   const handleDelete = useCallback(
     (id: string, activeCell: CellInterface, selections: SelectionArea[]) => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === id);
         const attribute = "text";
         if (sheet) {
           const { cells } = sheet;
           const value: { [key: string]: any } = {};
           const previousValue: { [key: string]: any } = {};
           if (selections.length) {
-            selections.forEach(sel => {
+            selections.forEach((sel) => {
               const { bounds } = sel;
               for (let i = bounds.top; i <= bounds.bottom; i++) {
                 if (cells[i] === void 0) continue;
@@ -493,14 +522,11 @@ const Spreadsheet = (props: SpreadSheetProps) => {
                 }
               }
             });
-
           } else {
             const { rowIndex, columnIndex } = activeCell;
-            const previousValue = { ...cells[rowIndex]?.[columnIndex] };
             if (cells[rowIndex]?.[columnIndex]) {
               cells[rowIndex][columnIndex].text = "";
             }
-
           }
         }
       });
@@ -511,21 +537,21 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   );
 
   const handleClearFormatting = useCallback(() => {
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === selectedSheet);
+    setSheets((draft) => {
+      const sheet = draft.find((sheet) => sheet.id === selectedSheet);
       if (sheet) {
         const { activeCell, selections, cells } = sheet;
         if (selections.length) {
-          selections.forEach(sel => {
+          selections.forEach((sel) => {
             const { bounds } = sel;
             for (let i = bounds.top; i <= bounds.bottom; i++) {
               if (!(i in cells)) continue;
               for (let j = bounds.left; j <= bounds.right; j++) {
                 if (!(j in cells[i])) continue;
-                Object.values(FORMATTING_TYPE).forEach(key => {
+                Object.values(FORMATTING_TYPE).forEach((key) => {
                   delete cells[i]?.[j]?.[key];
                 });
-                Object.values(STROKE_FORMATTING).forEach(key => {
+                Object.values(STROKE_FORMATTING).forEach((key) => {
                   delete cells[i]?.[j]?.[key];
                 });
               }
@@ -533,10 +559,10 @@ const Spreadsheet = (props: SpreadSheetProps) => {
           });
         } else if (activeCell) {
           const { rowIndex, columnIndex } = activeCell;
-          Object.values(FORMATTING_TYPE).forEach(key => {
+          Object.values(FORMATTING_TYPE).forEach((key) => {
             if (key) delete cells[rowIndex]?.[columnIndex]?.[key];
           });
-          Object.values(STROKE_FORMATTING).forEach(key => {
+          Object.values(STROKE_FORMATTING).forEach((key) => {
             if (key) delete cells[rowIndex]?.[columnIndex]?.[key];
           });
         }
@@ -546,8 +572,8 @@ const Spreadsheet = (props: SpreadSheetProps) => {
 
   const handleResize = useCallback(
     (id: string, axis: AXIS, index: number, dimension: number) => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === id);
         if (sheet) {
           if (axis === AXIS.X) {
             if (!("columnSizes" in sheet)) sheet.columnSizes = {};
@@ -569,8 +595,8 @@ const Spreadsheet = (props: SpreadSheetProps) => {
    * Handle toggle cell merges
    */
   const handleMergeCells = useCallback(() => {
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === selectedSheet);
+    setSheets((draft) => {
+      const sheet = draft.find((sheet) => sheet.id === selectedSheet);
       if (sheet) {
         const { selections, activeCell } = sheet;
         const { bounds } = selections.length
@@ -578,7 +604,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
           : {
               bounds: currentGrid.current?.getCellBounds?.(
                 activeCell as CellInterface
-              )
+              ),
             };
         if (!bounds) return;
         if (bounds.top === bounds.bottom && bounds.left === bounds.right)
@@ -587,7 +613,7 @@ const Spreadsheet = (props: SpreadSheetProps) => {
           sheet.mergedCells = [];
         } else {
           /* Check if cell is already merged */
-          const index = sheet.mergedCells.findIndex(area => {
+          const index = sheet.mergedCells.findIndex((area) => {
             return (
               area.left === bounds.left &&
               area.right === bounds.right &&
@@ -607,9 +633,9 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   }, [selectedSheet]);
 
   const handleFrozenRowChange = useCallback(
-    num => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === selectedSheet);
+    (num) => {
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === selectedSheet);
         if (sheet) {
           sheet.frozenRows = num;
         }
@@ -619,9 +645,9 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   );
 
   const handleFrozenColumnChange = useCallback(
-    num => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === selectedSheet);
+    (num) => {
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === selectedSheet);
         if (sheet) {
           sheet.frozenColumns = num;
         }
@@ -637,35 +663,40 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       variant?: BORDER_VARIANT
     ) => {
       /* Create a border style based on variant */
-      const borderVariantStyle = createBorderStyle(variant, borderStyle, color);
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === selectedSheet);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === selectedSheet);
         if (sheet) {
-          const { selections, cells, activeCell } = sheet
+          const { selections, cells, activeCell } = sheet;
           const sel = selections.length
-          ? selections
-          : selectionFromActiveCell(activeCell);
-          const boundedCells = cellsInSelectionVariant(sel as SelectionArea[], variant, borderStyle, color, currentGrid.current?.getCellBounds)
+            ? selections
+            : selectionFromActiveCell(activeCell);
+          const boundedCells = cellsInSelectionVariant(
+            sel as SelectionArea[],
+            variant,
+            borderStyle,
+            color,
+            currentGrid.current?.getCellBounds
+          );
           for (const row in boundedCells) {
             for (const col in boundedCells[row]) {
               if (variant === BORDER_VARIANT.NONE) {
                 // Delete all stroke formatting rules
-                Object.values(STROKE_FORMATTING).forEach(key => {
+                Object.values(STROKE_FORMATTING).forEach((key) => {
                   delete cells[row]?.[col]?.[key];
                 });
               } else {
-                const styles = boundedCells[row][col]
-                Object.keys(styles).forEach(key => {
-                  cells[row] = cells[row] ?? {}
-                  cells[row][col] = cells[row][col] ?? {}
+                const styles = boundedCells[row][col];
+                Object.keys(styles).forEach((key) => {
+                  cells[row] = cells[row] ?? {};
+                  cells[row][col] = cells[row][col] ?? {};
                   // @ts-ignore
-                  cells[row][col][key] = styles[key]
-                })
+                  cells[row][col][key] = styles[key];
+                });
               }
             }
           }
         }
-      })
+      });
     },
     [selectedSheet]
   );
@@ -674,8 +705,8 @@ const Spreadsheet = (props: SpreadSheetProps) => {
    * Handle sheet scroll
    */
   const handleScroll = useCallback((id: string, scrollState: ScrollCoords) => {
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === id);
+    setSheets((draft) => {
+      const sheet = draft.find((sheet) => sheet.id === id);
       if (sheet) {
         sheet.scrollState = scrollState;
       }
@@ -694,8 +725,8 @@ const Spreadsheet = (props: SpreadSheetProps) => {
       columnIndex + (rows.length && rows[0].length - 1)
     );
 
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === id);
+    setSheets((draft) => {
+      const sheet = draft.find((sheet) => sheet.id === id);
       if (sheet) {
         const { cells } = sheet;
         for (const [i, row] of rows.entries()) {
@@ -719,9 +750,9 @@ const Spreadsheet = (props: SpreadSheetProps) => {
           top: rowIndex,
           left: columnIndex,
           bottom: endRowIndex,
-          right: endColumnIndex
-        }
-      }
+          right: endColumnIndex,
+        },
+      },
     ]);
   }, []);
 
@@ -730,10 +761,9 @@ const Spreadsheet = (props: SpreadSheetProps) => {
    */
   const handleCut = useCallback((id: string, selection: SelectionArea) => {
     const { bounds } = selection;
-    const changes = {};
 
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === id);
+    setSheets((draft) => {
+      const sheet = draft.find((sheet) => sheet.id === id);
       if (sheet) {
         const { cells } = sheet;
         for (let i = bounds.top; i <= bounds.bottom; i++) {
@@ -751,14 +781,10 @@ const Spreadsheet = (props: SpreadSheetProps) => {
    * Insert new row
    */
   const handleInsertRow = useCallback(
-    (
-      id: string,
-      activeCell: CellInterface | null,
-      selections: SelectionArea[]
-    ) => {
+    (id: string, activeCell: CellInterface | null) => {
       if (activeCell === null) return;
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === id);
         if (sheet) {
           const { rowIndex } = activeCell;
           const { cells } = sheet;
@@ -781,14 +807,10 @@ const Spreadsheet = (props: SpreadSheetProps) => {
    * Insert new row
    */
   const handleInsertColumn = useCallback(
-    (
-      id: string,
-      activeCell: CellInterface | null,
-      selections: SelectionArea[]
-    ) => {
+    (id: string, activeCell: CellInterface | null) => {
       if (activeCell === null) return;
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === id);
         if (sheet) {
           const { columnIndex } = activeCell;
           const { cells } = sheet;
@@ -818,8 +840,8 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   const handleDeleteRow = useCallback(
     (id: string, activeCell: CellInterface | null) => {
       if (activeCell === null) return;
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === id);
         if (sheet) {
           const { rowIndex } = activeCell;
           const { cells } = sheet;
@@ -841,8 +863,8 @@ const Spreadsheet = (props: SpreadSheetProps) => {
   const handleDeleteColumn = useCallback(
     (id: string, activeCell: CellInterface | null) => {
       if (activeCell === null) return;
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === id);
         if (sheet) {
           const { columnIndex } = activeCell;
           const { cells } = sheet;

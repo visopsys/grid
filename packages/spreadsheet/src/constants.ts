@@ -1,23 +1,32 @@
-  import { Sheet, CellConfig, Cells } from "./Spreadsheet";
+import { Sheet, CellConfig, Cells } from "./Spreadsheet";
 import {
   DATATYPE,
   CellDataFormatting,
   BORDER_VARIANT,
   BORDER_STYLE,
-  CellFormatting
+  CellFormatting,
 } from "./types";
-import { isNull, SelectionArea, CellInterface, AreaProps } from "@rowsncolumns/grid";
+import {
+  isNull,
+  SelectionArea,
+  CellInterface,
+  AreaProps,
+} from "@rowsncolumns/grid";
+import SSF from "ssf";
 
 export const COLUMN_HEADER_WIDTH = 46;
-export const FORMULABAR_LEFT_CORNER_WIDTH = 47
+export const FORMULABAR_LEFT_CORNER_WIDTH = 47;
 export const ROW_HEADER_HEIGHT = 24;
 export const DEFAULT_ROW_HEIGHT = 20;
 export const DEFAULT_COLUMN_WIDTH = 100;
 export const DARK_MODE_COLOR = "rgb(26, 32, 44)";
 export const DARK_MODE_COLOR_LIGHT = "#252E3E";
 export const EMPTY_ARRAY = [];
-export const HEADER_BORDER_COLOR = '#C0C0C0'
-export const CELL_BORDER_COLOR = '#E3E2E2'
+export const HEADER_BORDER_COLOR = "#C0C0C0";
+export const CELL_BORDER_COLOR = "#E3E2E2";
+export const FORMAT_PERCENT = "#.00";
+export const FORMAT_CURRENCY = "$#.00";
+
 /**
  * Number to alphabet
  * @param i
@@ -30,9 +39,9 @@ export const number2Alpha = (i: number): string => {
 };
 
 export const cellLocation = (cell: CellInterface | null): string | null => {
-  if (!cell) return null
-  return `${number2Alpha(cell.columnIndex - 1)}${cell.rowIndex}`
-}
+  if (!cell) return null;
+  return `${number2Alpha(cell.columnIndex - 1)}${cell.rowIndex}`;
+};
 
 /**
  * Create a new sheet
@@ -46,41 +55,54 @@ export const createNewSheet = ({ count }: { count: number }): Sheet => ({
   selections: [],
   scrollState: { scrollTop: 0, scrollLeft: 0 },
   columnSizes: {},
-  rowSizes: {}
+  rowSizes: {},
 });
 
 /**
  * UUID generator
  */
-export const uuid = () =>
-  "_" +
-  Math.random()
-    .toString(36)
-    .substr(2, 9);
+export const uuid = () => "_" + Math.random().toString(36).substr(2, 9);
+
+/**
+ * Converts a value to string
+ * @param value
+ */
+export const castToString = (value: any): string | undefined => {
+  if (value === null || value === void 0) return void 0;
+  return typeof value !== "string" ? "" + value : value;
+};
 
 /**
  * Format a string
  * @param value
  * @param datatype
  * @param formatting
+ *
+ * More info https://github.com/SheetJS/ssf
  */
 export const format = (
-  value?: string,
+  value: React.ReactText | undefined,
   datatype?: DATATYPE,
   formatting?: CellDataFormatting
 ): string | undefined => {
   if (value === void 0 || isNull(value) || datatype !== DATATYPE.NUMBER)
-    return value;
-  if (!formatting) return value;
-  let num = parseFloat(value);
+    return castToString(value);
+  if (!formatting) return castToString(value);
+  let num = parseFloat(typeof value !== "string" ? value.toString() : value);
   if (formatting.decimals) {
-    value = num.toFixed(formatting.decimals);
+    let fmt = Array.from({ length: formatting.decimals })
+      .map((_, i) => "0")
+      .join("");
+    value = SSF.format(`#.${fmt}`, num);
   }
   if (formatting.percent) {
-    value = (num * 100).toFixed(2);
+    value = SSF.format(FORMAT_PERCENT, num);
   }
   if (formatting.currency) {
-    value = `${formatting.currencySymbol || "$"}${num.toFixed(2)}`;
+    value = SSF.format(FORMAT_CURRENCY, num);
+  }
+  if (formatting.customFormat) {
+    value = SSF.format(formatting.customFormat, num);
   }
   return "" + value;
 };
@@ -96,7 +118,7 @@ export const isNumeric = (cell: CellConfig) => {
  * Detect datatype of a string
  * @param value
  */
-export const detectDataType = (value?: string): DATATYPE | undefined => {
+export const detectDataType = (value?: any): DATATYPE | undefined => {
   if (isNull(value)) return undefined;
   if (!isNaN(Number(value))) return DATATYPE.NUMBER;
   return undefined;
@@ -121,7 +143,7 @@ export const createBorderStyle = (
       ? [1, 1]
       : [];
 
-  const dashEnabled = dash.length > 0
+  const dashEnabled = dash.length > 0;
   const lineCap = dashEnabled ? "butt" : "square";
 
   switch (variant) {
@@ -130,7 +152,7 @@ export const createBorderStyle = (
         stroke: color,
         strokeWidth: thickness,
         strokeDash: dash,
-        lineCap
+        lineCap,
       };
 
     case BORDER_VARIANT.BOTTOM:
@@ -138,7 +160,7 @@ export const createBorderStyle = (
         strokeBottomColor: color,
         strokeBottomWidth: thickness,
         strokeBottomDash: dash,
-        lineCap
+        lineCap,
       };
 
     case BORDER_VARIANT.RIGHT:
@@ -146,7 +168,7 @@ export const createBorderStyle = (
         strokeRightColor: color,
         strokeRightWidth: thickness,
         strokeRightDash: dash,
-        lineCap
+        lineCap,
       };
 
     case BORDER_VARIANT.LEFT:
@@ -154,7 +176,7 @@ export const createBorderStyle = (
         strokeLeftColor: color,
         strokeLeftWidth: thickness,
         strokeLeftDash: dash,
-        lineCap
+        lineCap,
       };
   }
   return {};
@@ -162,16 +184,31 @@ export const createBorderStyle = (
 
 /**
  * Lighten or darken colors
- * @param color 
- * @param amount 
+ * @param color
+ * @param amount
  */
 export const luminance = (color: string | undefined, amount: number) => {
-  if (!color) return color
-  return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
-}
+  if (!color) return color;
+  return (
+    "#" +
+    color
+      .replace(/^#/, "")
+      .replace(/../g, (color) =>
+        (
+          "0" +
+          Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)
+        ).substr(-2)
+      )
+  );
+};
 
-export const cellsInSelectionVariant = (selections: SelectionArea[], variant: BORDER_VARIANT | undefined, borderStyle: BORDER_STYLE = BORDER_STYLE.THIN,
-  color?: string, boundGetter?: (coords: CellInterface) => AreaProps) => {
+export const cellsInSelectionVariant = (
+  selections: SelectionArea[],
+  variant: BORDER_VARIANT | undefined,
+  borderStyle: BORDER_STYLE = BORDER_STYLE.THIN,
+  color?: string,
+  boundGetter?: (coords: CellInterface) => AreaProps
+) => {
   const thickness =
     borderStyle === BORDER_STYLE.MEDIUM
       ? 2
@@ -185,20 +222,20 @@ export const cellsInSelectionVariant = (selections: SelectionArea[], variant: BO
       ? [1, 1]
       : [];
 
-  const dashEnabled = dash.length > 0
+  const dashEnabled = dash.length > 0;
   const lineCap = dashEnabled ? "butt" : "square";
-  const cells: Cells = {}
+  const cells: Cells = {};
   for (let i = 0; i < selections.length; i++) {
-    const { bounds } = selections[i]
+    const { bounds } = selections[i];
     for (let j = bounds.top; j <= bounds.bottom; j++) {
-      cells[j] = cells[j] ?? {}
+      cells[j] = cells[j] ?? {};
       for (let k = bounds.left; k <= bounds.right; k++) {
-        cells[j][k] = cells[j][k] || {}
-        const actualBounds = boundGetter?.({ rowIndex: j, columnIndex: k})
+        cells[j][k] = cells[j][k] || {};
+        const actualBounds = boundGetter?.({ rowIndex: j, columnIndex: k });
         const { rowIndex, columnIndex } = actualBounds
           ? { rowIndex: actualBounds.top, columnIndex: actualBounds.left }
-          : { rowIndex: j, columnIndex: k}
-       
+          : { rowIndex: j, columnIndex: k };
+
         switch (variant) {
           case BORDER_VARIANT.OUTER:
             if (j === bounds.top) {
@@ -207,8 +244,8 @@ export const cellsInSelectionVariant = (selections: SelectionArea[], variant: BO
                 strokeTopColor: color,
                 strokeTopWidth: thickness,
                 strokeTopDash: dash,
-                lineCap
-              }
+                lineCap,
+              };
             }
             if (k === bounds.right) {
               cells[rowIndex][columnIndex] = {
@@ -216,8 +253,8 @@ export const cellsInSelectionVariant = (selections: SelectionArea[], variant: BO
                 strokeRightColor: color,
                 strokeRightWidth: thickness,
                 strokeRightDash: dash,
-                lineCap
-              }
+                lineCap,
+              };
             }
             if (j === bounds.bottom) {
               cells[rowIndex][columnIndex] = {
@@ -225,8 +262,8 @@ export const cellsInSelectionVariant = (selections: SelectionArea[], variant: BO
                 strokeBottomColor: color,
                 strokeBottomWidth: thickness,
                 strokeBottomDash: dash,
-                lineCap
-              }
+                lineCap,
+              };
             }
             if (k === bounds.left) {
               cells[rowIndex][columnIndex] = {
@@ -234,11 +271,11 @@ export const cellsInSelectionVariant = (selections: SelectionArea[], variant: BO
                 strokeLeftColor: color,
                 strokeLeftWidth: thickness,
                 strokeLeftDash: dash,
-                lineCap
-              }
-            }        
-            break
-          
+                lineCap,
+              };
+            }
+            break;
+
           case BORDER_VARIANT.ALL:
             cells[rowIndex][columnIndex] = {
               strokeTopColor: color,
@@ -253,104 +290,109 @@ export const cellsInSelectionVariant = (selections: SelectionArea[], variant: BO
               strokeBottomColor: color,
               strokeBottomDash: dash,
               strokeBottomWidth: thickness,
-              lineCap
-            }
-            break
-          
+              lineCap,
+            };
+            break;
+
           case BORDER_VARIANT.INNER:
-            cells[rowIndex][columnIndex] = {              
+            cells[rowIndex][columnIndex] = {
               strokeRightColor: color,
               strokeRightWidth: thickness,
               strokeRightDash: dash,
               strokeBottomColor: color,
               strokeBottomDash: dash,
               strokeBottomWidth: thickness,
-              lineCap
-            }
+              lineCap,
+            };
             if (k === bounds.right) {
               cells[rowIndex][columnIndex] = {
                 strokeBottomColor: color,
                 strokeBottomDash: dash,
                 strokeBottomWidth: thickness,
-                lineCap
-              }
+                lineCap,
+              };
             }
             if (j === bounds.bottom) {
-              const { strokeBottomColor, strokeBottomDash, strokeBottomWidth, ...rest } = cells[j][k]
-              cells[rowIndex][columnIndex] = rest
+              const {
+                strokeBottomColor,
+                strokeBottomDash,
+                strokeBottomWidth,
+                ...rest
+              } = cells[j][k];
+              cells[rowIndex][columnIndex] = rest;
             }
-            break
-          
+            break;
+
           case BORDER_VARIANT.HORIZONTAL:
             cells[rowIndex][columnIndex] = {
               strokeBottomColor: color,
               strokeBottomDash: dash,
               strokeBottomWidth: thickness,
-              lineCap
-            }
+              lineCap,
+            };
             if (j === bounds.bottom) {
-              cells[rowIndex][columnIndex] = {}
+              cells[rowIndex][columnIndex] = {};
             }
-            break
-          
+            break;
+
           case BORDER_VARIANT.VERTICAL:
             cells[rowIndex][columnIndex] = {
               strokeRightColor: color,
               strokeRightDash: dash,
               strokeRightWidth: thickness,
-              lineCap
-            }
+              lineCap,
+            };
             if (k === bounds.right) {
-              cells[rowIndex][columnIndex] = {}
+              cells[rowIndex][columnIndex] = {};
             }
-            break
-          
+            break;
+
           case BORDER_VARIANT.LEFT:
             if (k === bounds.left) {
               cells[rowIndex][columnIndex] = {
                 strokeLeftColor: color,
                 strokeLeftDash: dash,
                 strokeLeftWidth: thickness,
-                lineCap
-              }
+                lineCap,
+              };
             }
-            break
-          
+            break;
+
           case BORDER_VARIANT.RIGHT:
             if (k === bounds.right) {
               cells[rowIndex][columnIndex] = {
                 strokeRightColor: color,
                 strokeRightDash: dash,
                 strokeRightWidth: thickness,
-                lineCap
-              }
+                lineCap,
+              };
             }
-            break
-          
+            break;
+
           case BORDER_VARIANT.TOP:
             if (j === bounds.top) {
               cells[rowIndex][columnIndex] = {
                 strokeTopColor: color,
                 strokeTopDash: dash,
                 strokeTopWidth: thickness,
-                lineCap
-              }
+                lineCap,
+              };
             }
-            break
-          
+            break;
+
           case BORDER_VARIANT.BOTTOM:
             if (j === bounds.bottom) {
               cells[rowIndex][columnIndex] = {
                 strokeBottomColor: color,
                 strokeBottomDash: dash,
                 strokeBottomWidth: thickness,
-                lineCap
-              }
+                lineCap,
+              };
             }
-            break
-        }        
+            break;
+        }
       }
     }
   }
-  return cells
-}
+  return cells;
+};

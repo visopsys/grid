@@ -44,7 +44,7 @@ export interface UseEditableOptions {
    * Callback when user submits a value. Use this to update state
    */
   onSubmit?: (
-    value: string,
+    value: React.ReactText,
     activeCell: CellInterface,
     nextActiveCell?: CellInterface | null
   ) => void;
@@ -161,7 +161,7 @@ export interface EditorProps extends CellInterface {
    * Callback to submit the value back to data store
    */
   onSubmit?: (
-    value: string,
+    value: React.ReactText,
     activeCell: CellInterface,
     nextActiveCell?: CellInterface | null
   ) => void;
@@ -557,7 +557,7 @@ const useEditable = ({
   /* Save the value */
   const handleSubmit = useCallback(
     (
-      value: string,
+      value: React.ReactText,
       activeCell: CellInterface,
       nextActiveCell?: CellInterface | null
     ) => {

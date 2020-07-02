@@ -13,6 +13,7 @@ import {
   HORIZONTAL_ALIGNMENT,
   TEXT_DECORATION,
   VERTICAL_ALIGNMENT,
+  FormatType,
 } from "./../types";
 import { useColorMode } from "@chakra-ui/core";
 import { CellConfig } from "../Spreadsheet";
@@ -22,8 +23,12 @@ import { Shape, Text } from "react-konva";
 const EMPTY_ARRAY: number[] = [];
 
 export interface CellProps extends RendererProps, CellConfig {
-  text?: string;
   isHidden?: boolean;
+  format?: FormatType;
+}
+
+export interface CellRenderProps extends Omit<CellProps, "text"> {
+  text?: string;
 }
 
 /**
@@ -57,10 +62,17 @@ const Cell: React.FC<CellProps> = memo((props) => {
     strokeBottomWidth,
     strokeLeftWidth,
     lineCap,
+    customFormat,
     ...cellProps
   } = props;
   if (isHidden) return null;
-  const text = format(props.text, datatype, { decimals, percent, currency });
+  const text = format(props.text, datatype, {
+    decimals,
+    percent,
+    currency,
+    customFormat,
+  });
+  console.log("text", text);
   const isLightMode = colorMode === "light";
   return <DefaultCell isLightMode={isLightMode} {...cellProps} text={text} />;
 });
@@ -68,7 +80,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
 /**
  * Default cell renderer
  */
-const DefaultCell: React.FC<CellProps> = memo((props) => {
+const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   const {
     x = 0,
     y = 0,
