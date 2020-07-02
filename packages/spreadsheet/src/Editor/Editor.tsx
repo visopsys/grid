@@ -3,7 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useState,
-  useMemo
+  useMemo,
 } from "react";
 import { EditorProps } from "@rowsncolumns/grid/dist/hooks/useEditable";
 import { AutoSizerCanvas } from "@rowsncolumns/grid";
@@ -20,7 +20,7 @@ interface CustomEditorProps extends EditorProps {
  * Default cell editor
  * @param props
  */
-const Editor: React.FC<CustomEditorProps> = props => {
+const Editor: React.FC<CustomEditorProps> = (props) => {
   const {
     rowIndex,
     columnIndex,
@@ -61,7 +61,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { x = 0, y = 0, width = 0, height = 0 } = position;
   const getWidth = useCallback(
-    text => {
+    (text) => {
       const textWidth = textSizer.current.measureText(text)?.width || 0;
       return Math.max(textWidth + padding, width + borderWidth / 2);
     },
@@ -99,7 +99,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
         padding: borderWidth,
         boxShadow: "0 2px 6px 2px rgba(60,64,67,.15)",
         border: "2px #1a73e8 solid",
-        background: backgroundColor
+        background: backgroundColor,
       }}
     >
       {location ? (
@@ -116,7 +116,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
             boxShadow: "0px 1px 2px rgba(0,0,0,0.5)",
             bottom: "100%",
             background: "#4589eb",
-            color: "white"
+            color: "white",
           }}
         >
           {location}
@@ -141,7 +141,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
           overflow: "hidden",
           verticalAlign: "top",
           background: "transparent",
-          color: color
+          color: color,
         }}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
           onChange(e.target.value, cell);

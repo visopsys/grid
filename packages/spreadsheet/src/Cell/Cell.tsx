@@ -4,7 +4,7 @@ import {
   DARK_MODE_COLOR,
   DARK_MODE_COLOR_LIGHT,
   format as defaultFormat,
-  luminance
+  luminance,
 } from "../constants";
 import {
   DATATYPE,
@@ -12,7 +12,7 @@ import {
   FONT_STYLE,
   HORIZONTAL_ALIGNMENT,
   TEXT_DECORATION,
-  VERTICAL_ALIGNMENT
+  VERTICAL_ALIGNMENT,
 } from "./../types";
 import { useColorMode } from "@chakra-ui/core";
 import { CellConfig } from "../Spreadsheet";
@@ -30,7 +30,7 @@ export interface CellProps extends RendererProps, CellConfig {
  * Cell renderer
  * @param props
  */
-const Cell: React.FC<CellProps> = memo(props => {
+const Cell: React.FC<CellProps> = memo((props) => {
   const { colorMode } = useColorMode();
   const {
     datatype,
@@ -38,7 +38,7 @@ const Cell: React.FC<CellProps> = memo(props => {
     percent,
     currency,
     format = defaultFormat,
-    isHidden
+    isHidden,
   } = props;
   const {
     stroke,
@@ -68,7 +68,7 @@ const Cell: React.FC<CellProps> = memo(props => {
 /**
  * Default cell renderer
  */
-const DefaultCell: React.FC<CellProps> = memo(props => {
+const DefaultCell: React.FC<CellProps> = memo((props) => {
   const {
     x = 0,
     y = 0,
@@ -90,7 +90,7 @@ const DefaultCell: React.FC<CellProps> = memo(props => {
     wrap = "none",
     lineHeight = 0.6,
     isLightMode,
-    text
+    text,
   } = props;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
     strike ? TEXT_DECORATION.STRIKE : ""

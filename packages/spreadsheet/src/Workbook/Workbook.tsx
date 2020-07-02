@@ -113,7 +113,7 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       onDeleteColumn,
       onDeleteRow,
       rowCount,
-      columnCount
+      columnCount,
     } = props;
 
     const { colorMode } = useColorMode();
@@ -129,7 +129,7 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       mergedCells,
       borderStyles,
       frozenRows,
-      frozenColumns
+      frozenColumns,
     } = currentSheet;
     const selectedSheetRef = useRef(selectedSheet);
     useEffect(() => {

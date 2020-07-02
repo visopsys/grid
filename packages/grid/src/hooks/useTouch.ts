@@ -36,7 +36,7 @@ const useTouch = ({ gridRef }: TouchProps): TouchResults => {
         const isHorizontal = Math.abs(dx) > Math.abs(dy);
         gridRef.current.scrollBy({
           x: isHorizontal ? -dx : undefined,
-          y: isHorizontal ? undefined : -dy
+          y: isHorizontal ? undefined : -dy,
         });
         x = pageX;
         y = pageY;
@@ -52,7 +52,7 @@ const useTouch = ({ gridRef }: TouchProps): TouchResults => {
   );
 
   return {
-    onTouchStart: handleTouchStart
+    onTouchStart: handleTouchStart,
   };
 };
 
