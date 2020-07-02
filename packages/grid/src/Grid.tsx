@@ -1707,15 +1707,21 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnWidth,
         instanceProps: instanceProps.current
       });
+      const frozenColumnLineY = getRowOffset({
+        index: Math.min(rowStopIndex + 1, rowCount),
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current
+      });
       return (
         <Line
-          points={[frozenColumnLineX, 0, frozenColumnLineX, containerHeight]}
+          points={[frozenColumnLineX, 0, frozenColumnLineX, frozenColumnLineY]}
           offsetX={-0.5}
           strokeWidth={1}
           {...shadowSettings}
         />
       );
-    }, [shadowSettings, frozenColumns, containerHeight]);
+    }, [shadowSettings, frozenColumns, rowStopIndex, rowCount]);
 
     /**
      * Frozen row shadow
@@ -1727,15 +1733,21 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnWidth,
         instanceProps: instanceProps.current
       });
+      const frozenRowLineX = getColumnOffset({
+        index: Math.min(columnStopIndex + 1, columnCount),
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current
+      });
       return (
         <Line
-          points={[0, frozenRowLineY, containerWidth, frozenRowLineY]}
+          points={[0, frozenRowLineY, frozenRowLineX, frozenRowLineY]}
           offsetY={-0.5}
           strokeWidth={1}
           {...shadowSettings}
         />
       );
-    }, [shadowSettings, frozenRows, containerWidth]);
+    }, [shadowSettings, frozenRows, columnStopIndex, columnCount]);
 
     /* Draw frozen intersection cells */
     const frozenIntersectionCells = [];

@@ -556,7 +556,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         <Grid
           enableCellOverlay
           shadowSettings={{
-            stroke: shadowStroke
+            stroke: shadowStroke,
           }}
           showFrozenShadow
           gridLineColor={gridLineColor}
