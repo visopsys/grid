@@ -5,7 +5,12 @@ import { Flex, useColorMode } from "@chakra-ui/core";
 import { BottomPanel, ThemeType } from "./../styled";
 import Tabs from "./../Tabs";
 import { SpreadSheetProps, Sheet, Cells, SizeType } from "../Spreadsheet";
-import { CellInterface, SelectionArea, ScrollCoords } from "@rowsncolumns/grid";
+import {
+  CellInterface,
+  SelectionArea,
+  ScrollCoords,
+  isNull
+} from "@rowsncolumns/grid";
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
 import QuickInfo from "./../QuickInfo";
@@ -27,7 +32,6 @@ export interface WorkbookProps extends Omit<SpreadSheetProps, "onChange"> {
     activeCell: CellInterface,
     selections: SelectionArea[]
   ) => void;
-  onActiveCellChange: (cell: CellInterface | null, value?: string) => void;
   onChangeSelectedSheet: (id: string) => void;
   onNewSheet?: () => void;
   onSheetChange?: (id: string, props: any) => void;
@@ -71,15 +75,15 @@ export interface WorkbookProps extends Omit<SpreadSheetProps, "onChange"> {
   ) => void;
 }
 
-export type RefAttributeWorkbook = {
-  ref?: React.MutableRefObject<WorkbookGridRef | null | undefined>;
+export type WorkBookRefAttribute = {
+  ref?: React.Ref<WorkbookGridRef>;
 };
 
 /**
  * Workbook displays a list of sheets
  * @param props
  */
-const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
+const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
   forwardRef((props, forwardedRef) => {
     const {
       selectedSheet,
@@ -114,7 +118,11 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       onDeleteColumn,
       onDeleteRow,
       rowCount,
-      columnCount
+      columnCount,
+      showGridLines,
+      CellEditor,
+      allowMultipleSelection,
+      onSelectionChange
     } = props;
 
     const { colorMode } = useColorMode();
@@ -128,7 +136,6 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       columnSizes = {},
       rowSizes = {},
       mergedCells,
-      borderStyles,
       frozenRows,
       frozenColumns
     } = currentSheet;
@@ -137,7 +144,7 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       selectedSheetRef.current = selectedSheet;
     });
     const handleChange = useCallback((changes: Cells) => {
-      if (!selectedSheetRef.current) return;
+      if (isNull(selectedSheetRef.current)) return;
       onChange?.(selectedSheetRef.current, changes);
     }, []);
     const handleFill = useCallback(
@@ -151,16 +158,16 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       []
     );
     const handleSheetChange = useCallback((args: any) => {
-      if (!selectedSheetRef.current) return;
+      if (isNull(selectedSheetRef.current)) return;
       onSheetChange?.(selectedSheetRef.current, args);
     }, []);
     const handleScroll = useCallback((scrollState: ScrollCoords) => {
-      if (!selectedSheetRef.current) return;
+      if (isNull(selectedSheetRef.current)) return;
       onScroll?.(selectedSheetRef.current, scrollState);
     }, []);
     const handleDelete = useCallback(
       (activeCell: CellInterface, selections: SelectionArea[]) => {
-        if (!selectedSheetRef.current) return;
+        if (isNull(selectedSheetRef.current)) return;
         onDelete?.(selectedSheetRef.current, activeCell, selections);
       },
       []
@@ -168,7 +175,7 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
 
     const handleResize = useCallback(
       (axis: AXIS, index: number, dimension: number) => {
-        if (!selectedSheetRef.current) return;
+        if (isNull(selectedSheetRef.current)) return;
         onResize?.(selectedSheetRef.current, axis, index, dimension);
       },
       []
@@ -210,6 +217,19 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
       []
     );
 
+    const handleActiveCellChange = useCallback((cell: CellInterface | null) => {
+      if (isNull(selectedSheetRef.current)) return;
+      onActiveCellChange?.(selectedSheetRef.current, cell);
+    }, []);
+
+    const handleSelectionChange = useCallback(
+      (cell: CellInterface | null, selections: SelectionArea[]) => {
+        if (isNull(selectedSheetRef.current)) return;
+        onSelectionChange?.(selectedSheetRef.current, cell, selections);
+      },
+      []
+    );
+
     return (
       <>
         <Flex
@@ -218,12 +238,12 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
           background={isLight ? "white" : DARK_MODE_COLOR_LIGHT}
         >
           <Grid
-            // @ts-ignore
             ref={forwardedRef}
             onResize={handleResize}
             onDelete={handleDelete}
             onActiveCellValueChange={onActiveCellValueChange}
-            onActiveCellChange={onActiveCellChange}
+            onActiveCellChange={handleActiveCellChange}
+            onSelectionChange={handleSelectionChange}
             selectedSheet={selectedSheet}
             activeCell={activeCell}
             selections={selections}
@@ -243,7 +263,6 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
             columnSizes={columnSizes}
             rowSizes={rowSizes}
             mergedCells={mergedCells}
-            borderStyles={borderStyles}
             frozenRows={frozenRows}
             frozenColumns={frozenColumns}
             onKeyDown={onKeyDown}
@@ -258,6 +277,9 @@ const Workbook: React.FC<WorkbookProps & RefAttributeWorkbook> = memo(
             theme={theme}
             rowCount={rowCount}
             columnCount={columnCount}
+            showGridLines={showGridLines}
+            CellEditor={CellEditor}
+            allowMultipleSelection={allowMultipleSelection}
           />
         </Flex>
         <Flex>

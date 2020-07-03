@@ -909,7 +909,7 @@ const BorderSelection: React.FC<BorderProps> = ({
   return (
     <Popover
       usePortal
-      placement="top-start"
+      placement="auto-start"
       onClose={() => {
         setBorderVariant(undefined);
       }}

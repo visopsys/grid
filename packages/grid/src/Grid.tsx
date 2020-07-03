@@ -240,7 +240,7 @@ export interface CellRangeArea extends CellInterface {
 }
 
 export type RefAttribute = {
-  ref?: React.MutableRefObject<GridRef | null>;
+  ref?: React.Ref<GridRef>;
 };
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
@@ -1242,7 +1242,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             points: [x1, y1, x2, y2],
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
-            offsetY: -0.5
+            offsetY: -0.5,
+            key: itemKey({ rowIndex: x1, columnIndex: y1 })
           })
         );
         gridLinesFrozenColumn.push(
@@ -1250,7 +1251,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             points: [x1, y1, x2, y2],
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
-            offsetY: -0.5
+            offsetY: -0.5,
+            key: itemKey({ rowIndex: x1, columnIndex: y1 })
           })
         );
       }
@@ -1279,7 +1281,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             points: [x1, y1, x2, y2],
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
-            offsetX: -0.5
+            offsetX: -0.5,
+            key: itemKey({ rowIndex: x1, columnIndex: y1 })
           })
         );
         gridLinesFrozenRow.push(
@@ -1287,7 +1290,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             points: [x1, y1, x2, y2],
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
-            offsetX: -0.5
+            offsetX: -0.5,
+            key: itemKey({ rowIndex: x1, columnIndex: y1 })
           })
         );
       }
@@ -1315,7 +1319,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             points: [x1, y1, x2, y2],
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
-            offsetY: -0.5
+            offsetY: -0.5,
+            key: itemKey({ rowIndex: x1, columnIndex: y1 })
           })
         );
         gridLinesFrozenIntersection.push(
@@ -1323,7 +1328,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             points: [x1, y1, x2, y2],
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
-            offsetY: -0.5
+            offsetY: -0.5,
+            key: itemKey({ rowIndex: x1, columnIndex: y1 })
           })
         );
       }
@@ -1352,7 +1358,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             points: [x1, y1, x2, y2],
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
-            offsetX: -0.5
+            offsetX: -0.5,
+            key: itemKey({ rowIndex: x1, columnIndex: y1 })
           })
         );
         gridLinesFrozenIntersection.push(
@@ -1360,7 +1367,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             points: [x1, y1, x2, y2],
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
-            offsetX: -0.5
+            offsetX: -0.5,
+            key: itemKey({ rowIndex: x1, columnIndex: y1 })
           })
         );
       }

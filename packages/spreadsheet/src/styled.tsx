@@ -8,7 +8,10 @@ import {
   PopoverContent as ChakraPopoverContent,
   ButtonProps,
   IconButtonProps,
-  PopoverContentProps
+  PopoverContentProps,
+  useColorMode,
+  MenuItem as ChakraMenuItem,
+  MenuItemProps
 } from "@chakra-ui/core";
 import { Box } from "@chakra-ui/core";
 import { SYSTEM_FONT } from "./constants";
@@ -86,7 +89,6 @@ export const IconButton = forwardRef((props: IconButtonProps, ref) => {
         background: transparent;
         cursor: pointer;
         line-height: inherit;
-        color: inherit;
         overflow: visible;
         text-transform: none;
         border-style: none;
@@ -97,11 +99,13 @@ export const IconButton = forwardRef((props: IconButtonProps, ref) => {
 });
 
 export const PopoverContent = forwardRef((props: PopoverContentProps, ref) => {
+  const { colorMode } = useColorMode();
   return (
     <ChakraPopoverContent
       ref={ref}
       css={css`
         font-family: ${SYSTEM_FONT};
+        color: ${colorMode === "light" ? "#333" : "white"};
       `}
       {...props}
     />
@@ -118,7 +122,6 @@ export const Button = forwardRef((props: ButtonProps, ref) => {
         background: transparent;
         cursor: pointer;
         line-height: inherit;
-        color: inherit;
         overflow: visible;
         text-transform: none;
         border-style: none;
@@ -134,3 +137,22 @@ export const Tooltip = styled(ChakraTooltip)`
   padding-top: 4px;
   padding-bottom: 4px;
 `;
+
+export const MenuItem = forwardRef((props: MenuItemProps, ref) => {
+  return (
+    <ChakraMenuItem
+      css={css`
+        font-family: ${SYSTEM_FONT};
+        line-height: 1.2;
+        background: transparent;
+        cursor: pointer;
+        line-height: inherit;
+        overflow: visible;
+        text-transform: none;
+        border-style: none;
+      `}
+      ref={ref}
+      {...props}
+    />
+  );
+});

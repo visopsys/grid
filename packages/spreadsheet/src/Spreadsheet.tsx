@@ -3,12 +3,21 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
-  useRef
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+  memo
 } from "react";
 import Toolbar from "./Toolbar";
 import Formulabar from "./Formulabar";
 import Workbook from "./Workbook";
-import { theme, ThemeProvider, ColorModeProvider, Flex } from "@chakra-ui/core";
+import {
+  theme,
+  ThemeProvider,
+  ColorModeProvider,
+  Flex,
+  useColorMode
+} from "@chakra-ui/core";
 import { Global, css } from "@emotion/core";
 import {
   RendererProps,
@@ -26,7 +35,9 @@ import {
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_ROW_HEIGHT,
   EMPTY_ARRAY,
-  cellsInSelectionVariant
+  cellsInSelectionVariant,
+  SYSTEM_FONT,
+  CELL_BORDER_COLOR
 } from "./constants";
 import {
   FORMATTING_TYPE,
@@ -43,6 +54,10 @@ import { useImmer } from "use-immer";
 import { WorkbookGridRef } from "./Grid/Grid";
 import { KeyCodes, Direction } from "@rowsncolumns/grid/dist/types";
 import invariant from "tiny-invariant";
+import { ThemeType } from "./styled";
+import Editor, { CustomEditorProps } from "./Editor/Editor";
+import { CellProps } from "./Cell/Cell";
+import { current } from "immer";
 
 export interface SpreadSheetProps {
   /**
@@ -64,11 +79,11 @@ export interface SpreadSheetProps {
   /**
    * Customize cell rendering
    */
-  CellRenderer?: React.FC<RendererProps>;
+  CellRenderer?: React.ReactType;
   /**
    * Custom header cell
    */
-  HeaderCellRenderer?: React.FC<RendererProps>;
+  HeaderCellRenderer?: React.ReactType;
   /**
    * Array of sheets to render
    */
@@ -117,6 +132,38 @@ export interface SpreadSheetProps {
    * Font family
    */
   fontFamily?: string;
+  /**
+   * Show hide gridlines
+   */
+  showGridLines?: boolean;
+  /**
+   * Min Height of the grid
+   */
+  minHeight?: number;
+  /**
+   * Custom Cell Editor
+   */
+  CellEditor?: React.ReactType<CustomEditorProps>;
+  /**
+   * Allow multiple selection
+   */
+  allowMultipleSelection?: boolean;
+  /**
+   * Callback when active cell changes
+   */
+  onActiveCellChange?: (
+    id: string,
+    cell: CellInterface | null,
+    value?: string
+  ) => void;
+  /**
+   * Callback fired when selection changes
+   */
+  onSelectionChange?: (
+    id: string,
+    activeCell: CellInterface | null,
+    selections: SelectionArea[]
+  ) => void;
 }
 
 export interface Sheet {
@@ -125,11 +172,10 @@ export interface Sheet {
   cells: Cells;
   activeCell: CellInterface | null;
   selections: SelectionArea[];
-  scrollState: ScrollCoords;
+  scrollState?: ScrollCoords;
   columnSizes?: SizeType;
   rowSizes?: SizeType;
   mergedCells?: AreaProps[];
-  borderStyles?: StylingProps;
   frozenRows?: number;
   frozenColumns?: number;
 }
@@ -162,748 +208,784 @@ const defaultSheets: Sheet[] = [
   }
 ];
 
+export type RefAttributeSheetGrid = {
+  ref?: React.Ref<SheetGridRef>;
+};
+
+export type SheetGridRef = {
+  grid: WorkbookGridRef | null;
+};
+
 /**
  * Spreadsheet component
  * TODO
  * 1. Undo/redo
  * @param props
  */
-const Spreadsheet = (props: SpreadSheetProps) => {
-  const {
-    sheets: initialSheets = defaultSheets,
-    showFormulabar = true,
-    minColumnWidth = DEFAULT_COLUMN_WIDTH,
-    minRowHeight = DEFAULT_ROW_HEIGHT,
-    CellRenderer,
-    HeaderCellRenderer,
-    activeSheet = defaultActiveSheet,
-    onChangeSelectedSheet,
-    onChange,
-    onChangeCells,
-    showToolbar = true,
-    format,
-    enableDarkMode = true,
-    hiddenRows: initialHiddenRows = EMPTY_ARRAY,
-    hiddenColumns: initialHiddenColumns = EMPTY_ARRAY,
-    rowCount = 1000,
-    columnCount = 1000,
-    fontFamily = "Arial, sans-serif"
-  } = props;
-  const [selectedSheet, setSelectedSheet] = useState<string | null>(() => {
-    return activeSheet || initialSheets.length ? initialSheets[0].id : null;
-  });
-  const selectedSheetRef = useRef(selectedSheet);
-  const currentGrid = useRef<WorkbookGridRef>();
-  const [sheets, setSheets] = useImmer<Sheet[]>(initialSheets);
-  const [formulaInput, setFormulaInput] = useState("");
-  const [hiddenColumns] = useState(initialHiddenColumns);
-  const [hiddenRows] = useState(initialHiddenRows);
-
-  invariant(
-    selectedSheet,
-    "Exception, selectedSheet is empty, Please specify a selected sheet using `selectedSheet` prop"
-  );
-
-  /* Callback when sheets is changed */
-  useEffect(() => {
-    onChange?.(sheets);
-  }, [sheets]);
-
-  /* Change selected sheet */
-  useEffect(() => {
-    onChangeSelectedSheet?.(selectedSheet);
-  }, [selectedSheet]);
-
-  useEffect(() => {
-    selectedSheetRef.current = selectedSheet;
-  });
-
-  /**
-   * Handle add new sheet
-   */
-  const handleNewSheet = useCallback(() => {
-    const count = sheets.length;
-    const newSheet = createNewSheet({ count: count + 1 });
-    setSheets(draft => {
-      (draft as Sheet[]).push(newSheet);
+const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
+  forwardRef((props, forwardedRef) => {
+    const {
+      sheets: initialSheets = defaultSheets,
+      showFormulabar = true,
+      minColumnWidth = DEFAULT_COLUMN_WIDTH,
+      minRowHeight = DEFAULT_ROW_HEIGHT,
+      CellRenderer,
+      HeaderCellRenderer,
+      activeSheet = defaultActiveSheet,
+      onChangeSelectedSheet,
+      onChange,
+      onChangeCells,
+      showToolbar = true,
+      format,
+      enableDarkMode = true,
+      hiddenRows: initialHiddenRows = EMPTY_ARRAY,
+      hiddenColumns: initialHiddenColumns = EMPTY_ARRAY,
+      rowCount = 1000,
+      columnCount = 1000,
+      fontFamily = SYSTEM_FONT,
+      showGridLines = true,
+      minHeight = 400,
+      CellEditor = Editor,
+      allowMultipleSelection = true,
+      onActiveCellChange,
+      onSelectionChange
+    } = props;
+    const [selectedSheet, setSelectedSheet] = useState<string | null>(() => {
+      return activeSheet || initialSheets.length ? initialSheets[0].id : null;
     });
-    setSelectedSheet(newSheet.id);
-    /* Focus on the new grid */
-    currentGrid.current?.focus();
-  }, [sheets, selectedSheet]);
+    const selectedSheetRef = useRef(selectedSheet);
+    const currentGrid = useRef<WorkbookGridRef>(null);
+    const [sheets, setSheets] = useImmer<Sheet[]>(initialSheets);
+    const [formulaInput, setFormulaInput] = useState("");
+    const [hiddenColumns] = useState(initialHiddenColumns);
+    const [hiddenRows] = useState(initialHiddenRows);
+    const { colorMode } = useColorMode();
+    invariant(
+      selectedSheet !== null,
+      "Exception, selectedSheet is empty, Please specify a selected sheet using `selectedSheet` prop"
+    );
 
-  /**
-   * Cell changes on user input
-   */
-  const handleChange = useCallback((id: string, changes: Cells) => {
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === id);
-      if (sheet) {
-        for (const row in changes) {
-          sheet.cells[row] = sheet.cells[row] ?? {};
-          for (const col in changes[row]) {
-            /* Grab the previous value for undo */
-            sheet.cells[row][col] = sheet.cells[row][col] ?? {};
-            const cell = sheet.cells[row][col];
-            const value = changes[row][col].text;
-            /* Get datatype of user input */
-            const datatype = detectDataType(value);
-            cell.text = value;
-            cell.datatype = datatype;
-          }
-        }
-      }
+    useImperativeHandle(forwardedRef, () => {
+      return {
+        grid: currentGrid.current
+      };
     });
-    onChangeCells?.(id, changes);
-  }, []);
 
-  const handleSheetAttributesChange = useCallback(
-    (id: string, changes: any) => {
+    /* Callback when sheets is changed */
+    useEffect(() => {
+      onChange?.(sheets);
+    }, [sheets]);
+
+    /* Change selected sheet */
+    useEffect(() => {
+      onChangeSelectedSheet?.(selectedSheet);
+    }, [selectedSheet]);
+
+    useEffect(() => {
+      selectedSheetRef.current = selectedSheet;
+    });
+
+    /**
+     * Handle add new sheet
+     */
+    const handleNewSheet = useCallback(() => {
+      const count = sheets.length;
+      const newSheet = createNewSheet({ count: count + 1 });
+      setSheets(draft => {
+        (draft as Sheet[]).push(newSheet);
+      });
+      setSelectedSheet(newSheet.id);
+      /* Focus on the new grid */
+      currentGrid.current?.focus();
+    }, [sheets, selectedSheet]);
+
+    /**
+     * Cell changes on user input
+     */
+    const handleChange = useCallback((id: string, changes: Cells) => {
       setSheets(draft => {
         const sheet = draft.find(sheet => sheet.id === id);
         if (sheet) {
-          for (const key in changes) {
-            // @ts-ignore
-            sheet[key as keyof Sheet] = changes[key];
+          for (const row in changes) {
+            sheet.cells[row] = sheet.cells[row] ?? {};
+            for (const col in changes[row]) {
+              /* Grab the previous value for undo */
+              sheet.cells[row][col] = sheet.cells[row][col] ?? {};
+              const cell = sheet.cells[row][col];
+              const value = changes[row][col].text;
+              /* Get datatype of user input */
+              const datatype = detectDataType(value);
+              cell.text = value;
+              cell.datatype = datatype;
+            }
           }
         }
       });
-    },
-    []
-  );
+      onChangeCells?.(id, changes);
+    }, []);
 
-  const handleChangeSheetName = useCallback((id: string, name: string) => {
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === id);
-      if (sheet) {
-        sheet.name = name;
-      }
-    });
-  }, []);
+    const handleSheetAttributesChange = useCallback(
+      (id: string, changes: any) => {
+        setSheets(draft => {
+          const sheet = draft.find(sheet => sheet.id === id);
+          if (sheet) {
+            for (const key in changes) {
+              // @ts-ignore
+              sheet[key as keyof Sheet] = changes[key];
+            }
+          }
+        });
+      },
+      []
+    );
 
-  const handleDeleteSheet = useCallback(
-    (id: string) => {
-      if (sheets.length === 1) return;
-      const index = sheets.findIndex(sheet => sheet.id === id);
-      const newSheets = sheets.filter(sheet => sheet.id !== id);
-      const newSelectedSheet =
-        selectedSheet === sheets[index].id
-          ? newSheets[Math.max(0, index - 1)].id
-          : selectedSheet;
-      setSelectedSheet(newSelectedSheet);
+    const handleChangeSheetName = useCallback((id: string, name: string) => {
       setSheets(draft => {
-        draft.splice(index, 1);
+        const sheet = draft.find(sheet => sheet.id === id);
+        if (sheet) {
+          sheet.name = name;
+        }
       });
+    }, []);
 
-      /* Focus on the new grid */
-      currentGrid.current?.focus();
-    },
-    [sheets, selectedSheet]
-  );
+    const handleDeleteSheet = useCallback(
+      (id: string) => {
+        if (sheets.length === 1) return;
+        const index = sheets.findIndex(sheet => sheet.id === id);
+        const newSheets = sheets.filter(sheet => sheet.id !== id);
+        const newSelectedSheet =
+          selectedSheet === sheets[index].id
+            ? newSheets[Math.max(0, index - 1)].id
+            : selectedSheet;
+        setSelectedSheet(newSelectedSheet);
+        setSheets(draft => {
+          draft.splice(index, 1);
+        });
 
-  const handleDuplicateSheet = useCallback(
-    (id: string) => {
-      const newSheetId = uuid();
-      const index = sheets.findIndex(sheet => sheet.id === id);
-      if (index === -1) return;
-      const newSheet = {
-        ...sheets[index],
-        id: newSheetId,
-        name: `Copy of ${currentSheet.name}`
-      };
-      setSheets(draft => {
-        // @ts-ignore
-        draft.splice(index + 1, 0, newSheet);
-      });
-      setSelectedSheet(newSheetId);
-    },
-    [sheets, selectedSheet]
-  );
+        /* Focus on the new grid */
+        currentGrid.current?.focus();
+      },
+      [sheets, selectedSheet]
+    );
 
-  /**
-   * When cell or selection formatting change
-   */
-  const handleFormattingChange = useCallback(
-    (type, value) => {
+    const handleDuplicateSheet = useCallback(
+      (id: string) => {
+        const newSheetId = uuid();
+        const index = sheets.findIndex(sheet => sheet.id === id);
+        if (index === -1) return;
+        const newSheet = {
+          ...sheets[index],
+          id: newSheetId,
+          name: `Copy of ${currentSheet.name}`
+        };
+        setSheets(draft => {
+          // @ts-ignore
+          draft.splice(index + 1, 0, newSheet);
+        });
+        setSelectedSheet(newSheetId);
+      },
+      [sheets, selectedSheet]
+    );
+
+    /**
+     * When cell or selection formatting change
+     */
+    const handleFormattingChange = useCallback(
+      (type, value) => {
+        setSheets(draft => {
+          const sheet = draft.find(sheet => sheet.id === selectedSheet);
+          if (sheet) {
+            const { activeCell, selections, cells } = sheet;
+            if (selections.length) {
+              const previousValue: { [key: string]: any } = {};
+              selections.forEach(sel => {
+                const { bounds } = sel;
+                for (let i = bounds.top; i <= bounds.bottom; i++) {
+                  cells[i] = cells[i] ?? {};
+                  previousValue[i] = previousValue[i] ?? {};
+                  for (let j = bounds.left; j <= bounds.right; j++) {
+                    cells[i][j] = cells[i][j] ?? {};
+                    previousValue[i][j] = previousValue[i][j] ?? {};
+                    previousValue[i][j] = { ...cells[i][j] };
+                    cells[i][j][type as keyof CellFormatting] = value;
+                  }
+                }
+              });
+            } else if (activeCell) {
+              const { rowIndex, columnIndex } = activeCell;
+              cells[rowIndex] = cells[rowIndex] ?? {};
+              cells[rowIndex][columnIndex] = cells[rowIndex][columnIndex] ?? {};
+              cells[rowIndex][columnIndex][
+                type as keyof CellFormatting
+              ] = value;
+            }
+          }
+        });
+      },
+      [sheets, selectedSheet]
+    );
+
+    /**
+     * Pass active cell config back to toolbars
+     */
+    const currentSheet = useMemo(() => {
+      return sheets.find(sheet => sheet.id === selectedSheet) as Sheet;
+    }, [sheets, selectedSheet]);
+
+    const [activeCellConfig, activeCell] = useMemo(() => {
+      const { activeCell, cells } = currentSheet || {};
+      const activeCellConfig = activeCell
+        ? cells?.[activeCell.rowIndex]?.[activeCell.columnIndex]
+        : null;
+      return [activeCellConfig, activeCell];
+    }, [currentSheet]);
+
+    const handleActiveCellChange = useCallback(
+      (id: string, cell: CellInterface | null, value) => {
+        if (!cell) return;
+        setFormulaInput(value || "");
+
+        onActiveCellChange?.(id, cell);
+      },
+      []
+    );
+
+    const handleActiveCellValueChange = useCallback(value => {
+      setFormulaInput(value);
+    }, []);
+
+    /**
+     * Formula bar focus event
+     */
+    const handleFormulabarFocus = useCallback(
+      (e: React.FocusEvent<HTMLInputElement>) => {
+        const input = e.target;
+        if (activeCell) {
+          currentGrid.current?.makeEditable(activeCell, input.value, false);
+          requestAnimationFrame(() => input?.focus());
+        }
+      },
+      [activeCell]
+    );
+
+    /**
+     * When formula input changes
+     */
+    const handleFormulabarChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!activeCell) return;
+        const value = e.target.value;
+        setFormulaInput(value);
+        currentGrid.current?.setEditorValue(value, activeCell);
+      },
+      [activeCell, selectedSheet]
+    );
+
+    /**
+     * Imperatively submits the editor
+     * @param value
+     * @param activeCell
+     */
+    const submitEditor = (
+      value: string,
+      activeCell: CellInterface,
+      direction: Direction = Direction.Down
+    ) => {
+      const nextActiveCell = currentGrid.current?.getNextFocusableCell(
+        activeCell,
+        direction
+      );
+      currentGrid.current?.submitEditor(value, activeCell, nextActiveCell);
+    };
+    /**
+     * When user presses Enter on formula input
+     */
+    const handleFormulabarKeydown = useCallback(
+      (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (!activeCell) return;
+
+        if (e.which === KeyCodes.Enter) {
+          submitEditor(formulaInput, activeCell);
+        }
+        if (e.which === KeyCodes.Escape) {
+          currentGrid.current?.cancelEditor();
+          setFormulaInput(activeCellConfig?.text?.toString() || "");
+        }
+        if (e.which === KeyCodes.Tab) {
+          submitEditor(formulaInput, activeCell, Direction.Right);
+          e.preventDefault();
+        }
+      },
+      [activeCell, formulaInput, activeCellConfig]
+    );
+
+    /**
+     * Handle fill
+     */
+    const handleFill = useCallback(
+      (
+        id: string,
+        activeCell: CellInterface,
+        fillSelection: SelectionArea | null
+      ) => {
+        if (!fillSelection) return;
+        /* Check if user is trying to extend a selection */
+        const { bounds } = fillSelection;
+        const changes: Cells = {};
+        const previousValue: { [key: string]: any } = {};
+        setSheets(draft => {
+          const sheet = draft.find(sheet => sheet.id === id);
+          if (sheet) {
+            const { cells } = sheet;
+            const currentValue =
+              cells[activeCell.rowIndex]?.[activeCell.columnIndex];
+            for (let i = bounds.top; i <= bounds.bottom; i++) {
+              previousValue[i] = previousValue[i] ?? {};
+              cells[i] = cells[i] ?? {};
+              changes[i] = changes[i] ?? {};
+              for (let j = bounds.left; j <= bounds.right; j++) {
+                if (i === activeCell.rowIndex && j === activeCell.columnIndex)
+                  continue;
+                previousValue[i][j] = previousValue[i][j] ?? {};
+                cells[i][j] = cells[i][j] ?? {};
+                changes[i][j] = changes[i][j] ?? {};
+                previousValue[i][j] = { ...cells[i][j] };
+                cells[i][j] = currentValue;
+                changes[i][j] = { ...currentValue };
+              }
+            }
+          }
+        });
+
+        onChangeCells?.(id, changes);
+      },
+      [sheets]
+    );
+
+    /**
+     * Delete cell values
+     */
+    const handleDelete = useCallback(
+      (id: string, activeCell: CellInterface, selections: SelectionArea[]) => {
+        setSheets(draft => {
+          const sheet = draft.find(sheet => sheet.id === id);
+          const attribute = "text";
+          if (sheet) {
+            const { cells } = sheet;
+            const value: { [key: string]: any } = {};
+            const previousValue: { [key: string]: any } = {};
+            if (selections.length) {
+              selections.forEach(sel => {
+                const { bounds } = sel;
+                for (let i = bounds.top; i <= bounds.bottom; i++) {
+                  if (cells[i] === void 0) continue;
+                  for (let j = bounds.left; j <= bounds.right; j++) {
+                    if (!(j in cells[i]) || cells[i][j] === void 0) continue;
+                    value[i] = value[i] ?? {};
+                    previousValue[i] = previousValue[i] ?? {};
+                    previousValue[i][j] = previousValue[i][j] ?? {};
+                    value[i][j] = value[i][j] ?? {};
+                    previousValue[i][j][attribute] = cells[i][j][attribute];
+                    cells[i][j][attribute] = "";
+                    value[i][j][attribute] = "";
+                  }
+                }
+              });
+            } else {
+              const { rowIndex, columnIndex } = activeCell;
+              if (cells[rowIndex]?.[columnIndex]) {
+                cells[rowIndex][columnIndex].text = "";
+              }
+            }
+          }
+        });
+        /* Clear formula input */
+        setFormulaInput("");
+      },
+      []
+    );
+
+    const handleClearFormatting = useCallback(() => {
       setSheets(draft => {
         const sheet = draft.find(sheet => sheet.id === selectedSheet);
         if (sheet) {
           const { activeCell, selections, cells } = sheet;
           if (selections.length) {
-            const previousValue: { [key: string]: any } = {};
             selections.forEach(sel => {
               const { bounds } = sel;
               for (let i = bounds.top; i <= bounds.bottom; i++) {
-                cells[i] = cells[i] ?? {};
-                previousValue[i] = previousValue[i] ?? {};
+                if (!(i in cells)) continue;
                 for (let j = bounds.left; j <= bounds.right; j++) {
-                  cells[i][j] = cells[i][j] ?? {};
-                  previousValue[i][j] = previousValue[i][j] ?? {};
-                  previousValue[i][j] = { ...cells[i][j] };
-                  cells[i][j][type as keyof CellFormatting] = value;
+                  if (!(j in cells[i])) continue;
+                  Object.values(FORMATTING_TYPE).forEach(key => {
+                    delete cells[i]?.[j]?.[key];
+                  });
+                  Object.values(STROKE_FORMATTING).forEach(key => {
+                    delete cells[i]?.[j]?.[key];
+                  });
                 }
               }
             });
           } else if (activeCell) {
             const { rowIndex, columnIndex } = activeCell;
-            cells[rowIndex] = cells[rowIndex] ?? {};
-            cells[rowIndex][columnIndex] = cells[rowIndex][columnIndex] ?? {};
-            cells[rowIndex][columnIndex][type as keyof CellFormatting] = value;
+            Object.values(FORMATTING_TYPE).forEach(key => {
+              if (key) delete cells[rowIndex]?.[columnIndex]?.[key];
+            });
+            Object.values(STROKE_FORMATTING).forEach(key => {
+              if (key) delete cells[rowIndex]?.[columnIndex]?.[key];
+            });
           }
         }
       });
-    },
-    [sheets, selectedSheet]
-  );
+    }, [sheets, selectedSheet]);
 
-  /**
-   * Pass active cell config back to toolbars
-   */
-  const currentSheet = useMemo(() => {
-    return sheets.find(sheet => sheet.id === selectedSheet) as Sheet;
-  }, [sheets, selectedSheet]);
-
-  const [activeCellConfig, activeCell] = useMemo(() => {
-    const { activeCell, cells } = currentSheet || {};
-    const activeCellConfig = activeCell
-      ? cells?.[activeCell.rowIndex]?.[activeCell.columnIndex]
-      : null;
-    return [activeCellConfig, activeCell];
-  }, [currentSheet]);
-
-  const handleActiveCellChange = useCallback(
-    (cell: CellInterface | null, value) => {
-      if (!cell) return;
-      setFormulaInput(value || "");
-    },
-    []
-  );
-
-  const handleActiveCellValueChange = useCallback(value => {
-    setFormulaInput(value);
-  }, []);
-
-  /**
-   * Formula bar focus event
-   */
-  const handleFormulabarFocus = useCallback(
-    (e: React.FocusEvent<HTMLInputElement>) => {
-      const input = e.target;
-      if (activeCell) {
-        currentGrid.current?.makeEditable(activeCell, input.value, false);
-        requestAnimationFrame(() => input?.focus());
-      }
-    },
-    [activeCell]
-  );
-
-  /**
-   * When formula input changes
-   */
-  const handleFormulabarChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (!activeCell) return;
-      const value = e.target.value;
-      setFormulaInput(value);
-      currentGrid.current?.setEditorValue(value, activeCell);
-    },
-    [activeCell, selectedSheet]
-  );
-
-  /**
-   * Imperatively submits the editor
-   * @param value
-   * @param activeCell
-   */
-  const submitEditor = (
-    value: string,
-    activeCell: CellInterface,
-    direction: Direction = Direction.Down
-  ) => {
-    const nextActiveCell = currentGrid.current?.getNextFocusableCell(
-      activeCell,
-      direction
-    );
-    currentGrid.current?.submitEditor(value, activeCell, nextActiveCell);
-  };
-  /**
-   * When user presses Enter on formula input
-   */
-  const handleFormulabarKeydown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (!activeCell) return;
-
-      if (e.which === KeyCodes.Enter) {
-        submitEditor(formulaInput, activeCell);
-      }
-      if (e.which === KeyCodes.Escape) {
-        currentGrid.current?.cancelEditor();
-        setFormulaInput(activeCellConfig?.text?.toString() || "");
-      }
-      if (e.which === KeyCodes.Tab) {
-        submitEditor(formulaInput, activeCell, Direction.Right);
-        e.preventDefault();
-      }
-    },
-    [activeCell, formulaInput, activeCellConfig]
-  );
-
-  /**
-   * Handle fill
-   */
-  const handleFill = useCallback(
-    (
-      id: string,
-      activeCell: CellInterface,
-      fillSelection: SelectionArea | null
-    ) => {
-      if (!fillSelection) return;
-      /* Check if user is trying to extend a selection */
-      const { bounds } = fillSelection;
-      const changes: Cells = {};
-      const previousValue: { [key: string]: any } = {};
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
-        if (sheet) {
-          const { cells } = sheet;
-          const currentValue =
-            cells[activeCell.rowIndex]?.[activeCell.columnIndex];
-          for (let i = bounds.top; i <= bounds.bottom; i++) {
-            previousValue[i] = previousValue[i] ?? {};
-            cells[i] = cells[i] ?? {};
-            changes[i] = changes[i] ?? {};
-            for (let j = bounds.left; j <= bounds.right; j++) {
-              if (i === activeCell.rowIndex && j === activeCell.columnIndex)
-                continue;
-              previousValue[i][j] = previousValue[i][j] ?? {};
-              cells[i][j] = cells[i][j] ?? {};
-              changes[i][j] = changes[i][j] ?? {};
-              previousValue[i][j] = { ...cells[i][j] };
-              cells[i][j] = currentValue;
-              changes[i][j] = { ...currentValue };
+    const handleResize = useCallback(
+      (id: string, axis: AXIS, index: number, dimension: number) => {
+        setSheets(draft => {
+          const sheet = draft.find(sheet => sheet.id === id);
+          if (sheet) {
+            if (axis === AXIS.X) {
+              if (!("columnSizes" in sheet)) sheet.columnSizes = {};
+              if (sheet.columnSizes) sheet.columnSizes[index] = dimension;
+            } else {
+              if (!("rowSizes" in sheet)) sheet.rowSizes = {};
+              if (sheet.rowSizes) sheet.rowSizes[index] = dimension;
             }
           }
+        });
+        axis === AXIS.X
+          ? currentGrid.current?.resizeColumns?.([index])
+          : currentGrid.current?.resizeRows?.([index]);
+      },
+      []
+    );
+
+    /**
+     * Handle toggle cell merges
+     */
+    const handleMergeCells = useCallback(() => {
+      setSheets(draft => {
+        const sheet = draft.find(sheet => sheet.id === selectedSheet);
+        if (sheet) {
+          const { selections, activeCell } = sheet;
+          const { bounds } = selections.length
+            ? selections[selections.length - 1]
+            : {
+                bounds: currentGrid.current?.getCellBounds?.(
+                  activeCell as CellInterface
+                )
+              };
+          if (!bounds) return;
+          if (bounds.top === bounds.bottom && bounds.left === bounds.right)
+            return;
+          if (!sheet.mergedCells) {
+            sheet.mergedCells = [];
+          } else {
+            /* Check if cell is already merged */
+            const index = sheet.mergedCells.findIndex(area => {
+              return (
+                area.left === bounds.left &&
+                area.right === bounds.right &&
+                area.top === bounds.top &&
+                area.bottom === bounds.bottom
+              );
+            });
+
+            if (index !== -1) {
+              sheet.mergedCells.splice(index, 1);
+              return;
+            }
+          }
+          sheet.mergedCells.push(bounds);
         }
       });
+    }, [selectedSheet]);
 
-      onChangeCells?.(id, changes);
-    },
-    [sheets]
-  );
+    const handleFrozenRowChange = useCallback(
+      num => {
+        setSheets(draft => {
+          const sheet = draft.find(sheet => sheet.id === selectedSheet);
+          if (sheet) {
+            sheet.frozenRows = num;
+          }
+        });
+      },
+      [selectedSheet]
+    );
 
-  /**
-   * Delete cell values
-   */
-  const handleDelete = useCallback(
-    (id: string, activeCell: CellInterface, selections: SelectionArea[]) => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
-        const attribute = "text";
-        if (sheet) {
-          const { cells } = sheet;
-          const value: { [key: string]: any } = {};
-          const previousValue: { [key: string]: any } = {};
-          if (selections.length) {
-            selections.forEach(sel => {
-              const { bounds } = sel;
-              for (let i = bounds.top; i <= bounds.bottom; i++) {
-                if (cells[i] === void 0) continue;
-                for (let j = bounds.left; j <= bounds.right; j++) {
-                  if (!(j in cells[i]) || cells[i][j] === void 0) continue;
-                  value[i] = value[i] ?? {};
-                  previousValue[i] = previousValue[i] ?? {};
-                  previousValue[i][j] = previousValue[i][j] ?? {};
-                  value[i][j] = value[i][j] ?? {};
-                  previousValue[i][j][attribute] = cells[i][j][attribute];
-                  cells[i][j][attribute] = "";
-                  value[i][j][attribute] = "";
+    const handleFrozenColumnChange = useCallback(
+      num => {
+        setSheets(draft => {
+          const sheet = draft.find(sheet => sheet.id === selectedSheet);
+          if (sheet) {
+            sheet.frozenColumns = num;
+          }
+        });
+      },
+      [selectedSheet]
+    );
+
+    const handleBorderChange = useCallback(
+      (
+        color: string | undefined,
+        borderStyle: BORDER_STYLE,
+        variant?: BORDER_VARIANT
+      ) => {
+        /* Create a border style based on variant */
+        setSheets(draft => {
+          const sheet = draft.find(sheet => sheet.id === selectedSheet);
+          if (sheet) {
+            const { selections, cells, activeCell } = sheet;
+            const sel = selections.length
+              ? selections
+              : selectionFromActiveCell(activeCell);
+            const boundedCells = cellsInSelectionVariant(
+              sel as SelectionArea[],
+              variant,
+              borderStyle,
+              color,
+              currentGrid.current?.getCellBounds
+            );
+            for (const row in boundedCells) {
+              for (const col in boundedCells[row]) {
+                if (variant === BORDER_VARIANT.NONE) {
+                  // Delete all stroke formatting rules
+                  Object.values(STROKE_FORMATTING).forEach(key => {
+                    delete cells[row]?.[col]?.[key];
+                  });
+                } else {
+                  const styles = boundedCells[row][col];
+                  Object.keys(styles).forEach(key => {
+                    cells[row] = cells[row] ?? {};
+                    cells[row][col] = cells[row][col] ?? {};
+                    // @ts-ignore
+                    cells[row][col][key] = styles[key];
+                  });
                 }
               }
-            });
-          } else {
-            const { rowIndex, columnIndex } = activeCell;
-            if (cells[rowIndex]?.[columnIndex]) {
-              cells[rowIndex][columnIndex].text = "";
             }
           }
-        }
-      });
-      /* Clear formula input */
-      setFormulaInput("");
-    },
-    []
-  );
-
-  const handleClearFormatting = useCallback(() => {
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === selectedSheet);
-      if (sheet) {
-        const { activeCell, selections, cells } = sheet;
-        if (selections.length) {
-          selections.forEach(sel => {
-            const { bounds } = sel;
-            for (let i = bounds.top; i <= bounds.bottom; i++) {
-              if (!(i in cells)) continue;
-              for (let j = bounds.left; j <= bounds.right; j++) {
-                if (!(j in cells[i])) continue;
-                Object.values(FORMATTING_TYPE).forEach(key => {
-                  delete cells[i]?.[j]?.[key];
-                });
-                Object.values(STROKE_FORMATTING).forEach(key => {
-                  delete cells[i]?.[j]?.[key];
-                });
-              }
-            }
-          });
-        } else if (activeCell) {
-          const { rowIndex, columnIndex } = activeCell;
-          Object.values(FORMATTING_TYPE).forEach(key => {
-            if (key) delete cells[rowIndex]?.[columnIndex]?.[key];
-          });
-          Object.values(STROKE_FORMATTING).forEach(key => {
-            if (key) delete cells[rowIndex]?.[columnIndex]?.[key];
-          });
-        }
-      }
-    });
-  }, [sheets, selectedSheet]);
-
-  const handleResize = useCallback(
-    (id: string, axis: AXIS, index: number, dimension: number) => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
-        if (sheet) {
-          if (axis === AXIS.X) {
-            if (!("columnSizes" in sheet)) sheet.columnSizes = {};
-            if (sheet.columnSizes) sheet.columnSizes[index] = dimension;
-          } else {
-            if (!("rowSizes" in sheet)) sheet.rowSizes = {};
-            if (sheet.rowSizes) sheet.rowSizes[index] = dimension;
-          }
-        }
-      });
-      axis === AXIS.X
-        ? currentGrid.current?.resizeColumns?.([index])
-        : currentGrid.current?.resizeRows?.([index]);
-    },
-    []
-  );
-
-  /**
-   * Handle toggle cell merges
-   */
-  const handleMergeCells = useCallback(() => {
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === selectedSheet);
-      if (sheet) {
-        const { selections, activeCell } = sheet;
-        const { bounds } = selections.length
-          ? selections[selections.length - 1]
-          : {
-              bounds: currentGrid.current?.getCellBounds?.(
-                activeCell as CellInterface
-              )
-            };
-        if (!bounds) return;
-        if (bounds.top === bounds.bottom && bounds.left === bounds.right)
-          return;
-        if (!sheet.mergedCells) {
-          sheet.mergedCells = [];
-        } else {
-          /* Check if cell is already merged */
-          const index = sheet.mergedCells.findIndex(area => {
-            return (
-              area.left === bounds.left &&
-              area.right === bounds.right &&
-              area.top === bounds.top &&
-              area.bottom === bounds.bottom
-            );
-          });
-
-          if (index !== -1) {
-            sheet.mergedCells.splice(index, 1);
-            return;
-          }
-        }
-        sheet.mergedCells.push(bounds);
-      }
-    });
-  }, [selectedSheet]);
-
-  const handleFrozenRowChange = useCallback(
-    num => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === selectedSheet);
-        if (sheet) {
-          sheet.frozenRows = num;
-        }
-      });
-    },
-    [selectedSheet]
-  );
-
-  const handleFrozenColumnChange = useCallback(
-    num => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === selectedSheet);
-        if (sheet) {
-          sheet.frozenColumns = num;
-        }
-      });
-    },
-    [selectedSheet]
-  );
-
-  const handleBorderChange = useCallback(
-    (
-      color: string | undefined,
-      borderStyle: BORDER_STYLE,
-      variant?: BORDER_VARIANT
-    ) => {
-      /* Create a border style based on variant */
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === selectedSheet);
-        if (sheet) {
-          const { selections, cells, activeCell } = sheet;
-          const sel = selections.length
-            ? selections
-            : selectionFromActiveCell(activeCell);
-          const boundedCells = cellsInSelectionVariant(
-            sel as SelectionArea[],
-            variant,
-            borderStyle,
-            color,
-            currentGrid.current?.getCellBounds
-          );
-          for (const row in boundedCells) {
-            for (const col in boundedCells[row]) {
-              if (variant === BORDER_VARIANT.NONE) {
-                // Delete all stroke formatting rules
-                Object.values(STROKE_FORMATTING).forEach(key => {
-                  delete cells[row]?.[col]?.[key];
-                });
-              } else {
-                const styles = boundedCells[row][col];
-                Object.keys(styles).forEach(key => {
-                  cells[row] = cells[row] ?? {};
-                  cells[row][col] = cells[row][col] ?? {};
-                  // @ts-ignore
-                  cells[row][col][key] = styles[key];
-                });
-              }
-            }
-          }
-        }
-      });
-    },
-    [selectedSheet]
-  );
-
-  /**
-   * Handle sheet scroll
-   */
-  const handleScroll = useCallback((id: string, scrollState: ScrollCoords) => {
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === id);
-      if (sheet) {
-        sheet.scrollState = scrollState;
-      }
-    });
-  }, []);
-
-  /**.
-   * On Paste
-   * TODO: Preserve formatting
-   */
-  const handlePaste = useCallback((id, rows, activeCell) => {
-    const { rowIndex, columnIndex } = activeCell;
-    const endRowIndex = Math.max(rowIndex, rowIndex + rows.length - 1);
-    const endColumnIndex = Math.max(
-      columnIndex,
-      columnIndex + (rows.length && rows[0].length - 1)
+        });
+      },
+      [selectedSheet]
     );
 
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === id);
-      if (sheet) {
-        const { cells } = sheet;
-        for (const [i, row] of rows.entries()) {
-          const r = rowIndex + i;
-          cells[r] = cells[r] ?? {};
-          for (const [j, text] of row.entries()) {
-            const c = columnIndex + j;
-            cells[r][c] = cells[r][c] ?? {};
-            cells[r][c].text = text;
+    /**
+     * Handle sheet scroll
+     */
+    const handleScroll = useCallback(
+      (id: string, scrollState: ScrollCoords) => {
+        setSheets(draft => {
+          const sheet = draft.find(sheet => sheet.id === id);
+          if (sheet) {
+            sheet.scrollState = scrollState;
           }
-        }
-      }
-    });
+        });
+      },
+      []
+    );
 
-    /* Should select */
-    if (rowIndex === endRowIndex && columnIndex === endColumnIndex) return;
+    /**.
+     * On Paste
+     * TODO: Preserve formatting
+     */
+    const handlePaste = useCallback((id, rows, activeCell) => {
+      const { rowIndex, columnIndex } = activeCell;
+      const endRowIndex = Math.max(rowIndex, rowIndex + rows.length - 1);
+      const endColumnIndex = Math.max(
+        columnIndex,
+        columnIndex + (rows.length && rows[0].length - 1)
+      );
 
-    currentGrid.current?.setSelections([
-      {
-        bounds: {
-          top: rowIndex,
-          left: columnIndex,
-          bottom: endRowIndex,
-          right: endColumnIndex
-        }
-      }
-    ]);
-  }, []);
-
-  /**
-   * Handle cut event
-   */
-  const handleCut = useCallback((id: string, selection: SelectionArea) => {
-    const { bounds } = selection;
-
-    setSheets(draft => {
-      const sheet = draft.find(sheet => sheet.id === id);
-      if (sheet) {
-        const { cells } = sheet;
-        for (let i = bounds.top; i <= bounds.bottom; i++) {
-          if (!(i in cells)) continue;
-          for (let j = bounds.left; j <= bounds.right; j++) {
-            if (!(j in cells[i])) continue;
-            delete cells[i][j];
-          }
-        }
-      }
-    });
-  }, []);
-
-  /**
-   * Insert new row
-   */
-  const handleInsertRow = useCallback(
-    (id: string, activeCell: CellInterface | null) => {
-      if (activeCell === null) return;
       setSheets(draft => {
         const sheet = draft.find(sheet => sheet.id === id);
         if (sheet) {
-          const { rowIndex } = activeCell;
           const { cells } = sheet;
-          const maxRow = Math.max(...Object.keys(cells).map(Number));
-          const changes: { [key: string]: any } = {};
-          for (let i = rowIndex; i <= maxRow; i++) {
-            changes[i + 1] = cells[i];
-          }
-          for (const index in changes) {
-            cells[index] = changes[index];
-          }
-          delete cells[rowIndex];
-        }
-      });
-    },
-    []
-  );
-
-  /**
-   * Insert new row
-   */
-  const handleInsertColumn = useCallback(
-    (id: string, activeCell: CellInterface | null) => {
-      if (activeCell === null) return;
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
-        if (sheet) {
-          const { columnIndex } = activeCell;
-          const { cells } = sheet;
-
-          const changes: { [key: string]: any } = {};
-          for (const row in cells) {
-            const maxCol = Math.max(...Object.keys(cells[row]).map(Number));
-            changes[row] = changes[row] ?? {};
-            for (let i = columnIndex; i <= maxCol; i++) {
-              changes[row][i] = changes[row][i] ?? {};
-              changes[row][i + 1] = cells[row]?.[i];
-            }
-          }
-
-          for (const row in changes) {
-            for (const col in changes[row]) {
-              cells[row][col] = changes[row][col];
+          for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const r = rowIndex + i;
+            cells[r] = cells[r] ?? {};
+            for (let j = 0; j < row.length; j++) {
+              const text = row[j];
+              const c = columnIndex + j;
+              cells[r][c] = cells[r][c] ?? {};
+              cells[r][c].text = text;
             }
           }
         }
       });
-    },
-    []
-  );
 
-  /* Handle delete row */
-  const handleDeleteRow = useCallback(
-    (id: string, activeCell: CellInterface | null) => {
-      if (activeCell === null) return;
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
-        if (sheet) {
-          const { rowIndex } = activeCell;
-          const { cells } = sheet;
-          const maxRow = Math.max(...Object.keys(cells).map(Number));
-          const changes: { [key: string]: any } = {};
-          for (let i = rowIndex; i <= maxRow; i++) {
-            changes[i] = cells[i + 1];
-          }
-          for (const index in changes) {
-            cells[index] = changes[index];
+      /* Should select */
+      if (rowIndex === endRowIndex && columnIndex === endColumnIndex) return;
+
+      currentGrid.current?.setSelections([
+        {
+          bounds: {
+            top: rowIndex,
+            left: columnIndex,
+            bottom: endRowIndex,
+            right: endColumnIndex
           }
         }
-      });
-    },
-    []
-  );
+      ]);
+    }, []);
 
-  /* Handle delete row */
-  const handleDeleteColumn = useCallback(
-    (id: string, activeCell: CellInterface | null) => {
-      if (activeCell === null) return;
+    /**
+     * Handle cut event
+     */
+    const handleCut = useCallback((id: string, selection: SelectionArea) => {
+      const { bounds } = selection;
+
       setSheets(draft => {
         const sheet = draft.find(sheet => sheet.id === id);
         if (sheet) {
-          const { columnIndex } = activeCell;
           const { cells } = sheet;
-
-          const changes: { [key: string]: any } = {};
-          for (const row in cells) {
-            const maxCol = Math.max(...Object.keys(cells[row]).map(Number));
-            changes[row] = changes[row] ?? {};
-            for (let i = columnIndex; i <= maxCol; i++) {
-              changes[row][i] = changes[row][i] ?? {};
-              changes[row][i] = cells[row]?.[i + 1];
-            }
-          }
-
-          for (const row in changes) {
-            for (const col in changes[row]) {
-              cells[row][col] = changes[row][col];
+          for (let i = bounds.top; i <= bounds.bottom; i++) {
+            if (!(i in cells)) continue;
+            for (let j = bounds.left; j <= bounds.right; j++) {
+              if (!(j in cells[i])) continue;
+              delete cells[i][j];
             }
           }
         }
       });
-    },
-    []
-  );
+    }, []);
 
-  return (
-    <ThemeProvider theme={theme}>
-      <Global
-        styles={css`
-          .rowsncolumns-spreadsheet {
-            font-family: ${fontFamily};
+    /**
+     * Insert new row
+     */
+    const handleInsertRow = useCallback(
+      (id: string, activeCell: CellInterface | null) => {
+        if (activeCell === null) return;
+        setSheets(draft => {
+          const sheet = draft.find(sheet => sheet.id === id);
+          if (sheet) {
+            const { rowIndex } = activeCell;
+            const { cells } = sheet;
+            const maxRow = Math.max(...Object.keys(cells).map(Number));
+            const changes: { [key: string]: any } = {};
+            for (let i = rowIndex; i <= maxRow; i++) {
+              changes[i + 1] = cells[i];
+            }
+            for (const index in changes) {
+              cells[index] = changes[index];
+            }
+            delete cells[rowIndex];
           }
-          .rowsncolumns-grid-container:focus {
-            outline: none;
+        });
+      },
+      []
+    );
+
+    /**
+     * Insert new row
+     */
+    const handleInsertColumn = useCallback(
+      (id: string, activeCell: CellInterface | null) => {
+        if (activeCell === null) return;
+        setSheets(draft => {
+          const sheet = draft.find(sheet => sheet.id === id);
+          if (sheet) {
+            const { columnIndex } = activeCell;
+            const { cells } = sheet;
+
+            const changes: { [key: string]: any } = {};
+            for (const row in cells) {
+              const maxCol = Math.max(
+                ...Object.keys(cells[row] ?? {}).map(Number)
+              );
+              changes[row] = changes[row] ?? {};
+              for (let i = columnIndex; i <= maxCol; i++) {
+                changes[row][i] = changes[row][i] ?? {};
+                changes[row][i + 1] = cells[row]?.[i];
+              }
+            }
+
+            for (const row in changes) {
+              for (const col in changes[row]) {
+                cells[row][col] = changes[row][col];
+              }
+            }
           }
-        `}
-      />
-      <ColorModeProvider>
+        });
+      },
+      []
+    );
+
+    /* Handle delete row */
+    const handleDeleteRow = useCallback(
+      (id: string, activeCell: CellInterface | null) => {
+        if (activeCell === null) return;
+        setSheets(draft => {
+          const sheet = draft.find(sheet => sheet.id === id);
+          if (sheet) {
+            const { rowIndex } = activeCell;
+            const { cells } = sheet;
+            const maxRow = Math.max(...Object.keys(cells).map(Number));
+            const changes: { [key: string]: any } = {};
+            for (let i = rowIndex; i <= maxRow; i++) {
+              changes[i] = cells[i + 1];
+            }
+            for (const index in changes) {
+              cells[index] = changes[index];
+            }
+          }
+        });
+      },
+      []
+    );
+
+    /* Handle delete row */
+    const handleDeleteColumn = useCallback(
+      (id: string, activeCell: CellInterface | null) => {
+        if (activeCell === null) return;
+        setSheets(draft => {
+          const sheet = draft.find(sheet => sheet.id === id);
+          if (sheet) {
+            const { columnIndex } = activeCell;
+            const { cells } = sheet;
+
+            const changes: { [key: string]: any } = {};
+            for (const row in cells) {
+              const maxCol = Math.max(
+                ...Object.keys(cells[row] ?? {}).map(Number)
+              );
+              changes[row] = changes[row] ?? {};
+              for (let i = columnIndex; i <= maxCol; i++) {
+                changes[row][i] = changes[row][i] ?? {};
+                changes[row][i] = cells[row]?.[i + 1];
+              }
+            }
+
+            for (const row in changes) {
+              for (const col in changes[row]) {
+                cells[row][col] = changes[row][col];
+              }
+            }
+          }
+        });
+      },
+      []
+    );
+
+    return (
+      <>
+        <Global
+          styles={css`
+            .rowsncolumns-spreadsheet {
+              font-family: ${fontFamily};
+            }
+            .rowsncolumns-grid-container:focus {
+              outline: none;
+            }
+          `}
+        />
+
         <Flex
           flexDirection="column"
           flex={1}
+          minWidth={0}
+          minHeight={minHeight}
           className="rowsncolumns-spreadsheet"
         >
           {showToolbar ? (
@@ -976,11 +1058,30 @@ const Spreadsheet = (props: SpreadSheetProps) => {
             onInsertColumn={handleInsertColumn}
             onDeleteRow={handleDeleteRow}
             onDeleteColumn={handleDeleteColumn}
+            showGridLines={showGridLines}
+            CellEditor={CellEditor}
+            allowMultipleSelection={allowMultipleSelection}
+            onSelectionChange={onSelectionChange}
           />
         </Flex>
+      </>
+    );
+  })
+);
+
+export interface SpreadSheetPropsWithTheme extends SpreadSheetProps {
+  theme?: ThemeType;
+}
+const ThemeWrapper: React.FC<SpreadSheetPropsWithTheme &
+  RefAttributeSheetGrid> = forwardRef((props, forwardedRef) => {
+  const { theme: defaultTheme = theme, ...rest } = props;
+  return (
+    <ThemeProvider theme={defaultTheme}>
+      <ColorModeProvider>
+        <Spreadsheet {...rest} ref={forwardedRef} />
       </ColorModeProvider>
     </ThemeProvider>
   );
-};
+});
 
-export default Spreadsheet;
+export default ThemeWrapper;

@@ -306,9 +306,11 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       /* Attaching mousemove to document, so we can detect drag move */
       if (!isContextMenuClick) {
         /* Prevent  mousemove if its contextmenu click */
-        document.addEventListener("mousemove", handleMouseMove);
+        if (allowMultipleSelection)
+          document.addEventListener("mousemove", handleMouseMove);
       }
-      document.addEventListener("mouseup", handleMouseUp);
+      if (allowMultipleSelection)
+        document.addEventListener("mouseup", handleMouseUp);
 
       /* Activate selection mode */
       isSelecting.current = true;

@@ -45,6 +45,7 @@ const Tabs: React.FC<TabProps> = props => {
   const theme = useTheme();
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
+  const color = isLight ? theme.colors.gray[900] : theme.colors.gray[300];
   return (
     <Flex pl={COLUMN_HEADER_WIDTH} alignItems="center" minWidth={0} flex={1}>
       <Tooltip
@@ -58,6 +59,7 @@ const Tabs: React.FC<TabProps> = props => {
           icon={GoPlus}
           onClick={onNewSheet}
           variant="ghost"
+          color={color}
         />
       </Tooltip>
       <Popover placement="top">
@@ -73,6 +75,7 @@ const Tabs: React.FC<TabProps> = props => {
                 aria-label={translations.all_sheets}
                 icon={MdMenu}
                 variant="ghost"
+                color={color}
               />
             </Tooltip>
           </Box>

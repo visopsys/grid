@@ -145,10 +145,12 @@ const useCopyPaste = ({
         const node = nodes[i];
         if (node.nodeName === "TABLE") {
           const tableRows = doc.querySelectorAll("tr");
-          for (const tableRow of tableRows) {
+          for (let i = 0; i < tableRows.length; i++) {
+            const tableRow = tableRows[i];
             const row = [];
             const cells = tableRow.querySelectorAll("td");
-            for (const cell of cells) {
+            for (let j = 0; j < cells.length; j++) {
+              const cell = cells[j];
               row.push(cell.textContent);
             }
             rows.push(row);

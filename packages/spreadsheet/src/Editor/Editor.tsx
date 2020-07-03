@@ -11,7 +11,7 @@ import { KeyCodes, Direction } from "@rowsncolumns/grid/dist/types";
 import { useColorMode } from "@chakra-ui/core";
 import { DARK_MODE_COLOR_LIGHT, cellLocation } from "../constants";
 
-interface CustomEditorProps extends EditorProps {
+export interface CustomEditorProps extends EditorProps {
   background?: string;
   color?: string;
 }

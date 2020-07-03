@@ -3,7 +3,6 @@ import {
   Box,
   Menu,
   MenuList,
-  MenuItem,
   MenuDivider,
   useColorMode,
   theme,
@@ -13,8 +12,9 @@ import { MdContentCut, MdContentCopy, MdContentPaste } from "react-icons/md";
 import { ContextMenuProps } from "../Grid/Grid";
 import { CellInterface, SelectionArea } from "@rowsncolumns/grid";
 import { DARK_MODE_COLOR } from "../constants";
+import { MenuItem } from "./../styled";
 
-export interface CMProps extends ContextMenuProps {
+export interface ContextMenuComponentProps extends ContextMenuProps {
   activeCell: CellInterface | null;
   selections: SelectionArea[];
   onRequestClose: () => void;
@@ -39,7 +39,7 @@ export interface CMProps extends ContextMenuProps {
   onPaste?: (cell: CellInterface | null, selections: SelectionArea[]) => void;
 }
 
-const ContextMenu: React.FC<CMProps> = ({
+const ContextMenu: React.FC<ContextMenuComponentProps> = ({
   left,
   top,
   onInsertRow,
@@ -57,11 +57,13 @@ const ContextMenu: React.FC<CMProps> = ({
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
   const color = isLight ? theme.colors.gray[800] : theme.colors.gray[100];
+  const dividerColor = theme.colors.gray[300];
   return (
     <Box
       left={0}
       top={0}
       position="absolute"
+      zIndex={1}
       transform={`translate(${left}px, ${top}px)`}
     >
       <Menu isOpen>
@@ -98,7 +100,7 @@ const ContextMenu: React.FC<CMProps> = ({
             <Box mr={2} as={MdContentPaste} />
             Paste
           </MenuItem>
-          <MenuDivider />
+          <MenuDivider borderColor={dividerColor} />
           <MenuItem
             onClick={() => {
               onInsertRow?.(activeCell, selections);
@@ -115,7 +117,7 @@ const ContextMenu: React.FC<CMProps> = ({
           >
             Insert column
           </MenuItem>
-          <MenuDivider />
+          <MenuDivider borderColor={dividerColor} />
           <MenuItem
             onClick={() => {
               onDeleteRow?.(activeCell, selections);

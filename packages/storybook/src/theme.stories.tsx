@@ -1,20 +1,20 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useRef } from "react";
 import Grid, { Cell } from "@rowsncolumns/grid";
 
 export default {
   title: "Themes",
-  component: Grid,
+  component: Grid
 };
 
 const darkTheme = {
   cellColor: "#ccc",
   cellBackground: "#181E20",
-  cellOddBackground: "#444",
+  cellOddBackground: "#444"
 };
 const lightTheme = {
   cellColor: "#333",
   cellBackground: "white",
-  cellOddBackground: "#eee",
+  cellOddBackground: "#eee"
 };
 const ThemeContext = createContext(lightTheme);
 
@@ -24,20 +24,23 @@ export const ThemedGrid = () => {
   const App = () => {
     const [theme, setTheme] = useState(lightTheme);
     const switchTheme = () => {
-      setTheme((prev) => {
+      setTheme(prev => {
         return prev === lightTheme ? darkTheme : lightTheme;
       });
     };
+    const gridRef = useRef(null);
+
     return (
       <>
         <button type="button" onClick={switchTheme}>
           Switch to {theme === lightTheme ? "Dark" : "Light"}
         </button>
         <Grid
+          ref={gridRef}
           rowCount={rowCount}
           columnCount={columnCount}
-          itemRenderer={(props) => <ThemedCell {...props} />}
-          wrapper={(children) => {
+          itemRenderer={props => <ThemedCell {...props} />}
+          wrapper={children => {
             /**
              * Since We are using a custom canvas renderer (Konva), we have to create a bridge
              * between Top context to Konva Context
@@ -56,7 +59,7 @@ export const ThemedGrid = () => {
   return <App />;
 };
 
-const ThemedCell = (props) => {
+const ThemedCell = props => {
   const theme = useContext(ThemeContext);
   const fill =
     props.rowIndex % 2 === 0 ? theme.cellBackground : theme.cellOddBackground;
@@ -71,5 +74,5 @@ const ThemedCell = (props) => {
 };
 
 ThemedGrid.story = {
-  name: "Dark mode",
+  name: "Dark mode"
 };

@@ -53,7 +53,10 @@ export const createNewSheet = ({ count }: { count: number }): Sheet => ({
   id: uuid(),
   name: `Sheet${count}`,
   cells: {},
-  activeCell: null,
+  activeCell: {
+    rowIndex: 1,
+    columnIndex: 1
+  },
   selections: [],
   scrollState: { scrollTop: 0, scrollLeft: 0 },
   columnSizes: {},
@@ -201,7 +204,7 @@ export const createBorderStyle = (
  * @param amount
  */
 export const luminance = (color: string | undefined, amount: number) => {
-  if (!color) return color;
+  if (!color || !color.startsWith("#")) return color;
   return (
     "#" +
     color

@@ -55,6 +55,8 @@ import ContextMenu from "./../ContextMenu";
 import { Layer } from "react-konva";
 import { CellProps } from "../Cell/Cell";
 import { HeaderCellProps } from "../HeaderCell/HeaderCell";
+import { EditorProps } from "@rowsncolumns/grid/dist/hooks/useEditable";
+import { CustomEditorProps } from "../Editor/Editor";
 
 export interface SheetGridProps {
   theme?: ThemeType;
@@ -62,8 +64,8 @@ export interface SheetGridProps {
   minRowHeight?: number;
   rowCount?: number;
   columnCount?: number;
-  CellRenderer?: React.FC<CellProps>;
-  HeaderCellRenderer?: React.FC<HeaderCellProps>;
+  CellRenderer?: React.ReactType;
+  HeaderCellRenderer?: React.ReactType;
   width?: number;
   height?: number;
   cells: Cells;
@@ -78,8 +80,12 @@ export interface SheetGridProps {
   onSheetChange: (props: any) => void;
   selectedSheet: string;
   onScroll: (state: ScrollCoords) => void;
-  scrollState: ScrollCoords;
-  onActiveCellChange: (cell: CellInterface | null, value?: string) => void;
+  scrollState?: ScrollCoords;
+  onActiveCellChange?: (cell: CellInterface | null, value?: string) => void;
+  onSelectionChange?: (
+    cell: CellInterface | null,
+    selections: SelectionArea[]
+  ) => void;
   onActiveCellValueChange: (value: string) => void;
   onDelete?: (activeCell: CellInterface, selections: SelectionArea[]) => void;
   format?: FormatType;
@@ -114,6 +120,9 @@ export interface SheetGridProps {
     cell: CellInterface | null,
     selections: SelectionArea[]
   ) => void;
+  showGridLines?: boolean;
+  CellEditor?: React.ReactType<CustomEditorProps>;
+  allowMultipleSelection?: boolean;
 }
 
 export interface RowColSelection {
@@ -122,7 +131,7 @@ export interface RowColSelection {
 }
 
 export type RefAttributeGrid = {
-  ref?: React.MutableRefObject<WorkbookGridRef | null>;
+  ref?: React.Ref<WorkbookGridRef>;
 };
 
 export type WorkbookGridRef = {
@@ -159,7 +168,7 @@ const strokeValues = Object.values(STROKE_FORMATTING);
  * @param props
  */
 const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
-  forwardRef((props, forwardedRef) => {
+  forwardRef<WorkbookGridRef, SheetGridProps>((props, forwardedRef) => {
     const {
       theme,
       minColumnWidth = DEFAULT_COLUMN_WIDTH,
@@ -198,7 +207,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       onInsertRow,
       onInsertColumn,
       onDeleteColumn,
-      onDeleteRow
+      onDeleteRow,
+      showGridLines,
+      CellEditor = Editor,
+      allowMultipleSelection = true,
+      onSelectionChange
     } = props;
     const gridRef = useRef<GridRef | null>(null);
     const { colorMode } = useColorMode();
@@ -272,6 +285,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       clearLastSelection,
       ...selectionProps
     } = useSelection({
+      allowMultipleSelection,
       initialActiveCell,
       initialSelections,
       gridRef,
@@ -319,6 +333,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     useEffect(() => {
       /* Batch this cos of debounce */
       onSheetChangeRef.current?.({ selections, activeCell });
+
+      /* Callback */
+      onSelectionChange?.(activeCell, selections);
     }, [activeCell, selections]);
 
     /**
@@ -377,8 +394,12 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     } = useEditable({
       getEditor: (cell: CellInterface | null) => {
         const config = getValue(cell, true) as CellConfig;
-        return props => (
-          <Editor {...props} background={config?.fill} color={config?.color} />
+        return (props: EditorProps) => (
+          <CellEditor
+            {...props}
+            background={config?.fill}
+            color={config?.color}
+          />
         );
       },
       frozenRows: actualFrozenRows,
@@ -480,10 +501,18 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             {...(getValue(cell, true) as CellConfig)}
             format={format}
             isHidden={isHidden}
+            showGridLines={showGridLines}
           />
         );
       },
-      [cells, selectedRowsAndCols, activeCell, hiddenRows, hiddenColumns]
+      [
+        cells,
+        selectedRowsAndCols,
+        activeCell,
+        hiddenRows,
+        hiddenColumns,
+        showGridLines
+      ]
     );
 
     const overlayRenderer = useCallback(
@@ -559,7 +588,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           }}
           showFrozenShadow
           gridLineColor={gridLineColor}
-          showGridLines={true}
+          showGridLines={showGridLines}
           ref={gridRef}
           rowCount={rowCount}
           columnCount={columnCount}

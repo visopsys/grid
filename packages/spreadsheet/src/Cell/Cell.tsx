@@ -25,6 +25,7 @@ const EMPTY_ARRAY: number[] = [];
 export interface CellProps extends RendererProps, CellConfig {
   isHidden?: boolean;
   format?: FormatType;
+  showGridLines?: boolean;
 }
 
 export interface CellRenderProps extends Omit<CellProps, "text"> {
@@ -101,9 +102,10 @@ const DefaultCell: React.FC<CellRenderProps> = memo(props => {
     padding = 5,
     fontSize = 12,
     wrap = "none",
-    lineHeight = 0.6,
+    lineHeight = 0.5,
     isLightMode,
-    text
+    text,
+    showGridLines
   } = props;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
     strike ? TEXT_DECORATION.STRIKE : ""
@@ -112,6 +114,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo(props => {
   const fontStyle = italic ? FONT_STYLE.ITALIC : FONT_STYLE.NORMAL;
   const textStyle = `${fontWeight} ${fontStyle}`;
   const vAlign = verticalAlign;
+
   const hAlign =
     horizontalAlign === void 0
       ? datatype === DATATYPE.NUMBER
@@ -136,7 +139,10 @@ const DefaultCell: React.FC<CellRenderProps> = memo(props => {
             context.setAttr("fillStyle", userFill || defaultFill);
             context.fillRect(1, 1, shape.width() - 1, shape.height() - 1);
             if (hasFill) {
-              context.setAttr("strokeStyle", luminance(userFill, -20));
+              context.setAttr(
+                "strokeStyle",
+                showGridLines ? luminance(userFill, -20) : userFill
+              );
               context.strokeRect(0.5, 0.5, shape.width(), shape.height());
             }
           }}

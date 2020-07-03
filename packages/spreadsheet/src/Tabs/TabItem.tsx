@@ -1,26 +1,17 @@
 import React, { useState } from "react";
 import {
   useTheme,
-  // Button,
   Box,
   Input,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
   Popover,
   PopoverTrigger,
-  PopoverContent,
   PopoverBody,
   PopoverArrow
-  // IconButton,
 } from "@chakra-ui/core";
 import { MdArrowDropDown } from "react-icons/md";
 import { KeyCodes } from "@rowsncolumns/grid/dist/types";
 import { DARK_MODE_COLOR } from "../constants";
-import { IconButton, Button, Tooltip } from "../styled";
+import { IconButton, Button, PopoverContent } from "../styled";
 
 interface TabItemProps {
   name: string;
@@ -61,7 +52,7 @@ const TabItem: React.FC<TabItemProps> = ({
       height={height}
       background={bg}
       boxShadow={shadow}
-      zIndex={isActive ? 1 : 0}
+      // zIndex={isActive ? 1 : 0}
     >
       {isEditmode ? (
         <Input
@@ -116,7 +107,7 @@ const TabItem: React.FC<TabItemProps> = ({
             {name}
 
             <Popover placement="top" usePortal>
-              {({ isOpen, onClose }) => {
+              {({ onClose }) => {
                 return (
                   <>
                     <PopoverTrigger>
@@ -137,7 +128,7 @@ const TabItem: React.FC<TabItemProps> = ({
                     </PopoverTrigger>
                     <PopoverContent
                       width={200}
-                      zIndex={1}
+                      // zIndex={1}
                       borderColor={isLight ? undefined : DARK_MODE_COLOR}
                     >
                       <PopoverArrow />
