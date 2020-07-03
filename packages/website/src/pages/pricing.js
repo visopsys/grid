@@ -20,10 +20,7 @@ function Home() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
   return (
-    <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="SpreadSheets pricing"
-    >
+    <Layout title="Pricing" description="SpreadSheets pricing">
       <Box className="container" pt={10}>
         <Text
           textAlign="center"

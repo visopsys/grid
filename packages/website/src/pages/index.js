@@ -28,7 +28,7 @@ function Home() {
   const { siteConfig = {} } = context;
   return (
     <Layout
-      title={`${siteConfig.title}`}
+      title={"Home"}
       description="React Components for Tabular Data. SpreadSheets and Datagrid for the Enterprise."
     >
       <SimpleGrid
