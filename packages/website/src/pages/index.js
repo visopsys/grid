@@ -32,11 +32,12 @@ function Home() {
       description="React Components for Tabular Data. SpreadSheets and Datagrid for the Enterprise."
     >
       <SimpleGrid
-        columns={2}
+        columns={[1, 1, 2]}
         className="container"
-        height={500}
+        height={["auto", "auto", 500]}
         spacing={30}
         pt={10}
+        pb={10}
       >
         <Box justifyContent="center" display="flex" flexDirection="column">
           <Text as="h1" fontSize="4xl" fontWeight="bold" mb={2}>
@@ -59,7 +60,7 @@ function Home() {
             </Button>
           </Box>
         </Box>
-        <Box minWidth="700px" display="flex">
+        <Box minWidth={[0, 0, 500, 700]} display="flex">
           <SpreadSheet />
         </Box>
       </SimpleGrid>
