@@ -30,7 +30,7 @@ import {
   MdFormatColorReset,
   MdLineStyle
 } from "react-icons/md";
-import { AiOutlineMergeCells } from "react-icons/ai";
+import { AiOutlineMergeCells, AiOutlineFieldBinary } from "react-icons/ai";
 import { BsColumns } from "react-icons/bs";
 import { IoMdColorFill, IoMdMoon } from "react-icons/io";
 import {
@@ -44,7 +44,12 @@ import {
   Box,
   Select,
   FormControl,
-  FormLabel
+  FormLabel,
+  Menu,
+  MenuButton,
+  MenuList,
+  Icon,
+  MenuDivider,
 } from "@chakra-ui/core";
 import {
   StyledToolbar,
@@ -54,14 +59,17 @@ import {
   Rect,
   Separator,
   PercentIcon,
-  PopoverContent
+  PopoverContent,
+  MenuItem
 } from "./../styled";
 import {
   DARK_MODE_COLOR,
   FONT_SIZES,
   DEFAULT_FONT_SIZE,
   FONT_FAMILIES,
-  DEFAULT_FONT_FAMILY
+  DEFAULT_FONT_FAMILY,
+  AVAILABLE_FORMATS,
+  AVAILABLE_CURRENCY_FORMATS
 } from "./../constants";
 import {
   FORMATTING_TYPE,
@@ -254,7 +262,8 @@ const Toolbar: React.FC<ToolbarProps> = props => {
     onUndo,
     enableDarkMode,
     fontSize = DEFAULT_FONT_SIZE,
-    fontFamily = DEFAULT_FONT_FAMILY
+    fontFamily = DEFAULT_FONT_FAMILY,
+    format
   } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const theme = useTheme();
@@ -375,15 +384,85 @@ const Toolbar: React.FC<ToolbarProps> = props => {
 
         <Separator borderColor={borderColor} />
 
-        <SelectDropdown
-          options={FONT_FAMILIES.map(size => ({ label: size, value: size }))}
-          onChange={item => {
-            onFormattingChange?.(FORMATTING_TYPE.FONT_FAMILY, item?.value);
-          }}
-          value={{ value: fontFamily, label: fontFamily }}
-          inputWidth={70}
-          enableInput={false}
-        />
+        <Menu>
+          <MenuButton as={Button} size='sm'>
+            <AiOutlineFieldBinary fontSize={18} />
+            <Icon name='chevron-down' />
+          </MenuButton>
+          <MenuList placement='top-start' minWidth={250}>
+            <MenuItem
+              onClick={() => {
+                onFormattingChange?.(FORMATTING_TYPE.CUSTOM_FORMAT, void 0)
+              }}
+            >
+              <Box width='24px'>{format === void 0 && <Icon name='check' mr={1} />}</Box>
+              Automatic
+            </MenuItem>
+            <MenuItem>
+              <Box width='24px'>{false && <Icon name='check' mr={1} />}</Box>
+              Plain
+            </MenuItem>
+            <MenuDivider borderColor={borderColor} />
+            {AVAILABLE_FORMATS.map(item => {
+              return (
+                <MenuItem display='flex'
+                  onClick={() => {
+                    onFormattingChange?.(FORMATTING_TYPE.CUSTOM_FORMAT, item.value)
+                  }}
+                >
+                  <Box width='24px'>{format === item.value && <Icon name='check' mr={1} />}</Box>
+                  <Box flex={1}>{item.label}</Box>
+                  <Box textAlign='right' color='gray.500'>{item.sample}</Box>
+                </MenuItem>
+              )
+            })}
+            <MenuDivider borderColor={borderColor} />
+            {AVAILABLE_CURRENCY_FORMATS.map(item => {
+              return (
+                <MenuItem display='flex'
+                  onClick={() => {
+                    onFormattingChange?.(FORMATTING_TYPE.CUSTOM_FORMAT, item.value)
+                  }}
+                >
+                  <Box width='24px'>{format === item.value && <Icon name='check' mr={1} />}</Box>
+                  <Box flex={1}>{item.label}</Box>
+                  <Box textAlign='right' color='gray.500'>{item.sample}</Box>
+                </MenuItem>
+              )
+            })}
+          </MenuList>
+        </Menu>
+
+        <Separator borderColor={borderColor} />
+        
+        <Menu>
+          <MenuButton paddingRight={1} as={Button} fontSize={12} fontWeight='normal' size='sm' width={110}  textAlign='left' display='flex' whiteSpace='nowrap' minWidth={0}>
+            <Box
+              whiteSpace='nowrap'
+              overflow='hidden'
+              flex={1}
+              // @ts-ignore
+              textOverflow='ellipsis'
+            >
+              {fontFamily}
+            </Box>
+            <Icon name='chevron-down' />
+          </MenuButton>
+          <MenuList placement='top-start'>
+            {FONT_FAMILIES.map(font => {
+              return (
+                <MenuItem
+                  onClick={() => {
+                    onFormattingChange?.(FORMATTING_TYPE.FONT_FAMILY, font);
+                  }}
+                >
+                  <Box width='24px'>{font === fontFamily && <Icon name='check' mr={1} />}</Box>
+                  {font}
+                </MenuItem>
+              )
+            })}
+          </MenuList>
+        </Menu>
 
         <Separator borderColor={borderColor} />
 

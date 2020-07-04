@@ -94,9 +94,12 @@ export const format = (
   datatype?: DATATYPE,
   formatting?: CellDataFormatting
 ): string | undefined => {
-  if (value === void 0 || isNull(value) || datatype !== DATATYPE.NUMBER)
+  if (value === void 0 || isNull(value) || isNull(datatype))
     return castToString(value);
   if (!formatting) return castToString(value);
+  if (datatype === DATATYPE.DATE) {
+    return SSF.format(formatting.format || DEFAULT_DATE_FORMAT, value)
+  }
   const num = parseFloat(typeof value !== "string" ? "" + value : value);
   try {
     if (formatting.decimals) {
@@ -114,8 +117,8 @@ export const format = (
         num
       );
     }
-    if (formatting.customFormat) {
-      value = SSF.format(formatting.customFormat, num);
+    if (formatting.format) {
+      value = SSF.format(formatting.format, num);
     }
   } catch (err) {
     console.error("Error while formatting ", num, err);
@@ -164,6 +167,47 @@ export const FONT_FAMILIES = [
   'Times New Roman'
 ]
 
+export const AVAILABLE_FORMATS = [
+  {
+    label: 'Number',
+    value: '#.00',
+    sample: '1,000.12'
+  },
+  {
+    label: 'Percent',
+    value: '#.00%',
+    sample: '10.12%'
+  },
+  {
+    label: 'Scientific',
+    value: '0.00E+00',
+    sample: '1.01E+03'
+  },
+]
+
+export const AVAILABLE_CURRENCY_FORMATS = [
+  {
+    label: 'Accounting',
+    value: '$(#.00)',
+    sample: '$(1,000.12)'
+  },
+  {
+    label: 'Financial',
+    value: '(#.00)',
+    sample: '(1,000.12)'
+  },
+  {
+    label: 'Currency',
+    value: '$#.00',
+    sample: '$1,000.00'
+  },
+  {
+    label: 'Currency (rounded)',
+    value: '$#',
+    sample: '$1,000'
+  },
+]
+export const DEFAULT_DATE_FORMAT = 'd-mmm-yy'
 export const DEFAULT_FONT_SIZE = 12
 export const DEFAULT_FONT_FAMILY = 'Arial'
 /**

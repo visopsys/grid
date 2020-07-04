@@ -105,7 +105,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       onActiveCellValueChange,
       onFill,
       onDelete,
-      format,
+      formatter,
       onResize,
       onScroll,
       onKeyDown,
@@ -262,7 +262,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
             HeaderCellRenderer={HeaderCellRenderer}
             onSheetChange={handleSheetChange}
             onScroll={handleScroll}
-            format={format}
+            formatter={formatter}
             columnSizes={columnSizes}
             rowSizes={rowSizes}
             mergedCells={mergedCells}

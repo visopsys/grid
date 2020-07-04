@@ -88,7 +88,7 @@ export interface SheetGridProps {
   ) => void;
   onActiveCellValueChange: (value: string) => void;
   onDelete?: (activeCell: CellInterface, selections: SelectionArea[]) => void;
-  format?: FormatType;
+  formatter?: FormatType;
   onResize?: (axis: AXIS, index: number, dimension: number) => void;
   columnSizes?: SizeType;
   rowSizes?: SizeType;
@@ -191,7 +191,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       onActiveCellChange,
       onActiveCellValueChange,
       onDelete,
-      format,
+      formatter,
       onResize,
       columnSizes = {},
       rowSizes = {},
@@ -268,11 +268,13 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       minColumnWidth,
       getValue: (cell: CellInterface) => {
         const cellConfig = getValue(cell, true) as CellConfig;
-        const formattedValue = format?.(
-          cellConfig?.text,
-          cellConfig?.datatype,
-          cellConfig
-        );
+        const formattedValue = formatter
+          ? formatter(
+              cellConfig?.text,
+              cellConfig?.datatype,
+              cellConfig
+            )
+          : cellConfig.text
         return { ...cellConfig, text: formattedValue };
       },
       columnSizes,
@@ -511,7 +513,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           <CellRenderer
             {...props}
             {...(getValue(cell, true) as CellConfig)}
-            format={format}
+            formatter={formatter}
             isHidden={isHidden}
             showGridLines={showGridLines}
           />

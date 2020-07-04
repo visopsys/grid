@@ -121,10 +121,10 @@ export const Button = forwardRef((props: ButtonProps, ref) => {
         line-height: 1.2;
         background: transparent;
         cursor: pointer;
-        line-height: inherit;
-        overflow: visible;
+        line-height: inherit;        
         text-transform: none;
         border-style: none;
+        text-overflow: ellipsis;
       `}
       {...props}
     />

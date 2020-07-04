@@ -28,7 +28,7 @@ const initialSheets = [
         1: {
           text: 100,
           datatype: 'number',
-          customFormat: '#.00'
+          format: '#.00'
         }
       }
     }
@@ -52,7 +52,7 @@ const initialSheets = [
       1: {
         1: {
           text: 100,
-          customFormat: '#.00',
+          format: '#.00',
           datatype: 'number'
         }
       }

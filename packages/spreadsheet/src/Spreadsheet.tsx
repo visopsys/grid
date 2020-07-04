@@ -15,17 +15,13 @@ import {
   theme,
   ThemeProvider,
   ColorModeProvider,
-  Flex,
-  useColorMode
-} from "@chakra-ui/core";
+  Flex} from "@chakra-ui/core";
 import { Global, css } from "@emotion/core";
 import {
-  RendererProps,
   CellInterface,
   SelectionArea,
   ScrollCoords,
   AreaProps,
-  StylingProps,
   selectionFromActiveCell
 } from "@rowsncolumns/grid";
 import {
@@ -37,19 +33,17 @@ import {
   EMPTY_ARRAY,
   cellsInSelectionVariant,
   SYSTEM_FONT,
-  CELL_BORDER_COLOR,
   format as defaultFormat,
 } from "./constants";
 import {
   FORMATTING_TYPE,
-  DATATYPE,
   CellFormatting,
-  CellDataFormatting,
   AXIS,
   BORDER_VARIANT,
   BORDER_STYLE,
   STROKE_FORMATTING,
-  FormatType
+  FormatType,
+  DATATYPE
 } from "./types";
 import { useImmer } from "use-immer";
 import { WorkbookGridRef } from "./Grid/Grid";
@@ -57,8 +51,6 @@ import { KeyCodes, Direction } from "@rowsncolumns/grid/dist/types";
 import invariant from "tiny-invariant";
 import { ThemeType } from "./styled";
 import Editor, { CustomEditorProps } from "./Editor/Editor";
-import { CellProps } from "./Cell/Cell";
-import { current } from "immer";
 
 export interface SpreadSheetProps {
   /**
@@ -124,7 +116,7 @@ export interface SpreadSheetProps {
   /**
    * Conditionally format cell text
    */
-  format?: FormatType;
+  formatter?: FormatType;
   /**
    * Enabled or disable dark mode
    */
@@ -204,14 +196,7 @@ const defaultSheets: Sheet[] = [
     },
     mergedCells: [],
     selections: [],
-    cells: {
-      2: {
-        2: {
-          text: 'Hello world',
-          // fontSize: 12,
-        }
-      }
-    },
+    cells: {},
     scrollState: { scrollTop: 0, scrollLeft: 0 }
   }
 ];
@@ -244,7 +229,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       onChange,
       onChangeCells,
       showToolbar = true,
-      format = defaultFormat,
+      formatter = defaultFormat,
       enableDarkMode = true,
       hiddenRows: initialHiddenRows = EMPTY_ARRAY,
       hiddenColumns: initialHiddenColumns = EMPTY_ARRAY,
@@ -267,7 +252,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const [formulaInput, setFormulaInput] = useState("");
     const [hiddenColumns] = useState(initialHiddenColumns);
     const [hiddenRows] = useState(initialHiddenRows);
-    const { colorMode } = useColorMode();
     invariant(
       selectedSheet !== null,
       "Exception, selectedSheet is empty, Please specify a selected sheet using `selectedSheet` prop"
@@ -998,6 +982,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         >
           {showToolbar ? (
             <Toolbar
+              datatype={activeCellConfig?.datatype}
+              format={activeCellConfig?.format}
               fontSize={activeCellConfig?.fontSize}
               fontFamily={activeCellConfig?.fontFamily}
               fill={activeCellConfig?.fill}
@@ -1037,7 +1023,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             rowCount={rowCount}
             columnCount={columnCount}
             onResize={handleResize}
-            format={format}
+            formatter={formatter}
             ref={currentGrid}
             onDelete={handleDelete}
             onFill={handleFill}

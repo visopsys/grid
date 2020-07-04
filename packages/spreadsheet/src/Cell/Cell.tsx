@@ -26,7 +26,7 @@ const EMPTY_ARRAY: number[] = [];
 
 export interface CellProps extends RendererProps, CellConfig {
   isHidden?: boolean;
-  format?: FormatType;
+  formatter?: FormatType;
   showGridLines?: boolean;
 }
 
@@ -40,7 +40,7 @@ export interface CellRenderProps extends Omit<CellProps, "text"> {
  */
 const Cell: React.FC<CellProps> = memo(props => {
   const { colorMode } = useColorMode();
-  const { datatype, decimals, percent, currency, format, isHidden } = props;
+  const { datatype, decimals, percent, currency, formatter, isHidden } = props;
   const {
     stroke,
     strokeTopColor,
@@ -58,17 +58,17 @@ const Cell: React.FC<CellProps> = memo(props => {
     strokeBottomWidth,
     strokeLeftWidth,
     lineCap,
-    customFormat,
+    format,
     currencySymbol,
     ...cellProps
   } = props;
   if (isHidden) return null;
-  const text = format
-    ? format(props.text, datatype, {
+  const text = formatter
+    ? formatter(props.text, datatype, {
         decimals,
         percent,
         currency,
-        customFormat,
+        format,
         currencySymbol
       })
     : castToString(props.text);

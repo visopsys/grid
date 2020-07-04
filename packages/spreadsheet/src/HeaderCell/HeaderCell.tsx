@@ -52,7 +52,7 @@ const DraggableRect: React.FC<DraggableRectProps> = memo(props => {
       draggable
       strokeScaleEnabled={false}
       shadowForStrokeEnable={false}
-      hitStrokeWidth={20}
+      hitStrokeWidth={5}
       onMouseEnter={() => (document.body.style.cursor = cursor)}
       onMouseLeave={() => (document.body.style.cursor = "default")}
       onMouseDown={e => e.evt.stopPropagation()}

@@ -13,7 +13,9 @@ export enum FORMATTING_TYPE {
   CURRENCY_SYMBOL = "currencySymbol",
   FONT_SIZE = 'fontSize',
   FONT_FAMILY = 'fontFamily',
+  CUSTOM_FORMAT = 'format',
 }
+
 
 export enum FONT_WEIGHT {
   BOLD = "bold",
@@ -45,7 +47,8 @@ export enum HORIZONTAL_ALIGNMENT {
 
 export enum DATATYPE {
   NUMBER = "number",
-  STRING = "string"
+  STRING = "string",
+  DATE = "date"
 }
 
 export enum STROKE_FORMATTING {
@@ -105,7 +108,7 @@ export interface CellDataFormatting {
   [FORMATTING_TYPE.DECIMALS]?: number;
   [FORMATTING_TYPE.CURRENCY]?: boolean;
   [FORMATTING_TYPE.CURRENCY_SYMBOL]?: string;
-  customFormat?: string;
+  format?: string;
 }
 
 export enum AXIS {
