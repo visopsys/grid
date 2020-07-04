@@ -37,7 +37,8 @@ import {
   EMPTY_ARRAY,
   cellsInSelectionVariant,
   SYSTEM_FONT,
-  CELL_BORDER_COLOR
+  CELL_BORDER_COLOR,
+  format as defaultFormat,
 } from "./constants";
 import {
   FORMATTING_TYPE,
@@ -243,7 +244,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       onChange,
       onChangeCells,
       showToolbar = true,
-      format,
+      format = defaultFormat,
       enableDarkMode = true,
       hiddenRows: initialHiddenRows = EMPTY_ARRAY,
       hiddenColumns: initialHiddenColumns = EMPTY_ARRAY,

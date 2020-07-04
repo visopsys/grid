@@ -5,7 +5,8 @@ import {
   DARK_MODE_COLOR_LIGHT,
   format as defaultFormat,
   luminance,
-  DEFAULT_FONT_SIZE
+  DEFAULT_FONT_SIZE,
+  castToString
 } from "../constants";
 import {
   DATATYPE,
@@ -39,14 +40,7 @@ export interface CellRenderProps extends Omit<CellProps, "text"> {
  */
 const Cell: React.FC<CellProps> = memo(props => {
   const { colorMode } = useColorMode();
-  const {
-    datatype,
-    decimals,
-    percent,
-    currency,
-    format = defaultFormat,
-    isHidden
-  } = props;
+  const { datatype, decimals, percent, currency, format, isHidden } = props;
   const {
     stroke,
     strokeTopColor,
@@ -69,13 +63,15 @@ const Cell: React.FC<CellProps> = memo(props => {
     ...cellProps
   } = props;
   if (isHidden) return null;
-  const text = format(props.text, datatype, {
-    decimals,
-    percent,
-    currency,
-    customFormat,
-    currencySymbol
-  });
+  const text = format
+    ? format(props.text, datatype, {
+        decimals,
+        percent,
+        currency,
+        customFormat,
+        currencySymbol
+      })
+    : castToString(props.text);
   const isLightMode = colorMode === "light";
   return <DefaultCell isLightMode={isLightMode} {...cellProps} text={text} />;
 });

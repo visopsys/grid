@@ -273,7 +273,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           cellConfig?.datatype,
           cellConfig
         );
-        return formattedValue ?? { ...cellConfig, text: formattedValue };
+        return { ...cellConfig, text: formattedValue };
       },
       columnSizes,
       autoResize: false,
