@@ -143,7 +143,9 @@ const Select: React.FC<SelectProps> = props => {
                           cursor: "pointer",
                           backgroundColor:
                             highlightedIndex === index
-                              ? isLight ? theme.colors.gray[200] : DARK_MODE_COLOR_LIGHT
+                              ? isLight
+                                ? theme.colors.gray[200]
+                                : DARK_MODE_COLOR_LIGHT
                               : inputBgColor,
                           fontWeight: selectedItem === item ? "bold" : "normal"
                         }
