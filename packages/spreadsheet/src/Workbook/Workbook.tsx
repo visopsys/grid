@@ -217,10 +217,13 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       []
     );
 
-    const handleActiveCellChange = useCallback((cell: CellInterface | null) => {
-      if (isNull(selectedSheetRef.current)) return;
-      onActiveCellChange?.(selectedSheetRef.current, cell);
-    }, []);
+    const handleActiveCellChange = useCallback(
+      (cell: CellInterface | null, value: string | undefined) => {
+        if (isNull(selectedSheetRef.current)) return;
+        onActiveCellChange?.(selectedSheetRef.current, cell, value);
+      },
+      []
+    );
 
     const handleSelectionChange = useCallback(
       (cell: CellInterface | null, selections: SelectionArea[]) => {
