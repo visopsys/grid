@@ -266,7 +266,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const { getColumnWidth } = useAutoSizer({
       gridRef,
       minColumnWidth,
-      getValue: (cell: CellInterface) => getValue(cell, true),
+      getValue: (cell: CellInterface) => {
+        const cellConfig = getValue(cell, true) as CellConfig
+        const formattedValue = format?.(cellConfig?.text, cellConfig?.datatype, cellConfig)
+        return formattedValue ?? { ...cellConfig, text: formattedValue }
+      },
       columnSizes,
       autoResize: false,
       resizeOnScroll: false
