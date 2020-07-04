@@ -123,7 +123,7 @@ const Select: React.FC<SelectProps> = props => {
               position="absolute"
               top="100%"
               zIndex={1}
-              borderRadius={5}              
+              borderRadius={5}
               {...getMenuProps()}
               pb={1}
               pt={1}
@@ -136,7 +136,7 @@ const Select: React.FC<SelectProps> = props => {
                       fontSize={12}
                       padding={2}
                       pl={3}
-                      pr={3}                      
+                      pr={3}
                       whiteSpace="nowrap"
                       {...getItemProps({
                         key: value,

@@ -49,7 +49,7 @@ import {
   MenuButton,
   MenuList,
   Icon,
-  MenuDivider,
+  MenuDivider
 } from "@chakra-ui/core";
 import {
   StyledToolbar,
@@ -385,70 +385,99 @@ const Toolbar: React.FC<ToolbarProps> = props => {
         <Separator borderColor={borderColor} />
 
         <Menu>
-          <MenuButton as={Button} size='sm'>
+          <MenuButton as={Button} size="sm">
             <AiOutlineFieldBinary fontSize={18} />
-            <Icon name='chevron-down' />
+            <Icon name="chevron-down" />
           </MenuButton>
-          <MenuList placement='top-start' minWidth={250}>
+          <MenuList placement="top-start" minWidth={250}>
             <MenuItem
               onClick={() => {
-                onFormattingChange?.(FORMATTING_TYPE.CUSTOM_FORMAT, void 0)
+                onFormattingChange?.(FORMATTING_TYPE.CUSTOM_FORMAT, void 0);
               }}
             >
-              <Box width='24px'>{format === void 0 && <Icon name='check' mr={1} />}</Box>
+              <Box width="24px">
+                {format === void 0 && <Icon name="check" mr={1} />}
+              </Box>
               Automatic
             </MenuItem>
             <MenuItem>
-              <Box width='24px'>{false && <Icon name='check' mr={1} />}</Box>
+              <Box width="24px">{false && <Icon name="check" mr={1} />}</Box>
               Plain
             </MenuItem>
             <MenuDivider borderColor={borderColor} />
             {AVAILABLE_FORMATS.map(item => {
               return (
-                <MenuItem display='flex'
+                <MenuItem
+                  display="flex"
                   onClick={() => {
-                    onFormattingChange?.(FORMATTING_TYPE.CUSTOM_FORMAT, item.value)
+                    onFormattingChange?.(
+                      FORMATTING_TYPE.CUSTOM_FORMAT,
+                      item.value
+                    );
                   }}
                 >
-                  <Box width='24px'>{format === item.value && <Icon name='check' mr={1} />}</Box>
+                  <Box width="24px">
+                    {format === item.value && <Icon name="check" mr={1} />}
+                  </Box>
                   <Box flex={1}>{item.label}</Box>
-                  <Box textAlign='right' color='gray.500'>{item.sample}</Box>
+                  <Box textAlign="right" color="gray.500">
+                    {item.sample}
+                  </Box>
                 </MenuItem>
-              )
+              );
             })}
             <MenuDivider borderColor={borderColor} />
             {AVAILABLE_CURRENCY_FORMATS.map(item => {
               return (
-                <MenuItem display='flex'
+                <MenuItem
+                  display="flex"
                   onClick={() => {
-                    onFormattingChange?.(FORMATTING_TYPE.CUSTOM_FORMAT, item.value)
+                    onFormattingChange?.(
+                      FORMATTING_TYPE.CUSTOM_FORMAT,
+                      item.value
+                    );
                   }}
                 >
-                  <Box width='24px'>{format === item.value && <Icon name='check' mr={1} />}</Box>
+                  <Box width="24px">
+                    {format === item.value && <Icon name="check" mr={1} />}
+                  </Box>
                   <Box flex={1}>{item.label}</Box>
-                  <Box textAlign='right' color='gray.500'>{item.sample}</Box>
+                  <Box textAlign="right" color="gray.500">
+                    {item.sample}
+                  </Box>
                 </MenuItem>
-              )
+              );
             })}
           </MenuList>
         </Menu>
 
         <Separator borderColor={borderColor} />
-        
+
         <Menu>
-          <MenuButton paddingRight={1} as={Button} fontSize={12} fontWeight='normal' size='sm' width={110}  textAlign='left' display='flex' whiteSpace='nowrap' minWidth={0}>
+          <MenuButton
+            paddingRight={1}
+            as={Button}
+            fontSize={12}
+            fontWeight="normal"
+            size="sm"
+            width={110}
+            textAlign="left"
+            display="flex"
+            whiteSpace="nowrap"
+            minWidth={0}
+          >
             <Box
-              whiteSpace='nowrap'
-              overflow='hidden'
+              whiteSpace="nowrap"
+              overflow="hidden"
               flex={1}
               // @ts-ignore
-              textOverflow='ellipsis'
+              textOverflow="ellipsis"
             >
               {fontFamily}
             </Box>
-            <Icon name='chevron-down' />
+            <Icon name="chevron-down" />
           </MenuButton>
-          <MenuList placement='top-start'>
+          <MenuList placement="top-start">
             {FONT_FAMILIES.map(font => {
               return (
                 <MenuItem
@@ -456,10 +485,12 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                     onFormattingChange?.(FORMATTING_TYPE.FONT_FAMILY, font);
                   }}
                 >
-                  <Box width='24px'>{font === fontFamily && <Icon name='check' mr={1} />}</Box>
+                  <Box width="24px">
+                    {font === fontFamily && <Icon name="check" mr={1} />}
+                  </Box>
                   {font}
                 </MenuItem>
-              )
+              );
             })}
           </MenuList>
         </Menu>
