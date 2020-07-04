@@ -140,64 +140,32 @@ export const detectDataType = (value?: any): DATATYPE | undefined => {
   return undefined;
 };
 
-export const createBorderStyle = (
-  variant?: BORDER_VARIANT,
-  borderStyle: BORDER_STYLE = BORDER_STYLE.THIN,
-  color?: string
-): CellFormatting => {
-  if (variant === void 0) return {};
-  const thickness =
-    borderStyle === BORDER_STYLE.MEDIUM
-      ? 2
-      : borderStyle === BORDER_STYLE.THICK
-      ? 3
-      : 1;
-  const dash =
-    borderStyle === BORDER_STYLE.DASHED
-      ? [3, 2]
-      : borderStyle === BORDER_STYLE.DOTTED
-      ? [1, 1]
-      : [];
+export const FONT_SIZES = [
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  14,
+  18,
+  24,
+  36
+]
 
-  const dashEnabled = dash.length > 0;
-  const lineCap = dashEnabled ? "butt" : "square";
+export const FONT_FAMILIES = [
+  'Arial',
+  'Helvetica',
+  'Source Sans Pro',
+  'Comic Sans MS',
+  'Courier New',
+  'Verdana',
+  'Times New Roman'
+]
 
-  switch (variant) {
-    case BORDER_VARIANT.OUTER:
-      return {
-        stroke: color,
-        strokeWidth: thickness,
-        strokeDash: dash,
-        lineCap
-      };
-
-    case BORDER_VARIANT.BOTTOM:
-      return {
-        strokeBottomColor: color,
-        strokeBottomWidth: thickness,
-        strokeBottomDash: dash,
-        lineCap
-      };
-
-    case BORDER_VARIANT.RIGHT:
-      return {
-        strokeRightColor: color,
-        strokeRightWidth: thickness,
-        strokeRightDash: dash,
-        lineCap
-      };
-
-    case BORDER_VARIANT.LEFT:
-      return {
-        strokeLeftColor: color,
-        strokeLeftWidth: thickness,
-        strokeLeftDash: dash,
-        lineCap
-      };
-  }
-  return {};
-};
-
+export const DEFAULT_FONT_SIZE = 12
+export const DEFAULT_FONT_FAMILY = 'Arial'
 /**
  * Lighten or darken colors
  * @param color
@@ -412,3 +380,4 @@ export const cellsInSelectionVariant = (
   }
   return cells;
 };
+

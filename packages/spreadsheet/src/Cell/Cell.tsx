@@ -4,7 +4,8 @@ import {
   DARK_MODE_COLOR,
   DARK_MODE_COLOR_LIGHT,
   format as defaultFormat,
-  luminance
+  luminance,
+  DEFAULT_FONT_SIZE
 } from "../constants";
 import {
   DATATYPE,
@@ -100,7 +101,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo(props => {
     strike,
     fontFamily,
     padding = 5,
-    fontSize = 12,
+    fontSize = DEFAULT_FONT_SIZE,
     wrap = "none",
     lineHeight = 0.5,
     isLightMode,

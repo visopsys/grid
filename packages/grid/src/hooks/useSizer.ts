@@ -8,6 +8,8 @@ interface TextFormattingOptions {
   italic?: boolean;
   strike?: boolean;
   underline?: boolean;
+  fontSize?: number;
+  fontFamily?: string;
 }
 
 export interface IProps {
@@ -162,6 +164,9 @@ const useAutoSizer = ({
     return autoSizer.current.measureText(text);
   };
 
+  /**
+   * Calculate column width
+   */
   const getColumnWidth = useCallback(
     (columnIndex: number) => {
       const { rowStartIndex, rowStopIndex } = viewport;
@@ -183,15 +188,19 @@ const useAutoSizer = ({
 
         /* Check if its null */
         if (cellValue !== null) {
-          const text =
-            typeof cellValue === "object" ? cellValue.text : cellValue;
+          const isCellConfig = typeof cellValue === "object";
+          const text = isCellConfig ? cellValue.text : cellValue;
 
           /* Reset fonts */
           autoSizer.current.reset();
 
-          /* Apply formatting */
-          if ((cellValue as TextFormattingOptions).bold) {
-            autoSizer.current.setFont({ fontWeight: "bold" });
+          if (isCellConfig) {
+            const isBold = cellValue.bold;
+            autoSizer.current.setFont({
+              fontWeight: isBold ? "bold" : "normal",
+              fontSize: cellValue.fontSize,
+              fontFamily: cellValue.fontFamily
+            });
           }
 
           const metrics = autoSizer.current.measureText(text);
@@ -235,6 +244,7 @@ const useAutoSizer = ({
   return {
     ...(autoResize ? { columnWidth: getColumnWidth } : {}),
     getColumnWidth,
+    // getRowHeight,
     onViewChange: handleViewChange,
     getTextMetrics
   };

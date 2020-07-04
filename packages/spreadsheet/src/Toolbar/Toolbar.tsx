@@ -34,15 +34,11 @@ import { AiOutlineMergeCells } from "react-icons/ai";
 import { BsColumns } from "react-icons/bs";
 import { IoMdColorFill, IoMdMoon } from "react-icons/io";
 import {
-  // IconButton,
-  // Tooltip,
-  // Button,
   Flex,
   useColorMode,
   useTheme,
   Popover,
   PopoverTrigger,
-  // PopoverContent,
   PopoverBody,
   PopoverArrow,
   Box,
@@ -60,7 +56,13 @@ import {
   PercentIcon,
   PopoverContent
 } from "./../styled";
-import { DARK_MODE_COLOR } from "./../constants";
+import {
+  DARK_MODE_COLOR,
+  FONT_SIZES,
+  DEFAULT_FONT_SIZE,
+  FONT_FAMILIES,
+  DEFAULT_FONT_FAMILY
+} from "./../constants";
 import {
   FORMATTING_TYPE,
   CellFormatting,
@@ -73,6 +75,7 @@ import { translations } from "../translations";
 import { CellConfig } from "../Spreadsheet";
 import { CirclePicker, ColorResult } from "react-color";
 import { Global, css } from "@emotion/core";
+import SelectDropdown from "./../Select";
 
 export interface ToolbarProps extends CellConfig {
   onFormattingChange?: (
@@ -249,7 +252,9 @@ const Toolbar: React.FC<ToolbarProps> = props => {
     canRedo,
     onRedo,
     onUndo,
-    enableDarkMode
+    enableDarkMode,
+    fontSize = DEFAULT_FONT_SIZE,
+    fontFamily = DEFAULT_FONT_FAMILY
   } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const theme = useTheme();
@@ -367,6 +372,29 @@ const Toolbar: React.FC<ToolbarProps> = props => {
             }
           />
         </Tooltip>
+
+        <Separator borderColor={borderColor} />
+
+        <SelectDropdown
+          options={FONT_FAMILIES.map(size => ({ label: size, value: size }))}
+          onChange={item => {
+            onFormattingChange?.(FORMATTING_TYPE.FONT_FAMILY, item?.value);
+          }}
+          value={{ value: fontFamily, label: fontFamily }}
+          inputWidth={70}
+          enableInput={false}
+        />
+
+        <Separator borderColor={borderColor} />
+
+        <SelectDropdown
+          options={FONT_SIZES.map(size => ({ label: size, value: size }))}
+          onChange={item => {
+            onFormattingChange?.(FORMATTING_TYPE.FONT_SIZE, item?.value);
+          }}
+          value={{ value: fontSize, label: fontSize }}
+          format={value => parseInt(value)}
+        />
 
         <Separator borderColor={borderColor} />
 
@@ -587,7 +615,9 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                 </PopoverTrigger>
                 <PopoverContent
                   width={220}
-                  borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                  borderColor={
+                    isLight ? theme.colors.gray[500] : DARK_MODE_COLOR
+                  }
                 >
                   <PopoverArrow />
                   <PopoverBody color={foregroundColor}>
@@ -600,6 +630,11 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                         value={frozenRows}
                         onChange={e =>
                           onFrozenRowChange?.(Number(e.target.value))
+                        }
+                        borderColor={
+                          isLight
+                            ? theme.colors.gray[300]
+                            : "rgba(255,255,255,0.04)"
                         }
                       >
                         <option>0</option>
@@ -618,6 +653,11 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                         value={frozenColumns}
                         onChange={e =>
                           onFrozenColumnChange?.(Number(e.target.value))
+                        }
+                        borderColor={
+                          isLight
+                            ? theme.colors.gray[300]
+                            : "rgba(255,255,255,0.04)"
                         }
                       >
                         <option>0</option>

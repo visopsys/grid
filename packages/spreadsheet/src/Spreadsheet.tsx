@@ -203,7 +203,14 @@ const defaultSheets: Sheet[] = [
     },
     mergedCells: [],
     selections: [],
-    cells: {},
+    cells: {
+      2: {
+        2: {
+          text: 'Hello world',
+          // fontSize: 12,
+        }
+      }
+    },
     scrollState: { scrollTop: 0, scrollLeft: 0 }
   }
 ];
@@ -990,6 +997,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         >
           {showToolbar ? (
             <Toolbar
+              fontSize={activeCellConfig?.fontSize}
+              fontFamily={activeCellConfig?.fontFamily}
               fill={activeCellConfig?.fill}
               bold={activeCellConfig?.bold}
               italic={activeCellConfig?.italic}

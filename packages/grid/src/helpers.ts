@@ -821,7 +821,7 @@ export const AutoSizerCanvas = (defaults: AutoSizerProps = {}) => {
 
   const setFont = (options: IOptions = {}) => {
     for (const key in options) {
-      o[key] = options[key];
+      o[key] = options[key] ?? o[key];
     }
     if (context) {
       context.font = `${o.fontStyle} ${o.fontWeight} ${o.fontSize}px ${o.fontFamily}`;

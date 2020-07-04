@@ -10,7 +10,9 @@ export enum FORMATTING_TYPE {
   PERCENT = "percent",
   DECIMALS = "decimals",
   CURRENCY = "currency",
-  CURRENCY_SYMBOL = "currencySymbol"
+  CURRENCY_SYMBOL = "currencySymbol",
+  FONT_SIZE = 'fontSize',
+  FONT_FAMILY = 'fontFamily',
 }
 
 export enum FONT_WEIGHT {
@@ -92,6 +94,10 @@ export interface CellFormatting extends CellDataFormatting {
   strokeLeftDash?: number[];
   lineCap?: string;
   padding?: number;
+  fontSize?: number;
+  fontFamily?: string;
+  readOnly?: boolean;
+  wrap?: string
 }
 
 export interface CellDataFormatting {

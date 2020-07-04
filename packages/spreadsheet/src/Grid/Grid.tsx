@@ -399,6 +399,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             {...props}
             background={config?.fill}
             color={config?.color}
+            fontSize={config?.fontSize}
+            fontFamily={config?.fontFamily}
           />
         );
       },
@@ -412,6 +414,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       onChange: onActiveCellValueChange,
       canEdit: (cell: CellInterface) => {
         if (cell.rowIndex === 0 || cell.columnIndex === 0) return false;
+        const isReadOnly = (getValue(cell, true) as CellConfig)?.readOnly;
+        if (isReadOnly) return false;
         return true;
       },
       onDelete: onDelete

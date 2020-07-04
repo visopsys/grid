@@ -9,11 +9,18 @@ import { EditorProps } from "@rowsncolumns/grid/dist/hooks/useEditable";
 import { AutoSizerCanvas } from "@rowsncolumns/grid";
 import { KeyCodes, Direction } from "@rowsncolumns/grid/dist/types";
 import { useColorMode } from "@chakra-ui/core";
-import { DARK_MODE_COLOR_LIGHT, cellLocation } from "../constants";
+import {
+  DARK_MODE_COLOR_LIGHT,
+  cellLocation,
+  DEFAULT_FONT_FAMILY
+} from "../constants";
 
 export interface CustomEditorProps extends EditorProps {
   background?: string;
   color?: string;
+  fontSize?: number;
+  fontFamily?: string;
+  wrap?: any;
 }
 
 /**
@@ -35,6 +42,9 @@ const Editor: React.FC<CustomEditorProps> = props => {
     autoFocus = true,
     background: cellBackground,
     color: cellColor,
+    fontSize: cellFontSize = 12,
+    fontFamily: cellFontFamily = DEFAULT_FONT_FAMILY,
+    wrap: cellWrap = "nowrap",
     selections,
     scrollPosition,
     ...rest
@@ -62,10 +72,16 @@ const Editor: React.FC<CustomEditorProps> = props => {
   const { x = 0, y = 0, width = 0, height = 0 } = position;
   const getWidth = useCallback(
     text => {
+      /*  Set font */
+      textSizer.current.setFont({
+        fontSize: cellFontSize,
+        fontFamily: cellFontFamily
+      });
+
       const textWidth = textSizer.current.measureText(text)?.width || 0;
       return Math.max(textWidth + padding, width + borderWidth / 2);
     },
-    [width]
+    [width, cellFontSize, cellFontFamily, cellWrap]
   );
   useEffect(() => {
     setInputWidth(getWidth(value));
@@ -128,7 +144,8 @@ const Editor: React.FC<CustomEditorProps> = props => {
         ref={inputRef}
         value={value}
         style={{
-          font: "12px Arial",
+          fontFamily: cellFontFamily,
+          fontSize: cellFontSize,
           lineHeight: 1.2,
           width: "100%",
           height: "100%",
@@ -141,7 +158,8 @@ const Editor: React.FC<CustomEditorProps> = props => {
           overflow: "hidden",
           verticalAlign: "top",
           background: "transparent",
-          color: color
+          color: color,
+          whiteSpace: cellWrap
         }}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
           onChange(e.target.value, cell);
