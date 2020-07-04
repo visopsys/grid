@@ -48,25 +48,25 @@ function Home() {
             </Box>
 
             <List pt={5} maxWidth={300} margin="auto">
-              <ListItem>
+              <ListItem pb={2}>
                 <Flex>
                   <ListIcon mt={1} icon="check-circle" color="green.500" />
                   Non-commerical use. Perfect for open source and hobby projects
                 </Flex>
               </ListItem>
-              <ListItem>
+              <ListItem pb={2}>
                 <Flex>
                   <ListIcon mt={1} icon="check-circle" color="green.500" />
                   Community support
                 </Flex>
               </ListItem>
-              <ListItem>
+              <ListItem pb={2}>
                 <Flex>
                   <ListIcon mt={1} icon="check-circle" color="green.500" />
                   All features
                 </Flex>
               </ListItem>
-              <ListItem>
+              <ListItem pb={2}>
                 <Flex>
                   <ListIcon mt={1} icon="check-circle" color="green.500" />
                   Source code available
@@ -83,37 +83,37 @@ function Home() {
             </Box>
 
             <List pt={5} pb={8} maxWidth={300} margin="auto">
-              <ListItem>
+              <ListItem pb={2}>
                 <Flex>
                   <ListIcon mt={1} icon="check-circle" color="green.500" />
                   Multiple applications
                 </Flex>
               </ListItem>
-              <ListItem>
+              <ListItem pb={2}>
                 <Flex>
                   <ListIcon mt={1} icon="check-circle" color="green.500" />
                   Internal use only
                 </Flex>
               </ListItem>
-              <ListItem>
+              <ListItem pb={2}>
                 <Flex>
                   <ListIcon mt={1} icon="check-circle" color="green.500" />
                   Perpetual license
                 </Flex>
               </ListItem>
-              <ListItem>
+              <ListItem pb={2}>
                 <Flex>
                   <ListIcon mt={1} icon="check-circle" color="green.500" />
                   All features
                 </Flex>
               </ListItem>
-              <ListItem>
+              <ListItem pb={2}>
                 <Flex>
                   <ListIcon mt={1} icon="check-circle" color="green.500" />
                   Source code available
                 </Flex>
               </ListItem>
-              <ListItem>
+              <ListItem pb={2}>
                 <Flex>
                   <ListIcon icon="check-circle" color="green.500" />1 year of
                   free support from the Core team.
@@ -126,8 +126,9 @@ function Home() {
               width={200}
               margin="auto"
               display="block"
+              isDisabled
             >
-              Buy now
+              Coming soon
             </Button>
           </Box>
         </SimpleGrid>
