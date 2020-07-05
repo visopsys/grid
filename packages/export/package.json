@@ -1,6 +1,6 @@
 {
   "name": "@rowsncolumns/export",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -15,7 +15,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@rowsncolumns/spreadsheet": "^1.4.5",
+    "@rowsncolumns/spreadsheet": "^1.4.6",
     "exceljs": "^4.1.0"
   },
   "gitHead": "37ea6f7bcf253bdbfe6a7795a196c6018b83194c"
