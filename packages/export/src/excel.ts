@@ -194,8 +194,8 @@ export const excelToSheets = async ({
           }
           if (border) {
             for (const key in border) {
-              if (!(border[key as keyof Borders]?.color?.argb)) {
-                continue
+              if (!border[key as keyof Borders]?.color?.argb) {
+                continue;
               }
               if (key === "bottom") {
                 strokes.strokeBottomWidth = 1;
@@ -204,7 +204,8 @@ export const excelToSheets = async ({
               }
               if (key === "top") {
                 strokes.strokeTopWidth = 1;
-                strokes.strokeTopColor = "#" + border[key]?.color?.argb?.slice(2);
+                strokes.strokeTopColor =
+                  "#" + border[key]?.color?.argb?.slice(2);
               }
               if (key === "left") {
                 strokes.strokeLeftWidth = 1;
