@@ -263,7 +263,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     /**
      * Column resizer
      */
-    const { getColumnWidth } = useAutoSizer({
+    const { getColumnWidth, onViewChange } = useAutoSizer({
       gridRef,
       minColumnWidth,
       getValue: (cell: CellInterface) => {
@@ -348,7 +348,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
      * If grid changes, lets restore the state
      */
     useEffect(() => {
-      if (scrollState) gridRef.current?.scrollTo(scrollState);
+      if (scrollState) {
+        gridRef.current?.scrollTo(scrollState);
+      } else {
+        gridRef.current?.scrollToTop()
+      }
       setActiveCell(initialActiveCell, false);
       setSelections(initialSelections);
       const rowIndices = Object.keys(rowSizes).map(Number);
@@ -438,7 +442,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const columnWidth = useCallback(
       (columnIndex: number) => {
         if (columnIndex === 0) return COLUMN_HEADER_WIDTH;
-        if (hiddenRows?.indexOf(columnIndex) !== -1) return 0;
+        if (hiddenColumns?.indexOf(columnIndex) !== -1) return 0;
         return columnSizes[columnIndex] || minColumnWidth;
       },
       [minColumnWidth, columnSizes, selectedSheet]
@@ -495,7 +499,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
                 selectedRowsAndCols.rows.includes(rowIndex)
             : false;
         const cell = { rowIndex, columnIndex };
-        if (rowIndex === 0 || columnIndex === 0)
+        if (rowIndex === 0 || columnIndex === 0) {          
           return (
             <HeaderCellRenderer
               {...props}
@@ -504,7 +508,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
               onResize={onResize}
               onAdjustColumn={handleAdjustColumn}
             />
-          );
+          ); 
+        }       
         return (
           <CellRenderer
             {...props}
@@ -571,9 +576,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       },
       []
     );
-    // const hasStroke = (value = {}) => {
-    //   return Object.keys(value).some(key => key.startsWith("stroke"));
-    // };
 
     /**
      * Hides context menu
@@ -631,6 +633,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             onKeyDown?.(e);
           }}
           onContextMenu={showContextMenu}
+          onViewChange={onViewChange}
         />
         {editorComponent}
         {contextMenuProps && (

@@ -138,6 +138,7 @@ const useAutoSizer = ({
   });
   const isMounted = useRef(false);
   const getValueRef = useRef(getValue);
+  const viewPortRef = useRef(viewport)
   const debounceResizer = useRef(
     debounce(
       ({ rowIndex, columnIndex }: CellInterface) =>
@@ -149,6 +150,7 @@ const useAutoSizer = ({
 
   useEffect(() => {
     getValueRef.current = getValue;
+    viewPortRef.current = viewport
   });
 
   useEffect(() => {
@@ -169,7 +171,7 @@ const useAutoSizer = ({
    */
   const getColumnWidth = useCallback(
     (columnIndex: number) => {
-      const { rowStartIndex, rowStopIndex } = viewport;
+      const { rowStartIndex, rowStopIndex } = viewPortRef.current;
       const visibleRows =
         resizeStrategy === ResizeStrategy.full
           ? (rowCount as number)

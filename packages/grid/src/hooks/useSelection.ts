@@ -4,7 +4,7 @@ import {
   findNextCellWithinBounds,
   Align,
   getBoundedCells,
-  cellIndentifier,
+  cellIdentifier,
   mergedCellBounds,
   isEqualCells
 } from "./../helpers";
@@ -249,7 +249,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   ) => {
     return selections.findIndex(sel => {
       const boundedCells = getBoundedCells(sel.bounds);
-      return boundedCells.has(cellIndentifier(cell.rowIndex, cell.columnIndex));
+      return boundedCells.has(cellIdentifier(cell.rowIndex, cell.columnIndex));
     });
   };
 

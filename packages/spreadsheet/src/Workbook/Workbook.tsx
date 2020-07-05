@@ -14,7 +14,7 @@ import {
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
 import QuickInfo from "./../QuickInfo";
-import { DARK_MODE_COLOR_LIGHT } from "../constants";
+import { DARK_MODE_COLOR_LIGHT, EMPTY_ARRAY } from "../constants";
 
 export interface WorkbookProps extends Omit<SpreadSheetProps, "onChange"> {
   currentSheet: Sheet;
@@ -109,8 +109,6 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       onResize,
       onScroll,
       onKeyDown,
-      hiddenRows,
-      hiddenColumns,
       onPaste,
       onCut,
       onInsertRow,
@@ -137,7 +135,9 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       rowSizes = {},
       mergedCells,
       frozenRows,
-      frozenColumns
+      frozenColumns,
+      hiddenColumns = EMPTY_ARRAY,
+      hiddenRows = EMPTY_ARRAY
     } = currentSheet;
     const selectedSheetRef = useRef(selectedSheet);
     useEffect(() => {

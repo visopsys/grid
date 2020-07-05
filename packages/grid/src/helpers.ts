@@ -159,7 +159,7 @@ export const getBoundedCells = (area: AreaProps | null | undefined) => {
   const { top, bottom, left, right } = area;
   for (let i = top; i <= bottom; i++) {
     for (let j = left; j <= right; j++) {
-      cells.add(cellIndentifier(i, j));
+      cells.add(cellIdentifier(i, j));
     }
   }
   return cells;
@@ -446,7 +446,7 @@ export const getEstimatedTotalWidth = (
 };
 
 /* Create a stringified cell identifier */
-export const cellIndentifier = (
+export const cellIdentifier = (
   rowIndex: number,
   columnIndex: number
 ): string => [rowIndex, columnIndex].toString();

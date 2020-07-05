@@ -8,10 +8,10 @@
     "storybook": "start-storybook -p 9002 -s ./public",
     "build-storybook": "build-storybook -c .storybook -o .out",
     "deploy-storybook": "storybook-to-ghpages",
-    "prepublish": "yarn build",
     "postpublish": "yarn deploy-storybook"
   },
   "dependencies": {
+    "@rowsncolumns/export": "1.0.0",
     "@rowsncolumns/grid": "^3.4.1",
     "@rowsncolumns/spreadsheet": "^1.4.4"
   }

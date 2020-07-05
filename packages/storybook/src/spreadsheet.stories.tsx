@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
-import Spreadsheet, { Sheet } from "@rowsncolumns/spreadsheet";
+import Spreadsheet, { Sheet, defaultSheets } from "@rowsncolumns/spreadsheet";
+import { excelToSheets, createExcelFileFromSheets } from '@rowsncolumns/export'
 
 export default {
   title: "Spreadsheet",
@@ -11,18 +12,6 @@ const newSheet = ({ count }: { count: number }): Sheet => ({
   name: `Sheet${count}`,
   cells: {}
 });
-const defaultSheets = [
-  {
-    name: "Sheet1",
-    cells: {
-      2: {
-        1: {
-          text: "Hello world"
-        }
-      }
-    }
-  }
-];
 
 export const Default = () => {
   const App = () => {
@@ -49,3 +38,84 @@ export const Default = () => {
   };
   return <App />;
 };
+
+
+export const Import = () => {
+  const App = () => {
+    const [ sheets, setSheets] = useState(defaultSheets)
+    const handleChangeFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+      const getSheets = async (file) => {
+        const newSheets = await excelToSheets({ file })
+        setSheets(newSheets.sheets)
+      }
+      getSheets(e.target.files[0])
+    }, [])
+    return (
+      <div
+        style={{
+          margin: 10,
+          display: "flex",
+          flexDirection: "column",
+          minHeight: 600
+        }}
+      >
+        <form id="testForm">
+          <input type="file" name="test" id="testFile" onChange={handleChangeFile} />
+        </form>
+        <Spreadsheet
+          sheets={sheets}
+        />
+      </div>
+    );
+  };
+  return <App />; 
+}
+
+Import.story = {
+  name: 'Import excel file'
+}
+
+export const ExportToExcel = () => {
+  const App = () => {
+    const [ sheets, setSheets] = useState(defaultSheets)
+    const handleExport = useCallback((sheets) => {
+      const getSheets = async ({
+        filename = 'download',
+        sheets
+      }) => {
+        const buffer = await createExcelFileFromSheets(sheets)
+        const blob = new Blob([ buffer ], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        const url = window.URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = `${filename}.xlsx`;
+        anchor.dispatchEvent(new MouseEvent('click'))
+      }
+      getSheets(sheets)
+    }, [])
+    return (
+      <>
+        <br />
+        <button onClick={() => handleExport({ sheets })}>Export to excel</button>
+        <div
+          style={{
+            margin: 10,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 600
+          }}
+        >        
+          <Spreadsheet
+            sheets={sheets}
+            onChange={setSheets}
+          />
+        </div>
+      </>
+    );
+  };
+  return <App />; 
+}
+
+ExportToExcel.story = {
+  name: 'Export excel file'
+}

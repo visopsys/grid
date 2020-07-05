@@ -40,7 +40,32 @@ export const number2Alpha = (i: number): string => {
   ).toUpperCase();
 };
 
-export const cellLocation = (cell: CellInterface | null): string | null => {
+export const alpha2number = (letters: string): number => {
+  return letters.split('').reduce((r, a) => r * 26 + parseInt(a, 36) - 9, 0)
+}
+
+export const addressToCell = (address: string): CellInterface | null => {
+  const regex = /([A-Z]+)(\d+)/gmi;
+  let m;
+  let matches: string[] = []
+
+  while ((m = regex.exec(address)) !== null) {
+    // This is necessary to avoid infinite loops with zero-width matches
+    if (m.index === regex.lastIndex) {
+      regex.lastIndex++;
+    }
+    
+    // The result can be accessed through the `m`-variable.
+    m.forEach((match, groupIndex) => {
+      if (groupIndex > 0) matches.push(match)
+    });
+  }
+  if (!matches.length) return null
+  const [ rowAlpha, columnIndex ] = matches
+  return { rowIndex: alpha2number(rowAlpha), columnIndex: parseInt(columnIndex) }
+}
+
+export const cellAddress = (cell: CellInterface | null): string | null => {
   if (!cell) return null;
   return `${number2Alpha(cell.columnIndex - 1)}${cell.rowIndex}`;
 };

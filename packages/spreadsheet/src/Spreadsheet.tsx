@@ -171,6 +171,8 @@ export interface Sheet {
   mergedCells?: AreaProps[];
   frozenRows?: number;
   frozenColumns?: number;
+  hiddenRows?: number []
+  hiddenColumns?: number []
 }
 
 export type SizeType = {
@@ -184,7 +186,7 @@ export interface CellConfig extends CellFormatting {
 }
 
 const defaultActiveSheet = uuid();
-const defaultSheets: Sheet[] = [
+export const defaultSheets: Sheet[] = [
   {
     id: defaultActiveSheet,
     name: "Sheet1",
@@ -231,8 +233,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       showToolbar = true,
       formatter = defaultFormat,
       enableDarkMode = true,
-      hiddenRows: initialHiddenRows = EMPTY_ARRAY,
-      hiddenColumns: initialHiddenColumns = EMPTY_ARRAY,
       rowCount = 1000,
       columnCount = 1000,
       fontFamily = SYSTEM_FONT,
@@ -250,8 +250,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const currentGrid = useRef<WorkbookGridRef>(null);
     const [sheets, setSheets] = useImmer<Sheet[]>(initialSheets);
     const [formulaInput, setFormulaInput] = useState("");
-    const [hiddenColumns] = useState(initialHiddenColumns);
-    const [hiddenRows] = useState(initialHiddenRows);
     invariant(
       selectedSheet !== null,
       "Exception, selectedSheet is empty, Please specify a selected sheet using `selectedSheet` prop"
@@ -276,6 +274,20 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     useEffect(() => {
       selectedSheetRef.current = selectedSheet;
     });
+
+    /* Listen to sheet change */
+    useEffect(() => {
+      /* If its the same sheets - Skip */
+      if (sheets === initialSheets) {
+        return
+      }
+      setSheets(draft => {
+        initialSheets.forEach((sheet, index) => {
+          (draft[index] as Sheet) = sheet
+        })
+      });
+      setSelectedSheet(initialSheets[0].id)
+    }, [ initialSheets ])
 
     /**
      * Handle add new sheet
@@ -645,6 +657,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             }
           }
         });
+        
         axis === AXIS.X
           ? currentGrid.current?.resizeColumns?.([index])
           : currentGrid.current?.resizeRows?.([index]);
@@ -1046,8 +1059,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             onDuplicateSheet={handleDuplicateSheet}
             onScroll={handleScroll}
             // onKeyDown={handleUndoKeyDown}
-            hiddenRows={hiddenRows}
-            hiddenColumns={hiddenColumns}
             onPaste={handlePaste}
             onCut={handleCut}
             onInsertRow={handleInsertRow}

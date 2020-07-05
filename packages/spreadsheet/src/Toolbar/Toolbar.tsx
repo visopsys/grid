@@ -385,7 +385,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
         <Separator borderColor={borderColor} />
 
         <Menu>
-          <MenuButton as={Button} size="sm">
+          <MenuButton as={Button} size="sm" flexShrink={0}>
             <AiOutlineFieldBinary fontSize={18} />
             <Icon name="chevron-down" />
           </MenuButton>
@@ -465,6 +465,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
             display="flex"
             whiteSpace="nowrap"
             minWidth={0}
+            flexShrink={0}
           >
             <Box
               whiteSpace="nowrap"

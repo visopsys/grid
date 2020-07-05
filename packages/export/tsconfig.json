@@ -1,0 +1,20 @@
+{
+  "include": ["src/*"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "declaration": true,
+    "module": "esnext",
+    "noImplicitAny": true,
+    "target": "es5",
+    "downlevelIteration": true,
+    "moduleResolution": "node",
+    "jsx": "react",
+    "skipLibCheck": true,
+    "allowJs": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "strictNullChecks": true,
+    "outDir": "dist",
+    "sourceMap": true
+  }
+}

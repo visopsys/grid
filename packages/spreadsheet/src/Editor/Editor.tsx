@@ -11,7 +11,7 @@ import { KeyCodes, Direction } from "@rowsncolumns/grid/dist/types";
 import { useColorMode } from "@chakra-ui/core";
 import {
   DARK_MODE_COLOR_LIGHT,
-  cellLocation,
+  cellAddress,
   DEFAULT_FONT_FAMILY
 } from "../constants";
 
@@ -99,8 +99,8 @@ const Editor: React.FC<CustomEditorProps> = props => {
     /* Focus cursor at the end */
     inputRef.current.selectionStart = value.length;
   }, []);
-  const location = useMemo(
-    () => hasScrollPositionChanged.current && cellLocation(activeCell),
+  const address = useMemo(
+    () => hasScrollPositionChanged.current && cellAddress(activeCell),
     [activeCell, hasScrollPositionChanged.current]
   );
   const inputHeight = height;
@@ -118,7 +118,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
         background: backgroundColor
       }}
     >
-      {location ? (
+      {address ? (
         <div
           style={{
             position: "absolute",
@@ -135,7 +135,7 @@ const Editor: React.FC<CustomEditorProps> = props => {
             color: "white"
           }}
         >
-          {location}
+          {address}
         </div>
       ) : null}
       <textarea
