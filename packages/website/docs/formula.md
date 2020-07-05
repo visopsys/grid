@@ -48,7 +48,7 @@ const initialSheets = [
 
 <SpreadSheet
   sheets={initialSheets}
-  format={(value) => {
+  formatter={(value) => {
     if (value && value.startsWith('=')) {
       const output = parser.parse(value.substr(1))
       return output.result || output.error

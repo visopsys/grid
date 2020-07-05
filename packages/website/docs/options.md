@@ -188,7 +188,7 @@ Min height of the Sheet
 
 Font family of text that is rendered on the grid. Defaults to system font
 
-### `format`
+### `formattter`
 
 Formatter function that will be run for each cell. 
 
@@ -196,7 +196,7 @@ Formatter function that will be run for each cell.
 import SpreadSheet from '@rowsncolumns/spreadsheet'
 
 <SpreadSheet
-  format={(value, datatype) => {
+  formattter={(value, datatype) => {
     if (datatype === 'number') return value.toFixed(2)
     return value
   }}

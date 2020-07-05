@@ -18,7 +18,7 @@ const FillHandle: React.FC<ShapeConfig> = ({
     <div
       style={{
         position: "absolute",
-        left: x - size / 2 - strokeWidth,
+        left: x - size / 2,
         top: y - size / 2,
         width: size,
         height: size,

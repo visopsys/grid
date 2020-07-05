@@ -281,7 +281,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
       backgroundColor={backgroundColor}
       color={foregroundColor}
     >
-      <Flex flex={1} alignItems="center">
+      <Flex flex={1} alignItems="center" overflow="auto" minWidth={1}>
         <Tooltip
           hasArrow
           aria-label={translations.undo}

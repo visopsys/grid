@@ -33,13 +33,12 @@ function Home() {
         </Text>
         <SimpleGrid
           columns={[1, 1, 2]}
-          width={["auto", 800]}
-          margin="auto"
-          height={500}
+          width={["auto", 'auto', 800]}
+          margin="auto"          
           spacing={10}
           alignItem="center"
         >
-          <Box shadow="md" p={4}>
+          <Box shadow="md" p={4} mb={5}>
             <Box textAlign="center">
               <Text fontWeight="bold" pb={5} fontSize="2xl">
                 Non-commercial
@@ -74,7 +73,7 @@ function Home() {
               </ListItem>
             </List>
           </Box>
-          <Box shadow="md" p={4}>
+          <Box shadow="md" p={4} mb={5}>
             <Box textAlign="center">
               <Text fontWeight="bold" pb={5} fontSize="2xl">
                 Enterprise
@@ -127,6 +126,7 @@ function Home() {
               margin="auto"
               display="block"
               isDisabled
+              mb={5}
             >
               Coming soon
             </Button>

@@ -33,6 +33,11 @@ export interface CellFormatting extends CellDataFormatting {
   strokeBottomDash?: number[];
   strokeLeftDash?: number[];
   lineCap?: string;
+  padding?: number;
+  fontSize?: number;
+  fontFamily?: string;
+  readOnly?: boolean;
+  wrap?: string
 }
 ```
 
