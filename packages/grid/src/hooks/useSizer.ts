@@ -138,7 +138,7 @@ const useAutoSizer = ({
   });
   const isMounted = useRef(false);
   const getValueRef = useRef(getValue);
-  const viewPortRef = useRef(viewport)
+  const viewPortRef = useRef(viewport);
   const debounceResizer = useRef(
     debounce(
       ({ rowIndex, columnIndex }: CellInterface) =>
@@ -150,7 +150,7 @@ const useAutoSizer = ({
 
   useEffect(() => {
     getValueRef.current = getValue;
-    viewPortRef.current = viewport
+    viewPortRef.current = viewport;
   });
 
   useEffect(() => {

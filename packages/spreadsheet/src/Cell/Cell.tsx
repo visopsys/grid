@@ -61,7 +61,7 @@ const Cell: React.FC<CellProps> = memo(props => {
     format,
     currencySymbol,
     ...cellProps
-  } = props;  
+  } = props;
   if (isHidden) return null;
   const text = formatter
     ? formatter(props.text, datatype, {

@@ -91,7 +91,7 @@ const HeaderCell: React.FC<HeaderCellProps> = memo(props => {
     width = 0,
     height = 0,
     isHidden
-  } = props;  
+  } = props;
   const { onResize, onAdjustColumn, ...rest } = props;
   const isCorner = rowIndex === columnIndex;
   const value = isCorner

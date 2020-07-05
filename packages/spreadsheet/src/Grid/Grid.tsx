@@ -351,7 +351,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       if (scrollState) {
         gridRef.current?.scrollTo(scrollState);
       } else {
-        gridRef.current?.scrollToTop()
+        gridRef.current?.scrollToTop();
       }
       setActiveCell(initialActiveCell, false);
       setSelections(initialSelections);
@@ -499,7 +499,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
                 selectedRowsAndCols.rows.includes(rowIndex)
             : false;
         const cell = { rowIndex, columnIndex };
-        if (rowIndex === 0 || columnIndex === 0) {          
+        if (rowIndex === 0 || columnIndex === 0) {
           return (
             <HeaderCellRenderer
               {...props}
@@ -508,8 +508,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
               onResize={onResize}
               onAdjustColumn={handleAdjustColumn}
             />
-          ); 
-        }       
+          );
+        }
         return (
           <CellRenderer
             {...props}
