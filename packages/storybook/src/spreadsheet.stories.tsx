@@ -56,7 +56,7 @@ export const Import = () => {
           margin: 10,
           display: "flex",
           flexDirection: "column",
-          minHeight: 600
+          minHeight: 800
         }}
       >
         <form id="testForm">

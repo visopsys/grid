@@ -123,6 +123,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo(props => {
   const showRect = !isNull(userFill) || isMergedCell;
   const hasFill = !isNull(userFill);
   const hasText = !isNull(text);
+
   return (
     <>
       {showRect ? (

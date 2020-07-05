@@ -3,7 +3,8 @@ import ExcelJS, {
   CellFormulaValue,
   WorksheetViewFrozen,
   Buffer,
-  ValueType
+  ValueType,
+  Borders
 } from "exceljs";
 import {
   Sheet,
@@ -191,26 +192,30 @@ export const excelToSheets = async ({
             const colorValue = cell.font.color.argb?.slice(2);
             if (colorValue) color = "#" + colorValue;
           }
-
-          for (const key in border) {
-            if (key === "bottom") {
-              strokes.strokeBottomWidth = 1;
-              strokes.strokeBottomColor =
-                "#" + border[key]?.color?.argb?.slice(2);
-            }
-            if (key === "top") {
-              strokes.strokeTopWidth = 1;
-              strokes.strokeTopColor = "#" + border[key]?.color?.argb?.slice(2);
-            }
-            if (key === "left") {
-              strokes.strokeLeftWidth = 1;
-              strokes.strokeLeftColor =
-                "#" + border[key]?.color?.argb?.slice(2);
-            }
-            if (key === "right") {
-              strokes.strokeRightWidth = 1;
-              strokes.strokeRightColor =
-                "#" + border[key]?.color?.argb?.slice(2);
+          if (border) {
+            for (const key in border) {
+              if (!(border[key as keyof Borders]?.color?.argb)) {
+                continue
+              }
+              if (key === "bottom") {
+                strokes.strokeBottomWidth = 1;
+                strokes.strokeBottomColor =
+                  "#" + border[key]?.color?.argb?.slice(2);
+              }
+              if (key === "top") {
+                strokes.strokeTopWidth = 1;
+                strokes.strokeTopColor = "#" + border[key]?.color?.argb?.slice(2);
+              }
+              if (key === "left") {
+                strokes.strokeLeftWidth = 1;
+                strokes.strokeLeftColor =
+                  "#" + border[key]?.color?.argb?.slice(2);
+              }
+              if (key === "right") {
+                strokes.strokeRightWidth = 1;
+                strokes.strokeRightColor =
+                  "#" + border[key]?.color?.argb?.slice(2);
+              }
             }
           }
 
