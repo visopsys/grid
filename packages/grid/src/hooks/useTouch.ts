@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { GridRef, ScrollCoords } from "../Grid";
 // @ts-ignore
 import { Scroller } from "scroller";
+import { canUseDOM } from "../helpers";
 
 export interface TouchProps {
   /**
@@ -24,7 +25,7 @@ export interface TouchResults {
  */
 const useTouch = ({ gridRef }: TouchProps): TouchResults => {
   const scrollerRef = useRef<typeof Scroller | null>(null);
-  const isTouchDevice = useRef<boolean>("ontouchstart" in window);
+  const isTouchDevice = useRef<boolean>(canUseDOM && "ontouchstart" in window);
   useEffect(() => {
     /* Update dimension */
     if (isTouchDevice.current) {

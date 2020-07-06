@@ -390,6 +390,8 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             as={Button}
             size="sm"
             flexShrink={0}
+            paddingLeft={1}
+            paddingRight={1}
           >
             <AiOutlineFieldBinary fontSize={18} />
             <Icon name="chevron-down" fontSize={16} />
@@ -460,12 +462,13 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 
         <Menu>
           <MenuButton
+            paddingLeft={1}
             paddingRight={1}
             as={Button}
             fontSize={12}
             fontWeight="normal"
             size="sm"
-            width={110}
+            width={100}
             textAlign="left"
             display="flex"
             whiteSpace="nowrap"
