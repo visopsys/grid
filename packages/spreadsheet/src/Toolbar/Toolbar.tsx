@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef } from "react";
 import {
   MdUndo,
   MdRedo,
@@ -412,7 +412,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
               Plain
             </MenuItem>
             <MenuDivider borderColor={borderColor} />
-            {AVAILABLE_FORMATS.map((item) => {
+            {AVAILABLE_FORMATS.map((item, idx) => {
               return (
                 <MenuItem
                   display="flex"
@@ -422,6 +422,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                       item.value
                     );
                   }}
+                  key={idx}
                 >
                   <Box width="24px">
                     {format === item.value && <Icon name="check" mr={1} />}
@@ -434,7 +435,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
               );
             })}
             <MenuDivider borderColor={borderColor} />
-            {AVAILABLE_CURRENCY_FORMATS.map((item) => {
+            {AVAILABLE_CURRENCY_FORMATS.map((item, idx) => {
               return (
                 <MenuItem
                   display="flex"
@@ -444,6 +445,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                       item.value
                     );
                   }}
+                  key={idx}
                 >
                   <Box width="24px">
                     {format === item.value && <Icon name="check" mr={1} />}
@@ -488,12 +490,13 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             <Icon name="chevron-down" fontSize={16} />
           </MenuButton>
           <MenuList placement="top-start">
-            {FONT_FAMILIES.map((font) => {
+            {FONT_FAMILIES.map((font, idx) => {
               return (
                 <MenuItem
                   onClick={() => {
                     onFormattingChange?.(FORMATTING_TYPE.FONT_FAMILY, font);
                   }}
+                  key={idx}
                 >
                   <Box width="24px">
                     {font === fontFamily && <Icon name="check" mr={1} />}
@@ -682,18 +685,13 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
           }}
         </Popover>
 
-        <Tooltip
-          hasArrow
-          aria-label={translations.borders}
-          label={translations.borders}
-        >
-          <BorderSelection
-            onBorderChange={onBorderChange}
-            iconColor={iconColor}
-            activeIconColor={activeIconColor}
-            isLight={isLight}
-          />
-        </Tooltip>
+        
+        <BorderSelection
+          onBorderChange={onBorderChange}
+          iconColor={iconColor}
+          activeIconColor={activeIconColor}
+          isLight={isLight}
+        />
 
         <Tooltip
           hasArrow
