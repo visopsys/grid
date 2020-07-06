@@ -561,7 +561,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         showGridLines,
         selectionMode,
         isLightMode,
-        theme,
+        theme
       ]
     );
 

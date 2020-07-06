@@ -1,12 +1,13 @@
 import React from "react";
 import Layout from "@theme/Layout";
-import { ThemeProvider, CSSReset, theme } from "@chakra-ui/core";
+import { ThemeProvider, ColorModeProvider, CSSReset, theme } from "@chakra-ui/core";
 import { GlobalCSS, css } from "@emotion/core";
 
 export default function NewLayout(props) {
   return (
     <ThemeProvider theme={theme}>
       <CSSReset />
+      <ColorModeProvider value='light'>
       {/* <GlobalCSS
         style={css`
           .rowsncolumns-grid {
@@ -17,6 +18,7 @@ export default function NewLayout(props) {
         `}
       /> */}
       <Layout {...props} />
+      </ColorModeProvider>
     </ThemeProvider>
   );
 }
