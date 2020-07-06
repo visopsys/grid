@@ -3,7 +3,7 @@ module.exports = {
   tagline: "React Components for Tabular Data",
   url: "https://rowsncolumns.app",
   baseUrl: "/",
-  favicon: "favicon-32x32.png",
+  favicon: "/favicon-32x32.png",
   organizationName: "rowsncolumns", // Usually your GitHub org/user name.
   projectName: "grid", // Usually your repo name.
   themeConfig: {
