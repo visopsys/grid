@@ -19,14 +19,14 @@ export interface Option {
   label: string | number;
 }
 
-const Select: React.FC<SelectProps> = props => {
+const Select: React.FC<SelectProps> = (props) => {
   const {
     options,
     value,
     onChange,
     format,
     inputWidth = 44,
-    enableInput = true
+    enableInput = true,
   } = props;
   const theme = useTheme();
   const { colorMode } = useColorMode();
@@ -39,8 +39,8 @@ const Select: React.FC<SelectProps> = props => {
   return (
     <Downshift
       selectedItem={value}
-      onChange={sel => onChange?.(sel)}
-      itemToString={item => (item ? item.value.toString() : "")}
+      onChange={(sel) => onChange?.(sel)}
+      itemToString={(item) => (item ? item.value.toString() : "")}
     >
       {({
         getInputProps,
@@ -53,7 +53,7 @@ const Select: React.FC<SelectProps> = props => {
         selectedItem,
         selectItem,
         closeMenu,
-        getToggleButtonProps
+        getToggleButtonProps,
       }) => {
         const inputProps = getInputProps();
         return (
@@ -71,7 +71,7 @@ const Select: React.FC<SelectProps> = props => {
                     color: inputColor,
                     borderStyle: "solid",
                     borderWidth: 1,
-                    fontSize: 12
+                    fontSize: 12,
                   }}
                   {...inputProps}
                   onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -150,8 +150,8 @@ const Select: React.FC<SelectProps> = props => {
                                 ? theme.colors.gray[200]
                                 : DARK_MODE_COLOR_LIGHT
                               : inputBgColor,
-                          fontWeight: selectedItem === item ? "bold" : "normal"
-                        }
+                          fontWeight: selectedItem === item ? "bold" : "normal",
+                        },
                       })}
                     >
                       {label}

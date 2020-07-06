@@ -23,7 +23,7 @@ const useTouch = ({ gridRef }: TouchProps): void => {
       scrollingX: true,
       scrollingY: true,
       decelerationRate: 0.95,
-      penetrationAcceleration: 0.08
+      penetrationAcceleration: 0.08,
     };
 
     /* Add listeners */
@@ -51,7 +51,7 @@ const useTouch = ({ gridRef }: TouchProps): void => {
       containerWidth,
       containerHeight,
       estimatedTotalWidth,
-      estimatedTotalHeight
+      estimatedTotalHeight,
     }) => {
       scrollerRef.current.setDimensions(
         containerWidth,
@@ -73,7 +73,7 @@ const useTouch = ({ gridRef }: TouchProps): void => {
     e.preventDefault();
     scrollerRef.current.doTouchMove(e.touches, e.timeStamp);
   }, []);
-  const handleTouchEnd = useCallback(e => {
+  const handleTouchEnd = useCallback((e) => {
     scrollerRef.current.doTouchEnd(e.timeStamp);
   }, []);
 };

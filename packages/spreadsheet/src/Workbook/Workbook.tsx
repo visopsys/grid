@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useEffect, memo, forwardRef } from "react";
-import { useMeasure } from "react-use";
+import { ResizeObserver } from "@juggle/resize-observer";
+import useMeasure from "react-use-measure";
 import Grid from "./../Grid";
 import { Flex, useColorMode } from "@chakra-ui/core";
 import { BottomPanel, ThemeType } from "./../styled";
@@ -9,7 +10,7 @@ import {
   CellInterface,
   SelectionArea,
   ScrollCoords,
-  isNull
+  isNull,
 } from "@rowsncolumns/grid";
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
@@ -120,12 +121,14 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       showGridLines,
       CellEditor,
       allowMultipleSelection,
-      onSelectionChange
+      onSelectionChange,
     } = props;
 
     const { colorMode } = useColorMode();
     const isLight = colorMode === "light";
-    const [containerRef, { width, height }] = useMeasure();
+    const [containerRef, { width, height }] = useMeasure({
+      polyfill: ResizeObserver,
+    });
     const {
       cells,
       activeCell,
@@ -137,7 +140,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       frozenRows,
       frozenColumns,
       hiddenColumns = EMPTY_ARRAY,
-      hiddenRows = EMPTY_ARRAY
+      hiddenRows = EMPTY_ARRAY,
     } = currentSheet;
     const selectedSheetRef = useRef(selectedSheet);
     useEffect(() => {
