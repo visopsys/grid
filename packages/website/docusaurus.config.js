@@ -28,6 +28,7 @@ module.exports = {
           position: "left"
         },
         { to: "pricing", label: "Pricing", position: "left" },
+        { to: "contact", label: "Contact", position: "left" },
         {
           href: "https://discord.gg/K4cNVh6",
           label: "Chat",

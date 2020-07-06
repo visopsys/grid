@@ -55,7 +55,7 @@ function Home() {
           </List>
           <Box>
             {/* <Button variantColor='blue' mr={2}>Demo</Button> */}
-            <Button as="a" href="/docs" variantColor='purple'>
+            <Button as="a" href="/docs" variantColor='purple' _hover={{ color: 'white'}}>
               Get Started
             </Button>
           </Box>
