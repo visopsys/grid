@@ -10,7 +10,7 @@ import {
   CellInterface,
   SelectionArea,
   ScrollCoords,
-  isNull,
+  isNull
 } from "@rowsncolumns/grid";
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
@@ -121,13 +121,13 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       CellEditor,
       allowMultipleSelection,
       onSelectionChange,
-      selectionMode,
+      selectionMode
     } = props;
 
     const { colorMode } = useColorMode();
     const isLight = colorMode === "light";
     const [containerRef, { width, height }] = useMeasure({
-      polyfill: ResizeObserver,
+      polyfill: ResizeObserver
     });
     const {
       cells,
@@ -141,7 +141,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       frozenColumns,
       hiddenColumns = EMPTY_ARRAY,
       hiddenRows = EMPTY_ARRAY,
-      showGridLines = true,
+      showGridLines = true
     } = currentSheet;
     const selectedSheetRef = useRef(selectedSheet);
     useEffect(() => {
