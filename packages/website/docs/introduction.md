@@ -5,9 +5,9 @@ title: Introduction
 
 ## What is SpreadSheets
 
-SpreadSheets is a React component to display excel-like spreadsheets in your application. It lets you declarative render, customize and develop high performance excel grids.
+SpreadSheets is a React component to display excel-like spreadsheets in your application. It lets you declaratively render, customize and develop high performance excel grids.
 
-It is written in TypeScript and works only with React/Preact.
+Written in TypeScript, Spreadsheet only work with React/Preact.
 
 1. Fast, Uses Canvas for rendering.
 1. Highly customizable
