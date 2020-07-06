@@ -54,6 +54,7 @@ const Select: React.FC<SelectProps> = (props) => {
         selectItem,
         closeMenu,
         getToggleButtonProps,
+        openMenu,
       }) => {
         const inputProps = getInputProps();
         return (
@@ -77,12 +78,16 @@ const Select: React.FC<SelectProps> = (props) => {
                   onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                     if (inputProps && inputProps.onKeyDown)
                       inputProps.onKeyDown(e);
-                    if (e.which === KeyCodes.Enter) {
+                    if (
+                      e.which === KeyCodes.Enter &&
+                      highlightedIndex === null
+                    ) {
                       const value = format?.(e.currentTarget.value);
                       selectItem?.({ value, label: value });
                       closeMenu();
                     }
                   }}
+                  onFocus={() => openMenu()}
                 />
               ) : (
                 <Tooltip

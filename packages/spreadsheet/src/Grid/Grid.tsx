@@ -265,7 +265,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     );
 
     /* Enable touch */
-    useTouch({
+    const {
+      isTouchDevice,
+      scrollTo: scrollToTouch,
+      scrollToTop: scrollToTopTouch,
+    } = useTouch({
       gridRef,
     });
 
@@ -358,9 +362,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
      */
     useEffect(() => {
       if (scrollState) {
-        gridRef.current?.scrollTo(scrollState);
+        isTouchDevice
+          ? scrollToTouch(scrollState)
+          : gridRef.current?.scrollTo(scrollState);
       } else {
-        gridRef.current?.scrollToTop();
+        isTouchDevice ? scrollToTopTouch() : gridRef.current?.scrollToTop();
       }
       setActiveCell(initialActiveCell, false);
       setSelections(initialSelections);

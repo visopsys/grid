@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from "react";
-import { GridRef } from "../Grid";
+import { GridRef, ScrollCoords } from "../Grid";
 // @ts-ignore
 import { Scroller } from "scroller";
 
@@ -10,17 +10,24 @@ export interface TouchProps {
   gridRef: React.MutableRefObject<GridRef | null>;
 }
 
+export interface TouchResults {
+  isTouchDevice: boolean;
+  scrollTo: (scrollState: ScrollCoords) => void;
+  scrollToTop: () => void;
+}
+
 /**
  * Enable touch interactions
  * Supports
  * 1. Scrolling
  * 2. Cell selection
  */
-const useTouch = ({ gridRef }: TouchProps): void => {
+const useTouch = ({ gridRef }: TouchProps): TouchResults => {
   const scrollerRef = useRef<typeof Scroller | null>(null);
+  const isTouchDevice = useRef<boolean>("ontouchstart" in window);
   useEffect(() => {
     /* Update dimension */
-    if ("ontouchstart" in window) {
+    if (isTouchDevice.current) {
       const options = {
         scrollingX: true,
         scrollingY: true,
@@ -46,6 +53,16 @@ const useTouch = ({ gridRef }: TouchProps): void => {
       /* Update dimensions */
       updateScrollDimensions(dims);
     }
+  }, []);
+
+  /* Scroll to x, y coordinate */
+  const scrollTo = useCallback(({ scrollLeft, scrollTop }) => {
+    if (scrollerRef.current)
+      scrollerRef.current.scrollTo(scrollLeft, scrollTop);
+  }, []);
+  /* Scrolls to top if mobile */
+  const scrollToTop = useCallback(() => {
+    if (scrollerRef.current) scrollerRef.current.scrollTo(0, 0);
   }, []);
 
   const updateScrollDimensions = useCallback(
@@ -78,6 +95,12 @@ const useTouch = ({ gridRef }: TouchProps): void => {
   const handleTouchEnd = useCallback((e) => {
     scrollerRef.current.doTouchEnd(e.timeStamp);
   }, []);
+
+  return {
+    isTouchDevice: isTouchDevice.current,
+    scrollTo,
+    scrollToTop,
+  };
 };
 
 export default useTouch;
