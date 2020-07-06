@@ -3,7 +3,7 @@ import {
   getEstimatedTotalWidth,
   getEstimatedTotalHeight,
   getBoundedCells,
-  cellIndentifier,
+  cellIdentifier,
 } from "../helpers";
 
 describe("getBoundedCells", () => {
@@ -19,8 +19,8 @@ describe("getBoundedCells", () => {
       left: 1,
       bottom: 5,
     });
-    expect(cells.has(cellIndentifier(1, 1))).toBeTruthy();
-    expect(cells.has(cellIndentifier(5, 5))).toBeTruthy();
+    expect(cells.has(cellIdentifier(1, 1))).toBeTruthy();
+    expect(cells.has(cellIdentifier(5, 5))).toBeTruthy();
   });
 });
 
