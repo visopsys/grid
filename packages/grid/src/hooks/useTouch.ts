@@ -18,7 +18,7 @@ export interface TouchProps {
  */
 const useTouch = ({ gridRef }: TouchProps): void => {
   const scrollerRef = useRef<typeof Scroller | null>(null);
-  useEffect(() => {    
+  useEffect(() => {
     /* Update dimension */
     if ("ontouchstart" in window) {
       const options = {
@@ -27,14 +27,17 @@ const useTouch = ({ gridRef }: TouchProps): void => {
         decelerationRate: 0.95,
         penetrationAcceleration: 0.08,
       };
-      
+
       /* Add listeners */
       gridRef.current?.container?.addEventListener(
         "touchstart",
         handleTouchStart
       );
       gridRef.current?.container?.addEventListener("touchend", handleTouchEnd);
-      gridRef.current?.container?.addEventListener("touchmove", handleTouchMove);
+      gridRef.current?.container?.addEventListener(
+        "touchmove",
+        handleTouchMove
+      );
 
       /* Add scroller */
       scrollerRef.current = new Scroller(handleTouchScroll, options);
