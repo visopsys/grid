@@ -13,9 +13,11 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "@rowsncolumns/spreadsheet": "^1.4.11",
+  "dependencies": {    
     "exceljs": "^4.1.0"
+  },
+  "peerDependencies": {
+    "@rowsncolumns/spreadsheet": "^1.4.11"
   },
   "gitHead": "37ea6f7bcf253bdbfe6a7795a196c6018b83194c"
 }
