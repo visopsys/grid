@@ -118,7 +118,6 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   const fontStyle = italic ? FONT_STYLE.ITALIC : FONT_STYLE.NORMAL;
   const textStyle = `${fontWeight} ${fontStyle}`;
   const vAlign = verticalAlign;
-
   const hAlign =
     horizontalAlign === void 0
       ? datatype === DATATYPE.NUMBER

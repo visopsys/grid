@@ -623,19 +623,23 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       switch (e.nativeEvent.which) {
         case KeyCodes.Right:
           keyNavigate(Direction.Right, isShiftKey, isMetaKey);
+          e.preventDefault()
           break;
 
         case KeyCodes.Left:
           keyNavigate(Direction.Left, isShiftKey, isMetaKey);
+          e.preventDefault()
           break;
 
         // Up
         case KeyCodes.Up:
           keyNavigate(Direction.Up, isShiftKey, isMetaKey);
+          e.preventDefault()
           break;
 
         case KeyCodes.Down:
           keyNavigate(Direction.Down, isShiftKey, isMetaKey);
+          e.preventDefault()
           break;
 
         case KeyCodes.A:

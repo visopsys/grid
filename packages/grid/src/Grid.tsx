@@ -538,10 +538,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      * Handle mouse wheeel
      */
     useEffect(() => {
-      containerRef.current?.addEventListener("wheel", handleWheel, {
+      containerRef.current?.addEventListener('wheel', handleWheel, {
         passive: false
       });            
       isMounted.current = true;
+      return () => {
+        containerRef.current?.removeEventListener('wheel', handleWheel)
+      }
     }, []);
 
     /**
@@ -1226,8 +1229,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
     /* Callback when visible rows or columns have changed */
     useEffect(() => {
-      onViewChange &&
-        onViewChange({
+      onViewChange?.({
           rowStartIndex,
           rowStopIndex,
           columnStartIndex,
@@ -1413,7 +1415,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
          * Do any pre-processing of the row before being renderered.
          * Useful for `react-table` to call `prepareRow(row)`
          */
-        onBeforeRenderRow && onBeforeRenderRow(rowIndex);
+        onBeforeRenderRow?.(rowIndex);
 
         for (
           let columnIndex = columnStartIndex;
@@ -1563,7 +1565,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
        * Do any pre-processing of the row before being renderered.
        * Useful for `react-table` to call `prepareRow(row)`
        */
-      onBeforeRenderRow && onBeforeRenderRow(rowIndex);
+      onBeforeRenderRow?.(rowIndex);
 
       for (
         let columnIndex = columnStartIndex;
@@ -1663,7 +1665,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
        * Do any pre-processing of the row before being renderered.
        * Useful for `react-table` to call `prepareRow(row)`
        */
-      onBeforeRenderRow && onBeforeRenderRow(rowIndex);
+      onBeforeRenderRow?.(rowIndex);
 
       for (
         let columnIndex = 0;
