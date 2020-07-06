@@ -122,6 +122,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       CellEditor,
       allowMultipleSelection,
       onSelectionChange,
+      selectionMode,
     } = props;
 
     const { colorMode } = useColorMode();
@@ -286,6 +287,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
             showGridLines={showGridLines}
             CellEditor={CellEditor}
             allowMultipleSelection={allowMultipleSelection}
+            selectionMode={selectionMode}
           />
         </Flex>
         <Flex>

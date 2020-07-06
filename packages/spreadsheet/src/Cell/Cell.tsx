@@ -27,11 +27,15 @@ const EMPTY_ARRAY: number[] = [];
 export interface CellProps extends RendererProps, CellConfig {
   isHidden?: boolean;
   formatter?: FormatType;
-  showGridLines?: boolean;
+  showStrokeOnFill?: boolean;
+  isSelected?: boolean;
 }
 
 export interface CellRenderProps extends Omit<CellProps, "text"> {
   text?: string;
+  showStrokeOnFill?: boolean;
+  isSelected?: boolean;
+  selectionFill?: string;
 }
 
 /**
@@ -86,7 +90,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     width,
     height,
     isMergedCell,
-    fill: userFill,
+    fill,
     datatype,
     color: userColor,
     italic,
@@ -102,11 +106,14 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     lineHeight = 0.5,
     isLightMode,
     text,
-    showGridLines,
+    showStrokeOnFill = true,
+    isSelected,
+    selectionFill = "rgb(14, 101, 235, 0.1)",
   } = props;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
     strike ? TEXT_DECORATION.STRIKE : ""
   }`;
+  const userFill = isSelected ? selectionFill : fill;
   const fontWeight = bold ? FONT_WEIGHT.BOLD : FONT_WEIGHT.NORMAL;
   const fontStyle = italic ? FONT_STYLE.ITALIC : FONT_STYLE.NORMAL;
   const textStyle = `${fontWeight} ${fontStyle}`;
@@ -121,7 +128,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   const defaultFill = isLightMode ? "white" : DARK_MODE_COLOR_LIGHT;
   const textColor = userColor ? userColor : isLightMode ? "#333" : "white";
   const showRect = !isNull(userFill) || isMergedCell;
-  const hasFill = !isNull(userFill);
+  const hasFill = !isNull(userFill) || isSelected;
   const hasText = !isNull(text);
 
   return (
@@ -139,7 +146,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
             if (hasFill) {
               context.setAttr(
                 "strokeStyle",
-                showGridLines ? luminance(userFill, -20) : userFill
+                showStrokeOnFill ? luminance(userFill, -20) : userFill
               );
               context.strokeRect(0.5, 0.5, shape.width(), shape.height());
             }

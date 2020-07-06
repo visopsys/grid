@@ -156,3 +156,11 @@ export type FormatType = (
   datatype?: DATATYPE,
   formatting?: CellDataFormatting
 ) => string | undefined;
+
+
+export enum SELECTION_MODE {
+  CELL = 'cell',
+  ROW = 'row',
+  COLUMN = 'column',
+  BOTH = 'both'
+}

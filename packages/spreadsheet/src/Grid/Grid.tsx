@@ -50,6 +50,7 @@ import {
   AXIS,
   STROKE_FORMATTING,
   FormatType,
+  SELECTION_MODE,
 } from "../types";
 import Editor from "./../Editor";
 import ContextMenu from "./../ContextMenu";
@@ -124,6 +125,7 @@ export interface SheetGridProps {
   showGridLines?: boolean;
   CellEditor?: React.ReactType<CustomEditorProps>;
   allowMultipleSelection?: boolean;
+  selectionMode?: SELECTION_MODE;
 }
 
 export interface RowColSelection {
@@ -213,6 +215,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       CellEditor = Editor,
       allowMultipleSelection = true,
       onSelectionChange,
+      selectionMode,
     } = props;
     const gridRef = useRef<GridRef | null>(null);
     const { colorMode } = useColorMode();
@@ -516,13 +519,28 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             />
           );
         }
+        /* Row, cell column selection modes */
+        const isRowSelected =
+          selectionMode === SELECTION_MODE.ROW ||
+          selectionMode === SELECTION_MODE.BOTH
+            ? activeCell?.rowIndex === rowIndex ||
+              selectedRowsAndCols.rows.includes(rowIndex)
+            : false;
+        const isColumnSelected =
+          selectionMode === SELECTION_MODE.COLUMN ||
+          selectionMode === SELECTION_MODE.BOTH
+            ? activeCell?.columnIndex === columnIndex ||
+              selectedRowsAndCols.cols.includes(columnIndex)
+            : false;
+        const isSelected = isRowSelected || isColumnSelected;
         return (
           <CellRenderer
             {...props}
             {...(getValue(cell, true) as CellConfig)}
             formatter={formatter}
             isHidden={isHidden}
-            showGridLines={showGridLines}
+            showStrokeOnFill={showGridLines}
+            isSelected={isSelected}
           />
         );
       },
@@ -533,6 +551,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         hiddenRows,
         hiddenColumns,
         showGridLines,
+        selectionMode,
       ]
     );
 

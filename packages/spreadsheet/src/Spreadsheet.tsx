@@ -43,7 +43,8 @@ import {
   BORDER_STYLE,
   STROKE_FORMATTING,
   FormatType,
-  DATATYPE
+  DATATYPE,
+  SELECTION_MODE
 } from "./types";
 import { useImmer } from "use-immer";
 import { WorkbookGridRef } from "./Grid/Grid";
@@ -157,6 +158,10 @@ export interface SpreadSheetProps {
     activeCell: CellInterface | null,
     selections: SelectionArea[]
   ) => void;
+  /**
+   * Select mode
+   */
+  selectionMode?: SELECTION_MODE
 }
 
 export interface Sheet {
@@ -241,7 +246,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       CellEditor = Editor,
       allowMultipleSelection = true,
       onActiveCellChange,
-      onSelectionChange
+      onSelectionChange,
+      selectionMode
     } = props;
     const [selectedSheet, setSelectedSheet] = useState<string | null>(() => {
       return activeSheet || initialSheets.length ? initialSheets[0].id : null;
@@ -1069,6 +1075,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             CellEditor={CellEditor}
             allowMultipleSelection={allowMultipleSelection}
             onSelectionChange={onSelectionChange}
+            selectionMode={selectionMode}
           />
         </Flex>
       </>
