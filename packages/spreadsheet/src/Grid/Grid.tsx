@@ -499,6 +499,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const isHidden =
           hiddenRows?.indexOf(rowIndex) !== -1 ||
           hiddenColumns?.indexOf(columnIndex) !== -1;
+        if (isHidden) return null;
         const isHeaderActive =
           isRowHeader || isColumnHeader
             ? isRowHeader
@@ -512,7 +513,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           return (
             <HeaderCellRenderer
               {...props}
-              isHidden={isHidden}
               isActive={isHeaderActive}
               onResize={onResize}
               onAdjustColumn={handleAdjustColumn}
@@ -538,7 +538,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             {...props}
             {...(getValue(cell, true) as CellConfig)}
             formatter={formatter}
-            isHidden={isHidden}
             showStrokeOnFill={showGridLines}
             isSelected={isSelected}
           />
@@ -562,12 +561,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           hiddenRows?.indexOf(rowIndex) !== -1 ||
           hiddenColumns?.indexOf(columnIndex) !== -1;
         const cell = { rowIndex, columnIndex };
+        if (isHidden) return null;
         return (
-          <CellOverlay
-            {...props}
-            {...(getValue(cell, true) as CellConfig)}
-            isHidden={isHidden}
-          />
+          <CellOverlay {...props} {...(getValue(cell, true) as CellConfig)} />
         );
       },
       [cells, selectedRowsAndCols, activeCell, hiddenRows, hiddenColumns]

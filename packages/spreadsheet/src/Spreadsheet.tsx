@@ -350,6 +350,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     );
 
     const handleChangeSheetName = useCallback((id: string, name: string) => {
+      console.log('name',name, id)
       setSheets(draft => {
         const sheet = draft.find(sheet => sheet.id === id);
         if (sheet) {

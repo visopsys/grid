@@ -25,7 +25,6 @@ import { Shape, Text } from "react-konva";
 const EMPTY_ARRAY: number[] = [];
 
 export interface CellProps extends RendererProps, CellConfig {
-  isHidden?: boolean;
   formatter?: FormatType;
   showStrokeOnFill?: boolean;
   isSelected?: boolean;
@@ -44,7 +43,7 @@ export interface CellRenderProps extends Omit<CellProps, "text"> {
  */
 const Cell: React.FC<CellProps> = memo((props) => {
   const { colorMode } = useColorMode();
-  const { datatype, decimals, percent, currency, formatter, isHidden } = props;
+  const { datatype, decimals, percent, currency, formatter } = props;
   const {
     stroke,
     strokeTopColor,
@@ -66,7 +65,6 @@ const Cell: React.FC<CellProps> = memo((props) => {
     currencySymbol,
     ...cellProps
   } = props;
-  if (isHidden) return null;
   const text = formatter
     ? formatter(props.text, datatype, {
         decimals,

@@ -61,8 +61,9 @@ const TabItem: React.FC<TabItemProps> = ({
             setValue(e.target.value)
           }
           width="auto"
-          onBlur={() => {
-            onChangeSheetName?.(id, value);
+          onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
+            const value = e.currentTarget.value;
+            if (value !== name) onChangeSheetName?.(id, value);
             disableEditmode();
           }}
           height="26px"
