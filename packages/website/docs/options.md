@@ -218,3 +218,11 @@ Callback fired when activeCell changes
   }}
 >
 ```
+
+### `onSelectionChange?: (sheetId: string, activeCell: CellInterface | null, selections: SelectionArea[]) => void;`
+
+Callback fired when selection changes
+
+### `selectionMode`
+
+One of `row|cell|column`. Highlights the selected cell area
