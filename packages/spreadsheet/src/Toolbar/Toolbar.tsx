@@ -281,7 +281,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
       backgroundColor={backgroundColor}
       color={foregroundColor}
     >
-      <Flex flex={1} alignItems="center" overflow="auto" minWidth={1}>
+      <Flex flex={1} alignItems="center" flexWrap="wrap" minWidth={1}>
         <Tooltip
           hasArrow
           aria-label={translations.undo}
@@ -385,7 +385,12 @@ const Toolbar: React.FC<ToolbarProps> = props => {
         <Separator borderColor={borderColor} />
 
         <Menu>
-          <MenuButton as={Button} size="sm" flexShrink={0}>
+          <MenuButton
+            color={foregroundColor}
+            as={Button}
+            size="sm"
+            flexShrink={0}
+          >
             <AiOutlineFieldBinary fontSize={18} />
             <Icon name="chevron-down" />
           </MenuButton>
@@ -466,6 +471,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
             whiteSpace="nowrap"
             minWidth={0}
             flexShrink={0}
+            color={foregroundColor}
           >
             <Box
               whiteSpace="nowrap"

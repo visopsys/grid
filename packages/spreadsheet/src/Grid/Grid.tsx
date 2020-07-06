@@ -20,7 +20,8 @@ import Grid, {
   AreaProps,
   StylingProps,
   useSizer as useAutoSizer,
-  CellOverlay
+  CellOverlay,
+  useTouch
 } from "@rowsncolumns/grid";
 import { debounce } from "@rowsncolumns/grid/dist/helpers";
 import {
@@ -259,6 +260,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       },
       [cells]
     );
+
+    /* Enable touch */
+    useTouch({
+      gridRef
+    });
 
     /**
      * Column resizer

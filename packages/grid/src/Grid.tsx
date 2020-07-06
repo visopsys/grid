@@ -372,7 +372,13 @@ export type GridRef = {
   resizeRows: (indices: number[]) => void;
   getViewPort: () => ViewPortProps;
   getRelativePositionFromOffset: (x: number, y: number) => PosXYRequired | null;
-  scrollToTop: () => void
+  scrollToTop: () => void,
+  getDimensions: () => {
+    containerWidth: number,
+    containerHeight: number,
+    estimatedTotalWidth: number,
+    estimatedTotalHeight: number
+  },
 };
 
 export type MergedCellMap = Map<string, AreaProps>;
@@ -477,7 +483,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         resizeRows,
         getViewPort,
         getRelativePositionFromOffset,
-        scrollToTop
+        scrollToTop,
+        getDimensions
       };
     });
 
@@ -496,6 +503,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const verticalScrollRef = useRef<HTMLDivElement>(null);
     const wheelingRef = useRef<number | null>(null);
     const horizontalScrollRef = useRef<HTMLDivElement>(null);
+    const scrollerRef = useRef(null)
     const [_, forceRender] = useReducer(s => s + 1, 0);
     const [scrollState, setScrollState] = useState<ScrollState>({
       scrollTop: 0,
@@ -516,7 +524,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     /* Focus container */
     const focusContainer = useCallback(() => {
       return containerRef.current?.focus();
-    }, []);
+    }, []);      
 
     /**
      * onScroll callback
@@ -532,7 +540,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     useEffect(() => {
       containerRef.current?.addEventListener("wheel", handleWheel, {
         passive: false
-      });
+      });            
       isMounted.current = true;
     }, []);
 
@@ -720,6 +728,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       columnCount,
       instanceProps.current
     );
+
+    /* Method to get dimensions of the grid */
+    const getDimensions = useCallback(() => {
+      return {
+        containerWidth, containerHeight, estimatedTotalWidth, estimatedTotalHeight
+      }
+    }, [ containerWidth, containerHeight, estimatedTotalWidth, estimatedTotalHeight ])    
 
     /**
      * Snaps vertical scrollbar to the next/prev visible row

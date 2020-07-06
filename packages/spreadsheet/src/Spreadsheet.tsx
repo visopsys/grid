@@ -22,7 +22,7 @@ import {
   SelectionArea,
   ScrollCoords,
   AreaProps,
-  selectionFromActiveCell
+  selectionFromActiveCell,
 } from "@rowsncolumns/grid";
 import {
   createNewSheet,
