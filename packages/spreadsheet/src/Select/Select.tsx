@@ -114,6 +114,7 @@ const Select: React.FC<SelectProps> = (props) => {
                 aria-label="Open"
                 icon="chevron-down"
                 size="sm"
+                fontSize={16}
                 {...getToggleButtonProps()}
               />
             </Box>

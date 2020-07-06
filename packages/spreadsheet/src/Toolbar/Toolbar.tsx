@@ -392,7 +392,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             flexShrink={0}
           >
             <AiOutlineFieldBinary fontSize={18} />
-            <Icon name="chevron-down" />
+            <Icon name="chevron-down" fontSize={16} />
           </MenuButton>
           <MenuList placement="top-start" minWidth={250}>
             <MenuItem
@@ -482,7 +482,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             >
               {fontFamily}
             </Box>
-            <Icon name="chevron-down" />
+            <Icon name="chevron-down" fontSize={16} />
           </MenuButton>
           <MenuList placement="top-start">
             {FONT_FAMILIES.map((font) => {
