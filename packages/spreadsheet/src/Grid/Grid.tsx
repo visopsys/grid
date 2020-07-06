@@ -519,9 +519,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           return (
             <HeaderCellRenderer
               {...props}
+              isLightMode={isLightMode}
               isActive={isHeaderActive}
               onResize={onResize}
               onAdjustColumn={handleAdjustColumn}
+              theme={theme}
             />
           );
         }
@@ -543,6 +545,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           <CellRenderer
             {...props}
             {...(getValue(cell, true) as CellConfig)}
+            isLightMode={isLightMode}
             formatter={formatter}
             showStrokeOnFill={showGridLines}
             isSelected={isSelected}
@@ -557,6 +560,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         hiddenColumns,
         showGridLines,
         selectionMode,
+        isLightMode,
+        theme,
       ]
     );
 

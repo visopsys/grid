@@ -3,18 +3,19 @@ import { Cell, RendererProps } from "@rowsncolumns/grid";
 import {
   number2Alpha,
   DARK_MODE_COLOR,
-  DARK_MODE_COLOR_LIGHT,
   HEADER_BORDER_COLOR,
 } from "../constants";
-import { useColorMode, useTheme } from "@chakra-ui/core";
 import { Rect } from "react-konva";
 import { ShapeConfig } from "konva/types/Shape";
 import { AXIS } from "../types";
+import { ThemeType } from "../styled";
 
 export interface HeaderCellProps extends RendererProps {
   isActive?: boolean;
   isHidden?: boolean;
   onResize?: (axis: AXIS, index: number, dimension: number) => void;
+  isLightMode?: boolean;
+  theme: ThemeType;
 }
 
 interface DraggableRectProps
@@ -91,6 +92,8 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
     width = 0,
     height = 0,
     isHidden,
+    isLightMode,
+    theme,
   } = props;
   const { onResize, onAdjustColumn, ...rest } = props;
   const isCorner = rowIndex === columnIndex;
@@ -100,9 +103,6 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
     ? number2Alpha(columnIndex - 1)
     : rowIndex.toString();
   const isRowHeader = rowIndex === 0;
-  const { colorMode } = useColorMode();
-  const theme = useTheme();
-  const isLightMode = colorMode === "light";
   const fill = isLightMode
     ? isActive
       ? "#E9EAED"
@@ -121,7 +121,6 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
   const handleAdjustColumn = useCallback(() => {
     onAdjustColumn?.(columnIndex);
   }, []);
-  const globalCompositeOperation = "source-over";
   if (isHidden) return null;
   return (
     <Cell

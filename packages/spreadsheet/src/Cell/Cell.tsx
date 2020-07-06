@@ -1,9 +1,7 @@
 import React, { memo } from "react";
 import { RendererProps, isNull } from "@rowsncolumns/grid";
 import {
-  DARK_MODE_COLOR,
   DARK_MODE_COLOR_LIGHT,
-  format as defaultFormat,
   luminance,
   DEFAULT_FONT_SIZE,
   castToString,
@@ -17,17 +15,16 @@ import {
   VERTICAL_ALIGNMENT,
   FormatType,
 } from "./../types";
-import { useColorMode } from "@chakra-ui/core";
 import { CellConfig } from "../Spreadsheet";
 import { Shape, Text } from "react-konva";
 
 /* Array placeholder */
-const EMPTY_ARRAY: number[] = [];
 
 export interface CellProps extends RendererProps, CellConfig {
   formatter?: FormatType;
   showStrokeOnFill?: boolean;
   isSelected?: boolean;
+  isLightMode?: boolean;
 }
 
 export interface CellRenderProps extends Omit<CellProps, "text"> {
@@ -42,8 +39,14 @@ export interface CellRenderProps extends Omit<CellProps, "text"> {
  * @param props
  */
 const Cell: React.FC<CellProps> = memo((props) => {
-  const { colorMode } = useColorMode();
-  const { datatype, decimals, percent, currency, formatter } = props;
+  const {
+    datatype,
+    decimals,
+    percent,
+    currency,
+    formatter,
+    isLightMode,
+  } = props;
   const {
     stroke,
     strokeTopColor,
@@ -74,7 +77,6 @@ const Cell: React.FC<CellProps> = memo((props) => {
         currencySymbol,
       })
     : castToString(props.text);
-  const isLightMode = colorMode === "light";
   return <DefaultCell isLightMode={isLightMode} {...cellProps} text={text} />;
 });
 
