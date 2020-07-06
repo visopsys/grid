@@ -34,7 +34,7 @@ function Home() {
       <SimpleGrid
         columns={[1, 1, 2]}
         className="container"
-        height={["auto", "auto", 500]}
+        height={["auto", "auto", 600]}
         spacing={30}
         pt={10}
         pb={10}
@@ -55,7 +55,7 @@ function Home() {
           </List>
           <Box>
             {/* <Button variantColor='blue' mr={2}>Demo</Button> */}
-            <Button as="a" href="/docs">
+            <Button as="a" href="/docs" variantColor='purple'>
               Get Started
             </Button>
           </Box>
