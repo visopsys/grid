@@ -1247,7 +1247,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
         /* Ignore frozen rows */
         if (rowIndex < frozenRows) continue;
-        const x1 = 0;
+        const x1 = getColumnOffset({
+          index: frozenColumns,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        });
         const x2 = getColumnOffset({
           index: Math.min(columnStopIndex + 1, columnCount),
           rowHeight,
@@ -1272,7 +1277,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         );
         gridLinesFrozenColumn.push(
           gridLineRenderer({
-            points: [x1, y1, x2, y2],
+            points: [0, y1, x2, y2],
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
             offsetY: -0.5,
@@ -1293,7 +1298,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           instanceProps: instanceProps.current
         });
         const x2 = x1;
-        const y1 = 0;
+        const y1 = getRowOffset({
+          index: frozenRows,
+          rowHeight,
+          columnWidth,
+          instanceProps: instanceProps.current
+        });;
         const y2 = getRowOffset({
           index: Math.min(rowStopIndex + 1, rowCount),
           rowHeight,
@@ -1311,7 +1321,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         );
         gridLinesFrozenRow.push(
           gridLineRenderer({
-            points: [x1, y1, x2, y2],
+            points: [x1, 0, x2, y2],
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
             offsetX: -0.5,
