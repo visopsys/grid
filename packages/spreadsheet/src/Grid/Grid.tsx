@@ -223,7 +223,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const onSheetChangeRef = useRef(debounce(onSheetChange, 100));
     const actualFrozenRows = Math.max(1, frozenRows + 1);
     const actualFrozenColumns = Math.max(1, frozenColumns + 1);
-    const debounceScroll = useRef(debounce(onScroll, 1000));
+    const debounceScroll = useRef(debounce(onScroll, 500));
     const [
       contextMenuProps,
       setContextMenuProps,

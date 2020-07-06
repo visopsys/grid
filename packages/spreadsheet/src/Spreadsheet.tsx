@@ -127,10 +127,6 @@ export interface SpreadSheetProps {
    */
   fontFamily?: string;
   /**
-   * Show hide gridlines
-   */
-  showGridLines?: boolean;
-  /**
    * Min Height of the grid
    */
   minHeight?: number;
@@ -178,6 +174,7 @@ export interface Sheet {
   frozenColumns?: number;
   hiddenRows?: number []
   hiddenColumns?: number []
+  showGridLines?: boolean
 }
 
 export type SizeType = {
@@ -204,7 +201,7 @@ export const defaultSheets: Sheet[] = [
     mergedCells: [],
     selections: [],
     cells: {},
-    scrollState: { scrollTop: 0, scrollLeft: 0 }
+    scrollState: { scrollTop: 0, scrollLeft: 0 },
   }
 ];
 
@@ -241,7 +238,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       rowCount = 1000,
       columnCount = 1000,
       fontFamily = SYSTEM_FONT,
-      showGridLines = true,
       minHeight = 400,
       CellEditor = Editor,
       allowMultipleSelection = true,
@@ -350,7 +346,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     );
 
     const handleChangeSheetName = useCallback((id: string, name: string) => {
-      console.log('name',name, id)
       setSheets(draft => {
         const sheet = draft.find(sheet => sheet.id === id);
         if (sheet) {
@@ -1072,7 +1067,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             onInsertColumn={handleInsertColumn}
             onDeleteRow={handleDeleteRow}
             onDeleteColumn={handleDeleteColumn}
-            showGridLines={showGridLines}
             CellEditor={CellEditor}
             allowMultipleSelection={allowMultipleSelection}
             onSelectionChange={onSelectionChange}

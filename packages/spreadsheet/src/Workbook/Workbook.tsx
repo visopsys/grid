@@ -118,7 +118,6 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       onDeleteRow,
       rowCount,
       columnCount,
-      showGridLines,
       CellEditor,
       allowMultipleSelection,
       onSelectionChange,
@@ -142,6 +141,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       frozenColumns,
       hiddenColumns = EMPTY_ARRAY,
       hiddenRows = EMPTY_ARRAY,
+      showGridLines = true,
     } = currentSheet;
     const selectedSheetRef = useRef(selectedSheet);
     useEffect(() => {

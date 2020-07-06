@@ -15,13 +15,16 @@ interface Sheet {
   name: string;
   cells: Cells;
   activeCell: CellInterface | null;
-  selections?: SelectionArea[];
+  selections: SelectionArea[];
   scrollState?: ScrollCoords;
   columnSizes?: SizeType;
   rowSizes?: SizeType;
   mergedCells?: AreaProps[];
   frozenRows?: number;
   frozenColumns?: number;
+  hiddenRows?: number []
+  hiddenColumns?: number []
+  showGridLines?: boolean
 }
 
 type Cells = Record<string, Cell>;

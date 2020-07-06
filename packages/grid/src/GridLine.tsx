@@ -11,6 +11,11 @@ const GridLine: React.FC<ShapeConfig> = (props) => {
       strokeWidth={strokeWidth}
       offsetY={offsetY}
       offsetX={offsetX}
+      shadowForStrokeEnabled={false}
+      strokeScaleEnabled={false}
+      hitStrokeWidth={0}
+      listening={false}
+      perfectDrawEnabled={false}
     />
   )
 };

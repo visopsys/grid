@@ -1770,6 +1770,11 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           points={[frozenColumnLineX, 0, frozenColumnLineX, frozenColumnLineY]}
           offsetX={-0.5}
           strokeWidth={1}
+          shadowForStrokeEnabled={false}
+          strokeScaleEnabled={false}
+          hitStrokeWidth={0}
+          listening={false}
+          perfectDrawEnabled={false}
           {...shadowSettings}
         />
       );
@@ -1796,6 +1801,11 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           points={[0, frozenRowLineY, frozenRowLineX, frozenRowLineY]}
           offsetY={-0.5}
           strokeWidth={1}
+          shadowForStrokeEnabled={false}
+          strokeScaleEnabled={false}
+          hitStrokeWidth={0}
+          listening={false}
+          perfectDrawEnabled={false}
           {...shadowSettings}
         />
       );
