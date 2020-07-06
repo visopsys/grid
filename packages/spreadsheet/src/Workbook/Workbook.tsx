@@ -236,7 +236,6 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       },
       []
     );
-
     return (
       <>
         <Flex
@@ -245,6 +244,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
           background={isLight ? "white" : DARK_MODE_COLOR_LIGHT}
         >
           <Grid
+            isLightMode={isLight}
             ref={forwardedRef}
             onResize={handleResize}
             onDelete={handleDelete}

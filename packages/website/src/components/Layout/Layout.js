@@ -7,7 +7,6 @@ export default function NewLayout(props) {
   return (
     <ThemeProvider theme={theme}>
       <CSSReset />
-      <ColorModeProvider value='light'>
       {/* <GlobalCSS
         style={css`
           .rowsncolumns-grid {
@@ -18,7 +17,6 @@ export default function NewLayout(props) {
         `}
       /> */}
       <Layout {...props} />
-      </ColorModeProvider>
     </ThemeProvider>
   );
 }

@@ -126,6 +126,7 @@ export interface SheetGridProps {
   CellEditor?: React.ReactType<CustomEditorProps>;
   allowMultipleSelection?: boolean;
   selectionMode?: SELECTION_MODE;
+  isLightMode?: boolean
 }
 
 export interface RowColSelection {
@@ -216,10 +217,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       allowMultipleSelection = true,
       onSelectionChange,
       selectionMode,
+      isLightMode,
     } = props;
     const gridRef = useRef<GridRef | null>(null);
-    const { colorMode } = useColorMode();
-    const isLightMode = colorMode === "light";
     const onSheetChangeRef = useRef(debounce(onSheetChange, 100));
     const actualFrozenRows = Math.max(1, frozenRows + 1);
     const actualFrozenColumns = Math.max(1, frozenColumns + 1);

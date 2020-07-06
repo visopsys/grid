@@ -61,7 +61,7 @@ function Home() {
           </Box>
         </Box>
         <Box minWidth={[0, 0, 500, 700]} display="flex">
-          <SpreadSheet />
+          <SpreadSheet initialColorMode='light' />
         </Box>
       </SimpleGrid>
     </Layout>

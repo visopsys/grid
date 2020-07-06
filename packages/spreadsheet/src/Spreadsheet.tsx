@@ -15,7 +15,8 @@ import {
   theme,
   ThemeProvider,
   ColorModeProvider,
-  Flex} from "@chakra-ui/core";
+  Flex,
+  IUseColorMode} from "@chakra-ui/core";
 import { Global, css } from "@emotion/core";
 import {
   CellInterface,
@@ -1080,13 +1081,14 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
 export interface SpreadSheetPropsWithTheme extends SpreadSheetProps {
   theme?: ThemeType;
+  initialColorMode?: 'light' | 'dark'
 }
 const ThemeWrapper: React.FC<SpreadSheetPropsWithTheme &
   RefAttributeSheetGrid> = forwardRef((props, forwardedRef) => {
-  const { theme: defaultTheme = theme, ...rest } = props;
+  const { theme: defaultTheme = theme, initialColorMode, ...rest } = props;
   return (
     <ThemeProvider theme={defaultTheme}>
-      <ColorModeProvider>
+      <ColorModeProvider value={initialColorMode}>
         <Spreadsheet {...rest} ref={forwardedRef} />
       </ColorModeProvider>
     </ThemeProvider>
