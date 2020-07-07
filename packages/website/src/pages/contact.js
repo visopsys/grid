@@ -21,7 +21,7 @@ function Home() {
   const { siteConfig = {} } = context;
   return (
     <Layout title="Contact" description="Contact rowsncolumns">
-      <Box className="container" pt={10} display='block'>
+      <Box className="container" pt={10} display='block' pb={10}>
         <Text fontSize={30} fontWeight='bold' mb={5} as='h1'>Contact us</Text>
         <Text fontSize={20} fontWeight='bold' as='h2' mb={1}>Sales enquiries</Text>
         <Text>For sales enquiries, email us at <a href='mailto:sales@rowsncolumns.app'>sales@rowsncolumns.app</a></Text>

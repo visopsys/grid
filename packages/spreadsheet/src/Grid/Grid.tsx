@@ -468,7 +468,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         if (hiddenRows?.indexOf(rowIndex) !== -1) return 0;
         return rowSizes[rowIndex] || minRowHeight;
       },
-      [minColumnWidth, hiddenRows, rowSizes, selectedSheet]
+      [minRowHeight, hiddenRows, rowSizes, selectedSheet]
     );
     const contextWrapper = useCallback(
       children => {
