@@ -11,6 +11,7 @@ import {
   addressToCell,
   CellConfig,
   cellAddress,
+  uuid
 } from "@rowsncolumns/spreadsheet";
 import {
   CellInterface,
@@ -96,7 +97,7 @@ export const excelToSheets = async ({
         return;
       }
       const _sheet: Sheet = {
-        id: sheet.id.toString(),
+        id: uuid(),
         name: sheet.name,
         cells: {},
         activeCell: null,

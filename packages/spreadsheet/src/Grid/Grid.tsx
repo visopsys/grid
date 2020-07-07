@@ -22,6 +22,7 @@ import Grid, {
   useSizer as useAutoSizer,
   CellOverlay,
   useTouch,
+  EMPTY_ARRAY,
 } from "@rowsncolumns/grid";
 import { debounce } from "@rowsncolumns/grid/dist/helpers";
 import {
@@ -208,8 +209,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       frozenRows = 0,
       frozenColumns = 0,
       onKeyDown,
-      hiddenColumns,
-      hiddenRows,
+      hiddenColumns = EMPTY_ARRAY,
+      hiddenRows = EMPTY_ARRAY,
       onPaste,
       onCut,
       onInsertRow,
@@ -377,8 +378,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       const rowIndices = Object.keys(rowSizes).map(Number);
       const colIndices = Object.keys(columnSizes).map(Number);
       gridRef.current?.resetAfterIndices?.({
-        rowIndex: rowIndices.length ? Math.min(...rowIndices) : 0,
-        columnIndex: colIndices.length ? Math.min(...colIndices) : 0,
+        rowIndex: rowIndices.length ? Math.min(rowCount,...rowIndices, ...hiddenRows) : 0,
+        columnIndex: colIndices.length ? Math.min(columnCount,...colIndices, ...hiddenColumns) : 0,
       });
     }, [selectedSheet]);
 

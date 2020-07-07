@@ -293,8 +293,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       if (sheets === initialSheets) {        
         return
       }
-      /* Reset last measure index */
-      currentGrid.current?.resetAfterIndices?.({ rowIndex: 0, columnIndex: 0}, false)
 
       /* Update sheets */
       setSheets(draft => {

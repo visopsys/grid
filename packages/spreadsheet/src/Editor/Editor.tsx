@@ -146,7 +146,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
         style={{
           fontFamily: cellFontFamily,
           fontSize: cellFontSize,
-          lineHeight: 1.2,
+          // lineHeight: 1.2,
           width: "100%",
           height: "100%",
           padding: "0 1px",
