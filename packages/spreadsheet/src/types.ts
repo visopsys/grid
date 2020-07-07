@@ -77,6 +77,7 @@ export enum STROKE_FORMATTING {
 
 export interface CellFormatting extends CellDataFormatting {
   datatype?: DATATYPE;
+  plaintext?: boolean;
   [FORMATTING_TYPE.BOLD]?: boolean;
   [FORMATTING_TYPE.COLOR]?: string;
   [FORMATTING_TYPE.ITALIC]?: boolean;

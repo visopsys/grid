@@ -107,6 +107,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     showStrokeOnFill = true,
     isSelected,
     selectionFill = "rgb(14, 101, 235, 0.1)",
+    plaintext,
   } = props;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
     strike ? TEXT_DECORATION.STRIKE : ""
@@ -118,7 +119,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   const vAlign = verticalAlign;
   const hAlign =
     horizontalAlign === void 0
-      ? datatype === DATATYPE.Number
+      ? datatype === DATATYPE.Number && !plaintext
         ? HORIZONTAL_ALIGNMENT.RIGHT
         : HORIZONTAL_ALIGNMENT.LEFT
       : horizontalAlign;

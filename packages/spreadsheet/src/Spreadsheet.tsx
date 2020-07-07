@@ -16,7 +16,8 @@ import {
   ThemeProvider,
   ColorModeProvider,
   Flex,
-  IUseColorMode} from "@chakra-ui/core";
+  IUseColorMode,
+  Grid} from "@chakra-ui/core";
 import { Global, css } from "@emotion/core";
 import {
   CellInterface,
@@ -186,7 +187,6 @@ export type Cells = Record<string, Cell>;
 export type Cell = Record<string, CellConfig>;
 export interface CellConfig extends CellFormatting {
   text?: string | number;
-  formula?: string;
   result?: string | number | any;
 }
 
@@ -203,14 +203,7 @@ export const defaultSheets: Sheet[] = [
     },
     mergedCells: [],
     selections: [],
-    cells: {
-      1: {
-        1: {
-          formula: '=SUM(2,2)',
-          text: '6'
-        }
-      }
-    },
+    cells: {},
     scrollState: { scrollTop: 0, scrollLeft: 0 },
   }
 ];
@@ -290,15 +283,22 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     /* Listen to sheet change */
     useEffect(() => {
       /* If its the same sheets - Skip */
-      if (sheets === initialSheets) {
+      if (sheets === initialSheets) {        
         return
       }
+      /* Reset last measure index */
+      currentGrid.current?.resetAfterIndices?.({ rowIndex: 0, columnIndex: 0}, false)
+
+      /* Update sheets */
       setSheets(draft => {
+        draft.length = initialSheets.length
         initialSheets.forEach((sheet, index) => {
           (draft[index] as Sheet) = sheet
         })
       });
-      setSelectedSheet(initialSheets[0].id)
+
+      /* Update selected sheet */
+      setSelectedSheet(initialSheets[0].id)      
     }, [ initialSheets ])
 
     /**
@@ -404,6 +404,56 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     );
 
     /**
+     * Change formatting to auto
+     */
+    const handleFormattingChangeAuto = useCallback(() => {
+      setSheets(draft => {
+        const sheet = draft.find(sheet => sheet.id === selectedSheet);
+        if (sheet) {
+          const { selections, activeCell, cells } = sheet
+          const sel = selections.length
+            ? selections
+            : activeCell ? [{ bounds: currentGrid.current?.getCellBounds?.(activeCell) }] : []
+          for (let i = 0; i < sel.length; i++) {
+            const { bounds } = sel[i]
+            if (!bounds) continue
+            for (let j = bounds.top; j <= bounds.bottom; j++) {
+              for (let k = bounds.left; k <= bounds.right; k++) {
+                delete cells[j]?.[k]?.plaintext
+              }
+            }
+          }
+        }
+      })
+    }, [])
+
+    /**
+     * Change formatting to plain
+     */
+    const handleFormattingChangePlain = useCallback(() => {
+      setSheets(draft => {
+        const sheet = draft.find(sheet => sheet.id === selectedSheet);
+        if (sheet) {
+          const { selections, activeCell, cells } = sheet
+          const sel = selections.length
+            ? selections
+            : activeCell ? [{ bounds: currentGrid.current?.getCellBounds?.(activeCell) }] : []
+          for (let i = 0; i < sel.length; i++) {
+            const { bounds } = sel[i]
+            if (!bounds) continue
+            for (let j = bounds.top; j <= bounds.bottom; j++) {
+              cells[j] = cells[j] ?? {};
+              for (let k = bounds.left; k <= bounds.right; k++) {
+                cells[j][k] = cells[j][k] ?? {}
+                cells[j][k].plaintext = true
+              }
+            }
+          }
+        }
+      })
+    }, [ selectedSheet ])
+
+    /**
      * When cell or selection formatting change
      */
     const handleFormattingChange = useCallback(
@@ -411,34 +461,25 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         setSheets(draft => {
           const sheet = draft.find(sheet => sheet.id === selectedSheet);
           if (sheet) {
-            const { activeCell, selections, cells } = sheet;
-            if (selections.length) {
-              const previousValue: { [key: string]: any } = {};
-              selections.forEach(sel => {
-                const { bounds } = sel;
-                for (let i = bounds.top; i <= bounds.bottom; i++) {
-                  cells[i] = cells[i] ?? {};
-                  previousValue[i] = previousValue[i] ?? {};
-                  for (let j = bounds.left; j <= bounds.right; j++) {
-                    cells[i][j] = cells[i][j] ?? {};
-                    previousValue[i][j] = previousValue[i][j] ?? {};
-                    previousValue[i][j] = { ...cells[i][j] };
-                    cells[i][j][type as keyof CellFormatting] = value;
-                  }
+            const { selections, activeCell, cells } = sheet
+            const sel = selections.length
+              ? selections
+              : activeCell ? [{ bounds: currentGrid.current?.getCellBounds?.(activeCell) }] : []
+            for (let i = 0; i < sel.length; i++) {
+              const { bounds } = sel[i]
+              if (!bounds) continue
+              for (let j = bounds.top; j <= bounds.bottom; j++) {
+                cells[j] = cells[j] ?? {};
+                for (let k = bounds.left; k <= bounds.right; k++) {
+                  cells[j][k] = cells[j][k] ?? {}
+                  cells[j][k][type as keyof CellFormatting] = value
                 }
-              });
-            } else if (activeCell) {
-              const { rowIndex, columnIndex } = activeCell;
-              cells[rowIndex] = cells[rowIndex] ?? {};
-              cells[rowIndex][columnIndex] = cells[rowIndex][columnIndex] ?? {};
-              cells[rowIndex][columnIndex][
-                type as keyof CellFormatting
-              ] = value;
+              }
             }
           }
-        });
+        })
       },
-      [sheets, selectedSheet]
+      [selectedSheet]
     );
 
     /**
@@ -1008,6 +1049,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           {showToolbar ? (
             <Toolbar
               datatype={activeCellConfig?.datatype}
+              plaintext={activeCellConfig?.plaintext}
               format={activeCellConfig?.format}
               fontSize={activeCellConfig?.fontSize}
               fontFamily={activeCellConfig?.fontFamily}
@@ -1022,6 +1064,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
               verticalAlign={activeCellConfig?.verticalAlign}
               horizontalAlign={activeCellConfig?.horizontalAlign}
               onFormattingChange={handleFormattingChange}
+              onFormattingChangeAuto={handleFormattingChangeAuto}
+              onFormattingChangePlain={handleFormattingChangePlain}
               onClearFormatting={handleClearFormatting}
               onMergeCells={handleMergeCells}
               frozenRows={currentSheet.frozenRows}

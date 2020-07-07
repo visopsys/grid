@@ -145,6 +145,10 @@ export type WorkbookGridRef = {
   ) => CellInterface | null;
   setActiveCell: (cell: CellInterface | null) => void;
   setSelections: (selection: SelectionArea[]) => void;
+  resetAfterIndices?: (
+    coords: CellInterface,
+    shouldForceUpdate?: boolean
+  ) => void;
   focus: () => void;
   makeEditable: (cell: CellInterface, value?: string, focus?: boolean) => void;
   setEditorValue: (value: string, activeCell: CellInterface) => void;
@@ -458,7 +462,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       (columnIndex: number) => {
         if (columnIndex === 0) return COLUMN_HEADER_WIDTH;
         if (hiddenColumns?.indexOf(columnIndex) !== -1) return 0;
-        return columnSizes[columnIndex] || minColumnWidth;
+        return columnSizes[columnIndex] ?? minColumnWidth;
       },
       [minColumnWidth, columnSizes, selectedSheet]
     );
@@ -466,7 +470,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       (rowIndex: number) => {
         if (rowIndex === 0) return ROW_HEADER_HEIGHT;
         if (hiddenRows?.indexOf(rowIndex) !== -1) return 0;
-        return rowSizes[rowIndex] || minRowHeight;
+        return rowSizes[rowIndex] ?? minRowHeight;
       },
       [minRowHeight, hiddenRows, rowSizes, selectedSheet]
     );
@@ -504,7 +508,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const isColumnHeader = columnIndex === 0;
         const isHidden =
           hiddenRows?.indexOf(rowIndex) !== -1 ||
-          hiddenColumns?.indexOf(columnIndex) !== -1;
+          hiddenColumns?.indexOf(columnIndex) !== -1;        
         if (isHidden) return null;
         const isHeaderActive =
           isRowHeader || isColumnHeader
