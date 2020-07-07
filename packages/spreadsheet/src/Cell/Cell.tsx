@@ -18,9 +18,6 @@ import {
 import { CellConfig } from "../Spreadsheet";
 import { Shape, Text } from "react-konva";
 
-console.log("", DATATYPE);
-/* Array placeholder */
-
 export interface CellProps extends RendererProps, CellConfig {
   formatter?: FormatType;
   showStrokeOnFill?: boolean;
