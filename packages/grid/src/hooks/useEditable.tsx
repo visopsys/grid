@@ -381,8 +381,10 @@ const useEditable = ({
     if (!gridRef.current) return;
     /* Get actual coords for merged cells */
     coords = gridRef.current.getActualCellCoords(coords);
+
     /* Check if its the same cell */
     if (isEqualCells(coords, currentActiveCellRef.current)) return;
+
     /* Call on before edit */
     if (canEdit(coords)) {
       currentActiveCellRef.current = coords;
@@ -391,9 +393,13 @@ const useEditable = ({
       const value = initialValue || getValue(coords) || "";
       setValue(value);
       setAutoFocus(autoFocus);
-      setPosition(getCellPosition(pos, scrollPosition));
-      showEditor();
-      if (value) handleChange(value, coords);
+      setPosition(getCellPosition(pos, scrollPosition));      
+      showEditor()
+      /* In the next frame */
+      /**
+       * Fixes a bug where on first keypress, input's onChange handler gets fired
+       */
+      requestAnimationFrame(() => onChange?.(value, coords))
     }
   };
 
@@ -481,6 +487,7 @@ const useEditable = ({
         keyCode === KeyCodes.Enter // Enter key
           ? undefined
           : e.nativeEvent.key;
+      
       makeEditable({ rowIndex, columnIndex }, initialValue);
     },
     [selections, activeCell]
@@ -601,7 +608,7 @@ const useEditable = ({
       /* Check if the value has changed. Used to conditionally submit if editor is not in focus */
       isDirtyRef.current = newValue !== value;
       setValue(newValue);
-      onChange && onChange(newValue, activeCell);
+      onChange?.(newValue, activeCell);
     },
     [value]
   );

@@ -186,6 +186,8 @@ export type Cells = Record<string, Cell>;
 export type Cell = Record<string, CellConfig>;
 export interface CellConfig extends CellFormatting {
   text?: string | number;
+  formula?: string;
+  result?: string | number | any;
 }
 
 const defaultActiveSheet = uuid();
@@ -201,7 +203,14 @@ export const defaultSheets: Sheet[] = [
     },
     mergedCells: [],
     selections: [],
-    cells: {},
+    cells: {
+      1: {
+        1: {
+          formula: '=SUM(2,2)',
+          text: '6'
+        }
+      }
+    },
     scrollState: { scrollTop: 0, scrollLeft: 0 },
   }
 ];
@@ -262,7 +271,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       return {
         grid: currentGrid.current
       };
-    });
+    }, []);
 
     /* Callback when sheets is changed */
     useEffect(() => {
@@ -480,7 +489,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      */
     const handleFormulabarChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!activeCell) return;
+        if (!activeCell) return;        
         const value = e.target.value;
         setFormulaInput(value);
         currentGrid.current?.setEditorValue(value, activeCell);

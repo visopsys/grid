@@ -20,6 +20,7 @@ const CustomEditor = (props) => {
       }}
     >
       <select
+        autoFocus
         style={{
           width: '100%',
           height: '100%',
@@ -62,6 +63,7 @@ const CustomEditor = (props) => {
         }}
       >
         <select
+          autoFocus
           style={{
             width: '100%',
             height: '100%',

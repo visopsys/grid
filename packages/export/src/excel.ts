@@ -18,7 +18,7 @@ import {
   cellIdentifier,
   isNull
 } from "@rowsncolumns/grid";
-import { DATATYPE } from "@rowsncolumns/spreadsheet/dist/types";
+import { DATATYPE } from "@rowsncolumns/spreadsheet";
 
 export interface ExportProps {
   file: File;
@@ -49,19 +49,19 @@ export declare enum ValueType {
 export const getDataTypeFromType = (type: number): DATATYPE => {
   switch (type) {
     case ValueType.Number:
-      return DATATYPE.NUMBER;
+      return DATATYPE.Number;
     case ValueType.Date:
-      return DATATYPE.DATE;
+      return DATATYPE.Date;
     default:
-      return DATATYPE.STRING;
+      return DATATYPE.String;
   }
 };
 
 export const getTypeFromDataType = (datatype: DATATYPE): number => {
   switch (datatype) {
-    case DATATYPE.NUMBER:
+    case DATATYPE.Number:
       return ValueType.Number;
-    case DATATYPE.DATE:
+    case DATATYPE.Date:
       return ValueType.Date;
     default:
       return ValueType.String;
@@ -271,7 +271,7 @@ export const createExcelFileFromSheets = async (
         const address = cellAddress({ rowIndex: j, columnIndex: k });
         if (address !== null) {
           const newCell = workSheet.getCell(address);
-          const isNumber = cell.datatype === DATATYPE.NUMBER;
+          const isNumber = cell.datatype === DATATYPE.Number;
           const value =
             isNumber && cell.text !== void 0
               ? parseFloat(cell.text.toString())

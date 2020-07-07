@@ -122,7 +122,7 @@ export const format = (
   if (value === void 0 || isNull(value) || isNull(datatype))
     return castToString(value);
   if (!formatting) return castToString(value);
-  if (datatype === DATATYPE.DATE) {
+  if (datatype === DATATYPE.Date) {
     return SSF.format(formatting.format || DEFAULT_DATE_FORMAT, value)
   }
   const num = parseFloat(typeof value !== "string" ? "" + value : value);
@@ -155,7 +155,7 @@ export const format = (
  * Check if a cell is numeric
  */
 export const isNumeric = (cell: CellConfig) => {
-  return cell && cell.datatype === DATATYPE.NUMBER;
+  return cell && cell.datatype === DATATYPE.Number;
 };
 
 /**
@@ -164,7 +164,7 @@ export const isNumeric = (cell: CellConfig) => {
  */
 export const detectDataType = (value?: any): DATATYPE | undefined => {
   if (isNull(value)) return undefined;
-  if (!isNaN(Number(value))) return DATATYPE.NUMBER;
+  if (!isNaN(Number(value))) return DATATYPE.Number;
   return undefined;
 };
 

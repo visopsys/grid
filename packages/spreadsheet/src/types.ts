@@ -46,10 +46,16 @@ export enum HORIZONTAL_ALIGNMENT {
 }
 
 export enum DATATYPE {
-  NUMBER = "number",
-  STRING = "string",
-  DATE = "date"
+  Number = "number",
+  String = "string",
+  Date = "date",
+  Formula = 'formula',
+  RichText = 'richtext',
+  Boolean = 'boolean',
+  Error = 'error',
+  Hyperlink = 'hyperlink'
 }
+
 
 export enum STROKE_FORMATTING {
   STROKE = "stroke",

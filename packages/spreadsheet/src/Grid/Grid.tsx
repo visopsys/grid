@@ -418,7 +418,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       ...editableProps
     } = useEditable({
       getEditor: (cell: CellInterface | null) => {
-        const config = getValue(cell, true) as CellConfig;
+        const config = getValue(cell, true) as CellConfig;        
         return (props: EditorProps) => (
           <CellEditor
             {...props}

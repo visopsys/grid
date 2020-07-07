@@ -18,6 +18,7 @@ import {
 import { CellConfig } from "../Spreadsheet";
 import { Shape, Text } from "react-konva";
 
+console.log('', DATATYPE)
 /* Array placeholder */
 
 export interface CellProps extends RendererProps, CellConfig {
@@ -120,7 +121,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo(props => {
   const vAlign = verticalAlign;
   const hAlign =
     horizontalAlign === void 0
-      ? datatype === DATATYPE.NUMBER
+      ? datatype === DATATYPE.Number
         ? HORIZONTAL_ALIGNMENT.RIGHT
         : HORIZONTAL_ALIGNMENT.LEFT
       : horizontalAlign;

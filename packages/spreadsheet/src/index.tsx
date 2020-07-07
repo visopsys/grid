@@ -6,3 +6,4 @@ export default Spreadsheet;
 export { Editor as DefaultEditor, Cell as DefaultCell };
 export { defaultSheets }
 export * from './constants'
+export * from './types'
