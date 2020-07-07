@@ -36,7 +36,7 @@ const Select: React.FC<SelectProps> = (props) => {
     : theme.colors.gray[600];
   const inputBgColor = isLight ? theme.colors.white : DARK_MODE_COLOR;
   const inputColor = isLight ? DARK_MODE_COLOR : theme.colors.white;
-  const dropdownBgColor = isLight ? theme.colors.white : theme.colors.gray[700]
+  const dropdownBgColor = isLight ? theme.colors.white : theme.colors.gray[700];
   return (
     <Downshift
       selectedItem={value}
@@ -155,7 +155,7 @@ const Select: React.FC<SelectProps> = (props) => {
                             highlightedIndex === index
                               ? isLight
                                 ? theme.colors.gray[100]
-                                : 'rgba(255,255,255,0.06)'
+                                : "rgba(255,255,255,0.06)"
                               : dropdownBgColor,
                           fontWeight: selectedItem === item ? "bold" : "normal",
                         },

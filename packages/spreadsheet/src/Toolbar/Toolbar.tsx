@@ -91,8 +91,8 @@ export interface ToolbarProps extends CellConfig {
     value: any,
     options?: Record<string, any>
   ) => void;
-  onFormattingChangeAuto?:() => void;
-  onFormattingChangePlain?:() => void;
+  onFormattingChangeAuto?: () => void;
+  onFormattingChangePlain?: () => void;
   onClearFormatting?: () => void;
   onMergeCells?: () => void;
   onFrozenColumnChange?: (num: number) => void;
@@ -268,7 +268,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
     format,
     onFormattingChangeAuto,
     onFormattingChangePlain,
-    plaintext
+    plaintext,
   } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const theme = useTheme();
@@ -404,20 +404,24 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
           <MenuList placement="top-start" minWidth={250}>
             <MenuItem
               onClick={() => {
-                onFormattingChangeAuto?.()
+                onFormattingChangeAuto?.();
               }}
             >
               <Box width="24px">
-                {format === void 0 && !plaintext && <Icon name="check" mr={1} />}
+                {format === void 0 && !plaintext && (
+                  <Icon name="check" mr={1} />
+                )}
               </Box>
               Automatic
             </MenuItem>
             <MenuItem
               onClick={() => {
-                onFormattingChangePlain?.()
+                onFormattingChangePlain?.();
               }}
-              >
-              <Box width="24px">{plaintext && <Icon name="check" mr={1} />}</Box>
+            >
+              <Box width="24px">
+                {plaintext && <Icon name="check" mr={1} />}
+              </Box>
               Plain
             </MenuItem>
             <MenuDivider borderColor={borderColor} />

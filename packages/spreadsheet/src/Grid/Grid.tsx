@@ -508,7 +508,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const isColumnHeader = columnIndex === 0;
         const isHidden =
           hiddenRows?.indexOf(rowIndex) !== -1 ||
-          hiddenColumns?.indexOf(columnIndex) !== -1;        
+          hiddenColumns?.indexOf(columnIndex) !== -1;
         if (isHidden) return null;
         const isHeaderActive =
           isRowHeader || isColumnHeader
