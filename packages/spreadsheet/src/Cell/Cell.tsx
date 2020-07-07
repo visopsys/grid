@@ -170,6 +170,8 @@ const DefaultCell: React.FC<CellRenderProps> = memo(props => {
           fontSize={fontSize}
           lineHeight={lineHeight}
           hitStrokeWidth={0}
+          perfectDrawEnabled={false}
+          listening={false}
         />
       ) : null}
     </>
