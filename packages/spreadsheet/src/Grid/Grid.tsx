@@ -378,8 +378,12 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       const rowIndices = Object.keys(rowSizes).map(Number);
       const colIndices = Object.keys(columnSizes).map(Number);
       gridRef.current?.resetAfterIndices?.({
-        rowIndex: rowIndices.length ? Math.min(rowCount,...rowIndices, ...hiddenRows) : 0,
-        columnIndex: colIndices.length ? Math.min(columnCount,...colIndices, ...hiddenColumns) : 0,
+        rowIndex: rowIndices.length
+          ? Math.min(rowCount, ...rowIndices, ...hiddenRows)
+          : 0,
+        columnIndex: colIndices.length
+          ? Math.min(columnCount, ...colIndices, ...hiddenColumns)
+          : 0,
       });
     }, [selectedSheet]);
 

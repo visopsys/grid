@@ -11,7 +11,7 @@ import {
   addressToCell,
   CellConfig,
   cellAddress,
-  uuid
+  uuid,
 } from "@rowsncolumns/spreadsheet";
 import {
   CellInterface,
