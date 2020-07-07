@@ -4,19 +4,19 @@ import ExcelJS, {
   WorksheetViewFrozen,
   Buffer,
   ValueType,
-  Borders
+  Borders,
 } from "exceljs";
 import {
   Sheet,
   addressToCell,
   CellConfig,
-  cellAddress
+  cellAddress,
 } from "@rowsncolumns/spreadsheet";
 import {
   CellInterface,
   getBoundedCells,
   cellIdentifier,
-  isNull
+  isNull,
 } from "@rowsncolumns/grid";
 import { DATATYPE } from "@rowsncolumns/spreadsheet";
 
@@ -73,11 +73,11 @@ export const getTypeFromDataType = (datatype: DATATYPE): number => {
  * @param param0
  */
 export const excelToSheets = async ({
-  file
+  file,
 }: ExportProps): Promise<ExportResults> => {
   let resolver: (value: ExportResults) => void | null;
   const sheetPromise: Promise<ExportResults> = new Promise(
-    resolve => (resolver = resolve)
+    (resolve) => (resolver = resolve)
   );
   const wb = new ExcelJS.Workbook();
   const reader = new FileReader();
@@ -103,7 +103,7 @@ export const excelToSheets = async ({
         selections: [],
         mergedCells: [],
         hiddenRows: [],
-        hiddenColumns: []
+        hiddenColumns: [],
       };
       const mergedCellMap = new Map();
       if (sheet.hasMerges) {
@@ -159,7 +159,7 @@ export const excelToSheets = async ({
 
           const currentCell: CellInterface = {
             rowIndex: rowId,
-            columnIndex: j
+            columnIndex: j,
           };
           /* Check if its a merged cell */
           const isMerged = isMergedCell(currentCell);
@@ -233,7 +233,7 @@ export const excelToSheets = async ({
             fill,
             color,
             datatype,
-            ...strokes
+            ...strokes,
           };
         }
       }
@@ -241,7 +241,7 @@ export const excelToSheets = async ({
       sheets.push(_sheet);
     });
     resolver({
-      sheets
+      sheets,
     });
   };
   reader.readAsArrayBuffer(file);
