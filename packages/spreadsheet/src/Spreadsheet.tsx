@@ -46,7 +46,8 @@ import {
   STROKE_FORMATTING,
   FormatType,
   DATATYPE,
-  SELECTION_MODE
+  SELECTION_MODE,
+  HORIZONTAL_ALIGNMENT
 } from "./types";
 import { useImmer } from "use-immer";
 import { WorkbookGridRef } from "./Grid/Grid";
@@ -203,7 +204,13 @@ export const defaultSheets: Sheet[] = [
     },
     mergedCells: [],
     selections: [],
-    cells: {},
+    cells: {
+      1: {
+        1: {
+          text: 'hello world'
+        }
+      }
+    },
     scrollState: { scrollTop: 0, scrollLeft: 0 },
   }
 ];
@@ -1026,6 +1033,55 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       []
     );
 
+    /**
+     * Handle keydown events
+     */
+    const handleKeyDown = useCallback((id, event: React.KeyboardEvent<HTMLDivElement>) => {
+      const isMeta = event.metaKey || event.ctrlKey
+      const isShift = event.shiftKey
+      const keyCode = event.which
+      switch (keyCode) {
+        case KeyCodes.KEY_B:
+          if (!isMeta) return
+          handleFormattingChange(FORMATTING_TYPE.BOLD, !activeCellConfig?.bold)
+          break
+        
+        case KeyCodes.KEY_I:
+          if (!isMeta) return
+          handleFormattingChange(FORMATTING_TYPE.ITALIC, !activeCellConfig?.italic)
+          break
+        
+        case KeyCodes.KEY_U:
+          if (!isMeta) return
+          handleFormattingChange(FORMATTING_TYPE.UNDERLINE, !activeCellConfig?.underline)
+          break
+        
+        case KeyCodes.KEY_X:
+          if (!isMeta && !isShift) return
+          handleFormattingChange(FORMATTING_TYPE.STRIKE, !activeCellConfig?.strike)
+          break
+        
+        case KeyCodes.BACK_SLASH:
+          if (!isMeta) return
+          handleClearFormatting()
+          event?.preventDefault()
+          break
+        
+        case KeyCodes.KEY_L:
+        case KeyCodes.KEY_E:
+        case KeyCodes.KEY_R:
+          if (!isMeta && !isShift) return
+          const align = keyCode === KeyCodes.KEY_L
+            ? HORIZONTAL_ALIGNMENT.LEFT
+            : keyCode === KeyCodes.KEY_E
+              ? HORIZONTAL_ALIGNMENT.CENTER
+              : HORIZONTAL_ALIGNMENT.RIGHT
+          handleFormattingChange(FORMATTING_TYPE.HORIZONTAL_ALIGN, align)
+          event?.preventDefault()
+          break
+      }
+    }, [ activeCellConfig, currentSheet ])
+
     return (
       <>
         <Global
@@ -1114,7 +1170,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             onDeleteSheet={handleDeleteSheet}
             onDuplicateSheet={handleDuplicateSheet}
             onScroll={handleScroll}
-            // onKeyDown={handleUndoKeyDown}
+            onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             onCut={handleCut}
             onInsertRow={handleInsertRow}

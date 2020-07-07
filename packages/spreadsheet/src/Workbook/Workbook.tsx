@@ -44,7 +44,7 @@ export interface WorkbookProps extends Omit<SpreadSheetProps, "onChange"> {
   onActiveCellValueChange: (value: string) => void;
   rowSizes?: SizeType;
   columnSizes?: SizeType;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  onKeyDown?: (id: string, e: React.KeyboardEvent<HTMLDivElement>) => void;
   hiddenRows?: number[];
   hiddenColumns?: number[];
   onChange?: (id: string, changes: Cells) => void;
@@ -236,6 +236,15 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       },
       []
     );
+
+    const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (isNull(selectedSheetRef.current)) return;
+        onKeyDown?.(selectedSheetRef.current, e);
+      },
+      [currentSheet]
+    );
+
     return (
       <>
         <Flex
@@ -272,7 +281,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
             mergedCells={mergedCells}
             frozenRows={frozenRows}
             frozenColumns={frozenColumns}
-            onKeyDown={onKeyDown}
+            onKeyDown={handleKeyDown}
             hiddenRows={hiddenRows}
             hiddenColumns={hiddenColumns}
             onPaste={handlePaste}
