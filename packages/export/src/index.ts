@@ -33,7 +33,7 @@ export const canUseDOM = !!(
 export const download = async ({
   sheets = [],
   filename = "download",
-  type = "csv",
+  type = "excel",
 }: DownloadProps): Promise<Blob | void> => {
   switch (type) {
     case "excel": {

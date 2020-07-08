@@ -59,9 +59,13 @@ export const Import = () => {
           minHeight: 800
         }}
       >
-        <form id="testForm">
-          <input type="file" name="test" id="testFile" onChange={handleChangeFile} />
-        </form>
+        <div>
+          <form id="testForm">
+            <input type="file" name="test" id="testFile" onChange={handleChangeFile} />
+          </form>
+          <button onClick={() => download({ sheets, filename: 'Hello' })}>Download Excel</button>
+          <button onClick={() => download({ sheets, filename: 'Hello', type: 'csv' })}>Download CSV</button>
+        </div>
         <Spreadsheet
           sheets={sheets}
         />

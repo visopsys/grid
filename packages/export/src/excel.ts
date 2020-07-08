@@ -275,6 +275,8 @@ export const createExcelFileFromSheets = async (
       frozenColumns = 0,
       frozenRows = 0,
       mergedCells = [],
+      hiddenRows = [],
+      hiddenColumns = []
     } = sheet;
     const rowCount = Math.max(0, ...Object.keys(cells ?? {}).map(Number));
     const workSheet = workbook.addWorksheet(name);
@@ -300,6 +302,15 @@ export const createExcelFileFromSheets = async (
         });
         workSheet.mergeCells(`${topLeft}:${bottomRight}`);
       }
+    }
+    // hidden rows
+    if (hiddenRows.length) {
+      hiddenRows.forEach(id => workSheet.getRow(id).hidden = true)
+    }
+
+    // hidden columns
+    if (hiddenColumns.length) {
+      hiddenColumns.forEach(id => workSheet.getColumn(id).hidden = true)
     }
 
     /* Create cells */
