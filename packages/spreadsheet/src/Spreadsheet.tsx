@@ -204,14 +204,16 @@ export const defaultSheets: Sheet[] = [
     },
     mergedCells: [],
     selections: [],
-    cells: {
-      1: {
-        1: {
-          text: 'hello world'
-        }
-      }
-    },
+    cells: {},
     scrollState: { scrollTop: 0, scrollLeft: 0 },
+    // filters: [
+    //   {
+    //     top: 1,
+    //     right: 5,
+    //     bottom: 5,
+    //     left: 1
+    //   }
+    // ]
   }
 ];
 
@@ -478,6 +480,12 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
                 for (let k = bounds.left; k <= bounds.right; k++) {
                   cells[j][k] = cells[j][k] ?? {}
                   cells[j][k][type as keyof CellFormatting] = value
+
+                  /* if user is applying a custom number format, remove plaintext */
+                  if (type === FORMATTING_TYPE.CUSTOM_FORMAT) {
+                    delete cells[j]?.[k]?.plaintext
+                  }
+
                 }
               }
             }

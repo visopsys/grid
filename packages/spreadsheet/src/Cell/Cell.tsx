@@ -128,7 +128,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   const showRect = !isNull(userFill) || isMergedCell;
   const hasFill = !isNull(userFill) || isSelected;
   const hasText = !isNull(text);
-
+  const hasFilter = props.rowIndex === 1;
   return (
     <>
       {showRect ? (

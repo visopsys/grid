@@ -438,7 +438,9 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                   key={idx}
                 >
                   <Box width="24px">
-                    {format === item.value && <Icon name="check" mr={1} />}
+                    {format === item.value && !plaintext && (
+                      <Icon name="check" mr={1} />
+                    )}
                   </Box>
                   <Box flex={1}>{item.label}</Box>
                   <Box textAlign="right" color="gray.500">
@@ -461,7 +463,9 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                   key={idx}
                 >
                   <Box width="24px">
-                    {format === item.value && <Icon name="check" mr={1} />}
+                    {format === item.value && !plaintext && (
+                      <Icon name="check" mr={1} />
+                    )}
                   </Box>
                   <Box flex={1}>{item.label}</Box>
                   <Box textAlign="right" color="gray.500">

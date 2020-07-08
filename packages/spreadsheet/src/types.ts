@@ -36,13 +36,19 @@ export enum TEXT_DECORATION {
 export enum VERTICAL_ALIGNMENT {
   TOP = "top",
   MIDDLE = "middle",
-  BOTTOM = "bottom"
+  BOTTOM = "bottom",
+  JUSTIFY = 'justify',  
+  DISTRIBUTED = 'distributed',
 }
 
 export enum HORIZONTAL_ALIGNMENT {
   LEFT = "left",
   CENTER = "center",
-  RIGHT = "right"
+  RIGHT = "right",
+  FILL = 'fill',
+  CENTER_CONTINOUS = 'centerContinuous',
+  JUSTIFY = 'justify',  
+  DISTRIBUTED = 'distributed',
 }
 
 export enum DATATYPE {

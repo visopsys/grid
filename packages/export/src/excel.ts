@@ -13,6 +13,8 @@ import {
   cellAddress,
   uuid,
   cellsInSelectionVariant,
+  HORIZONTAL_ALIGNMENT,
+  VERTICAL_ALIGNMENT,
 } from "@rowsncolumns/spreadsheet";
 import {
   CellInterface,
@@ -187,6 +189,8 @@ export const parseExcel = async ({
           let fill = undefined;
           let color = undefined;
           let strokes: CellConfig = {};
+          let fontConfig: Partial<CellConfig> = {};
+
           /* Fill */
           const fillType = cell.style.fill;
           const datatype = getDataTypeFromType(cell.type);
@@ -201,6 +205,28 @@ export const parseExcel = async ({
             const colorValue = cell.font.color.argb?.slice(2);
             if (colorValue) color = "#" + colorValue;
           }
+
+          if (cell.font?.bold) {
+            fontConfig.bold = cell.font.bold;
+          }
+          if (cell.font?.italic) {
+            fontConfig.italic = cell.font.italic;
+          }
+          if (cell.font?.underline) {
+            fontConfig.underline = !!cell.font.underline;
+          }
+          if (cell.font?.name) {
+            fontConfig.fontFamily = cell.font.name;
+          }
+          if (cell.alignment?.horizontal) {
+            fontConfig.horizontalAlign = cell.alignment
+              .horizontal as HORIZONTAL_ALIGNMENT;
+          }
+          if (cell.alignment?.vertical) {
+            fontConfig.verticalAlign = cell.alignment
+              .vertical as VERTICAL_ALIGNMENT;
+          }
+
           if (border) {
             for (const key in border) {
               if (!border[key as keyof Borders]?.color?.argb) {
@@ -243,6 +269,7 @@ export const parseExcel = async ({
             color,
             datatype,
             ...strokes,
+            ...fontConfig,
           };
         }
       }
