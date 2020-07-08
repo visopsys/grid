@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import Spreadsheet, { Sheet, defaultSheets } from "@rowsncolumns/spreadsheet";
-import { excelToSheets, createExcelFileFromSheets } from '@rowsncolumns/export'
+import { parseExcel, parseCSV, download } from '@rowsncolumns/export'
 
 export default {
   title: "Spreadsheet",
@@ -45,7 +45,7 @@ export const Import = () => {
     const [ sheets, setSheets] = useState(defaultSheets)
     const handleChangeFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
       const getSheets = async (file) => {
-        const newSheets = await excelToSheets({ file })
+        const newSheets = await parseCSV({ file })
         setSheets(newSheets.sheets)
       }
       getSheets(e.target.files[0])
@@ -78,20 +78,11 @@ Import.story = {
 export const ExportToExcel = () => {
   const App = () => {
     const [ sheets, setSheets] = useState(defaultSheets)
-    const handleExport = useCallback((sheets) => {
-      const getSheets = async ({
-        filename = 'download',
-        sheets
-      }) => {
-        const buffer = await createExcelFileFromSheets(sheets)
-        const blob = new Blob([ buffer ], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-        const url = window.URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = `${filename}.xlsx`;
-        anchor.dispatchEvent(new MouseEvent('click'))
-      }
-      getSheets(sheets)
+    const handleExport = useCallback(({ sheets }) => {
+      download({
+        sheets,
+        filename: 'Report'
+      })
     }, [])
     return (
       <>

@@ -12,6 +12,7 @@ import {
   CellConfig,
   cellAddress,
   uuid,
+  cellsInSelectionVariant,
 } from "@rowsncolumns/spreadsheet";
 import {
   CellInterface,
@@ -21,11 +22,11 @@ import {
 } from "@rowsncolumns/grid";
 import { DATATYPE } from "@rowsncolumns/spreadsheet";
 
-export interface ExportProps {
+export interface ParseProps {
   file: File;
 }
 
-export interface ExportResults {
+export interface ParseResults {
   sheets: Sheet[];
 }
 
@@ -69,15 +70,18 @@ export const getTypeFromDataType = (datatype: DATATYPE): number => {
   }
 };
 
+/* Remove hex from colors */
+export const removeHex = (str: string) => str.replace('#', '')
+export const hasBorder = (cell: CellConfig) => cell.strokeTopWidth || cell.strokeBottomWidth || cell.strokeLeftWidth || cell.strokeRightWidth
 /**
  * Convert excel file to Spreadsheet format
  * @param param0
  */
-export const excelToSheets = async ({
+export const parseExcel = async ({
   file,
-}: ExportProps): Promise<ExportResults> => {
-  let resolver: (value: ExportResults) => void | null;
-  const sheetPromise: Promise<ExportResults> = new Promise(
+}: ParseProps): Promise<ParseResults> => {
+  let resolver: (value: ParseResults) => void | null;
+  const sheetPromise: Promise<ParseResults> = new Promise(
     (resolve) => (resolver = resolve)
   );
   const wb = new ExcelJS.Workbook();
@@ -245,6 +249,7 @@ export const excelToSheets = async ({
       sheets,
     });
   };
+  /* Start reading the file */
   reader.readAsArrayBuffer(file);
 
   return sheetPromise;
@@ -260,9 +265,30 @@ export const createExcelFileFromSheets = async (
   const workbook = new ExcelJS.Workbook();
   for (let i = 0; i < sheets.length; i++) {
     const sheet = sheets[i];
-    const { name, cells } = sheet;
+    const { name, cells, frozenColumns = 0, frozenRows = 0, mergedCells = [] } = sheet;
     const rowCount = Math.max(0, ...Object.keys(cells ?? {}).map(Number));
     const workSheet = workbook.addWorksheet(name);
+    const viewState = frozenColumns > 0 || frozenRows > 0
+      ? 'frozen'
+      : 'normal'
+    /* Create worksheet view */
+    workSheet.views.push({
+      state: viewState,
+      xSplit: frozenColumns,
+      ySplit: frozenRows
+    })
+
+    // Merged cells
+    if (mergedCells.length) {
+      for (let i = 0; i < mergedCells.length; i++) {
+        const cur = mergedCells[i]
+        const topLeft = cellAddress({ rowIndex: cur.top, columnIndex: cur.left })
+        const bottomRight = cellAddress({ rowIndex: cur.bottom, columnIndex: cur.right })
+        workSheet.mergeCells(`${topLeft}:${bottomRight}`)
+      }
+    }
+
+    /* Create cells */
     for (let j = 1; j <= rowCount; j++) {
       const row = cells[j];
       const cellCount = Math.max(0, ...Object.keys(row ?? {}).map(Number));
@@ -280,6 +306,95 @@ export const createExcelFileFromSheets = async (
           if (value !== void 0) {
             newCell.value = value;
           }
+
+          // Font
+          newCell.font = newCell.font ?? {}
+
+          // font family
+          if (cell.fontFamily) {
+            newCell.font.name = cell.fontFamily
+          }
+
+          // bold
+          if (cell.bold) {
+            newCell.font.bold = cell.bold
+          }
+
+          // italic
+          if (cell.italic) {
+            newCell.font.italic = cell.italic
+          }
+          
+          // underline
+          if (cell.underline) {
+            newCell.font.underline = cell.underline
+          }
+
+          // Alignment
+          if (cell.horizontalAlign || cell.verticalAlign) {
+            newCell.alignment = newCell.alignment ?? {}
+            newCell.alignment.horizontal = cell.horizontalAlign
+            newCell.alignment.vertical = cell.verticalAlign
+          }
+
+          // Color
+          if (cell.color) {
+            newCell.font.color = {
+              argb: 'FF' + removeHex(cell.color)
+            }
+          }
+
+          // Fill
+          if (cell.fill) {
+            newCell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              bgColor: {
+                'argb': 'FF' + removeHex(cell.fill)
+              },
+              fgColor: {
+                'argb': 'FF' + removeHex(cell.fill)
+              }
+            }
+          }
+          // Border
+          const cellHasBorder = hasBorder(cell)
+          if (cellHasBorder) {
+            newCell.border = newCell.border ?? {}
+            if (cell.strokeTopWidth && cell.strokeTopColor) {
+              newCell.border.top = {
+                style: 'thin',
+                color: {
+                  argb: 'FF' + removeHex(cell.strokeTopColor)
+                }
+              }
+            }
+            if (cell.strokeBottomWidth && cell.strokeBottomColor) {
+              newCell.border.bottom = {
+                style: 'thin',
+                color: {
+                  argb: 'FF' + removeHex(cell.strokeBottomColor)
+                }
+              }
+            }
+            if (cell.strokeLeftWidth && cell.strokeLeftColor) {
+              newCell.border.left = {
+                style: 'thin',
+                color: {
+                  argb: 'FF' + removeHex(cell.strokeLeftColor)
+                }
+              }
+            }
+            if (cell.strokeRightWidth && cell.strokeRightColor) {
+              newCell.border.right = {
+                style: 'thin',
+                color: {
+                  argb: 'FF' + removeHex(cell.strokeRightColor)
+                }
+              }
+            }
+          }
+          // / Border          
         }
       }
     }
@@ -287,3 +402,4 @@ export const createExcelFileFromSheets = async (
   const buffer = await workbook.xlsx.writeBuffer();
   return buffer;
 };
+

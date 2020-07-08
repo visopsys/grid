@@ -17,7 +17,8 @@ module.exports = {
       "editor",
       "conditional_formatting",
       "range_selection",
-      "excel"
+      "excel",
+      "csv"
     ],
     Advanced: ["ref"]
   }

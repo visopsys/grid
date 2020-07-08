@@ -12,7 +12,7 @@ SpreadSheet Grid is available under two licenses.
 3. All features
 4. Source code available
 
-### Enterprise - $199/Developer
+### Developer license - $199/Developer
 
 1. Multiple applications
 2. Internal use only

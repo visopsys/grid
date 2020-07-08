@@ -76,7 +76,7 @@ function Home() {
           <Box shadow="md" p={4} mb={5}>
             <Box textAlign="center">
               <Text fontWeight="bold" pb={5} fontSize="2xl">
-                Enterprise
+                Developer license
               </Text>
               <Text fontSize="xl">$199</Text>
             </Box>
