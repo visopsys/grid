@@ -19,14 +19,14 @@ You will need to install `@rowsncolumns/export` npm package to add support for r
 
 
 ```jsx
-import { parseExcel, download } from '@rowsncolumns/export'
+import { parse, download } from '@rowsncolumns/export'
 import Spreadsheet, { Sheet, defaultSheets } from "@rowsncolumns/spreadsheet";
 
 const App = () => {
   const [ sheets, setSheets] = useState(defaultSheets)
   const handleFileSelect = (e) => {
     const getSheets = async (file) => {
-      const newSheets = await parseExcel({ file })
+      const newSheets = await parse({ file })
       setSheets(newSheets.sheets)
     }
     getSheets(e.target.files[0])

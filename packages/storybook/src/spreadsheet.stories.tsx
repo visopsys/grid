@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import Spreadsheet, { Sheet, defaultSheets } from "@rowsncolumns/spreadsheet";
-import { parseExcel, parseCSV, download } from '@rowsncolumns/export'
+import { parse, download } from '@rowsncolumns/export'
 
 export default {
   title: "Spreadsheet",
@@ -45,7 +45,7 @@ export const Import = () => {
     const [ sheets, setSheets] = useState(defaultSheets)
     const handleChangeFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
       const getSheets = async (file) => {
-        const newSheets = await parseCSV({ file })
+        const newSheets = await parse({ file })
         setSheets(newSheets.sheets)
       }
       getSheets(e.target.files[0])
