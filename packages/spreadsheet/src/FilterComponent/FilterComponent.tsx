@@ -51,7 +51,7 @@ const FilterComponent = ({
   const color = isLight ? DARK_MODE_COLOR : theme.colors.white;
   const borderColor = isLight ? theme.colors.gray[300] : DARK_MODE_COLOR;
   const bgColor = isLight ? theme.colors.white : theme.colors.gray[700];
-  const { x, y, width } = position;
+  const { x = 0, y, width } = position;
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
     if (checked) {
