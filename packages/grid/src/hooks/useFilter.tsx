@@ -96,8 +96,6 @@ const useFilter = ({
   const [position, setPosition] = useState<CellPosition>({
     x: 0,
     y: 0,
-    width,
-    height: 0,
   });
   const FilterComponent = useMemo(() => {
     return getFilterComponent(filterCell);
@@ -125,14 +123,15 @@ const useFilter = ({
 
       /* Set cell position */
       setPosition((prev) => {
+        const left = pos.x as number;
+        const top = pos.y as number;
+        const cellWidth = pos.width as number;
         return {
-          ...prev,
           x:
-            (pos.x as number) -
-            scrollPosition.scrollLeft -
-            (prev.width as number) +
-            (pos.width as number),
-          y: (pos.y as number) - scrollPosition.scrollTop + offset,
+            left + cellWidth < width
+              ? left + cellWidth - offset
+              : left + cellWidth - scrollPosition.scrollLeft - width,
+          y: top - scrollPosition.scrollTop + offset,
         };
       });
 
@@ -175,6 +174,7 @@ const useFilter = ({
     isFilterVisible && FilterComponent ? (
       <FilterComponent
         position={position}
+        width={width}
         values={values}
         index={currentFilter?.index}
         filter={currentFilter?.filter}

@@ -28,6 +28,7 @@ export interface FilterComponentProps {
   filter: FilterDefinition;
   columnIndex?: number;
   index: number;
+  width: number;
 }
 
 const FilterComponent = ({
@@ -38,6 +39,7 @@ const FilterComponent = ({
   filter,
   columnIndex,
   index,
+  width,
 }: FilterComponentProps) => {
   if (!columnIndex) return null;
   const [filterText, setFilterText] = useState("");
@@ -51,7 +53,7 @@ const FilterComponent = ({
   const color = isLight ? DARK_MODE_COLOR : theme.colors.white;
   const borderColor = isLight ? theme.colors.gray[300] : DARK_MODE_COLOR;
   const bgColor = isLight ? theme.colors.white : theme.colors.gray[700];
-  const { x = 0, y, width } = position;
+  let { x = 0, y } = position;
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
     if (checked) {
@@ -74,7 +76,7 @@ const FilterComponent = ({
       top={0}
       position="absolute"
       zIndex={1}
-      transform={`translate(${Math.max(0, x)}px, ${y}px)`}
+      transform={`translate(${x}px, ${y}px)`}
     >
       <Box shadow="md" bg={bgColor} width={width}>
         <Box padding={3}>
