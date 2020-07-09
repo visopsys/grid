@@ -382,6 +382,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
      * Filter
      */
     const { filterComponent, showFilter, hideFilter } = useFilter({
+      frozenRows: actualFrozenRows,
+      frozenColumns: actualFrozenColumns,
       gridRef,
       getFilterComponent: (cell) => {
         return (props) => {
@@ -563,6 +565,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       },
       frozenRows: actualFrozenRows,
       frozenColumns: actualFrozenColumns,
+      hiddenRows,
+      hiddenColumns,
       gridRef,
       selections,
       activeCell,

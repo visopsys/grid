@@ -2274,9 +2274,15 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     }
 
     const borderStyleCells = [];
+    const borderStyleCellsFrozenColumns = [];
+    const borderStyleCellsFrozenRows = [];
+    const borderStyleCellsIntersection = [];
     for (let i = 0; i < borderStyles.length; i++) {
       const { bounds, style } = borderStyles[i];
       const { top, right, bottom, left } = bounds;
+      const isLeftBoundFrozen = left < frozenColumns;
+      const isTopBoundFrozen = top < frozenRows;
+      const isIntersectionFrozen = top < frozenRows && left < frozenColumns;
       const x = getColumnOffset({
         index: left,
         rowHeight,
@@ -2314,6 +2320,116 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           ...style,
         })
       );
+
+      if (isLeftBoundFrozen) {
+        const frozenColumnSelectionWidth =
+          getColumnOffset({
+            index: Math.min(right + 1, frozenColumns),
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          }) -
+          getColumnOffset({
+            index: left,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          });
+        borderStyleCellsFrozenColumns.push(
+          createHTMLBox({
+            ...style,
+            x,
+            y,
+            key: i,
+            width: frozenColumnSelectionWidth,
+            height,
+            strokeRightWidth:
+              frozenColumnSelectionWidth === width
+                ? style?.strokeRightWidth || style?.strokeWidth
+                : 0,
+          })
+        );
+      }
+
+      if (isTopBoundFrozen) {
+        const frozenRowSelectionHeight =
+          getRowOffset({
+            index: Math.min(bottom + 1, frozenRows),
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          }) -
+          getRowOffset({
+            index: top,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          });
+
+        borderStyleCellsFrozenRows.push(
+          createHTMLBox({
+            ...style,
+            x,
+            y,
+            key: i,
+            width,
+            height: frozenRowSelectionHeight,
+            strokeBottomWidth:
+              frozenRowSelectionHeight === height
+                ? style?.strokeBottomWidth || style?.strokeWidth
+                : 0,
+          })
+        );
+      }
+
+      if (isIntersectionFrozen) {
+        const frozenIntersectionSelectionHeight =
+          getRowOffset({
+            index: Math.min(bottom + 1, frozenRows),
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          }) -
+          getRowOffset({
+            index: top,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          });
+
+        const frozenIntersectionSelectionWidth =
+          getColumnOffset({
+            index: Math.min(right + 1, frozenColumns),
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          }) -
+          getColumnOffset({
+            index: left,
+            rowHeight,
+            columnWidth,
+            instanceProps: instanceProps.current,
+          });
+
+        borderStyleCellsIntersection.push(
+          createHTMLBox({
+            ...style,
+            x,
+            y,
+            key: i,
+            width: frozenIntersectionSelectionWidth,
+            height: frozenIntersectionSelectionHeight,
+            strokeBottomWidth:
+              frozenIntersectionSelectionHeight === height
+                ? selectionStrokeWidth
+                : 0,
+            strokeRightWidth:
+              frozenIntersectionSelectionWidth === width
+                ? selectionStrokeWidth
+                : 0,
+          })
+        );
+      }
     }
 
     /* Spacing for frozen row/column clip */
@@ -2451,6 +2567,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 transform: `translate(0, -${scrollTop + frozenRowHeight}px)`,
               }}
             >
+              {borderStyleCellsFrozenColumns}
               {selectionAreasFrozenColumns}
               {activeCellSelectionFrozenColumn}
               {fillhandleComponent}
@@ -2473,6 +2590,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 transform: `translate(-${scrollLeft + frozenColumnWidth}px, 0)`,
               }}
             >
+              {borderStyleCellsFrozenRows}
               {selectionAreasFrozenRows}
               {activeCellSelectionFrozenRow}
               {fillhandleComponent}
@@ -2491,6 +2609,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               pointerEvents: "none",
             }}
           >
+            {borderStyleCellsIntersection}
             {selectionAreasIntersection}
             {activeCellSelectionFrozenIntersection}
             {fillhandleComponent}

@@ -76,6 +76,14 @@ export interface UseEditableOptions {
    * Hide editor on blur
    */
   hideOnBlur?: boolean;
+  /**
+   * Hidden row ids
+   */
+  hiddenRows?: number[];
+  /**
+   * Hidden column ids
+   */
+  hiddenColumns?: number[];
 }
 
 export interface EditableResults {
@@ -318,6 +326,8 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
 
 const getDefaultEditor = (cell: CellInterface | null) => DefaultEditor;
 const defaultCanEdit = (cell: CellInterface) => true;
+const EMPTY_ID: number[] = [];
+
 /**
  * Hook to make grid editable
  * @param param
@@ -336,6 +346,8 @@ const useEditable = ({
   frozenRows = 0,
   frozenColumns = 0,
   hideOnBlur = true,
+  hiddenRows = EMPTY_ID,
+  hiddenColumns = EMPTY_ID,
 }: UseEditableOptions): EditableResults => {
   const [isEditorShown, setShowEditor] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
@@ -493,10 +505,50 @@ const useEditable = ({
     [selections, activeCell]
   );
 
+  /* Clamp row and column Index */
+  const clampRowIndex = (rowIndex: number, direction: Direction) => {
+    switch (direction) {
+      case Direction.Down:
+        let index = hiddenRows.indexOf(rowIndex);
+        while (index > -1) {
+          index = hiddenRows.indexOf(++rowIndex);
+        }
+        break;
+      case Direction.Up: {
+        let index = hiddenRows.indexOf(rowIndex);
+        while (index > -1) {
+          index = hiddenRows.indexOf(--rowIndex);
+        }
+        break;
+      }
+    }
+    return rowIndex;
+  };
+  /* Clamp columnIndex */
+  const clampColumnIndex = (columnIndex: number, direction: Direction) => {
+    switch (direction) {
+      case Direction.Right:
+        let index = hiddenColumns.indexOf(columnIndex);
+        while (index > -1) {
+          index = hiddenColumns.indexOf(++columnIndex);
+        }
+        break;
+      case Direction.Left: {
+        let index = hiddenRows.indexOf(columnIndex);
+        while (index > -1) {
+          index = hiddenColumns.indexOf(--columnIndex);
+        }
+        break;
+      }
+    }
+    return columnIndex;
+  };
+
   /**
    * Get next focusable cell
    * Respects selection bounds
    */
+
   const nextFocusableCell = useCallback(
     (
       currentCell: CellInterface,
@@ -507,34 +559,43 @@ const useEditable = ({
       if (!bounds) return null;
       let nextActiveCell = currentCell;
       switch (direction) {
-        case Direction.Right:
+        case Direction.Right: {
+          let columnIndex = clampColumnIndex(bounds.right + 1, direction);
           nextActiveCell = {
             rowIndex: bounds.top,
-            columnIndex: bounds.right + 1,
+            columnIndex,
           };
           break;
+        }
         case Direction.Up:
+          let rowIndex = clampRowIndex(bounds.top - 1, direction);
           nextActiveCell = {
-            rowIndex: bounds.top - 1,
+            rowIndex,
             columnIndex: bounds.left,
           };
           break;
 
-        case Direction.Left:
+        case Direction.Left: {
+          let columnIndex = clampColumnIndex(bounds.left - 1, direction);
           nextActiveCell = {
             rowIndex: bounds.top,
-            columnIndex: bounds.left - 1,
+            columnIndex,
           };
           break;
+        }
 
-        default:
+        default: {
           // Down
+          let rowIndex = clampRowIndex(
+            (initialActiveCell.current?.rowIndex ?? bounds.bottom) + 1,
+            direction
+          );
           nextActiveCell = {
-            rowIndex:
-              (initialActiveCell.current?.rowIndex ?? bounds.bottom) + 1,
+            rowIndex,
             columnIndex: initialActiveCell.current?.columnIndex ?? bounds.left,
           };
           break;
+        }
       }
       if (direction === Direction.Right && !initialActiveCell.current) {
         initialActiveCell.current = currentCell;
@@ -558,7 +619,7 @@ const useEditable = ({
       }
       return nextActiveCell;
     },
-    [selections]
+    [selections, hiddenRows, hiddenColumns]
   );
 
   /* Save the value */

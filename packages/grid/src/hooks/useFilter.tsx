@@ -48,6 +48,8 @@ export interface FilterProps {
    */
   width?: number;
   offset?: number;
+  frozenRows?: number;
+  frozenColumns?: number;
 }
 
 export interface FilterResults {
@@ -89,6 +91,8 @@ const useFilter = ({
   width = 220,
   offset = 20,
   getValue,
+  frozenRows = 0,
+  frozenColumns = 0,
 }: FilterProps): FilterResults => {
   const [filterCell, setFilterCell] = useState<CellInterface | null>(null);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
@@ -121,6 +125,10 @@ const useFilter = ({
       /* Get cell position */
       const pos = gridRef.current.getCellOffsetFromCoords(coords);
 
+      /* Check if its frozen */
+      const isFrozenColumn = coords.columnIndex < frozenColumns;
+      const isFrozenRow = coords.rowIndex < frozenRows;
+
       /* Set cell position */
       setPosition((prev) => {
         const left = pos.x as number;
@@ -128,10 +136,19 @@ const useFilter = ({
         const cellWidth = pos.width as number;
         return {
           x:
-            left + cellWidth - scrollPosition.scrollLeft < width
-              ? left + cellWidth - offset - scrollPosition.scrollLeft
-              : left + cellWidth - scrollPosition.scrollLeft - width,
-          y: top - scrollPosition.scrollTop + offset,
+            left +
+              cellWidth -
+              (isFrozenColumn ? 0 : scrollPosition.scrollLeft) <
+            width
+              ? left +
+                cellWidth -
+                offset -
+                (isFrozenColumn ? 0 : scrollPosition.scrollLeft)
+              : left +
+                cellWidth -
+                (isFrozenColumn ? 0 : scrollPosition.scrollLeft) -
+                width,
+          y: top - (isFrozenRow ? 0 : scrollPosition.scrollTop) + offset,
         };
       });
 

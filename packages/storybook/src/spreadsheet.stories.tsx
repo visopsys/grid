@@ -131,6 +131,8 @@ export const FilterViews = () => {
       {
         name: "Sheet 1",
         id: 0,
+        frozenRows: 1,
+        frozenColumns: 1,
         cells: {
           1: {
             1: {
