@@ -6,7 +6,7 @@ module.exports = {
       "formula",
       "formatting",
       "konva",
-      "roadmap"
+      "roadmap",
     ],
     "Getting Started": ["install", "options"],
     Examples: [
@@ -17,9 +17,10 @@ module.exports = {
       "editor",
       "conditional_formatting",
       "range_selection",
+      "autofilter",
       "excel",
-      "csv"
+      "csv",
     ],
-    Advanced: ["ref"]
-  }
+    Advanced: ["ref"],
+  },
 };

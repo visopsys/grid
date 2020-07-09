@@ -403,7 +403,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           (views) => views.bounds.top === cell.rowIndex
         );
         const filterView = filterViews[filterIndex];
-        const currentFilter = filterView?.filters[cell.columnIndex];
+        const currentFilter = filterView?.filters?.[cell.columnIndex];
         if (!filterView) return;
         showFilter(cell, filterIndex, filterView, currentFilter);
       },

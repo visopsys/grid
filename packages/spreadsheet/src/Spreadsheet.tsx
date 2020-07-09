@@ -1125,7 +1125,12 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
               delete sheet?.filterViews?.[filterIndex].filters[columnIndex];
             } else {
               sheet.filterViews = sheet.filterViews ?? [];
-              sheet.filterViews[filterIndex].filters[columnIndex] = filter;
+              if (!sheet.filterViews[filterIndex].filters) {
+                sheet.filterViews[filterIndex].filters = {
+                  [columnIndex]: filter,
+                };
+              } else
+                sheet.filterViews[filterIndex].filters[columnIndex] = filter;
             }
           }
         });

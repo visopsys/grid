@@ -111,12 +111,12 @@ const FilterComponent = ({
               .filter((value) =>
                 new RegExp(filterText, "gi").test(value.toString())
               )
-              .map((value) => {
+              .map((value, idx) => {
                 const valueItem = value || "";
                 const isChecked = userValues.indexOf(valueItem) !== -1;
                 const label = value || "(Blanks)";
                 return (
-                  <Box fontSize={12}>
+                  <Box fontSize={12} key={idx}>
                     <Checkbox
                       onChange={handleChange}
                       value={valueItem}
