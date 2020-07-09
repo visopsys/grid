@@ -10,13 +10,13 @@ module.exports = {
     disableDarkMode: true,
     // sidebarCollapsible: false,
     prism: {
-      theme: require("prism-react-renderer/themes/dracula")
+      theme: require("prism-react-renderer/themes/dracula"),
     },
     navbar: {
       title: "Rows n' Columns",
       logo: {
         alt: "Rows n' Columns",
-        src: "img/logo.png"
+        src: "img/logo.png",
       },
       links: [
         // {to: '/features', label: 'Features', position: 'left'},
@@ -25,21 +25,21 @@ module.exports = {
           to: "docs/",
           activeBasePath: "docs",
           label: "Documentation",
-          position: "left"
+          position: "left",
         },
         { to: "pricing", label: "Pricing", position: "left" },
         { to: "contact", label: "Contact", position: "left" },
         {
           href: "https://discord.gg/K4cNVh6",
           label: "Chat",
-          position: "right"
+          position: "right",
         },
         {
           href: "https://github.com/rowsncolumns",
           label: "GitHub",
-          position: "right"
-        }
-      ]
+          position: "right",
+        },
+      ],
     },
     footer: {
       style: "dark",
@@ -49,39 +49,39 @@ module.exports = {
           items: [
             {
               label: "What is Spreadsheet",
-              to: "docs/"
+              to: "docs/",
             },
             {
               label: "Examples",
-              to: "docs/sizing"
-            }
-          ]
+              to: "docs/sizing",
+            },
+          ],
         },
         {
           title: "Community",
           items: [
             {
               label: "Discord",
-              href: "https://discord.gg/K4cNVh6"
+              href: "https://discord.gg/K4cNVh6",
             },
             {
               label: "Twitter",
-              href: "https://twitter.com/rowncolumnsapp"
-            }
-          ]
+              href: "https://twitter.com/rowncolumnsapp",
+            },
+          ],
         },
         {
           title: "More",
           items: [
             {
               label: "GitHub",
-              href: "https://github.com/rowsncolumns"
-            }
-          ]
-        }
+              href: "https://github.com/rowsncolumns",
+            },
+          ],
+        },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Rows n' Columns`
-    }
+      copyright: `Copyright © ${new Date().getFullYear()} Rows n' Columns`,
+    },
   },
   presets: [
     [
@@ -92,18 +92,28 @@ module.exports = {
           homePageId: "introduction",
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
-          editUrl: "https://github.com/rowsncolumns/grid/edit/master/website/"
+          editUrl: "https://github.com/rowsncolumns/grid/edit/master/website/",
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            "https://github.com/rowsncolumns/grid/edit/master/website/blog/"
+            "https://github.com/rowsncolumns/grid/edit/master/website/blog/",
         },
         theme: {
-          customCss: require.resolve("./src/css/custom.css")
-        }
-      }
-    ]
-  ]
+          customCss: require.resolve("./src/css/custom.css"),
+        },
+      },
+    ],
+  ],
+  plugins: [
+    [
+      "@docusaurus/plugin-sitemap",
+      {
+        cacheTime: 600 * 1000, // 600 sec - cache purge period
+        changefreq: "weekly",
+        priority: 0.5,
+      },
+    ],
+  ],
 };
