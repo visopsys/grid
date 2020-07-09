@@ -11,7 +11,7 @@ import {
   PopoverContentProps,
   useColorMode,
   MenuItem as ChakraMenuItem,
-  MenuItemProps
+  MenuItemProps,
 } from "@chakra-ui/core";
 import { Box } from "@chakra-ui/core";
 import { SYSTEM_FONT } from "./constants";
@@ -29,12 +29,12 @@ type ToolbarProps = {
   pr?: number;
   pl?: number;
 };
-const Toolbar: React.FC<ToolbarProps> = props => <Box {...props} />;
+const Toolbar: React.FC<ToolbarProps> = (props) => <Box {...props} />;
 export const StyledToolbar = styled(Toolbar)`
   min-height: 40px;
-  border-color: ${props => props.borderColor};
+  border-color: ${(props) => props.borderColor};
   border-style: solid;
-  background: ${props => props.backgroundColor};
+  background: ${(props) => props.backgroundColor};
   border-width: 1px 0;
   display: flex;
   align-items: center;
@@ -45,20 +45,20 @@ type SeparatorProps = {
   className?: string;
   borderColor: string;
 };
-const SeparatorComponent: React.FC<SeparatorProps> = props => (
+const SeparatorComponent: React.FC<SeparatorProps> = (props) => (
   <div className={props.className}>{props.children}</div>
 );
 export const Separator = styled(SeparatorComponent)`
-  border-color: ${props => props.borderColor};
+  border-color: ${(props) => props.borderColor};
   border-width: 0 1px 0 0;
   height: 24px;
   border-style: solid;
-  margin: 0 ${props => props.theme.space[1]};
+  margin: 0 ${(props) => props.theme.space[1]};
 `;
 
 export const Rect = styled(Box)`
   height: 2px;
-  background: ${props => props.color};
+  background: ${(props) => props.color};
   width: 20px;
   margin-top: 3px;
 `;
@@ -119,9 +119,8 @@ export const Button = forwardRef((props: ButtonProps, ref) => {
       css={css`
         font-family: ${SYSTEM_FONT};
         line-height: 1.2;
-        background: transparent;
+        font-weight: normal;
         cursor: pointer;
-        line-height: inherit;        
         text-transform: none;
         border-style: none;
         text-overflow: ellipsis;

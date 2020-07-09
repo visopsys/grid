@@ -8,7 +8,7 @@ import React, {
   useReducer,
   memo,
   useEffect,
-  Key
+  Key,
 } from "react";
 import { Stage, Layer, Group, Line } from "react-konva/lib/ReactKonvaCore";
 import {
@@ -31,7 +31,7 @@ import {
   requestTimeout,
   cancelTimeout,
   TimeoutID,
-  Align
+  Align,
 } from "./helpers";
 import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
@@ -39,7 +39,7 @@ import { CellRenderer as defaultOverlayRenderer } from "./CellOverlay";
 import Selection from "./Selection";
 import FillHandle from "./FillHandle";
 import GridLine from "./GridLine";
-import { createCanvasBox } from "./utils";
+import { createCanvasBox, createHTMLBox } from "./utils";
 import invariant from "tiny-invariant";
 import { StageConfig } from "konva/types/Stage";
 import { Direction } from "./types";
@@ -357,7 +357,7 @@ export type GridRef = {
   stage: Stage | null;
   container: HTMLDivElement | null;
   resetAfterIndices: (
-    coords: CellInterface,
+    coords: OptionalCellInterface,
     shouldForceUpdate?: boolean
   ) => void;
   getScrollPosition: () => ScrollCoords;
@@ -372,13 +372,13 @@ export type GridRef = {
   resizeRows: (indices: number[]) => void;
   getViewPort: () => ViewPortProps;
   getRelativePositionFromOffset: (x: number, y: number) => PosXYRequired | null;
-  scrollToTop: () => void,
+  scrollToTop: () => void;
   getDimensions: () => {
-    containerWidth: number,
-    containerHeight: number,
-    estimatedTotalWidth: number,
-    estimatedTotalHeight: number
-  },
+    containerWidth: number;
+    containerHeight: number;
+    estimatedTotalWidth: number;
+    estimatedTotalHeight: number;
+  };
 };
 
 export type MergedCellMap = Map<string, AreaProps>;
@@ -391,7 +391,7 @@ export interface AreaStyle {
 
 const DEFAULT_ESTIMATED_ITEM_SIZE = 50;
 const defaultShadowSettings: ShapeConfig = {
-  strokeWidth: 1
+  strokeWidth: 1,
 };
 const defaultRowHeight = () => 20;
 const defaultColumnWidth = () => 60;
@@ -402,7 +402,9 @@ const defaultGridLineRenderer = (props: ShapeConfig) => {
   return <GridLine {...props} />;
 };
 export const RESET_SCROLL_EVENTS_DEBOUNCE_INTERVAL = 150;
-export const EMPTY_ARRAY = [];
+/* Placeholder for empty array -> Prevents re-render */
+const EMPTY_ARRAY: any = [];
+
 /**
  * Grid component using React Konva
  * @param props
@@ -427,13 +429,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       selectionStrokeWidth = 1,
       activeCellStrokeWidth = 2,
       activeCell,
-      selections = EMPTY_ARRAY,
+      selections = EMPTY_ARRAY as SelectionArea[],
       frozenRows = 0,
       frozenColumns = 0,
       itemRenderer = defaultItemRenderer,
       enableCellOverlay = false,
       overlayRenderer = defaultOverlayRenderer,
-      mergedCells = EMPTY_ARRAY,
+      mergedCells = EMPTY_ARRAY as AreaProps[],
       snap = false,
       scrollThrottleTimeout = 100,
       onViewChange,
@@ -441,7 +443,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       onBeforeRenderRow,
       showFrozenShadow = false,
       shadowSettings = defaultShadowSettings,
-      borderStyles = EMPTY_ARRAY,
+      borderStyles = EMPTY_ARRAY as StylingProps,
       children,
       stageProps,
       wrapper = (children: React.ReactNode): React.ReactNode => children,
@@ -484,7 +486,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         getViewPort,
         getRelativePositionFromOffset,
         scrollToTop,
-        getDimensions
+        getDimensions,
       };
     });
 
@@ -496,35 +498,35 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       estimatedColumnWidth: estimatedColumnWidth || DEFAULT_ESTIMATED_ITEM_SIZE,
       estimatedRowHeight: estimatedRowHeight || DEFAULT_ESTIMATED_ITEM_SIZE,
       recalcColumnIndices: [],
-      recalcRowIndices: []
+      recalcRowIndices: [],
     });
     const stageRef = useRef<Stage | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const verticalScrollRef = useRef<HTMLDivElement>(null);
     const wheelingRef = useRef<number | null>(null);
     const horizontalScrollRef = useRef<HTMLDivElement>(null);
-    const scrollerRef = useRef(null)
-    const [_, forceRender] = useReducer(s => s + 1, 0);
+    const scrollerRef = useRef(null);
+    const [_, forceRender] = useReducer((s) => s + 1, 0);
     const [scrollState, setScrollState] = useState<ScrollState>({
       scrollTop: 0,
       scrollLeft: 0,
       isScrolling: false,
       verticalScrollDirection: Direction.Down,
-      horizontalScrollDirection: Direction.Right
+      horizontalScrollDirection: Direction.Right,
     });
     const {
       scrollTop,
       scrollLeft,
       isScrolling,
       verticalScrollDirection,
-      horizontalScrollDirection
+      horizontalScrollDirection,
     } = scrollState;
     const isMounted = useRef(false);
 
     /* Focus container */
     const focusContainer = useCallback(() => {
       return containerRef.current?.focus();
-    }, []);      
+    }, []);
 
     /**
      * onScroll callback
@@ -538,13 +540,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      * Handle mouse wheeel
      */
     useEffect(() => {
-      containerRef.current?.addEventListener('wheel', handleWheel, {
-        passive: false
-      });            
+      containerRef.current?.addEventListener("wheel", handleWheel, {
+        passive: false,
+      });
       isMounted.current = true;
       return () => {
-        containerRef.current?.removeEventListener('wheel', handleWheel)
-      }
+        containerRef.current?.removeEventListener("wheel", handleWheel);
+      };
     }, []);
 
     /**
@@ -553,7 +555,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const getScrollPosition = useCallback(() => {
       return {
         scrollTop,
-        scrollLeft
+        scrollLeft,
       };
     }, [scrollTop, scrollLeft]);
 
@@ -616,7 +618,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           top: rowIndex,
           left: columnIndex,
           right: columnIndex,
-          bottom: rowIndex
+          bottom: rowIndex,
         } as AreaProps;
       },
       [mergedCellMap]
@@ -632,12 +634,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           ) as AreaProps;
           return {
             rowIndex: cell?.top,
-            columnIndex: cell?.left
+            columnIndex: cell?.left,
           };
         }
         return {
           rowIndex,
-          columnIndex
+          columnIndex,
         };
       },
       [mergedCellMap]
@@ -650,7 +652,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         rowCount,
         columnCount,
         instanceProps: instanceProps.current,
-        offset: scrollTop
+        offset: scrollTop,
       });
       const stopIndex = getRowStopIndexForStartIndex({
         startIndex,
@@ -659,7 +661,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnWidth,
         scrollTop,
         containerHeight,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
 
       // Overscan by one item in each direction so that tab/focus works.
@@ -677,7 +679,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         Math.max(0, startIndex - overscanBackward),
         Math.max(0, Math.min(rowCount - 1, stopIndex + overscanForward)),
         startIndex,
-        stopIndex
+        stopIndex,
       ];
     };
 
@@ -688,7 +690,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         rowCount,
         columnCount,
         instanceProps: instanceProps.current,
-        offset: scrollLeft
+        offset: scrollLeft,
       });
 
       const stopIndex = getColumnStopIndexForStartIndex({
@@ -698,7 +700,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnWidth,
         scrollLeft,
         containerWidth,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
 
       // Overscan by one item in each direction so that tab/focus works.
@@ -716,7 +718,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         Math.max(0, startIndex - overscanBackward),
         Math.max(0, Math.min(columnCount - 1, stopIndex + overscanForward)),
         startIndex,
-        stopIndex
+        stopIndex,
       ];
     };
 
@@ -735,9 +737,17 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     /* Method to get dimensions of the grid */
     const getDimensions = useCallback(() => {
       return {
-        containerWidth, containerHeight, estimatedTotalWidth, estimatedTotalHeight
-      }
-    }, [ containerWidth, containerHeight, estimatedTotalWidth, estimatedTotalHeight ])    
+        containerWidth,
+        containerHeight,
+        estimatedTotalWidth,
+        estimatedTotalHeight,
+      };
+    }, [
+      containerWidth,
+      containerHeight,
+      estimatedTotalWidth,
+      estimatedTotalHeight,
+    ]);
 
     /**
      * Snaps vertical scrollbar to the next/prev visible row
@@ -768,7 +778,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnStartIndex,
         columnCount,
         deltaX,
-        frozenColumns
+        frozenColumns,
       }: SnapColumnProps) => {
         if (!horizontalScrollRef.current) return;
         if (deltaX !== 0) {
@@ -798,13 +808,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       index: frozenColumns,
       rowHeight,
       columnWidth,
-      instanceProps: instanceProps.current
+      instanceProps: instanceProps.current,
     });
     const frozenRowHeight = getRowOffset({
       index: frozenRows,
       rowHeight,
       columnWidth,
-      instanceProps: instanceProps.current
+      instanceProps: instanceProps.current,
     });
     const isWithinFrozenColumnBoundary = useCallback(
       (x: number) => {
@@ -862,7 +872,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           rowCount,
           columnCount,
           instanceProps: instanceProps.current,
-          offset: isWithinFrozenRowBoundary(y) ? y : y + scrollTop
+          offset: isWithinFrozenRowBoundary(y) ? y : y + scrollTop,
         });
         const columnIndex = getColumnStartIndexForOffset({
           rowHeight,
@@ -870,7 +880,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           rowCount,
           columnCount,
           instanceProps: instanceProps.current,
-          offset: isWithinFrozenColumnBoundary(x) ? x : x + scrollLeft
+          offset: isWithinFrozenColumnBoundary(x) ? x : x + scrollLeft,
         });
         /* To be compatible with merged cells */
         const bounds = getCellBounds({ rowIndex, columnIndex });
@@ -889,40 +899,40 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           top: rowIndex,
           left: columnIndex,
           right,
-          bottom
+          bottom,
         } = getCellBounds(cell);
         const x = getColumnOffset({
           index: columnIndex,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const y = getRowOffset({
           index: rowIndex,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const width =
           getColumnOffset({
             index: right + 1,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           }) - x;
         const height =
           getRowOffset({
             index: bottom + 1,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           }) - y;
 
         return {
           x,
           y,
           width,
-          height
+          height,
         };
       },
       [mergedCellMap]
@@ -930,11 +940,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
     /**
      * Resize one or more columns
-     */    
+     */
+
     const resizeColumns = useCallback((indices: number[]) => {
-      const leftMost = Math.min(...indices);      
+      const leftMost = Math.min(...indices);
       resetAfterIndices({ columnIndex: leftMost }, false);
-      instanceProps.current.recalcColumnIndices = indices;      
+      instanceProps.current.recalcColumnIndices = indices;
       forceRender();
     }, []);
 
@@ -964,7 +975,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         rowStartIndex,
         rowStopIndex,
         columnStartIndex,
-        columnStopIndex
+        columnStopIndex,
       };
     }, [rowStartIndex, rowStopIndex, columnStartIndex, columnStopIndex]);
 
@@ -987,25 +998,25 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const resetIsScrolling = useCallback(() => {
       resetIsScrollingTimeoutID.current = null;
 
-      setScrollState(prev => {
+      setScrollState((prev) => {
         return {
           ...prev,
-          isScrolling: false
+          isScrolling: false,
         };
       });
     }, []);
 
     /* Handle vertical scroll */
     const handleScroll = useCallback(
-      e => {
+      (e) => {
         const { scrollTop } = e.target;
 
-        setScrollState(prev => ({
+        setScrollState((prev) => ({
           ...prev,
           isScrolling: true,
           verticalScrollDirection:
             prev.scrollTop > scrollTop ? Direction.Up : Direction.Down,
-          scrollTop
+          scrollTop,
         }));
 
         /* Scroll callbacks */
@@ -1019,14 +1030,14 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
     /* Handle horizontal scroll */
     const handleScrollLeft = useCallback(
-      e => {
+      (e) => {
         const { scrollLeft } = e.target;
-        setScrollState(prev => ({
+        setScrollState((prev) => ({
           ...prev,
           isScrolling: true,
           horizontalScrollDirection:
             prev.scrollLeft > scrollLeft ? Direction.Left : Direction.Right,
-          scrollLeft
+          scrollLeft,
         }));
 
         /* Scroll callbacks */
@@ -1048,22 +1059,22 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           if (verticalScrollRef.current && scrollTop !== void 0)
             verticalScrollRef.current.scrollTop = scrollTop;
         } else {
-          setScrollState(prev => {
+          setScrollState((prev) => {
             return {
               ...prev,
               scrollLeft: scrollLeft == void 0 ? prev.scrollLeft : scrollLeft,
-              scrollTop: scrollTop == void 0 ? prev.scrollTop : scrollTop
+              scrollTop: scrollTop == void 0 ? prev.scrollTop : scrollTop,
             };
           });
         }
       },
       [showScrollbar]
     );
-    
+
     /* Scroll grid to top */
     const scrollToTop = useCallback(() => {
-      scrollTo({ scrollTop: 0, scrollLeft: 0 })
-    }, [])
+      scrollTo({ scrollTop: 0, scrollLeft: 0 });
+    }, []);
 
     /**
      * Scrollby utility
@@ -1075,11 +1086,11 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         if (verticalScrollRef.current && y !== void 0)
           verticalScrollRef.current.scrollTop += y;
       } else {
-        setScrollState(prev => {
+        setScrollState((prev) => {
           return {
             ...prev,
             scrollLeft: x == void 0 ? prev.scrollLeft : prev.scrollLeft + x,
-            scrollTop: y == void 0 ? prev.scrollTop : prev.scrollTop + y
+            scrollTop: y == void 0 ? prev.scrollTop : prev.scrollTop + y,
           };
         });
       }
@@ -1094,7 +1105,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: frozenColumns,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const newScrollLeft =
           columnIndex !== void 0
@@ -1110,7 +1121,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 instanceProps: instanceProps.current,
                 scrollbarSize,
                 frozenOffset: frozenColumnOffset,
-                align
+                align,
               })
             : void 0;
 
@@ -1118,7 +1129,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: frozenRows,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const newScrollTop =
           rowIndex !== void 0
@@ -1134,13 +1145,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 instanceProps: instanceProps.current,
                 scrollbarSize,
                 frozenOffset: frozenRowOffset,
-                align
+                align,
               })
             : void 0;
 
         const coords = {
           scrollLeft: newScrollLeft,
-          scrollTop: newScrollTop
+          scrollTop: newScrollTop,
         };
         const isOutsideViewport =
           (rowIndex !== void 0 && rowIndex > rowStopIndex) ||
@@ -1162,7 +1173,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         scrollLeft,
         scrollTop,
         frozenRows,
-        frozenColumns
+        frozenColumns,
       ]
     );
 
@@ -1180,13 +1191,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             deltaY,
             rowStartIndex,
             rowCount,
-            frozenRows
+            frozenRows,
           });
           snapToColumnThrottler.current({
             deltaX,
             columnStartIndex,
             columnCount,
-            frozenColumns
+            frozenColumns,
           });
           return;
         }
@@ -1223,18 +1234,18 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnCount,
         snap,
         frozenColumns,
-        frozenRows
+        frozenRows,
       ]
     );
 
     /* Callback when visible rows or columns have changed */
     useEffect(() => {
       onViewChange?.({
-          rowStartIndex,
-          rowStopIndex,
-          columnStartIndex,
-          columnStopIndex
-        });
+        rowStartIndex,
+        rowStopIndex,
+        columnStartIndex,
+        columnStopIndex,
+      });
     }, [rowStartIndex, rowStopIndex, columnStartIndex, columnStopIndex]);
 
     /* Draw gridlines */
@@ -1251,19 +1262,19 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: frozenColumns,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const x2 = getColumnOffset({
           index: Math.min(columnStopIndex + 1, columnCount),
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const y1 = getRowOffset({
           index: Math.min(rowIndex + 1, rowCount),
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const y2 = y1;
         gridLines.push(
@@ -1272,7 +1283,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
             offsetY: -0.5,
-            key: itemKey({ rowIndex: rowIndex, columnIndex: y1 })
+            key: itemKey({ rowIndex: rowIndex, columnIndex: y1 }),
           })
         );
         gridLinesFrozenColumn.push(
@@ -1281,7 +1292,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
             offsetY: -0.5,
-            key: itemKey({ rowIndex: rowIndex, columnIndex: y1 })
+            key: itemKey({ rowIndex: rowIndex, columnIndex: y1 }),
           })
         );
       }
@@ -1295,20 +1306,20 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: Math.min(columnIndex + 1, columnCount),
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const x2 = x1;
         const y1 = getRowOffset({
           index: frozenRows,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
-        });;
+          instanceProps: instanceProps.current,
+        });
         const y2 = getRowOffset({
           index: Math.min(rowStopIndex + 1, rowCount),
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         gridLines.push(
           gridLineRenderer({
@@ -1316,7 +1327,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
             offsetX: -0.5,
-            key: itemKey({ rowIndex: x1, columnIndex: columnIndex })
+            key: itemKey({ rowIndex: x1, columnIndex: columnIndex }),
           })
         );
         gridLinesFrozenRow.push(
@@ -1325,7 +1336,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
             offsetX: -0.5,
-            key: itemKey({ rowIndex: x1, columnIndex: columnIndex })
+            key: itemKey({ rowIndex: x1, columnIndex: columnIndex }),
           })
         );
       }
@@ -1339,13 +1350,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: Math.min(columnStopIndex + 1, columnCount),
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const y1 = getRowOffset({
           index: Math.min(rowIndex + 1, rowCount),
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const y2 = y1;
         gridLinesFrozenRow.push(
@@ -1354,7 +1365,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
             offsetY: -0.5,
-            key: itemKey({ rowIndex: rowIndex, columnIndex: y1 })
+            key: itemKey({ rowIndex: rowIndex, columnIndex: y1 }),
           })
         );
         gridLinesFrozenIntersection.push(
@@ -1363,7 +1374,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
             offsetY: -0.5,
-            key: itemKey({ rowIndex: rowIndex, columnIndex: y1 })
+            key: itemKey({ rowIndex: rowIndex, columnIndex: y1 }),
           })
         );
       }
@@ -1377,7 +1388,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: Math.min(columnIndex + 1, columnCount),
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const x2 = x1;
         const y1 = 0;
@@ -1385,7 +1396,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: Math.min(rowStopIndex + 1, rowCount),
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         gridLinesFrozenColumn.push(
           gridLineRenderer({
@@ -1393,7 +1404,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
             offsetX: -0.5,
-            key: itemKey({ rowIndex: x1, columnIndex: columnIndex })
+            key: itemKey({ rowIndex: x1, columnIndex: columnIndex }),
           })
         );
         gridLinesFrozenIntersection.push(
@@ -1402,7 +1413,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             stroke: gridLineColor,
             strokeWidth: gridLineWidth,
             offsetX: -0.5,
-            key: itemKey({ rowIndex: x1, columnIndex: columnIndex })
+            key: itemKey({ rowIndex: x1, columnIndex: columnIndex }),
           })
         );
       }
@@ -1443,7 +1454,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           const isMerged = isMergedCell({ rowIndex, columnIndex });
           const bounds = getCellBounds({ rowIndex, columnIndex });
           const actualRowIndex = isMerged ? bounds.top : rowIndex;
-          const actualColumnIndex = isMerged ? bounds.left : columnIndex
+          const actualColumnIndex = isMerged ? bounds.left : columnIndex;
           const actualBottom = Math.max(rowIndex, bounds.bottom);
           const actualRight = Math.max(columnIndex, bounds.right);
           if (isMerged) {
@@ -1458,14 +1469,14 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             index: actualRowIndex,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           });
           const height =
             getRowOffset({
               index: actualBottom,
               rowHeight,
               columnWidth,
-              instanceProps: instanceProps.current
+              instanceProps: instanceProps.current,
             }) -
             y +
             getRowHeight(actualBottom, instanceProps.current);
@@ -1474,7 +1485,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             index: actualColumnIndex,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           });
 
           const width =
@@ -1482,7 +1493,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               index: actualRight,
               rowHeight,
               columnWidth,
-              instanceProps: instanceProps.current
+              instanceProps: instanceProps.current,
             }) -
             x +
             getColumnWidth(actualRight, instanceProps.current);
@@ -1496,7 +1507,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               rowIndex: actualRowIndex,
               columnIndex: actualColumnIndex,
               isMergedCell: isMerged,
-              key: itemKey({ rowIndex: actualRowIndex, columnIndex:  actualColumnIndex })
+              key: itemKey({
+                rowIndex: actualRowIndex,
+                columnIndex: actualColumnIndex,
+              }),
             })
           );
 
@@ -1510,7 +1524,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 rowIndex: actualRowIndex,
                 columnIndex: actualColumnIndex,
                 isMergedCell: isMerged,
-                key: itemKey({ rowIndex: actualRowIndex, columnIndex: actualColumnIndex })
+                key: itemKey({
+                  rowIndex: actualRowIndex,
+                  columnIndex: actualColumnIndex,
+                }),
               })
             );
           }
@@ -1537,18 +1554,18 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         index: columnIndex,
         rowHeight,
         columnWidth,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
       const y = getRowOffset({
         index: rowIndex,
         rowHeight,
         columnWidth,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
       const height = getRowHeight(rowIndex, instanceProps.current);
       const { x: offsetX = 0 } = getCellOffsetFromCoords({
         rowIndex,
-        columnIndex: toColumnIndex + 1
+        columnIndex: toColumnIndex + 1,
       });
       ranges.push(
         itemRenderer({
@@ -1558,7 +1575,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           height,
           rowIndex,
           columnIndex,
-          key: `range:${itemKey({ rowIndex, columnIndex })}`
+          key: `range:${itemKey({ rowIndex, columnIndex })}`,
         })
       );
     }
@@ -1590,7 +1607,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         const isMerged = isMergedCell({ rowIndex, columnIndex });
         const bounds = getCellBounds({ rowIndex, columnIndex });
         const actualRowIndex = isMerged ? bounds.top : rowIndex;
-        const actualColumnIndex = isMerged ? bounds.left : columnIndex
+        const actualColumnIndex = isMerged ? bounds.left : columnIndex;
         const actualBottom = Math.max(rowIndex, bounds.bottom);
         const actualRight = Math.max(columnIndex, bounds.right);
         if (isMerged) {
@@ -1605,14 +1622,14 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: actualRowIndex,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const height =
           getRowOffset({
             index: actualBottom,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           }) -
           y +
           getRowHeight(actualBottom, instanceProps.current);
@@ -1621,7 +1638,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: actualColumnIndex,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
 
         const width =
@@ -1629,7 +1646,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             index: actualRight,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           }) -
           x +
           getColumnWidth(actualRight, instanceProps.current);
@@ -1643,7 +1660,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             rowIndex: actualRowIndex,
             columnIndex: actualColumnIndex,
             isMergedCell: isMerged,
-            key: itemKey({ rowIndex: actualRowIndex, columnIndex: actualColumnIndex })
+            key: itemKey({
+              rowIndex: actualRowIndex,
+              columnIndex: actualColumnIndex,
+            }),
           })
         );
 
@@ -1657,7 +1677,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               rowIndex: actualRowIndex,
               columnIndex: actualColumnIndex,
               isMergedCell: isMerged,
-              key: itemKey({ rowIndex: actualRowIndex, columnIndex: actualColumnIndex })
+              key: itemKey({
+                rowIndex: actualRowIndex,
+                columnIndex: actualColumnIndex,
+              }),
             })
           );
         }
@@ -1685,7 +1708,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         const isMerged = isMergedCell({ rowIndex, columnIndex });
         const bounds = getCellBounds({ rowIndex, columnIndex });
         const actualRowIndex = isMerged ? bounds.top : rowIndex;
-        const actualColumnIndex = isMerged ? bounds.left : columnIndex
+        const actualColumnIndex = isMerged ? bounds.left : columnIndex;
         const actualBottom = Math.max(rowIndex, bounds.bottom);
         const actualRight = Math.max(columnIndex, bounds.right);
         if (isMerged) {
@@ -1700,14 +1723,14 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: actualRowIndex,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const height =
           getRowOffset({
             index: actualBottom,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           }) -
           y +
           getRowHeight(actualBottom, instanceProps.current);
@@ -1716,7 +1739,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: actualColumnIndex,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
 
         const width =
@@ -1724,7 +1747,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             index: actualRight,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           }) -
           x +
           getColumnWidth(actualRight, instanceProps.current);
@@ -1738,7 +1761,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             rowIndex: actualRowIndex,
             columnIndex: actualColumnIndex,
             isMergedCell: isMerged,
-            key: itemKey({ rowIndex: actualRowIndex, columnIndex: actualColumnIndex })
+            key: itemKey({
+              rowIndex: actualRowIndex,
+              columnIndex: actualColumnIndex,
+            }),
           })
         );
 
@@ -1752,7 +1778,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               rowIndex: actualRowIndex,
               columnIndex: actualColumnIndex,
               isMergedCell: isMerged,
-              key: itemKey({ rowIndex: actualRowIndex, columnIndex: actualColumnIndex })
+              key: itemKey({
+                rowIndex: actualRowIndex,
+                columnIndex: actualColumnIndex,
+              }),
             })
           );
         }
@@ -1767,13 +1796,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         index: frozenColumns,
         rowHeight,
         columnWidth,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
       const frozenColumnLineY = getRowOffset({
         index: Math.min(rowStopIndex + 1, rowCount),
         rowHeight,
         columnWidth,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
       return (
         <Line
@@ -1788,7 +1817,14 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           {...shadowSettings}
         />
       );
-    }, [ shadowSettings, frozenColumns, rowStopIndex, rowCount, instanceProps.current.lastMeasuredColumnIndex, instanceProps.current.recalcColumnIndices ]);
+    }, [
+      shadowSettings,
+      frozenColumns,
+      rowStopIndex,
+      rowCount,
+      instanceProps.current.lastMeasuredColumnIndex,
+      instanceProps.current.recalcColumnIndices,
+    ]);
 
     /**
      * Frozen row shadow
@@ -1798,13 +1834,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         index: frozenRows,
         rowHeight,
         columnWidth,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
       const frozenRowLineX = getColumnOffset({
         index: Math.min(columnStopIndex + 1, columnCount),
         rowHeight,
         columnWidth,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
       return (
         <Line
@@ -1819,7 +1855,14 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           {...shadowSettings}
         />
       );
-    }, [ shadowSettings, frozenRows, columnStopIndex, columnCount, instanceProps.current.lastMeasuredRowIndex, instanceProps.current.recalcRowIndices ]);
+    }, [
+      shadowSettings,
+      frozenRows,
+      columnStopIndex,
+      columnCount,
+      instanceProps.current.lastMeasuredRowIndex,
+      instanceProps.current.recalcRowIndices,
+    ]);
 
     /* Draw frozen intersection cells */
     const frozenIntersectionCells = [];
@@ -1837,7 +1880,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         const isMerged = isMergedCell({ rowIndex, columnIndex });
         const bounds = getCellBounds({ rowIndex, columnIndex });
         const actualRowIndex = isMerged ? bounds.top : rowIndex;
-        const actualColumnIndex = isMerged ? bounds.left : columnIndex
+        const actualColumnIndex = isMerged ? bounds.left : columnIndex;
         const actualBottom = Math.max(rowIndex, bounds.bottom);
         const actualRight = Math.max(columnIndex, bounds.right);
         if (isMerged) {
@@ -1852,14 +1895,14 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: actualRowIndex,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
         const height =
           getRowOffset({
             index: actualBottom,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           }) -
           y +
           getRowHeight(actualBottom, instanceProps.current);
@@ -1868,7 +1911,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: actualColumnIndex,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         });
 
         const width =
@@ -1876,7 +1919,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             index: actualRight,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           }) -
           x +
           getColumnWidth(actualRight, instanceProps.current);
@@ -1890,7 +1933,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             rowIndex: actualRowIndex,
             columnIndex: actualColumnIndex,
             isMergedCell: isMerged,
-            key: itemKey({ rowIndex: actualRowIndex, columnIndex: actualColumnIndex })
+            key: itemKey({
+              rowIndex: actualRowIndex,
+              columnIndex: actualColumnIndex,
+            }),
           })
         );
 
@@ -1904,7 +1950,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               rowIndex: actualRowIndex,
               columnIndex: actualColumnIndex,
               isMergedCell: isMerged,
-              key: itemKey({ rowIndex: actualRowIndex, columnIndex: actualColumnIndex })
+              key: itemKey({
+                rowIndex: actualRowIndex,
+                columnIndex: actualColumnIndex,
+              }),
             })
           );
         }
@@ -1931,14 +1980,14 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         index: top,
         rowHeight,
         columnWidth,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
       const height =
         getRowOffset({
           index: actualBottom,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         }) -
         y +
         getRowHeight(actualBottom, instanceProps.current);
@@ -1947,7 +1996,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         index: left,
         rowHeight,
         columnWidth,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
 
       const width =
@@ -1955,7 +2004,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: actualRight,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         }) -
         x +
         getColumnWidth(actualRight, instanceProps.current);
@@ -1967,7 +2016,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         x: x,
         y: y,
         width: width,
-        height: height
+        height: height,
       });
 
       if (isInFrozenIntersection) {
@@ -1982,7 +2031,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
       fillHandleDimension = {
         x: x + width,
-        y: y + height
+        y: y + height,
       };
     }
 
@@ -2011,21 +2060,21 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       const styles = {
         stroke: inProgress ? selectionBackgroundColor : selectionBorderColor,
         fill: selectionBackgroundColor,
-        ...style
+        ...style,
       };
       if (inProgress) isSelectionInProgress = true;
       selectionBounds.y = getRowOffset({
         index: top,
         rowHeight,
         columnWidth,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
       selectionBounds.height =
         getRowOffset({
           index: actualBottom,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         }) -
         selectionBounds.y +
         getRowHeight(actualBottom, instanceProps.current);
@@ -2034,7 +2083,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         index: left,
         rowHeight,
         columnWidth,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
 
       selectionBounds.width =
@@ -2042,7 +2091,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: actualRight,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         }) -
         selectionBounds.x +
         getColumnWidth(actualRight, instanceProps.current);
@@ -2053,13 +2102,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             index: Math.min(right + 1, frozenColumns),
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           }) -
           getColumnOffset({
             index: left,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           });
         selectionAreasFrozenColumns.push(
           selectionRenderer({
@@ -2072,7 +2121,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             strokeRightWidth:
               frozenColumnSelectionWidth === selectionBounds.width
                 ? selectionStrokeWidth
-                : 0
+                : 0,
           })
         );
       }
@@ -2083,13 +2132,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             index: Math.min(bottom + 1, frozenRows),
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           }) -
           getRowOffset({
             index: top,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           });
         selectionAreasFrozenRows.push(
           selectionRenderer({
@@ -2102,7 +2151,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             strokeBottomWidth:
               frozenRowSelectionHeight === selectionBounds.height
                 ? selectionStrokeWidth
-                : 0
+                : 0,
           })
         );
       }
@@ -2113,13 +2162,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             index: Math.min(bottom + 1, frozenRows),
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           }) -
           getRowOffset({
             index: top,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           });
 
         const frozenIntersectionSelectionWidth =
@@ -2127,13 +2176,13 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             index: Math.min(right + 1, frozenColumns),
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           }) -
           getColumnOffset({
             index: left,
             rowHeight,
             columnWidth,
-            instanceProps: instanceProps.current
+            instanceProps: instanceProps.current,
           });
 
         selectionAreasIntersection.push(
@@ -2151,7 +2200,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             strokeRightWidth:
               frozenIntersectionSelectionWidth === selectionBounds.width
                 ? selectionStrokeWidth
-                : 0
+                : 0,
           })
         );
       }
@@ -2163,14 +2212,14 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           x: selectionBounds.x,
           y: selectionBounds.y,
           width: selectionBounds.width,
-          height: selectionBounds.height
+          height: selectionBounds.height,
         })
       );
 
       if (isLast) {
         fillHandleDimension = {
           x: selectionBounds.x + selectionBounds.width,
-          y: selectionBounds.y + selectionBounds.height
+          y: selectionBounds.y + selectionBounds.height,
         };
       }
     }
@@ -2188,20 +2237,20 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         index: left,
         rowHeight,
         columnWidth,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
       const y = getRowOffset({
         index: top,
         rowHeight,
         columnWidth,
-        instanceProps: instanceProps.current
+        instanceProps: instanceProps.current,
       });
       const height =
         getRowOffset({
           index: actualBottom,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         }) -
         y +
         getRowHeight(actualBottom, instanceProps.current);
@@ -2210,7 +2259,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           index: actualRight,
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
+          instanceProps: instanceProps.current,
         }) -
         x +
         getColumnWidth(actualRight, instanceProps.current);
@@ -2220,56 +2269,52 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         width,
         height,
         stroke: "gray",
-        strokeStyle: "dashed"
+        strokeStyle: "dashed",
       });
     }
 
-    const borderStylesCells = useMemo(() => {
-      const borderStyleCells = [];
-      for (let i = 0; i < borderStyles.length; i++) {
-        const { bounds, style } = borderStyles[i];
-        const { top, right, bottom, left } = bounds;
-        const x = getColumnOffset({
-          index: left,
+    const borderStyleCells = [];
+    for (let i = 0; i < borderStyles.length; i++) {
+      const { bounds, style } = borderStyles[i];
+      const { top, right, bottom, left } = bounds;
+      const x = getColumnOffset({
+        index: left,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      const y = getRowOffset({
+        index: top,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+      });
+      const width =
+        getColumnOffset({
+          index: Math.min(columnCount - 1, right + 1),
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
-        });
-        const y = getRowOffset({
-          index: top,
+          instanceProps: instanceProps.current,
+        }) - x;
+      const height =
+        getRowOffset({
+          index: Math.min(rowCount - 1, bottom + 1),
           rowHeight,
           columnWidth,
-          instanceProps: instanceProps.current
-        });
-        const width =
-          getColumnOffset({
-            index: Math.min(columnCount - 1, right + 1),
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current
-          }) - x;
-        const height =
-          getRowOffset({
-            index: Math.min(rowCount - 1, bottom + 1),
-            rowHeight,
-            columnWidth,
-            instanceProps: instanceProps.current
-          }) - y;
+          instanceProps: instanceProps.current,
+        }) - y;
 
-        borderStyleCells.push(
-          createCanvasBox({
-            x,
-            y,
-            key: i,
-            width,
-            height,
-            ...style
-          })
-        );
-      }
-
-      return borderStyleCells;
-    }, [borderStyles, columnStopIndex, rowStopIndex, columnCount, rowCount]);
+      borderStyleCells.push(
+        createHTMLBox({
+          x,
+          y,
+          key: i,
+          width,
+          height,
+          ...style,
+        })
+      );
+    }
 
     /* Spacing for frozen row/column clip */
     const frozenSpacing = 1;
@@ -2297,7 +2342,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               {cells}
               {cellOverlays}
               {ranges}
-              {borderStylesCells}
             </Group>
           </Group>
 
@@ -2345,7 +2389,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         {children && typeof children === "function"
           ? children({
               scrollLeft,
-              scrollTop
+              scrollTop,
             })
           : null}
       </>
@@ -2364,7 +2408,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const selectionChildren = (
       <div
         style={{
-          pointerEvents: "none"
+          pointerEvents: "none",
         }}
       >
         <div
@@ -2374,15 +2418,17 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             top: frozenRowHeight,
             right: 0,
             bottom: 0,
-            overflow: "hidden"
+            overflow: "hidden",
           }}
         >
           <div
             style={{
-              transform: `translate(-${scrollLeft +
-                frozenColumnWidth}px, -${scrollTop + frozenRowHeight}px)`
+              transform: `translate(-${scrollLeft + frozenColumnWidth}px, -${
+                scrollTop + frozenRowHeight
+              }px)`,
             }}
           >
+            {borderStyleCells}
             {fillSelections}
             {selectionAreas}
             {activeCellSelection}
@@ -2397,12 +2443,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               top: frozenRowHeight,
               left: 0,
               bottom: 0,
-              overflow: "hidden"
+              overflow: "hidden",
             }}
           >
             <div
               style={{
-                transform: `translate(0, -${scrollTop + frozenRowHeight}px)`
+                transform: `translate(0, -${scrollTop + frozenRowHeight}px)`,
               }}
             >
               {selectionAreasFrozenColumns}
@@ -2419,12 +2465,12 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               left: frozenColumnWidth,
               right: 0,
               top: 0,
-              overflow: "hidden"
+              overflow: "hidden",
             }}
           >
             <div
               style={{
-                transform: `translate(-${scrollLeft + frozenColumnWidth}px, 0)`
+                transform: `translate(-${scrollLeft + frozenColumnWidth}px, 0)`,
               }}
             >
               {selectionAreasFrozenRows}
@@ -2442,7 +2488,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
               left: 0,
               top: 0,
               overflow: "hidden",
-              pointerEvents: "none"
+              pointerEvents: "none",
             }}
           >
             {selectionAreasIntersection}
@@ -2457,7 +2503,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         style={{
           position: "relative",
           width: containerWidth,
-          userSelect: "none"
+          userSelect: "none",
         }}
         className="rowsncolumns-grid"
       >
@@ -2489,7 +2535,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 right: 0,
                 top: 0,
                 width: scrollbarSize,
-                willChange: "transform"
+                willChange: "transform",
               }}
               onScroll={handleScroll}
               ref={verticalScrollRef}
@@ -2498,7 +2544,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 style={{
                   position: "absolute",
                   height: estimatedTotalHeight,
-                  width: 1
+                  width: 1,
                 }}
               />
             </div>
@@ -2511,7 +2557,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 left: 0,
                 width: containerWidth,
                 height: scrollbarSize,
-                willChange: "transform"
+                willChange: "transform",
               }}
               onScroll={handleScrollLeft}
               ref={horizontalScrollRef}
@@ -2520,7 +2566,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 style={{
                   position: "absolute",
                   width: estimatedTotalWidth,
-                  height: 1
+                  height: 1,
                 }}
               />
             </div>

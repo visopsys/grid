@@ -1,18 +1,19 @@
-import React, { memo } from  'react'
+import React, { memo } from "react";
 import { CellProps } from "./Cell";
-import { Shape } from 'react-konva';
+import { Shape } from "react-konva";
 import { RendererProps } from "./Grid";
 
 /* Array placeholder */
-const EMPTY_ARRAY: number[] = []
+const EMPTY_ARRAY: number[] = [];
 
-export interface StrokeCellProps extends Omit<CellProps, 'key' | 'rowIndex' | 'columnIndex'> {}
+export interface StrokeCellProps
+  extends Omit<CellProps, "key" | "rowIndex" | "columnIndex"> {}
 
 /**
  * Only used for strokes
  */
 const CellOverlay: React.FC<StrokeCellProps> = memo((props) => {
-  const { 
+  const {
     x,
     y,
     width,
@@ -33,9 +34,10 @@ const CellOverlay: React.FC<StrokeCellProps> = memo((props) => {
     strokeBottomWidth = strokeWidth,
     strokeLeftWidth = strokeWidth,
     lineCap = "square",
-  } = props
-  const userStroke = strokeTopColor || strokeRightColor || strokeBottomColor || strokeLeftColor;
-  if (!userStroke) return null
+  } = props;
+  const userStroke =
+    strokeTopColor || strokeRightColor || strokeBottomColor || strokeLeftColor;
+  if (!userStroke) return null;
   return (
     <Shape
       x={x}
@@ -45,52 +47,49 @@ const CellOverlay: React.FC<StrokeCellProps> = memo((props) => {
       sceneFunc={(context, shape) => {
         /* Top border */
         if (strokeTopColor) {
-          context.beginPath();
+          // context.beginPath();
           context.moveTo(0.5, 0.5);
           context.lineTo(shape.width(), 0.5);
           context.setAttr("strokeStyle", strokeTopColor);
           context.setAttr("lineWidth", strokeTopWidth);
           context.setAttr("lineCap", lineCap);
           context.setLineDash(strokeTopDash);
-          context.stroke();
         }
         /* Right border */
         if (strokeRightColor) {
-          context.beginPath();
+          // context.beginPath();
           context.moveTo(shape.width() + 0.5, 0.5);
           context.lineTo(shape.width() + 0.5, shape.height() + 0.5);
           context.setAttr("strokeStyle", strokeRightColor);
           context.setAttr("lineWidth", strokeRightWidth);
           context.setAttr("lineCap", lineCap);
           context.setLineDash(strokeRightDash);
-          context.stroke();
         }
         /* Bottom border */
         if (strokeBottomColor) {
-          context.beginPath();
+          // context.beginPath();
           context.moveTo(shape.width() + 0.5, shape.height() + 0.5);
           context.lineTo(0.5, shape.height() + 0.5);
           context.setAttr("lineWidth", strokeBottomWidth);
           context.setAttr("strokeStyle", strokeBottomColor);
           context.setAttr("lineCap", lineCap);
           context.setLineDash(strokeBottomDash);
-          context.stroke();
         }
         /* Left border */
         if (strokeLeftColor) {
-          context.beginPath();
+          // context.beginPath();
           context.moveTo(0.5, shape.height() + 0.5);
           context.lineTo(0.5, 0.5);
           context.setAttr("strokeStyle", strokeLeftColor);
           context.setAttr("lineWidth", strokeLeftWidth);
           context.setAttr("lineCap", lineCap);
           context.setLineDash(strokeLeftDash);
-          context.stroke();
         }
+        context.stroke();
       }}
     />
-  )
-})
+  );
+});
 
 /**
  * Default CellRenderer
@@ -118,7 +117,7 @@ const CellRenderer = (props: RendererProps) => {
     strokeBottomWidth = strokeWidth,
     strokeLeftWidth = strokeWidth,
     lineCap = "square",
-  } = props
+  } = props;
   return (
     <CellOverlay
       x={x}
@@ -129,20 +128,20 @@ const CellRenderer = (props: RendererProps) => {
       strokeTopColor={strokeTopColor}
       strokeRightColor={strokeRightColor}
       strokeBottomColor={strokeBottomColor}
-      strokeLeftColor = {strokeLeftColor}
-      strokeDash = {strokeDash}
-      strokeTopDash = {strokeTopDash}
-      strokeRightDash = {strokeRightDash}
-      strokeBottomDash = {strokeBottomDash}
-      strokeLeftDash = {strokeLeftDash}
-      strokeWidth = {strokeWidth}
-      strokeTopWidth = {strokeTopWidth}
-      strokeRightWidth = {strokeRightWidth}
-      strokeBottomWidth = {strokeBottomWidth}
-      strokeLeftWidth = {strokeLeftWidth}
-      lineCap = {lineCap}
+      strokeLeftColor={strokeLeftColor}
+      strokeDash={strokeDash}
+      strokeTopDash={strokeTopDash}
+      strokeRightDash={strokeRightDash}
+      strokeBottomDash={strokeBottomDash}
+      strokeLeftDash={strokeLeftDash}
+      strokeWidth={strokeWidth}
+      strokeTopWidth={strokeTopWidth}
+      strokeRightWidth={strokeRightWidth}
+      strokeBottomWidth={strokeBottomWidth}
+      strokeLeftWidth={strokeLeftWidth}
+      lineCap={lineCap}
     />
-  )
+  );
 };
 
 export default CellRenderer;

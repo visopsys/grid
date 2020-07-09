@@ -11,6 +11,7 @@ import {
   SelectionArea,
   ScrollCoords,
   isNull,
+  FilterDefinition,
 } from "@rowsncolumns/grid";
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
@@ -74,6 +75,12 @@ export interface WorkbookProps extends Omit<SpreadSheetProps, "onChange"> {
     cell: CellInterface | null,
     selections: SelectionArea[]
   ) => void;
+  onChangeFilter: (
+    id: string,
+    index: number,
+    columnIndex: number,
+    filter?: FilterDefinition
+  ) => void;
 }
 
 export type WorkBookRefAttribute = {
@@ -122,6 +129,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       allowMultipleSelection,
       onSelectionChange,
       selectionMode,
+      onChangeFilter,
     } = props;
 
     const { colorMode } = useColorMode();
@@ -142,6 +150,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       hiddenColumns = EMPTY_ARRAY,
       hiddenRows = EMPTY_ARRAY,
       showGridLines = true,
+      filterViews,
     } = currentSheet;
     const selectedSheetRef = useRef(selectedSheet);
     useEffect(() => {
@@ -237,6 +246,19 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       []
     );
 
+    const handleChangeFilter = useCallback(
+      (filterIndex: number, columnIndex: number, filter: FilterDefinition) => {
+        if (isNull(selectedSheetRef.current)) return;
+        onChangeFilter?.(
+          selectedSheetRef.current,
+          filterIndex,
+          columnIndex,
+          filter
+        );
+      },
+      []
+    );
+
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>) => {
         if (isNull(selectedSheetRef.current)) return;
@@ -297,6 +319,8 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
             CellEditor={CellEditor}
             allowMultipleSelection={allowMultipleSelection}
             selectionMode={selectionMode}
+            filterViews={filterViews}
+            onChangeFilter={handleChangeFilter}
           />
         </Flex>
         <Flex>

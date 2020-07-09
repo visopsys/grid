@@ -139,6 +139,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
         size="sm"
         mb={2}
         onClick={() => onChange(undefined)}
+        background="none"
       >
         <Box mr={2}>
           <MdFormatColorReset />
@@ -397,6 +398,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             flexShrink={0}
             paddingLeft={1}
             paddingRight={1}
+            background="none"
           >
             <AiOutlineFieldBinary fontSize={18} />
             <Icon name="chevron-down" fontSize={16} />
@@ -484,6 +486,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             paddingLeft={1}
             paddingRight={1}
             as={Button}
+            background="none"
             fontSize={12}
             fontWeight="normal"
             size="sm"
@@ -627,6 +630,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                         w={8}
                         flexDirection="column"
                         aria-label={translations.text_color}
+                        background="none"
                       >
                         <MdTextFields />
                         <Rect color={color} />
@@ -675,6 +679,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                         w={8}
                         flexDirection="column"
                         aria-label={translations.fill_color}
+                        background="none"
                       >
                         <IoMdColorFill />
                         <Rect color={fill} />
@@ -1288,6 +1293,7 @@ const BorderSelection: React.FC<BorderProps> = ({
                             pr={0}
                             flexDirection="column"
                             aria-label={translations.border_color}
+                            background="none"
                           >
                             <MdEdit />
                             <Rect color={borderColor} />
@@ -1345,6 +1351,7 @@ const BorderSelection: React.FC<BorderProps> = ({
                       <PopoverArrow />
                       <PopoverBody>
                         <Button
+                          background="none"
                           variant={
                             borderStyle === BORDER_STYLE.THIN
                               ? "solid"
@@ -1372,13 +1379,14 @@ const BorderSelection: React.FC<BorderProps> = ({
                               y1="0.5"
                               x2="50"
                               y2="0.5"
-                              stroke-width="1"
+                              strokeWidth="1"
                               stroke="black"
                               style={{ userSelect: "none" }}
                             ></line>
                           </svg>
                         </Button>
                         <Button
+                          background="none"
                           variant={
                             borderStyle === BORDER_STYLE.MEDIUM
                               ? "solid"
@@ -1406,13 +1414,14 @@ const BorderSelection: React.FC<BorderProps> = ({
                               y1="1.0"
                               x2="50"
                               y2="1.0"
-                              stroke-width="2"
+                              strokeWidth="2"
                               stroke="black"
                               style={{ userSelect: "none" }}
                             ></line>
                           </svg>
                         </Button>
                         <Button
+                          background="none"
                           variant={
                             borderStyle === BORDER_STYLE.THICK
                               ? "solid"
@@ -1440,13 +1449,14 @@ const BorderSelection: React.FC<BorderProps> = ({
                               y1="1.5"
                               x2="50"
                               y2="1.5"
-                              stroke-width="3"
+                              strokeWidth="3"
                               stroke="black"
                               style={{ userSelect: "none" }}
                             ></line>
                           </svg>
                         </Button>
                         <Button
+                          background="none"
                           variant={
                             borderStyle === BORDER_STYLE.DASHED
                               ? "solid"
@@ -1474,14 +1484,15 @@ const BorderSelection: React.FC<BorderProps> = ({
                               y1="0.5"
                               x2="50"
                               y2="0.5"
-                              stroke-width="1"
+                              strokeWidth="1"
                               stroke="black"
-                              stroke-dasharray="2"
+                              strokeDasharray="2"
                               style={{ userSelect: "none" }}
                             ></line>
                           </svg>
                         </Button>
                         <Button
+                          background="none"
                           variant={
                             borderStyle === BORDER_STYLE.DOTTED
                               ? "solid"
@@ -1509,9 +1520,9 @@ const BorderSelection: React.FC<BorderProps> = ({
                               y1="0.5"
                               x2="50"
                               y2="0.5"
-                              stroke-width="1"
+                              strokeWidth="1"
                               stroke="black"
-                              stroke-dasharray="1"
+                              strokeDasharray="1"
                               style={{ userSelect: "none" }}
                             ></line>
                           </svg>

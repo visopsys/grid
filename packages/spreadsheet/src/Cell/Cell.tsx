@@ -1,5 +1,5 @@
-import React, { memo } from "react";
-import { RendererProps, isNull } from "@rowsncolumns/grid";
+import React, { memo, useCallback } from "react";
+import { RendererProps, isNull, CellInterface } from "@rowsncolumns/grid";
 import {
   DARK_MODE_COLOR_LIGHT,
   luminance,
@@ -17,12 +17,16 @@ import {
 } from "./../types";
 import { CellConfig } from "../Spreadsheet";
 import { Shape, Text } from "react-konva";
+import FilterIcon from "./../FilterIcon";
+import { FILTER_ICON_DIM } from "../FilterIcon/FilterIcon";
 
 export interface CellProps extends RendererProps, CellConfig {
   formatter?: FormatType;
   showStrokeOnFill?: boolean;
   isSelected?: boolean;
   isLightMode?: boolean;
+  showFilter?: boolean;
+  onFilterClick?: (cell: CellInterface) => void;
 }
 
 export interface CellRenderProps extends Omit<CellProps, "text"> {
@@ -108,6 +112,8 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     isSelected,
     selectionFill = "rgb(14, 101, 235, 0.1)",
     plaintext,
+    showFilter = false,
+    onFilterClick,
   } = props;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
     strike ? TEXT_DECORATION.STRIKE : ""
@@ -128,35 +134,36 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   const showRect = !isNull(userFill) || isMergedCell;
   const hasFill = !isNull(userFill) || isSelected;
   const hasText = !isNull(text);
-  const hasFilter = props.rowIndex === 1;
+  const textWidth = showFilter ? width - FILTER_ICON_DIM : width;
+  /**
+   * Fill function
+   */
+  const fillFunc = useCallback(
+    (context, shape) => {
+      context.beginPath();
+      context.setAttr("fillStyle", userFill || defaultFill);
+      context.fillRect(1, 1, shape.width() - 1, shape.height() - 1);
+      if (hasFill) {
+        context.setAttr(
+          "strokeStyle",
+          showStrokeOnFill ? luminance(userFill, -20) : userFill
+        );
+        context.strokeRect(0.5, 0.5, shape.width(), shape.height());
+      }
+    },
+    [hasFill, userFill, isSelected]
+  );
   return (
     <>
       {showRect ? (
-        <Shape
-          x={x}
-          y={y}
-          width={width}
-          height={height}
-          sceneFunc={(context, shape) => {
-            context.beginPath();
-            context.setAttr("fillStyle", userFill || defaultFill);
-            context.fillRect(1, 1, shape.width() - 1, shape.height() - 1);
-            if (hasFill) {
-              context.setAttr(
-                "strokeStyle",
-                showStrokeOnFill ? luminance(userFill, -20) : userFill
-              );
-              context.strokeRect(0.5, 0.5, shape.width(), shape.height());
-            }
-          }}
-        />
+        <Shape x={x} y={y} width={width} height={height} sceneFunc={fillFunc} />
       ) : null}
       {hasText ? (
         <Text
           x={x}
           y={y}
           height={height}
-          width={width}
+          width={textWidth}
           text={text}
           fill={textColor}
           verticalAlign={vAlign}
@@ -171,6 +178,17 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
           hitStrokeWidth={0}
           perfectDrawEnabled={false}
           listening={false}
+        />
+      ) : null}
+      {showFilter ? (
+        <FilterIcon
+          onClick={onFilterClick}
+          rowIndex={props.rowIndex}
+          columnIndex={props.columnIndex}
+          x={x}
+          y={y}
+          height={height}
+          width={width}
         />
       ) : null}
     </>

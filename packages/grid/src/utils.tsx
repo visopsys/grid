@@ -25,13 +25,13 @@ export const createCanvasBox = ({
   dash,
   dashEnabled,
   lineCap = "square",
-  key
+  key,
 }: ShapeConfig) => {
   const commonProps = {
     perfectDrawEnabled: false,
     shadowForStrokeEnabled: false,
     hitStrokeWidth: 0,
-    listening: false
+    listening: false,
   };
   const composite = undefined;
   const lines = [
@@ -78,12 +78,11 @@ export const createCanvasBox = ({
       key="left"
       globalCompositeOperation={composite}
       {...commonProps}
-    />
+    />,
   ];
 
   return (
     <React.Fragment key={key}>
-      {lines}
       {fill && (
         <Rect
           globalCompositeOperation={composite}
@@ -95,6 +94,7 @@ export const createCanvasBox = ({
           {...commonProps}
         />
       )}
+      {lines}
     </React.Fragment>
   );
 };
@@ -116,11 +116,11 @@ export const createHTMLBox = ({
   strokeBottomWidth = strokeWidth,
   strokeLeftWidth = strokeWidth,
   key,
-  strokeStyle = "solid"
+  strokeStyle = "solid",
 }: ShapeConfig) => {
   const commonProps = {};
-  width = width - Math.floor(strokeWidth/2);
-  height = height - Math.floor(strokeWidth/2);
+  width = width - Math.floor(strokeWidth / 2);
+  height = height - Math.floor(strokeWidth / 2);
   // y = y - Math.ceil(strokeWidth / 2);
   const lines = [
     <div
@@ -133,7 +133,7 @@ export const createHTMLBox = ({
         borderWidth: 0,
         borderColor: strokeTopColor,
         borderTopWidth: strokeTopWidth,
-        borderStyle: strokeStyle
+        borderStyle: strokeStyle,
       }}
       key="top"
       {...commonProps}
@@ -148,7 +148,7 @@ export const createHTMLBox = ({
         borderWidth: 0,
         borderColor: strokeRightColor,
         borderRightWidth: strokeRightWidth,
-        borderStyle: strokeStyle
+        borderStyle: strokeStyle,
       }}
       key="right"
       {...commonProps}
@@ -164,7 +164,7 @@ export const createHTMLBox = ({
         borderWidth: 0,
         borderColor: strokeBottomColor,
         borderBottomWidth: strokeBottomWidth,
-        borderStyle: strokeStyle
+        borderStyle: strokeStyle,
       }}
       key="bottom"
       {...commonProps}
@@ -179,16 +179,15 @@ export const createHTMLBox = ({
         borderWidth: 0,
         borderColor: strokeLeftColor,
         borderLeftWidth: strokeLeftWidth,
-        borderStyle: strokeStyle
+        borderStyle: strokeStyle,
       }}
       key="left"
       {...commonProps}
-    />
+    />,
   ];
 
   return (
     <React.Fragment key={key}>
-      {lines}
       {fill && (
         <div
           style={{
@@ -199,11 +198,12 @@ export const createHTMLBox = ({
             width,
             backgroundColor: fill,
             userSelect: "none",
-            pointerEvents: "none"
+            pointerEvents: "none",
           }}
           {...commonProps}
         />
       )}
+      {lines}
     </React.Fragment>
   );
 };

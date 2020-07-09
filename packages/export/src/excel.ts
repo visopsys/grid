@@ -5,6 +5,7 @@ import ExcelJS, {
   Buffer,
   ValueType,
   Borders,
+  FormulaType,
 } from "exceljs";
 import {
   Sheet,
@@ -56,6 +57,8 @@ export const getDataTypeFromType = (type: number): DATATYPE => {
       return DATATYPE.Number;
     case ValueType.Date:
       return DATATYPE.Date;
+    case ValueType.Formula:
+      return DATATYPE.Formula;
     default:
       return DATATYPE.String;
   }
@@ -260,11 +263,15 @@ export const parseExcel = async ({
             if (typeof result === "string") value = result;
           }
 
+          const text =
+            cell.type === ValueType.Null
+              ? ""
+              : datatype === DATATYPE.Formula
+              ? (value as CellFormulaValue).formula
+              : value?.toString();
+
           _sheet.cells[rowId][j] = {
-            text:
-              typeof value === "object" || isNull(value)
-                ? ""
-                : value.toString(),
+            text,
             fill,
             color,
             datatype,

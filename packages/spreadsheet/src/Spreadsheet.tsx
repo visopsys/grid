@@ -6,7 +6,7 @@ import React, {
   useRef,
   forwardRef,
   useImperativeHandle,
-  memo
+  memo,
 } from "react";
 import Toolbar from "./Toolbar";
 import Formulabar from "./Formulabar";
@@ -17,7 +17,8 @@ import {
   ColorModeProvider,
   Flex,
   IUseColorMode,
-  Grid} from "@chakra-ui/core";
+  Grid,
+} from "@chakra-ui/core";
 import { Global, css } from "@emotion/core";
 import {
   CellInterface,
@@ -25,6 +26,8 @@ import {
   ScrollCoords,
   AreaProps,
   selectionFromActiveCell,
+  FilterView,
+  FilterDefinition,
 } from "@rowsncolumns/grid";
 import {
   createNewSheet,
@@ -47,7 +50,7 @@ import {
   FormatType,
   DATATYPE,
   SELECTION_MODE,
-  HORIZONTAL_ALIGNMENT
+  HORIZONTAL_ALIGNMENT,
 } from "./types";
 import { useImmer } from "use-immer";
 import { WorkbookGridRef } from "./Grid/Grid";
@@ -160,7 +163,7 @@ export interface SpreadSheetProps {
   /**
    * Select mode
    */
-  selectionMode?: SELECTION_MODE
+  selectionMode?: SELECTION_MODE;
 }
 
 export interface Sheet {
@@ -175,9 +178,10 @@ export interface Sheet {
   mergedCells?: AreaProps[];
   frozenRows?: number;
   frozenColumns?: number;
-  hiddenRows?: number []
-  hiddenColumns?: number []
-  showGridLines?: boolean
+  hiddenRows?: number[];
+  hiddenColumns?: number[];
+  showGridLines?: boolean;
+  filterViews?: FilterView[];
 }
 
 export type SizeType = {
@@ -200,21 +204,14 @@ export const defaultSheets: Sheet[] = [
     frozenRows: 0,
     activeCell: {
       rowIndex: 1,
-      columnIndex: 1
+      columnIndex: 1,
     },
     mergedCells: [],
     selections: [],
     cells: {},
     scrollState: { scrollTop: 0, scrollLeft: 0 },
-    // filters: [
-    //   {
-    //     top: 1,
-    //     right: 5,
-    //     bottom: 5,
-    //     left: 1
-    //   }
-    // ]
-  }
+    filterViews: [],
+  },
 ];
 
 export type RefAttributeSheetGrid = {
@@ -255,7 +252,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       allowMultipleSelection = true,
       onActiveCellChange,
       onSelectionChange,
-      selectionMode
+      selectionMode,
     } = props;
     const [selectedSheet, setSelectedSheet] = useState<string | null>(() => {
       return activeSheet || initialSheets.length ? initialSheets[0].id : null;
@@ -269,11 +266,15 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       "Exception, selectedSheet is empty, Please specify a selected sheet using `selectedSheet` prop"
     );
 
-    useImperativeHandle(forwardedRef, () => {
-      return {
-        grid: currentGrid.current
-      };
-    }, []);
+    useImperativeHandle(
+      forwardedRef,
+      () => {
+        return {
+          grid: currentGrid.current,
+        };
+      },
+      []
+    );
 
     /* Callback when sheets is changed */
     useEffect(() => {
@@ -292,21 +293,21 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     /* Listen to sheet change */
     useEffect(() => {
       /* If its the same sheets - Skip */
-      if (sheets === initialSheets) {        
-        return
+      if (sheets === initialSheets) {
+        return;
       }
 
       /* Update sheets */
-      setSheets(draft => {
-        draft.length = initialSheets.length
+      setSheets((draft) => {
+        draft.length = initialSheets.length;
         initialSheets.forEach((sheet, index) => {
-          (draft[index] as Sheet) = sheet
-        })
+          (draft[index] as Sheet) = sheet;
+        });
       });
 
       /* Update selected sheet */
-      setSelectedSheet(initialSheets[0].id)      
-    }, [ initialSheets ])
+      setSelectedSheet(initialSheets[0].id);
+    }, [initialSheets]);
 
     /**
      * Handle add new sheet
@@ -314,7 +315,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleNewSheet = useCallback(() => {
       const count = sheets.length;
       const newSheet = createNewSheet({ count: count + 1 });
-      setSheets(draft => {
+      setSheets((draft) => {
         (draft as Sheet[]).push(newSheet);
       });
       setSelectedSheet(newSheet.id);
@@ -326,8 +327,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Cell changes on user input
      */
     const handleChange = useCallback((id: string, changes: Cells) => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === id);
         if (sheet) {
           for (const row in changes) {
             sheet.cells[row] = sheet.cells[row] ?? {};
@@ -349,8 +350,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
     const handleSheetAttributesChange = useCallback(
       (id: string, changes: any) => {
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === id);
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === id);
           if (sheet) {
             for (const key in changes) {
               // @ts-ignore
@@ -363,8 +364,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     );
 
     const handleChangeSheetName = useCallback((id: string, name: string) => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === id);
         if (sheet) {
           sheet.name = name;
         }
@@ -374,14 +375,14 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleDeleteSheet = useCallback(
       (id: string) => {
         if (sheets.length === 1) return;
-        const index = sheets.findIndex(sheet => sheet.id === id);
-        const newSheets = sheets.filter(sheet => sheet.id !== id);
+        const index = sheets.findIndex((sheet) => sheet.id === id);
+        const newSheets = sheets.filter((sheet) => sheet.id !== id);
         const newSelectedSheet =
           selectedSheet === sheets[index].id
             ? newSheets[Math.max(0, index - 1)].id
             : selectedSheet;
         setSelectedSheet(newSelectedSheet);
-        setSheets(draft => {
+        setSheets((draft) => {
           draft.splice(index, 1);
         });
 
@@ -394,14 +395,14 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleDuplicateSheet = useCallback(
       (id: string) => {
         const newSheetId = uuid();
-        const index = sheets.findIndex(sheet => sheet.id === id);
+        const index = sheets.findIndex((sheet) => sheet.id === id);
         if (index === -1) return;
         const newSheet = {
           ...sheets[index],
           id: newSheetId,
-          name: `Copy of ${currentSheet.name}`
+          name: `Copy of ${currentSheet.name}`,
         };
-        setSheets(draft => {
+        setSheets((draft) => {
           // @ts-ignore
           draft.splice(index + 1, 0, newSheet);
         });
@@ -414,83 +415,88 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Change formatting to auto
      */
     const handleFormattingChangeAuto = useCallback(() => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === selectedSheet);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === selectedSheet);
         if (sheet) {
-          const { selections, activeCell, cells } = sheet
+          const { selections, activeCell, cells } = sheet;
           const sel = selections.length
             ? selections
-            : activeCell ? [{ bounds: currentGrid.current?.getCellBounds?.(activeCell) }] : []
+            : activeCell
+            ? [{ bounds: currentGrid.current?.getCellBounds?.(activeCell) }]
+            : [];
           for (let i = 0; i < sel.length; i++) {
-            const { bounds } = sel[i]
-            if (!bounds) continue
+            const { bounds } = sel[i];
+            if (!bounds) continue;
             for (let j = bounds.top; j <= bounds.bottom; j++) {
               for (let k = bounds.left; k <= bounds.right; k++) {
-                delete cells[j]?.[k]?.plaintext
+                delete cells[j]?.[k]?.plaintext;
               }
             }
           }
         }
-      })
-    }, [])
+      });
+    }, []);
 
     /**
      * Change formatting to plain
      */
     const handleFormattingChangePlain = useCallback(() => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === selectedSheet);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === selectedSheet);
         if (sheet) {
-          const { selections, activeCell, cells } = sheet
+          const { selections, activeCell, cells } = sheet;
           const sel = selections.length
             ? selections
-            : activeCell ? [{ bounds: currentGrid.current?.getCellBounds?.(activeCell) }] : []
+            : activeCell
+            ? [{ bounds: currentGrid.current?.getCellBounds?.(activeCell) }]
+            : [];
           for (let i = 0; i < sel.length; i++) {
-            const { bounds } = sel[i]
-            if (!bounds) continue
+            const { bounds } = sel[i];
+            if (!bounds) continue;
             for (let j = bounds.top; j <= bounds.bottom; j++) {
               cells[j] = cells[j] ?? {};
               for (let k = bounds.left; k <= bounds.right; k++) {
-                cells[j][k] = cells[j][k] ?? {}
-                cells[j][k].plaintext = true
+                cells[j][k] = cells[j][k] ?? {};
+                cells[j][k].plaintext = true;
               }
             }
           }
         }
-      })
-    }, [ selectedSheet ])
+      });
+    }, [selectedSheet]);
 
     /**
      * When cell or selection formatting change
      */
     const handleFormattingChange = useCallback(
       (type, value) => {
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === selectedSheet);
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === selectedSheet);
           if (sheet) {
-            const { selections, activeCell, cells } = sheet
+            const { selections, activeCell, cells } = sheet;
             const sel = selections.length
               ? selections
-              : activeCell ? [{ bounds: currentGrid.current?.getCellBounds?.(activeCell) }] : []
+              : activeCell
+              ? [{ bounds: currentGrid.current?.getCellBounds?.(activeCell) }]
+              : [];
             for (let i = 0; i < sel.length; i++) {
-              const { bounds } = sel[i]
-              if (!bounds) continue
+              const { bounds } = sel[i];
+              if (!bounds) continue;
               for (let j = bounds.top; j <= bounds.bottom; j++) {
                 cells[j] = cells[j] ?? {};
                 for (let k = bounds.left; k <= bounds.right; k++) {
-                  cells[j][k] = cells[j][k] ?? {}
-                  cells[j][k][type as keyof CellFormatting] = value
+                  cells[j][k] = cells[j][k] ?? {};
+                  cells[j][k][type as keyof CellFormatting] = value;
 
                   /* if user is applying a custom number format, remove plaintext */
                   if (type === FORMATTING_TYPE.CUSTOM_FORMAT) {
-                    delete cells[j]?.[k]?.plaintext
+                    delete cells[j]?.[k]?.plaintext;
                   }
-
                 }
               }
             }
           }
-        })
+        });
       },
       [selectedSheet]
     );
@@ -499,7 +505,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Pass active cell config back to toolbars
      */
     const currentSheet = useMemo(() => {
-      return sheets.find(sheet => sheet.id === selectedSheet) as Sheet;
+      return sheets.find((sheet) => sheet.id === selectedSheet) as Sheet;
     }, [sheets, selectedSheet]);
 
     const [activeCellConfig, activeCell] = useMemo(() => {
@@ -520,7 +526,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       []
     );
 
-    const handleActiveCellValueChange = useCallback(value => {
+    const handleActiveCellValueChange = useCallback((value) => {
       setFormulaInput(value);
     }, []);
 
@@ -543,7 +549,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      */
     const handleFormulabarChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!activeCell) return;        
+        if (!activeCell) return;
         const value = e.target.value;
         setFormulaInput(value);
         currentGrid.current?.setEditorValue(value, activeCell);
@@ -603,8 +609,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         const { bounds } = fillSelection;
         const changes: Cells = {};
         const previousValue: { [key: string]: any } = {};
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === id);
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === id);
           if (sheet) {
             const { cells } = sheet;
             const currentValue =
@@ -637,15 +643,15 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      */
     const handleDelete = useCallback(
       (id: string, activeCell: CellInterface, selections: SelectionArea[]) => {
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === id);
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === id);
           const attribute = "text";
           if (sheet) {
             const { cells } = sheet;
             const value: { [key: string]: any } = {};
             const previousValue: { [key: string]: any } = {};
             if (selections.length) {
-              selections.forEach(sel => {
+              selections.forEach((sel) => {
                 const { bounds } = sel;
                 for (let i = bounds.top; i <= bounds.bottom; i++) {
                   if (cells[i] === void 0) continue;
@@ -676,21 +682,21 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     );
 
     const handleClearFormatting = useCallback(() => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === selectedSheet);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === selectedSheet);
         if (sheet) {
           const { activeCell, selections, cells } = sheet;
           if (selections.length) {
-            selections.forEach(sel => {
+            selections.forEach((sel) => {
               const { bounds } = sel;
               for (let i = bounds.top; i <= bounds.bottom; i++) {
                 if (!(i in cells)) continue;
                 for (let j = bounds.left; j <= bounds.right; j++) {
                   if (!(j in cells[i])) continue;
-                  Object.values(FORMATTING_TYPE).forEach(key => {
+                  Object.values(FORMATTING_TYPE).forEach((key) => {
                     delete cells[i]?.[j]?.[key];
                   });
-                  Object.values(STROKE_FORMATTING).forEach(key => {
+                  Object.values(STROKE_FORMATTING).forEach((key) => {
                     delete cells[i]?.[j]?.[key];
                   });
                 }
@@ -698,10 +704,10 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             });
           } else if (activeCell) {
             const { rowIndex, columnIndex } = activeCell;
-            Object.values(FORMATTING_TYPE).forEach(key => {
+            Object.values(FORMATTING_TYPE).forEach((key) => {
               if (key) delete cells[rowIndex]?.[columnIndex]?.[key];
             });
-            Object.values(STROKE_FORMATTING).forEach(key => {
+            Object.values(STROKE_FORMATTING).forEach((key) => {
               if (key) delete cells[rowIndex]?.[columnIndex]?.[key];
             });
           }
@@ -711,8 +717,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
     const handleResize = useCallback(
       (id: string, axis: AXIS, index: number, dimension: number) => {
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === id);
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === id);
           if (sheet) {
             if (axis === AXIS.X) {
               if (!("columnSizes" in sheet)) sheet.columnSizes = {};
@@ -723,7 +729,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             }
           }
         });
-        
+
         axis === AXIS.X
           ? currentGrid.current?.resizeColumns?.([index])
           : currentGrid.current?.resizeRows?.([index]);
@@ -735,8 +741,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Handle toggle cell merges
      */
     const handleMergeCells = useCallback(() => {
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === selectedSheet);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === selectedSheet);
         if (sheet) {
           const { selections, activeCell } = sheet;
           const { bounds } = selections.length
@@ -744,7 +750,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             : {
                 bounds: currentGrid.current?.getCellBounds?.(
                   activeCell as CellInterface
-                )
+                ),
               };
           if (!bounds) return;
           if (bounds.top === bounds.bottom && bounds.left === bounds.right)
@@ -753,7 +759,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             sheet.mergedCells = [];
           } else {
             /* Check if cell is already merged */
-            const index = sheet.mergedCells.findIndex(area => {
+            const index = sheet.mergedCells.findIndex((area) => {
               return (
                 area.left === bounds.left &&
                 area.right === bounds.right &&
@@ -773,9 +779,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     }, [selectedSheet]);
 
     const handleFrozenRowChange = useCallback(
-      num => {
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === selectedSheet);
+      (num) => {
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === selectedSheet);
           if (sheet) {
             sheet.frozenRows = num;
           }
@@ -785,9 +791,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     );
 
     const handleFrozenColumnChange = useCallback(
-      num => {
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === selectedSheet);
+      (num) => {
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === selectedSheet);
           if (sheet) {
             sheet.frozenColumns = num;
           }
@@ -803,8 +809,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         variant?: BORDER_VARIANT
       ) => {
         /* Create a border style based on variant */
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === selectedSheet);
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === selectedSheet);
           if (sheet) {
             const { selections, cells, activeCell } = sheet;
             const sel = selections.length
@@ -821,12 +827,12 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
               for (const col in boundedCells[row]) {
                 if (variant === BORDER_VARIANT.NONE) {
                   // Delete all stroke formatting rules
-                  Object.values(STROKE_FORMATTING).forEach(key => {
+                  Object.values(STROKE_FORMATTING).forEach((key) => {
                     delete cells[row]?.[col]?.[key];
                   });
                 } else {
                   const styles = boundedCells[row][col];
-                  Object.keys(styles).forEach(key => {
+                  Object.keys(styles).forEach((key) => {
                     cells[row] = cells[row] ?? {};
                     cells[row][col] = cells[row][col] ?? {};
                     // @ts-ignore
@@ -846,8 +852,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      */
     const handleScroll = useCallback(
       (id: string, scrollState: ScrollCoords) => {
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === id);
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === id);
           if (sheet) {
             sheet.scrollState = scrollState;
           }
@@ -868,8 +874,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         columnIndex + (rows.length && rows[0].length - 1)
       );
 
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === id);
         if (sheet) {
           const { cells } = sheet;
           for (let i = 0; i < rows.length; i++) {
@@ -895,9 +901,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             top: rowIndex,
             left: columnIndex,
             bottom: endRowIndex,
-            right: endColumnIndex
-          }
-        }
+            right: endColumnIndex,
+          },
+        },
       ]);
     }, []);
 
@@ -907,8 +913,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleCut = useCallback((id: string, selection: SelectionArea) => {
       const { bounds } = selection;
 
-      setSheets(draft => {
-        const sheet = draft.find(sheet => sheet.id === id);
+      setSheets((draft) => {
+        const sheet = draft.find((sheet) => sheet.id === id);
         if (sheet) {
           const { cells } = sheet;
           for (let i = bounds.top; i <= bounds.bottom; i++) {
@@ -928,8 +934,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleInsertRow = useCallback(
       (id: string, activeCell: CellInterface | null) => {
         if (activeCell === null) return;
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === id);
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === id);
           if (sheet) {
             const { rowIndex } = activeCell;
             const { cells } = sheet;
@@ -954,8 +960,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleInsertColumn = useCallback(
       (id: string, activeCell: CellInterface | null) => {
         if (activeCell === null) return;
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === id);
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === id);
           if (sheet) {
             const { columnIndex } = activeCell;
             const { cells } = sheet;
@@ -987,8 +993,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleDeleteRow = useCallback(
       (id: string, activeCell: CellInterface | null) => {
         if (activeCell === null) return;
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === id);
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === id);
           if (sheet) {
             const { rowIndex } = activeCell;
             const { cells } = sheet;
@@ -1010,8 +1016,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleDeleteColumn = useCallback(
       (id: string, activeCell: CellInterface | null) => {
         if (activeCell === null) return;
-        setSheets(draft => {
-          const sheet = draft.find(sheet => sheet.id === id);
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === id);
           if (sheet) {
             const { columnIndex } = activeCell;
             const { cells } = sheet;
@@ -1042,51 +1048,90 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     /**
      * Handle keydown events
      */
-    const handleKeyDown = useCallback((id, event: React.KeyboardEvent<HTMLDivElement>) => {
-      const isMeta = event.metaKey || event.ctrlKey
-      const isShift = event.shiftKey
-      const keyCode = event.which
-      switch (keyCode) {
-        case KeyCodes.KEY_B:
-          if (!isMeta) return
-          handleFormattingChange(FORMATTING_TYPE.BOLD, !activeCellConfig?.bold)
-          break
-        
-        case KeyCodes.KEY_I:
-          if (!isMeta) return
-          handleFormattingChange(FORMATTING_TYPE.ITALIC, !activeCellConfig?.italic)
-          break
-        
-        case KeyCodes.KEY_U:
-          if (!isMeta) return
-          handleFormattingChange(FORMATTING_TYPE.UNDERLINE, !activeCellConfig?.underline)
-          break
-        
-        case KeyCodes.KEY_X:
-          if (!isMeta && !isShift) return
-          handleFormattingChange(FORMATTING_TYPE.STRIKE, !activeCellConfig?.strike)
-          break
-        
-        case KeyCodes.BACK_SLASH:
-          if (!isMeta) return
-          handleClearFormatting()
-          event?.preventDefault()
-          break
-        
-        case KeyCodes.KEY_L:
-        case KeyCodes.KEY_E:
-        case KeyCodes.KEY_R:
-          if (!isMeta && !isShift) return
-          const align = keyCode === KeyCodes.KEY_L
-            ? HORIZONTAL_ALIGNMENT.LEFT
-            : keyCode === KeyCodes.KEY_E
-              ? HORIZONTAL_ALIGNMENT.CENTER
-              : HORIZONTAL_ALIGNMENT.RIGHT
-          handleFormattingChange(FORMATTING_TYPE.HORIZONTAL_ALIGN, align)
-          event?.preventDefault()
-          break
-      }
-    }, [ activeCellConfig, currentSheet ])
+    const handleKeyDown = useCallback(
+      (id, event: React.KeyboardEvent<HTMLDivElement>) => {
+        const isMeta = event.metaKey || event.ctrlKey;
+        const isShift = event.shiftKey;
+        const keyCode = event.which;
+        switch (keyCode) {
+          case KeyCodes.KEY_B:
+            if (!isMeta) return;
+            handleFormattingChange(
+              FORMATTING_TYPE.BOLD,
+              !activeCellConfig?.bold
+            );
+            break;
+
+          case KeyCodes.KEY_I:
+            if (!isMeta) return;
+            handleFormattingChange(
+              FORMATTING_TYPE.ITALIC,
+              !activeCellConfig?.italic
+            );
+            break;
+
+          case KeyCodes.KEY_U:
+            if (!isMeta) return;
+            handleFormattingChange(
+              FORMATTING_TYPE.UNDERLINE,
+              !activeCellConfig?.underline
+            );
+            break;
+
+          case KeyCodes.KEY_X:
+            if (!isMeta && !isShift) return;
+            handleFormattingChange(
+              FORMATTING_TYPE.STRIKE,
+              !activeCellConfig?.strike
+            );
+            break;
+
+          case KeyCodes.BACK_SLASH:
+            if (!isMeta) return;
+            handleClearFormatting();
+            event?.preventDefault();
+            break;
+
+          case KeyCodes.KEY_L:
+          case KeyCodes.KEY_E:
+          case KeyCodes.KEY_R:
+            if (!isMeta || !isShift) return;
+            const align =
+              keyCode === KeyCodes.KEY_L
+                ? HORIZONTAL_ALIGNMENT.LEFT
+                : keyCode === KeyCodes.KEY_E
+                ? HORIZONTAL_ALIGNMENT.CENTER
+                : HORIZONTAL_ALIGNMENT.RIGHT;
+            handleFormattingChange(FORMATTING_TYPE.HORIZONTAL_ALIGN, align);
+            event?.preventDefault();
+            break;
+        }
+      },
+      [activeCellConfig, currentSheet]
+    );
+
+    /* Hide rows */
+    const handleChangeFilter = useCallback(
+      (
+        id: string,
+        filterIndex: number,
+        columnIndex: number,
+        filter?: FilterDefinition
+      ) => {
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === id);
+          if (sheet) {
+            if (filter === void 0) {
+              delete sheet?.filterViews?.[filterIndex].filters[columnIndex];
+            } else {
+              sheet.filterViews = sheet.filterViews ?? [];
+              sheet.filterViews[filterIndex].filters[columnIndex] = filter;
+            }
+          }
+        });
+      },
+      []
+    );
 
     return (
       <>
@@ -1187,6 +1232,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             allowMultipleSelection={allowMultipleSelection}
             onSelectionChange={onSelectionChange}
             selectionMode={selectionMode}
+            onChangeFilter={handleChangeFilter}
           />
         </Flex>
       </>
@@ -1196,10 +1242,11 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
 export interface SpreadSheetPropsWithTheme extends SpreadSheetProps {
   theme?: ThemeType;
-  initialColorMode?: 'light' | 'dark'
+  initialColorMode?: "light" | "dark";
 }
-const ThemeWrapper: React.FC<SpreadSheetPropsWithTheme &
-  RefAttributeSheetGrid> = forwardRef((props, forwardedRef) => {
+const ThemeWrapper: React.FC<
+  SpreadSheetPropsWithTheme & RefAttributeSheetGrid
+> = forwardRef((props, forwardedRef) => {
   const { theme: defaultTheme = theme, initialColorMode, ...rest } = props;
   return (
     <ThemeProvider theme={defaultTheme}>

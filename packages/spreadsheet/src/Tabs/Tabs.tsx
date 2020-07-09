@@ -94,6 +94,7 @@ const Tabs: React.FC<TabProps> = (props) => {
                   fontWeight="normal"
                   size="sm"
                   variant="ghost"
+                  background="none"
                   isFullWidth
                   textAlign="left"
                   justifyContent="left"

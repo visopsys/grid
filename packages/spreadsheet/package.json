@@ -25,6 +25,7 @@
     "immer": "^7.0.3",
     "react-color": "^2.18.1",
     "react-icons": "^3.10.0",
+    "react-konva": "^16.13.0-3",
     "react-use-measure": "^2.0.1",
     "ssf": "^0.11.2",
     "tiny-invariant": "^1.1.0",

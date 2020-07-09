@@ -142,6 +142,7 @@ const TabItem: React.FC<TabItemProps> = ({
                           textAlign="left"
                           justifyContent="left"
                           borderRadius={0}
+                          background="none"
                           onClick={(e) => {
                             onClose?.();
                             onDeleteSheet?.(id);
@@ -155,6 +156,7 @@ const TabItem: React.FC<TabItemProps> = ({
                           fontWeight="normal"
                           size="sm"
                           variant="ghost"
+                          background="none"
                           isFullWidth
                           textAlign="left"
                           justifyContent="left"
@@ -174,6 +176,7 @@ const TabItem: React.FC<TabItemProps> = ({
                           variant="ghost"
                           isFullWidth
                           textAlign="left"
+                          background="none"
                           justifyContent="left"
                           borderRadius={0}
                           onClick={(e) => {
