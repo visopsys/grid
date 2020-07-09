@@ -1110,11 +1110,13 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       [activeCellConfig, currentSheet]
     );
 
-    /* Hide rows */
+    /**
+     * Update filters views
+     */
     const handleChangeFilter = useCallback(
       (
         id: string,
-        filterIndex: number,
+        filterViewIndex: number,
         columnIndex: number,
         filter?: FilterDefinition
       ) => {
@@ -1122,15 +1124,17 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           const sheet = draft.find((sheet) => sheet.id === id);
           if (sheet) {
             if (filter === void 0) {
-              delete sheet?.filterViews?.[filterIndex].filters[columnIndex];
+              delete sheet?.filterViews?.[filterViewIndex].filters[columnIndex];
             } else {
               sheet.filterViews = sheet.filterViews ?? [];
-              if (!sheet.filterViews[filterIndex].filters) {
-                sheet.filterViews[filterIndex].filters = {
+              if (!sheet.filterViews[filterViewIndex].filters) {
+                sheet.filterViews[filterViewIndex].filters = {
                   [columnIndex]: filter,
                 };
               } else
-                sheet.filterViews[filterIndex].filters[columnIndex] = filter;
+                sheet.filterViews[filterViewIndex].filters[
+                  columnIndex
+                ] = filter;
             }
           }
         });

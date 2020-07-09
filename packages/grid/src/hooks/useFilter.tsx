@@ -86,7 +86,7 @@ export interface FilterState {
 const useFilter = ({
   getFilterComponent = getDefaultFilerComponent,
   gridRef,
-  width = 250,
+  width = 220,
   offset = 20,
   getValue,
 }: FilterProps): FilterResults => {

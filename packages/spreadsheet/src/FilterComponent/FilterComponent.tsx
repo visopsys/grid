@@ -74,11 +74,30 @@ const FilterComponent = ({
       top={0}
       position="absolute"
       zIndex={1}
-      transform={`translate(${x}px, ${y}px)`}
+      transform={`translate(${Math.max(0, x)}px, ${y}px)`}
     >
       <Box shadow="md" bg={bgColor} width={width}>
         <Box padding={3}>
-          <InputGroup size="sm">
+          <Button
+            onClick={() => setUserValues(values)}
+            variant="link"
+            fontSize={12}
+            mr={2}
+            background="none"
+            size="sm"
+          >
+            Select all
+          </Button>
+          <Button
+            onClick={() => setUserValues([])}
+            variant="link"
+            fontSize={12}
+            background="none"
+            size="sm"
+          >
+            Clear
+          </Button>
+          <InputGroup size="sm" mt={2}>
             <InputLeftElement
               children={<Icon name="search" color="gray.300" />}
             />
@@ -93,20 +112,6 @@ const FilterComponent = ({
             />
           </InputGroup>
           <Box overflow="auto" maxHeight={100} mt={2} mb={2} pl={1} pr={1}>
-            <Box fontSize={12}>
-              <Checkbox
-                onChange={() =>
-                  isSelectAll ? setUserValues([]) : setUserValues(values)
-                }
-                value=""
-                size="sm"
-                borderColor={borderColor}
-                isChecked={isSelectAll}
-                isIndeterminate={isIndeterminate}
-              >
-                Select All
-              </Checkbox>
-            </Box>
             {values
               .filter((value) =>
                 new RegExp(filterText, "gi").test(value.toString())
