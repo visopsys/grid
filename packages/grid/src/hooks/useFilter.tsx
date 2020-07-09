@@ -128,8 +128,8 @@ const useFilter = ({
         const cellWidth = pos.width as number;
         return {
           x:
-            left + cellWidth < width
-              ? left + cellWidth - offset
+            left + cellWidth - scrollPosition.scrollLeft < width
+              ? left + cellWidth - offset - scrollPosition.scrollLeft
               : left + cellWidth - scrollPosition.scrollLeft - width,
           y: top - scrollPosition.scrollTop + offset,
         };
