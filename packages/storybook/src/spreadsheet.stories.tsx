@@ -1,16 +1,17 @@
+// @ts-nocheck
 import React, { useState, useCallback } from "react";
 import Spreadsheet, { Sheet, defaultSheets } from "@rowsncolumns/spreadsheet";
 import { parse, download } from "@rowsncolumns/export";
 
 export default {
   title: "Spreadsheet",
-  component: Spreadsheet,
+  component: Spreadsheet
 };
 
 // @ts-ignore
 const newSheet = ({ count }: { count: number }): Sheet => ({
   name: `Sheet${count}`,
-  cells: {},
+  cells: {}
 });
 
 export const Default = () => {
@@ -21,7 +22,7 @@ export const Default = () => {
           margin: 10,
           display: "flex",
           flexDirection: "column",
-          minHeight: 800,
+          minHeight: 800
         }}
       >
         <Spreadsheet
@@ -44,7 +45,7 @@ export const Import = () => {
     const [sheets, setSheets] = useState(defaultSheets);
     const handleChangeFile = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        const getSheets = async (file) => {
+        const getSheets = async file => {
           const newSheets = await parse({ file });
           setSheets(newSheets.sheets);
         };
@@ -58,7 +59,7 @@ export const Import = () => {
           margin: 10,
           display: "flex",
           flexDirection: "column",
-          minHeight: 800,
+          minHeight: 800
         }}
       >
         <div>
@@ -87,7 +88,7 @@ export const Import = () => {
 };
 
 Import.story = {
-  name: "Import excel file",
+  name: "Import excel file"
 };
 
 export const ExportToExcel = () => {
@@ -96,7 +97,7 @@ export const ExportToExcel = () => {
     const handleExport = useCallback(({ sheets }) => {
       download({
         sheets,
-        filename: "Report",
+        filename: "Report"
       });
     }, []);
     return (
@@ -110,7 +111,7 @@ export const ExportToExcel = () => {
             margin: 10,
             display: "flex",
             flexDirection: "column",
-            minHeight: 600,
+            minHeight: 600
           }}
         >
           <Spreadsheet sheets={sheets} onChange={setSheets} />
@@ -122,7 +123,7 @@ export const ExportToExcel = () => {
 };
 
 ExportToExcel.story = {
-  name: "Export excel file",
+  name: "Export excel file"
 };
 
 export const FilterViews = () => {
@@ -133,40 +134,52 @@ export const FilterViews = () => {
         id: 0,
         frozenRows: 1,
         frozenColumns: 1,
+        hiddenRows: [],
         cells: {
           1: {
             1: {
-              text: "First Name",
+              text: "First Name"
             },
             2: {
-              text: "Last Name",
+              text: "Last Name"
             },
             3: {
-              text: "Gender",
-            },
+              text: "Gender"
+            }
           },
           2: {
             1: {
-              text: "Dulce",
+              text: "Dulce"
             },
             2: {
-              text: "Abril",
+              text: "Abril"
             },
             3: {
-              text: "Female",
-            },
+              text: "Female"
+            }
           },
           3: {
             1: {
-              text: "Mara",
+              text: "Mara"
             },
             2: {
-              text: "Hashimoto",
+              text: "Hashimoto"
             },
             3: {
-              text: "Male",
-            },
+              text: "Male"
+            }
           },
+          4: {
+            1: {
+              text: "EMara"
+            },
+            2: {
+              text: "Hashimoto"
+            },
+            3: {
+              text: "Male"
+            }
+          }
         },
         filterViews: [
           {
@@ -174,11 +187,11 @@ export const FilterViews = () => {
               top: 1,
               bottom: 5,
               left: 1,
-              right: 3,
-            },
-          },
-        ],
-      },
+              right: 3
+            }
+          }
+        ]
+      }
     ];
     return <Spreadsheet sheets={initialSheets} />;
   };

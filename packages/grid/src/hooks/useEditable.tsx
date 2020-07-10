@@ -3,20 +3,22 @@ import React, {
   useEffect,
   useRef,
   useState,
-  useMemo,
+  useMemo
 } from "react";
 import {
   CellInterface,
   ScrollCoords,
   CellPosition,
   GridRef,
-  SelectionArea,
+  SelectionArea
 } from "../Grid";
 import { KeyCodes, Direction } from "./../types";
 import {
   findNextCellWithinBounds,
   AutoSizerCanvas,
   isEqualCells,
+  clampIndex,
+  HiddenFn
 } from "../helpers";
 
 export interface UseEditableOptions {
@@ -77,13 +79,13 @@ export interface UseEditableOptions {
    */
   hideOnBlur?: boolean;
   /**
-   * Hidden row ids
+   * Hidden rows
    */
-  hiddenRows?: number[];
+  isHiddenRow: HiddenFn;
   /**
-   * Hidden column ids
+   * Hidden columns
    */
-  hiddenColumns?: number[];
+  isHiddenColumn: HiddenFn;
 }
 
 export interface EditableResults {
@@ -208,7 +210,7 @@ export interface EditorProps extends CellInterface {
  * Default cell editor
  * @param props
  */
-const DefaultEditor: React.FC<EditorProps> = (props) => {
+const DefaultEditor: React.FC<EditorProps> = props => {
   const {
     rowIndex,
     columnIndex,
@@ -229,7 +231,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { x = 0, y = 0, width = 0, height = 0 } = position;
   const getWidth = useCallback(
-    (text) => {
+    text => {
       const textWidth = textSizer.current.measureText(text)?.width || 0;
       return Math.max(textWidth + padding, width + borderWidth / 2);
     },
@@ -257,7 +259,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
         padding: borderWidth,
         boxShadow: "0 2px 6px 2px rgba(60,64,67,.15)",
         border: "2px #1a73e8 solid",
-        background: "white",
+        background: "white"
       }}
     >
       <textarea
@@ -278,7 +280,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
           resize: "none",
           overflow: "hidden",
           verticalAlign: "top",
-          background: "transparent",
+          background: "transparent"
         }}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
           onChange(e.target.value, cell);
@@ -327,6 +329,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
 const getDefaultEditor = (cell: CellInterface | null) => DefaultEditor;
 const defaultCanEdit = (cell: CellInterface) => true;
 const EMPTY_ID: number[] = [];
+const defaultIsHidden = (i: number) => false;
 
 /**
  * Hook to make grid editable
@@ -346,8 +349,8 @@ const useEditable = ({
   frozenRows = 0,
   frozenColumns = 0,
   hideOnBlur = true,
-  hiddenRows = EMPTY_ID,
-  hiddenColumns = EMPTY_ID,
+  isHiddenRow = defaultIsHidden,
+  isHiddenColumn = defaultIsHidden
 }: UseEditableOptions): EditableResults => {
   const [isEditorShown, setShowEditor] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
@@ -355,13 +358,13 @@ const useEditable = ({
     x: 0,
     y: 0,
     width: 0,
-    height: 0,
+    height: 0
   });
   const currentActiveCellRef = useRef<CellInterface | null>(null);
   const initialActiveCell = useRef<CellInterface | null>();
   const [scrollPosition, setScrollPosition] = useState<ScrollCoords>({
     scrollLeft: 0,
-    scrollTop: 0,
+    scrollTop: 0
   });
   const [autoFocus, setAutoFocus] = useState<boolean>(true);
   const isDirtyRef = useRef<boolean>(false);
@@ -433,7 +436,7 @@ const useEditable = ({
       x:
         (position.x as number) -
         (isFrozenColumn ? 0 : scrollPosition.scrollLeft),
-      y: (position.y as number) - (isFrozenRow ? 0 : scrollPosition.scrollTop),
+      y: (position.y as number) - (isFrozenRow ? 0 : scrollPosition.scrollTop)
     };
   };
 
@@ -463,7 +466,7 @@ const useEditable = ({
       KeyCodes.Tab,
       KeyCodes.Home,
       KeyCodes.End,
-      KeyCodes.CapsLock,
+      KeyCodes.CapsLock
     ].includes(keyCode);
   }, []);
 
@@ -505,45 +508,6 @@ const useEditable = ({
     [selections, activeCell]
   );
 
-  /* Clamp row and column Index */
-  const clampRowIndex = (rowIndex: number, direction: Direction) => {
-    switch (direction) {
-      case Direction.Down:
-        let index = hiddenRows.indexOf(rowIndex);
-        while (index > -1) {
-          index = hiddenRows.indexOf(++rowIndex);
-        }
-        break;
-      case Direction.Up: {
-        let index = hiddenRows.indexOf(rowIndex);
-        while (index > -1) {
-          index = hiddenRows.indexOf(--rowIndex);
-        }
-        break;
-      }
-    }
-    return rowIndex;
-  };
-  /* Clamp columnIndex */
-  const clampColumnIndex = (columnIndex: number, direction: Direction) => {
-    switch (direction) {
-      case Direction.Right:
-        let index = hiddenColumns.indexOf(columnIndex);
-        while (index > -1) {
-          index = hiddenColumns.indexOf(++columnIndex);
-        }
-        break;
-      case Direction.Left: {
-        let index = hiddenRows.indexOf(columnIndex);
-        while (index > -1) {
-          index = hiddenColumns.indexOf(--columnIndex);
-        }
-        break;
-      }
-    }
-    return columnIndex;
-  };
-
   /**
    * Get next focusable cell
    * Respects selection bounds
@@ -560,39 +524,48 @@ const useEditable = ({
       let nextActiveCell = currentCell;
       switch (direction) {
         case Direction.Right: {
-          let columnIndex = clampColumnIndex(bounds.right + 1, direction);
+          let columnIndex = clampIndex(
+            bounds.right + 1,
+            isHiddenColumn,
+            direction
+          );
           nextActiveCell = {
             rowIndex: bounds.top,
-            columnIndex,
+            columnIndex
           };
           break;
         }
         case Direction.Up:
-          let rowIndex = clampRowIndex(bounds.top - 1, direction);
+          let rowIndex = clampIndex(bounds.top - 1, isHiddenRow, direction);
           nextActiveCell = {
             rowIndex,
-            columnIndex: bounds.left,
+            columnIndex: bounds.left
           };
           break;
 
         case Direction.Left: {
-          let columnIndex = clampColumnIndex(bounds.left - 1, direction);
+          let columnIndex = clampIndex(
+            bounds.left - 1,
+            isHiddenColumn,
+            direction
+          );
           nextActiveCell = {
             rowIndex: bounds.top,
-            columnIndex,
+            columnIndex
           };
           break;
         }
 
         default: {
           // Down
-          let rowIndex = clampRowIndex(
+          let rowIndex = clampIndex(
             (initialActiveCell.current?.rowIndex ?? bounds.bottom) + 1,
+            isHiddenRow,
             direction
           );
           nextActiveCell = {
             rowIndex,
-            columnIndex: initialActiveCell.current?.columnIndex ?? bounds.left,
+            columnIndex: initialActiveCell.current?.columnIndex ?? bounds.left
           };
           break;
         }
@@ -619,7 +592,7 @@ const useEditable = ({
       }
       return nextActiveCell;
     },
-    [selections, hiddenRows, hiddenColumns]
+    [selections, isHiddenRow, isHiddenColumn]
   );
 
   /* Save the value */
@@ -735,7 +708,7 @@ const useEditable = ({
     submitEditor: handleSubmit,
     cancelEditor: handleCancel,
     onMouseDown: handleMouseDown,
-    onScroll: handleScroll,
+    onScroll: handleScroll
   };
 };
 

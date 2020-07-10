@@ -59,7 +59,7 @@ const DefaultTooltipComponent: React.FC<TooltipProps> = ({ content, x, y }) => {
         background: "rgba(0,0,0,0.8)",
         padding: 5,
         borderRadius: 5,
-        color: "white",
+        color: "white"
       }}
     >
       {content}
@@ -70,7 +70,7 @@ const DefaultTooltipComponent: React.FC<TooltipProps> = ({ content, x, y }) => {
 const useTooltip = ({
   getValue,
   gridRef,
-  component: Component = DefaultTooltipComponent,
+  component: Component = DefaultTooltipComponent
 }: TooltipOptions): TooltipResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<
@@ -84,7 +84,7 @@ const useTooltip = ({
   const tooltipProps: TooltipProps = {
     content,
     x: tooltipPosition.x,
-    y: tooltipPosition.y,
+    y: tooltipPosition.y
   };
   const tooltipComponent = showTooltip ? <Component {...tooltipProps} /> : null;
 
@@ -99,7 +99,7 @@ const useTooltip = ({
       const { rowIndex, columnIndex } = coords;
       setTooltipPosition({
         x: e.clientX,
-        y: e.clientY,
+        y: e.clientY
       });
       /* Exit if its the same cell */
       if (
@@ -113,14 +113,14 @@ const useTooltip = ({
     [activeCell]
   );
 
-  const handleMouseLeave = useCallback((e) => {
+  const handleMouseLeave = useCallback(e => {
     setActiveCell(null);
   }, []);
 
   return {
     tooltipComponent,
     onMouseMove: handleMouseMove,
-    onMouseLeave: handleMouseLeave,
+    onMouseLeave: handleMouseLeave
   };
 };
 

@@ -204,7 +204,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       frozenRows = 0,
       frozenColumns = 0,
       onKeyDown,
-      hiddenColumns = EMPTY_ARRAY as number[],
+      hiddenColumns: userHiddenColumns = EMPTY_ARRAY as number[],
       hiddenRows: userHiddenRows = EMPTY_ARRAY as number[],
       filterViews = EMPTY_ARRAY as FilterView[],
       onPaste,
@@ -309,6 +309,45 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       [cells]
     );
 
+    /**
+     * Apply filter on the cells
+     */
+    const hiddenFilterRows = useMemo(() => {
+      const rows: Record<string, true> = {};
+      for (let i = 0; i < filterViews.length; i++) {
+        const filterView = filterViews[i];
+        const { bounds, filters } = filterView;
+        for (const columnIndex in filters) {
+          const { values, operator } = filters[columnIndex];
+          for (let k = bounds.top + 1; k <= bounds.bottom; k++) {
+            const cell = { rowIndex: k, columnIndex: parseInt(columnIndex) };
+            const value = getValue(cell) || "";
+            if (!values.includes(value)) {
+              rows[k] = true;
+            }
+          }
+        }
+      }
+      return rows;
+    }, [filterViews]);
+
+    const hiddenRows = useMemo(() => {
+      return userHiddenRows.reduce((acc, item) => {
+        acc[item] = true;
+        return acc;
+      }, hiddenFilterRows);
+    }, [hiddenFilterRows, userHiddenRows]);
+
+    const hiddenColumns = useMemo(() => {
+      const initialValue: Record<string, boolean> = {};
+      return userHiddenColumns.reduce((acc, item) => {
+        acc[item] = true;
+        return acc;
+      }, initialValue);
+    }, [userHiddenColumns]);
+
+    const previousHiddenRows = usePrevious<Record<string, true>>(hiddenRows);
+
     /* Enable touch */
     const {
       isTouchDevice,
@@ -355,7 +394,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       gridRef,
       rowCount,
       columnCount,
-      onFill
+      onFill,
+      isHiddenRow: (rowIndex: number) => hiddenRows[rowIndex],
+      isHiddenColumn: (columnIndex: number) => hiddenColumns[columnIndex]
     });
 
     /**
@@ -413,34 +454,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     );
 
     /**
-     * Apply filter on the cells
-     */
-    const hiddenFilterRows = useMemo(() => {
-      const rows = [];
-      for (let i = 0; i < filterViews.length; i++) {
-        const filterView = filterViews[i];
-        const { bounds, filters } = filterView;
-        for (const columnIndex in filters) {
-          const { values, operator } = filters[columnIndex];
-          for (let k = bounds.top + 1; k <= bounds.bottom; k++) {
-            const cell = { rowIndex: k, columnIndex: parseInt(columnIndex) };
-            const value = getValue(cell) || "";
-            if (!values.includes(value)) {
-              rows.push(k);
-            }
-          }
-        }
-      }
-      return rows;
-    }, [filterViews]);
-
-    const hiddenRows = useMemo(() => {
-      return userHiddenRows.concat(hiddenFilterRows);
-    }, [hiddenFilterRows, userHiddenRows]);
-
-    const previousHiddenRows = usePrevious<number[]>(hiddenRows);
-
-    /**
      * Adjusts a column
      */
     const handleAdjustColumn = useCallback(
@@ -493,21 +506,33 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       const colIndices = Object.keys(columnSizes).map(Number);
       gridRef.current?.resetAfterIndices?.({
         rowIndex: rowIndices.length
-          ? Math.min(rowCount, ...rowIndices, ...hiddenRows)
+          ? Math.min(
+              rowCount,
+              ...rowIndices,
+              ...Object.keys(hiddenRows).map(Number)
+            )
           : 0,
         columnIndex: colIndices.length
-          ? Math.min(columnCount, ...colIndices, ...hiddenColumns)
+          ? Math.min(
+              columnCount,
+              ...colIndices,
+              ...Object.keys(hiddenColumns).map(Number)
+            )
           : 0
       });
     }, [selectedSheet]);
 
     /* TODO : Improve */
     useEffect(() => {
-      if (!hiddenRows.length && !previousHiddenRows?.length) return;
-      const prev = previousHiddenRows ? previousHiddenRows : [];
+      const hiddenRowIndices = Object.keys(hiddenRows).map(Number);
+      const previousHiddenRowsIndices =
+        previousHiddenRows && Object.keys(previousHiddenRows).map(Number);
+      if (!hiddenRowIndices.length && !previousHiddenRowsIndices?.length)
+        return;
+      const prev = previousHiddenRowsIndices ? previousHiddenRowsIndices : [];
       gridRef.current?.resetAfterIndices({
-        rowIndex: hiddenRows.length
-          ? Math.min(...hiddenRows, rowCount, ...prev)
+        rowIndex: hiddenRowIndices.length
+          ? Math.min(...hiddenRowIndices, rowCount, ...prev)
           : 0
       });
     }, [hiddenRows]);
@@ -565,8 +590,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       },
       frozenRows: actualFrozenRows,
       frozenColumns: actualFrozenColumns,
-      hiddenRows,
-      hiddenColumns,
+      isHiddenRow: (rowIndex: number) => hiddenRows[rowIndex],
+      isHiddenColumn: (columnIndex: number) => hiddenColumns[columnIndex],
       gridRef,
       selections,
       activeCell,
@@ -593,7 +618,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const columnWidth = useCallback(
       (columnIndex: number) => {
         if (columnIndex === 0) return COLUMN_HEADER_WIDTH;
-        if (hiddenColumns?.indexOf(columnIndex) !== -1) return 0;
+        if (hiddenColumns[columnIndex]) return 0;
         return columnSizes[columnIndex] ?? minColumnWidth;
       },
       [minColumnWidth, columnSizes, selectedSheet]
@@ -601,7 +626,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const rowHeight = useCallback(
       (rowIndex: number) => {
         if (rowIndex === 0) return ROW_HEADER_HEIGHT;
-        if (hiddenRows?.indexOf(rowIndex) !== -1) return 0;
+        if (hiddenRows[rowIndex]) return 0;
         return rowSizes[rowIndex] ?? minRowHeight;
       },
       [minRowHeight, hiddenRows, rowSizes, selectedSheet]
@@ -638,9 +663,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const { rowIndex, columnIndex } = props;
         const isRowHeader = rowIndex === 0;
         const isColumnHeader = columnIndex === 0;
-        const isHidden =
-          hiddenRows?.indexOf(rowIndex) !== -1 ||
-          hiddenColumns?.indexOf(columnIndex) !== -1;
+        const isHidden = hiddenRows[rowIndex] || hiddenColumns[columnIndex];
         if (isHidden) return null;
         const isHeaderActive =
           isRowHeader || isColumnHeader
@@ -715,9 +738,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const overlayRenderer = useCallback(
       (props: RendererProps) => {
         const { rowIndex, columnIndex } = props;
-        const isHidden =
-          hiddenRows?.indexOf(rowIndex) !== -1 ||
-          hiddenColumns?.indexOf(columnIndex) !== -1;
+        const isHidden = hiddenRows[rowIndex] || hiddenColumns[columnIndex];
         const cell = { rowIndex, columnIndex };
         if (isHidden) return null;
         return (

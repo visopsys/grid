@@ -446,10 +446,8 @@ export const getEstimatedTotalWidth = (
 };
 
 /* Create a stringified cell identifier */
-export const cellIdentifier = (
-  rowIndex: number,
-  columnIndex: number
-): string => [rowIndex, columnIndex].toString();
+export const cellIdentifier = (rowIndex: number, columnIndex: number): string =>
+  [rowIndex, columnIndex].toString();
 
 /**
  * @desc Throttle fn
@@ -850,4 +848,36 @@ export const isEqualCells = (
 ) => {
   if (isNull(a) || isNull(b) || a === null || b === null) return false;
   return a.rowIndex === b.rowIndex && a.columnIndex === b.columnIndex;
+};
+
+/**
+ * Find next row Index
+ * @param rowIndex
+ * @param direction
+ */
+export type HiddenFn = (i: number) => boolean;
+export const clampIndex = (
+  index: number,
+  isHidden: HiddenFn,
+  direction: Direction
+) => {
+  switch (direction) {
+    case Direction.Right:
+    case Direction.Down:
+      let hidden = isHidden?.(index);
+      while (hidden === true) {
+        hidden = isHidden?.(++index);
+      }
+      break;
+
+    case Direction.Left:
+    case Direction.Up: {
+      let hidden = isHidden?.(index);
+      while (hidden === true) {
+        hidden = isHidden?.(--index);
+      }
+      break;
+    }
+  }
+  return index;
 };

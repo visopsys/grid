@@ -10,7 +10,7 @@ import {
   InputLeftElement,
   Icon,
   Input,
-  Checkbox,
+  Checkbox
 } from "@chakra-ui/core";
 import { DARK_MODE_COLOR } from "../constants";
 import { MenuItem, Button } from "./../styled";
@@ -39,7 +39,7 @@ const FilterComponent = ({
   filter,
   columnIndex,
   index,
-  width,
+  width
 }: FilterComponentProps) => {
   if (!columnIndex) return null;
   const [filterText, setFilterText] = useState("");
@@ -57,15 +57,15 @@ const FilterComponent = ({
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
     if (checked) {
-      setUserValues((prev) => prev.concat(value));
+      setUserValues(prev => prev.concat(value));
     } else {
-      setUserValues((prev) => prev.filter((v) => v !== value));
+      setUserValues(prev => prev.filter(v => v !== value));
     }
   }, []);
   const handleSubmit = useCallback(() => {
     onChange?.(index, columnIndex, {
       values: userValues,
-      operator: filter?.operator,
+      operator: filter?.operator
     });
   }, [userValues]);
   const isSelectAll = values.length === userValues.length;
@@ -115,7 +115,7 @@ const FilterComponent = ({
           </InputGroup>
           <Box overflow="auto" maxHeight={100} mt={2} mb={2} pl={1} pr={1}>
             {values
-              .filter((value) =>
+              .filter(value =>
                 new RegExp(filterText, "gi").test(value.toString())
               )
               .map((value, idx) => {

@@ -3,7 +3,7 @@ import { Cell, RendererProps } from "@rowsncolumns/grid";
 import {
   number2Alpha,
   DARK_MODE_COLOR,
-  HEADER_BORDER_COLOR,
+  HEADER_BORDER_COLOR
 } from "../constants";
 import { Rect } from "react-konva";
 import { ShapeConfig } from "konva/types/Shape";
@@ -29,7 +29,7 @@ interface DraggableRectProps
   parentY: number;
 }
 const DRAG_HANDLE_WIDTH = 5;
-const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
+const DraggableRect: React.FC<DraggableRectProps> = memo(props => {
   const {
     axis = AXIS.X,
     x = 0,
@@ -40,11 +40,11 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
     rowIndex,
     onResize,
     parentX = 0,
-    parentY = 0,
+    parentY = 0
   } = props;
   const cursor = axis === AXIS.X ? "e-resize" : "n-resize";
   const index = useMemo(() => (axis === AXIS.X ? columnIndex : rowIndex), [
-    axis,
+    axis
   ]);
   return (
     <Rect
@@ -56,14 +56,14 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
       hitStrokeWidth={5}
       onMouseEnter={() => (document.body.style.cursor = cursor)}
       onMouseLeave={() => (document.body.style.cursor = "default")}
-      onMouseDown={(e) => e.evt.stopPropagation()}
-      dragBoundFunc={(pos) => {
+      onMouseDown={e => e.evt.stopPropagation()}
+      dragBoundFunc={pos => {
         return {
           ...pos,
-          ...(axis === "x" ? { y: 0 } : { x: 0 }),
+          ...(axis === "x" ? { y: 0 } : { x: 0 })
         };
       }}
-      onDragMove={(e) => {
+      onDragMove={e => {
         const node = e.target;
         const dimension =
           axis === AXIS.X
@@ -81,7 +81,7 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
   );
 });
 
-const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
+const HeaderCell: React.FC<HeaderCellProps> = memo(props => {
   const [showResizer, setShowResizer] = useState(false);
   const {
     rowIndex,
@@ -93,7 +93,7 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
     height = 0,
     isHidden,
     isLightMode,
-    theme,
+    theme
   } = props;
   const { onResize, onAdjustColumn, ...rest } = props;
   const isCorner = rowIndex === columnIndex;

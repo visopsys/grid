@@ -3,7 +3,7 @@ import {
   getEstimatedTotalWidth,
   getEstimatedTotalHeight,
   getBoundedCells,
-  cellIdentifier,
+  cellIdentifier
 } from "../helpers";
 
 describe("getBoundedCells", () => {
@@ -17,7 +17,7 @@ describe("getBoundedCells", () => {
       top: 1,
       right: 5,
       left: 1,
-      bottom: 5,
+      bottom: 5
     });
     expect(cells.has(cellIdentifier(1, 1))).toBeTruthy();
     expect(cells.has(cellIdentifier(5, 5))).toBeTruthy();
@@ -30,7 +30,7 @@ describe("getEstimatedTotalWidth", () => {
     const instanceProps = {
       lastMeasuredColumnIndex: -1,
       columnMetadataMap: {},
-      estimatedColumnWidth: 30,
+      estimatedColumnWidth: 30
     };
 
     expect(getEstimatedTotalWidth(columnCount, instanceProps)).toBe(6000);
@@ -43,14 +43,14 @@ describe("getEstimatedTotalWidth", () => {
       columnMetadataMap: {
         0: {
           offset: 0,
-          size: 20,
+          size: 20
         },
         1: {
           offset: 20,
-          size: 70,
-        },
+          size: 70
+        }
       },
-      estimatedColumnWidth: 30,
+      estimatedColumnWidth: 30
     };
 
     expect(getEstimatedTotalWidth(columnCount, instanceProps)).toBe(6030);
@@ -63,7 +63,7 @@ describe("getEstimatedTotalHeight", () => {
     const instanceProps = {
       lastMeasuredRowIndex: -1,
       rowMetadataMap: {},
-      estimatedRowHeight: 30,
+      estimatedRowHeight: 30
     };
 
     expect(getEstimatedTotalHeight(rowCount, instanceProps)).toBe(6000);
@@ -76,14 +76,14 @@ describe("getEstimatedTotalHeight", () => {
       rowMetadataMap: {
         0: {
           offset: 0,
-          size: 20,
+          size: 20
         },
         1: {
           offset: 20,
-          size: 70,
-        },
+          size: 70
+        }
       },
-      estimatedRowHeight: 30,
+      estimatedRowHeight: 30
     };
 
     expect(getEstimatedTotalHeight(rowCount, instanceProps)).toBe(5990);

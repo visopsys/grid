@@ -23,7 +23,7 @@ const FilterIcon: React.FC<FilterIconProps> = ({
   height = 0,
   rowIndex,
   columnIndex,
-  onClick,
+  onClick
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const padding = (height - FILTER_ICON_DIM) / 2;
