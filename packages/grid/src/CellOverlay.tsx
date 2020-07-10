@@ -12,7 +12,7 @@ export interface StrokeCellProps
 /**
  * Only used for strokes
  */
-const CellOverlay: React.FC<StrokeCellProps> = memo((props) => {
+const CellOverlay: React.FC<StrokeCellProps> = memo(props => {
   const {
     x,
     y,
@@ -33,7 +33,7 @@ const CellOverlay: React.FC<StrokeCellProps> = memo((props) => {
     strokeRightWidth = strokeWidth,
     strokeBottomWidth = strokeWidth,
     strokeLeftWidth = strokeWidth,
-    lineCap = "square",
+    lineCap = "square"
   } = props;
   const userStroke =
     strokeTopColor || strokeRightColor || strokeBottomColor || strokeLeftColor;
@@ -45,9 +45,9 @@ const CellOverlay: React.FC<StrokeCellProps> = memo((props) => {
       width={width}
       height={height}
       sceneFunc={(context, shape) => {
+        context.beginPath();
         /* Top border */
         if (strokeTopColor) {
-          // context.beginPath();
           context.moveTo(0.5, 0.5);
           context.lineTo(shape.width(), 0.5);
           context.setAttr("strokeStyle", strokeTopColor);
@@ -57,7 +57,6 @@ const CellOverlay: React.FC<StrokeCellProps> = memo((props) => {
         }
         /* Right border */
         if (strokeRightColor) {
-          // context.beginPath();
           context.moveTo(shape.width() + 0.5, 0.5);
           context.lineTo(shape.width() + 0.5, shape.height() + 0.5);
           context.setAttr("strokeStyle", strokeRightColor);
@@ -67,7 +66,6 @@ const CellOverlay: React.FC<StrokeCellProps> = memo((props) => {
         }
         /* Bottom border */
         if (strokeBottomColor) {
-          // context.beginPath();
           context.moveTo(shape.width() + 0.5, shape.height() + 0.5);
           context.lineTo(0.5, shape.height() + 0.5);
           context.setAttr("lineWidth", strokeBottomWidth);
@@ -77,7 +75,6 @@ const CellOverlay: React.FC<StrokeCellProps> = memo((props) => {
         }
         /* Left border */
         if (strokeLeftColor) {
-          // context.beginPath();
           context.moveTo(0.5, shape.height() + 0.5);
           context.lineTo(0.5, 0.5);
           context.setAttr("strokeStyle", strokeLeftColor);
@@ -116,7 +113,7 @@ const CellRenderer = (props: RendererProps) => {
     strokeRightWidth = strokeWidth,
     strokeBottomWidth = strokeWidth,
     strokeLeftWidth = strokeWidth,
-    lineCap = "square",
+    lineCap = "square"
   } = props;
   return (
     <CellOverlay
