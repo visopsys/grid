@@ -48,6 +48,9 @@ function Home() {
             </Elements>
           </Box>
           <Box mb={5}>
+            <Box pb={4}>
+              <img src="/img/payment-stripe.png" width="200" />
+            </Box>
             <Text>After the payment is complete</Text>
             <List styleType="disc" pb={5}>
               <ListItem>A license key will be emailed to you.</ListItem>
