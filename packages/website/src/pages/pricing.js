@@ -33,8 +33,8 @@ function Home() {
         </Text>
         <SimpleGrid
           columns={[1, 1, 2]}
-          width={["auto", 'auto', 800]}
-          margin="auto"          
+          width={["auto", "auto", 800]}
+          margin="auto"
           spacing={10}
           alignItem="center"
         >
@@ -85,13 +85,7 @@ function Home() {
               <ListItem pb={2}>
                 <Flex>
                   <ListIcon mt={1} icon="check-circle" color="green.500" />
-                  Multiple applications
-                </Flex>
-              </ListItem>
-              <ListItem pb={2}>
-                <Flex>
-                  <ListIcon mt={1} icon="check-circle" color="green.500" />
-                  Internal use only
+                  Single application
                 </Flex>
               </ListItem>
               <ListItem pb={2}>
@@ -115,20 +109,28 @@ function Home() {
               <ListItem pb={2}>
                 <Flex>
                   <ListIcon icon="check-circle" color="green.500" />1 year of
-                  free support from the Core team.
+                  FREE support from the Core team.
                 </Flex>
               </ListItem>
             </List>
 
             <Button
-              variantColor="blue"
+              variantColor="purple"
               width={200}
               margin="auto"
               display="block"
-              isDisabled
+              textAlign="center"
+              href="/checkout"
+              as="a"
+              lineHeight="40px"
               mb={5}
+              _hover={{
+                color: "white",
+                opacity: 0.9,
+                textDecoration: "none"
+              }}
             >
-              Coming soon
+              Buy
             </Button>
           </Box>
         </SimpleGrid>

@@ -41,7 +41,7 @@ function Home() {
       >
         <Box justifyContent="center" display="flex" flexDirection="column">
           <Text as="h1" fontSize="4xl" fontWeight="bold" mb={2}>
-            SpreadSheet
+            SpreadSheet Grid
           </Text>
           <Text mb={6} fontSize="lg">
             Excel-like Datagrid component for React JS. Built for high
@@ -51,17 +51,26 @@ function Home() {
             <ListItem>High performance (uses canvas for rendering)</ListItem>
             <ListItem>Declarative</ListItem>
             <ListItem>Easily customizable</ListItem>
+            <ListItem>
+              Supports row, column freezing, autofilter views, cell styling and
+              formatting etc
+            </ListItem>
             <ListItem>Feature packed</ListItem>
           </List>
           <Box>
             {/* <Button variantColor='blue' mr={2}>Demo</Button> */}
-            <Button as="a" href="/docs" variantColor='purple' _hover={{ color: 'white'}}>
+            <Button
+              as="a"
+              href="/docs"
+              variantColor="purple"
+              _hover={{ color: "white" }}
+            >
               Get Started
             </Button>
           </Box>
         </Box>
         <Box minWidth={[0, 0, 500, 700]} display="flex">
-          <SpreadSheet initialColorMode='light' />
+          <SpreadSheet initialColorMode="light" />
         </Box>
       </SimpleGrid>
     </Layout>

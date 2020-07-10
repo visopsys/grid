@@ -3,11 +3,11 @@ id: introduction
 title: Introduction
 ---
 
-## What is SpreadSheet
+## What is SpreadSheet Grid
 
-SpreadSheet is a React component to display excel-like spreadsheets in your application. It lets you declaratively render, customize and develop high performance excel grids.
+SpreadSheet Grid is a React component to display excel-like spreadsheets in your application. It lets you declaratively render, customize and develop high performance excel grids.
 
-Written in TypeScript, Spreadsheet only work with React/Preact.
+Written in TypeScript, Spreadsheet only work with React/Preact. It is,
 
 1. Fast, Uses Canvas for rendering.
 1. Highly customizable
