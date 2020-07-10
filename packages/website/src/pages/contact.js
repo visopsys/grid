@@ -25,13 +25,6 @@ function Home() {
         <Text fontSize={30} fontWeight="bold" mb={5} as="h1">
           Contact us
         </Text>
-        <Text fontSize={20} fontWeight="bold" as="h2" mb={1}>
-          Sales enquiries
-        </Text>
-        <Text>
-          For sales enquiries, email us at{" "}
-          <a href="mailto:sales@rowsncolumns.app">sales@rowsncolumns.app</a>
-        </Text>
 
         <Text mt={5} fontSize={20} fontWeight="bold" as="h2" mb={2}>
           Support
@@ -50,6 +43,14 @@ function Home() {
         <Text mt={2} mb={2}>
           Or, email us at{" "}
           <a href="mailto:support@rowsncolumns.app">support@rowsncolumns.app</a>
+        </Text>
+
+        <Text fontSize={20} fontWeight="bold" as="h2" mb={1} mt={5}>
+          Sales enquiries
+        </Text>
+        <Text>
+          For sales enquiries, email us at{" "}
+          <a href="mailto:sales@rowsncolumns.app">sales@rowsncolumns.app</a>
         </Text>
       </Box>
     </Layout>

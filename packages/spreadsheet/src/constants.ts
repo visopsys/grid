@@ -14,6 +14,8 @@ import {
 } from "@rowsncolumns/grid";
 import SSF from "ssf";
 
+export const DEFAULT_ROW_COUNT = 1000;
+export const DEFAULT_COLUMN_COUNT = 1000;
 export const COLUMN_HEADER_WIDTH = 46;
 export const FORMULABAR_LEFT_CORNER_WIDTH = 47;
 export const ROW_HEADER_HEIGHT = 24;
@@ -41,29 +43,32 @@ export const number2Alpha = (i: number): string => {
 };
 
 export const alpha2number = (letters: string): number => {
-  return letters.split('').reduce((r, a) => r * 26 + parseInt(a, 36) - 9, 0)
-}
+  return letters.split("").reduce((r, a) => r * 26 + parseInt(a, 36) - 9, 0);
+};
 
 export const addressToCell = (address: string): CellInterface | null => {
-  const regex = /([A-Z]+)(\d+)/gmi;
+  const regex = /([A-Z]+)(\d+)/gim;
   let m;
-  let matches: string[] = []
+  let matches: string[] = [];
 
   while ((m = regex.exec(address)) !== null) {
     // This is necessary to avoid infinite loops with zero-width matches
     if (m.index === regex.lastIndex) {
       regex.lastIndex++;
     }
-    
+
     // The result can be accessed through the `m`-variable.
     m.forEach((match, groupIndex) => {
-      if (groupIndex > 0) matches.push(match)
+      if (groupIndex > 0) matches.push(match);
     });
   }
-  if (!matches.length) return null
-  const [ rowAlpha, columnIndex ] = matches
-  return { rowIndex: alpha2number(rowAlpha), columnIndex: parseInt(columnIndex) }
-}
+  if (!matches.length) return null;
+  const [columnAlpha, rowIndex] = matches;
+  return {
+    rowIndex: parseInt(rowIndex),
+    columnIndex: alpha2number(columnAlpha)
+  };
+};
 
 export const cellAddress = (cell: CellInterface | null): string | null => {
   if (!cell) return null;
@@ -123,7 +128,7 @@ export const format = (
     return castToString(value);
   if (!formatting) return castToString(value);
   if (datatype === DATATYPE.Date) {
-    return SSF.format(formatting.format || DEFAULT_DATE_FORMAT, value)
+    return SSF.format(formatting.format || DEFAULT_DATE_FORMAT, value);
   }
   const num = parseFloat(typeof value !== "string" ? "" + value : value);
   try {
@@ -168,73 +173,61 @@ export const detectDataType = (value?: any): DATATYPE | undefined => {
   return undefined;
 };
 
-export const FONT_SIZES = [
-  6,
-  7,
-  8,
-  9,
-  10,
-  11,
-  12,
-  14,
-  18,
-  24,
-  36
-]
+export const FONT_SIZES = [6, 7, 8, 9, 10, 11, 12, 14, 18, 24, 36];
 
 export const FONT_FAMILIES = [
-  'Arial',
-  'Helvetica',
-  'Source Sans Pro',
-  'Comic Sans MS',
-  'Courier New',
-  'Verdana',
-  'Times New Roman'
-]
+  "Arial",
+  "Helvetica",
+  "Source Sans Pro",
+  "Comic Sans MS",
+  "Courier New",
+  "Verdana",
+  "Times New Roman"
+];
 
 export const AVAILABLE_FORMATS = [
   {
-    label: 'Number',
-    value: '#.00',
-    sample: '1,000.12'
+    label: "Number",
+    value: "#.00",
+    sample: "1,000.12"
   },
   {
-    label: 'Percent',
-    value: '#.00%',
-    sample: '10.12%'
+    label: "Percent",
+    value: "#.00%",
+    sample: "10.12%"
   },
   {
-    label: 'Scientific',
-    value: '0.00E+00',
-    sample: '1.01E+03'
-  },
-]
+    label: "Scientific",
+    value: "0.00E+00",
+    sample: "1.01E+03"
+  }
+];
 
 export const AVAILABLE_CURRENCY_FORMATS = [
   {
-    label: 'Accounting',
-    value: '$(#.00)',
-    sample: '$(1,000.12)'
+    label: "Accounting",
+    value: "$(#.00)",
+    sample: "$(1,000.12)"
   },
   {
-    label: 'Financial',
-    value: '(#.00)',
-    sample: '(1,000.12)'
+    label: "Financial",
+    value: "(#.00)",
+    sample: "(1,000.12)"
   },
   {
-    label: 'Currency',
-    value: '$#.00',
-    sample: '$1,000.00'
+    label: "Currency",
+    value: "$#.00",
+    sample: "$1,000.00"
   },
   {
-    label: 'Currency (rounded)',
-    value: '$#',
-    sample: '$1,000'
-  },
-]
-export const DEFAULT_DATE_FORMAT = 'd-mmm-yy'
-export const DEFAULT_FONT_SIZE = 12
-export const DEFAULT_FONT_FAMILY = 'Arial'
+    label: "Currency (rounded)",
+    value: "$#",
+    sample: "$1,000"
+  }
+];
+export const DEFAULT_DATE_FORMAT = "d-mmm-yy";
+export const DEFAULT_FONT_SIZE = 12;
+export const DEFAULT_FONT_FAMILY = "Arial";
 /**
  * Lighten or darken colors
  * @param color
@@ -449,4 +442,3 @@ export const cellsInSelectionVariant = (
   }
   return cells;
 };
-

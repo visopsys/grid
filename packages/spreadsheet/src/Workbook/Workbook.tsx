@@ -11,12 +11,18 @@ import {
   SelectionArea,
   ScrollCoords,
   isNull,
-  FilterDefinition,
+  FilterDefinition
 } from "@rowsncolumns/grid";
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
 import QuickInfo from "./../QuickInfo";
-import { DARK_MODE_COLOR_LIGHT, EMPTY_ARRAY } from "../constants";
+import {
+  DARK_MODE_COLOR_LIGHT,
+  EMPTY_ARRAY,
+  DEFAULT_COLUMN_COUNT,
+  DEFAULT_ROW_COUNT
+} from "../constants";
+import { current } from "immer";
 
 export interface WorkbookProps extends Omit<SpreadSheetProps, "onChange"> {
   currentSheet: Sheet;
@@ -123,19 +129,17 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       onInsertColumn,
       onDeleteColumn,
       onDeleteRow,
-      rowCount,
-      columnCount,
       CellEditor,
       allowMultipleSelection,
       onSelectionChange,
       selectionMode,
-      onChangeFilter,
+      onChangeFilter
     } = props;
 
     const { colorMode } = useColorMode();
     const isLight = colorMode === "light";
     const [containerRef, { width, height }] = useMeasure({
-      polyfill: ResizeObserver,
+      polyfill: ResizeObserver
     });
     const {
       cells,
@@ -151,7 +155,11 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       hiddenRows = EMPTY_ARRAY,
       showGridLines = true,
       filterViews,
+      rowCount = DEFAULT_ROW_COUNT,
+      columnCount = DEFAULT_COLUMN_COUNT
     } = currentSheet;
+
+    /* Current sheet ref */
     const selectedSheetRef = useRef(selectedSheet);
     useEffect(() => {
       selectedSheetRef.current = selectedSheet;
