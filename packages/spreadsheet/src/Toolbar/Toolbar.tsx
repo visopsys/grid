@@ -28,7 +28,7 @@ import {
   MdBorderClear,
   MdEdit,
   MdFormatColorReset,
-  MdLineStyle
+  MdLineStyle,
 } from "react-icons/md";
 import { AiOutlineMergeCells, AiOutlineFieldBinary } from "react-icons/ai";
 import { BsColumns } from "react-icons/bs";
@@ -49,7 +49,7 @@ import {
   MenuButton,
   MenuList,
   Icon,
-  MenuDivider
+  MenuDivider,
 } from "@chakra-ui/core";
 import {
   StyledToolbar,
@@ -60,7 +60,7 @@ import {
   Separator,
   PercentIcon,
   PopoverContent,
-  MenuItem
+  MenuItem,
 } from "./../styled";
 import {
   DARK_MODE_COLOR,
@@ -69,7 +69,7 @@ import {
   FONT_FAMILIES,
   DEFAULT_FONT_FAMILY,
   AVAILABLE_FORMATS,
-  AVAILABLE_CURRENCY_FORMATS
+  AVAILABLE_CURRENCY_FORMATS,
 } from "./../constants";
 import {
   FORMATTING_TYPE,
@@ -77,7 +77,7 @@ import {
   VERTICAL_ALIGNMENT,
   HORIZONTAL_ALIGNMENT,
   BORDER_VARIANT,
-  BORDER_STYLE
+  BORDER_STYLE,
 } from "./../types";
 import { translations } from "../translations";
 import { CellConfig } from "../Spreadsheet";
@@ -118,7 +118,7 @@ interface ColorPickerProps {
 const ColorPicker: React.FC<ColorPickerProps> = ({
   color,
   onChange,
-  resetLabel = "Reset"
+  resetLabel = "Reset",
 }) => {
   return (
     <Box pb={2}>
@@ -232,14 +232,14 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
           "#1c4587",
           "#073763",
           "#20124d",
-          "#4c1130"
+          "#4c1130",
         ]}
       />
     </Box>
   );
 };
 
-const Toolbar: React.FC<ToolbarProps> = props => {
+const Toolbar: React.FC<ToolbarProps> = (props) => {
   const {
     bold,
     italic,
@@ -269,7 +269,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
     format,
     onFormattingChangeAuto,
     onFormattingChangePlain,
-    plaintext
+    plaintext,
   } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const theme = useTheme();
@@ -531,12 +531,12 @@ const Toolbar: React.FC<ToolbarProps> = props => {
         <Separator borderColor={borderColor} />
 
         <SelectDropdown
-          options={FONT_SIZES.map(size => ({ label: size, value: size }))}
-          onChange={item => {
+          options={FONT_SIZES.map((size) => ({ label: size, value: size }))}
+          onChange={(item) => {
             onFormattingChange?.(FORMATTING_TYPE.FONT_SIZE, item?.value);
           }}
           value={{ value: fontSize, label: fontSize }}
-          format={value => parseInt(value)}
+          format={(value) => parseInt(value)}
         />
 
         <Separator borderColor={borderColor} />
@@ -767,7 +767,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                       <Select
                         size="sm"
                         value={frozenRows}
-                        onChange={e =>
+                        onChange={(e) =>
                           onFrozenRowChange?.(Number(e.target.value))
                         }
                         borderColor={
@@ -790,7 +790,7 @@ const Toolbar: React.FC<ToolbarProps> = props => {
                       <Select
                         size="sm"
                         value={frozenColumns}
-                        onChange={e =>
+                        onChange={(e) =>
                           onFrozenColumnChange?.(Number(e.target.value))
                         }
                         borderColor={
@@ -1065,7 +1065,7 @@ const BorderSelection: React.FC<BorderProps> = ({
   iconColor,
   activeIconColor,
   onBorderChange,
-  isLight
+  isLight,
 }) => {
   const [borderColor, setBorderColor] = useState<string | undefined>("#000000");
   const [borderVariant, setBorderVariant] = useState<BORDER_VARIANT>();
@@ -1310,7 +1310,7 @@ const BorderSelection: React.FC<BorderProps> = ({
                       <PopoverBody>
                         <ColorPicker
                           color={borderColor}
-                          onChange={value => {
+                          onChange={(value) => {
                             handleChangeColor(value);
                             onClose?.();
                           }}

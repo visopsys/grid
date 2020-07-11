@@ -4,7 +4,7 @@ import {
   DARK_MODE_COLOR_LIGHT,
   luminance,
   DEFAULT_FONT_SIZE,
-  castToString
+  castToString,
 } from "../constants";
 import {
   DATATYPE,
@@ -13,7 +13,7 @@ import {
   HORIZONTAL_ALIGNMENT,
   TEXT_DECORATION,
   VERTICAL_ALIGNMENT,
-  FormatType
+  FormatType,
 } from "./../types";
 import { CellConfig } from "../Spreadsheet";
 import { Shape, Text } from "react-konva";
@@ -40,14 +40,14 @@ export interface CellRenderProps extends Omit<CellProps, "text"> {
  * Cell renderer
  * @param props
  */
-const Cell: React.FC<CellProps> = memo(props => {
+const Cell: React.FC<CellProps> = memo((props) => {
   const {
     datatype,
     decimals,
     percent,
     currency,
     formatter,
-    isLightMode
+    isLightMode,
   } = props;
   const {
     stroke,
@@ -76,7 +76,7 @@ const Cell: React.FC<CellProps> = memo(props => {
         percent,
         currency,
         format,
-        currencySymbol
+        currencySymbol,
       })
     : castToString(props.text);
   return <DefaultCell isLightMode={isLightMode} {...cellProps} text={text} />;
@@ -85,7 +85,7 @@ const Cell: React.FC<CellProps> = memo(props => {
 /**
  * Default cell renderer
  */
-const DefaultCell: React.FC<CellRenderProps> = memo(props => {
+const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   const {
     x = 0,
     y = 0,
@@ -113,7 +113,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo(props => {
     selectionFill = "rgb(14, 101, 235, 0.1)",
     plaintext,
     showFilter = false,
-    onFilterClick
+    onFilterClick,
   } = props;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
     strike ? TEXT_DECORATION.STRIKE : ""

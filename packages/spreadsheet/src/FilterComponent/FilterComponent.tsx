@@ -10,11 +10,12 @@ import {
   InputLeftElement,
   Icon,
   Input,
-  Checkbox
+  Checkbox,
 } from "@chakra-ui/core";
 import { DARK_MODE_COLOR } from "../constants";
 import { MenuItem, Button } from "./../styled";
 import { CellPosition, FilterDefinition } from "@rowsncolumns/grid";
+import ReactList from "react-list";
 
 export interface FilterComponentProps {
   position: CellPosition;
@@ -39,7 +40,7 @@ const FilterComponent = ({
   filter,
   columnIndex,
   index,
-  width
+  width,
 }: FilterComponentProps) => {
   if (!columnIndex) return null;
   const [filterText, setFilterText] = useState("");
@@ -57,19 +58,45 @@ const FilterComponent = ({
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
     if (checked) {
-      setUserValues(prev => prev.concat(value));
+      setUserValues((prev) => prev.concat(value));
     } else {
-      setUserValues(prev => prev.filter(v => v !== value));
+      setUserValues((prev) => prev.filter((v) => v !== value));
     }
   }, []);
   const handleSubmit = useCallback(() => {
     onChange?.(index, columnIndex, {
       values: userValues,
-      operator: filter?.operator
+      operator: filter?.operator,
     });
   }, [userValues]);
   const isSelectAll = values.length === userValues.length;
   const isIndeterminate = !isSelectAll && userValues.length > 0;
+  const items = values.filter((value) =>
+    new RegExp(filterText, "gi").test(value.toString())
+  );
+  const itemRenderer = useCallback(
+    (index, key) => {
+      const value = items[index];
+      const valueItem = value || "";
+      const isChecked = userValues.indexOf(valueItem) !== -1;
+      const label = value || "(Blanks)";
+      return (
+        <Box key={key} pb={1}>
+          <Checkbox
+            onChange={handleChange}
+            value={valueItem}
+            size="sm"
+            borderColor={borderColor}
+            isChecked={isChecked}
+            alignItems="flex-start"
+          >
+            <Box fontSize={12}>{label}</Box>
+          </Checkbox>
+        </Box>
+      );
+    },
+    [items]
+  );
   return (
     <Box
       left={0}
@@ -113,29 +140,20 @@ const FilterComponent = ({
               }}
             />
           </InputGroup>
-          <Box overflow="auto" maxHeight={100} mt={2} mb={2} pl={1} pr={1}>
-            {values
-              .filter(value =>
-                new RegExp(filterText, "gi").test(value.toString())
-              )
-              .map((value, idx) => {
-                const valueItem = value || "";
-                const isChecked = userValues.indexOf(valueItem) !== -1;
-                const label = value || "(Blanks)";
-                return (
-                  <Box fontSize={12} key={idx}>
-                    <Checkbox
-                      onChange={handleChange}
-                      value={valueItem}
-                      size="sm"
-                      borderColor={borderColor}
-                      isChecked={isChecked}
-                    >
-                      {label}
-                    </Checkbox>
-                  </Box>
-                );
-              })}
+          <Box
+            overflow="auto"
+            minHeight={100}
+            maxHeight={200}
+            mt={2}
+            mb={2}
+            pl={1}
+            pr={1}
+          >
+            <ReactList
+              itemRenderer={itemRenderer}
+              length={items.length}
+              type="variable"
+            />
           </Box>
           <Box pt={2}>
             <Button

@@ -8,7 +8,7 @@ import {
   mergedCellBounds,
   isEqualCells,
   clampIndex,
-  HiddenFn
+  HiddenFn,
 } from "./../helpers";
 import { KeyCodes, Direction, MouseButtonCodes } from "./../types";
 
@@ -132,7 +132,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     allowDeselectSelection = true,
     onFill,
     isHiddenRow = defaultIsHidden,
-    isHiddenColumn = defaultIsHidden
+    isHiddenColumn = defaultIsHidden,
   } = options || {};
   const [activeCell, setActiveCell] = useState<CellInterface | null>(
     initialActiveCell
@@ -187,7 +187,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       top: Math.min(boundsStart.top, boundsEnd.top),
       bottom: Math.max(boundsStart.bottom, boundsEnd.bottom),
       left: Math.min(boundsStart.left, boundsEnd.left),
-      right: Math.max(boundsStart.right, boundsEnd.right)
+      right: Math.max(boundsStart.right, boundsEnd.right),
     };
     return mergedCellBounds(bounds, gridRef.current.getCellBounds);
   };
@@ -204,7 +204,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
      * 1. Multiple selections on mousedown/mousemove
      * 2. Move the activeCell to newly selection. Done by appendSelection
      */
-    setSelections(prevSelection => {
+    setSelections((prevSelection) => {
       const len = prevSelection.length;
       if (!len) {
         return [{ bounds, inProgress: setInProgress ? true : false }];
@@ -214,7 +214,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
           return {
             ...sel,
             bounds,
-            inProgress: setInProgress ? true : false
+            inProgress: setInProgress ? true : false,
           };
         }
         return sel;
@@ -230,7 +230,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     const bounds = selectionFromStartEnd(coords, coords);
     if (!bounds) return;
     setActiveCell({ rowIndex: bounds.top, columnIndex: bounds.left });
-    setSelections(prev => [...prev, { bounds }]);
+    setSelections((prev) => [...prev, { bounds }]);
   };
 
   const removeSelectionByIndex = useCallback(
@@ -253,7 +253,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     const { bounds } = selections[selections.length - 1];
     return {
       rowIndex: bounds.top,
-      columnIndex: bounds.left
+      columnIndex: bounds.left,
     };
   };
 
@@ -261,7 +261,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     cell: CellInterface,
     selections: SelectionArea[]
   ) => {
-    return selections.findIndex(sel => {
+    return selections.findIndex((sel) => {
       const boundedCells = getBoundedCells(sel.bounds);
       return boundedCells.has(cellIdentifier(cell.rowIndex, cell.columnIndex));
     });
@@ -272,7 +272,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     selections: SelectionArea[]
   ): boolean => {
     if (cell === null) return false;
-    return selections.some(sel => {
+    return selections.some((sel) => {
       return (
         sel.bounds.left === cell.columnIndex &&
         sel.bounds.top === cell.rowIndex &&
@@ -400,7 +400,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
        * If user is selecting the same same,
        * let not trigger another state change
        */
-      // if (isSameAsActiveCell) return
+      if (isSameAsActiveCell) return;
 
       /* Trigger new selection */
       newSelection(coords);
@@ -442,14 +442,14 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     document.removeEventListener("mouseup", handleMouseUp);
 
     /* Update last selection */
-    setSelections(prevSelection => {
+    setSelections((prevSelection) => {
       const len = prevSelection.length;
       if (!len) return EMPTY_SELECTION;
       return prevSelection.map((sel, i) => {
         if (len - 1 === i) {
           return {
             ...sel,
-            inProgress: false
+            inProgress: false,
           };
         }
         return sel;
@@ -477,12 +477,12 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         : activeCell;
       const isMergedCell = gridRef?.current.isMergedCell({
         rowIndex,
-        columnIndex
+        columnIndex,
       });
 
       const currenBounds = gridRef.current.getCellBounds({
         rowIndex,
-        columnIndex
+        columnIndex,
       });
 
       switch (direction) {
@@ -534,7 +534,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
 
       const newBounds = gridRef.current.getCellBounds({
         rowIndex,
-        columnIndex
+        columnIndex,
       });
       const coords = { rowIndex: newBounds.top, columnIndex: newBounds.left };
       const scrollToCell = modify
@@ -574,11 +574,11 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     if (!selectionEnd.current || !selectionStart.current) return;
     selectionStart.current = {
       rowIndex: 0,
-      columnIndex: selectionStart.current.columnIndex
+      columnIndex: selectionStart.current.columnIndex,
     };
     modifySelection({
       rowIndex: rowCount - 1,
-      columnIndex: selectionEnd.current.columnIndex
+      columnIndex: selectionEnd.current.columnIndex,
     });
   };
 
@@ -587,11 +587,11 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     if (!selectionEnd.current || !selectionStart.current) return;
     selectionStart.current = {
       rowIndex: selectionStart.current.rowIndex,
-      columnIndex: 0
+      columnIndex: 0,
     };
     modifySelection({
       rowIndex: selectionEnd.current.rowIndex,
-      columnIndex: columnCount - 1
+      columnIndex: columnCount - 1,
     });
   };
 
@@ -600,7 +600,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     if (!selectionStart.current || !gridRef?.current) return;
     const cell = {
       rowIndex: selectionStart.current.rowIndex,
-      columnIndex: 0
+      columnIndex: 0,
     };
     newSelection(cell);
 
@@ -611,7 +611,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     if (!selectionStart.current || !gridRef?.current) return;
     const cell = {
       rowIndex: selectionStart.current.rowIndex,
-      columnIndex: columnCount - 1
+      columnIndex: columnCount - 1,
     };
     newSelection(cell);
     gridRef?.current.scrollToItem(cell);
@@ -622,7 +622,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     if (!selectionStart.current || !gridRef?.current) return;
     const cell = {
       rowIndex: 0,
-      columnIndex: selectionStart.current.columnIndex
+      columnIndex: selectionStart.current.columnIndex,
     };
     newSelection(cell);
 
@@ -633,7 +633,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     if (!selectionStart.current || !gridRef?.current) return;
     const cell = {
       rowIndex: rowCount - 1,
-      columnIndex: selectionStart.current.columnIndex
+      columnIndex: selectionStart.current.columnIndex,
     };
     newSelection(cell);
     gridRef?.current.scrollToItem(cell);
@@ -839,7 +839,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       /* Update last selection */
       let fillSelection: SelectionArea | null = null;
 
-      setFillSelection(prev => {
+      setFillSelection((prev) => {
         fillSelection = prev;
         return null;
       });
@@ -853,7 +853,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       onFill && onFill(activeCellRef.current, fillSelection, selections);
 
       /* Modify last selection */
-      setSelections(prevSelection => {
+      setSelections((prevSelection) => {
         const len = prevSelection.length;
         if (!len) {
           return [{ bounds: newBounds }];
@@ -862,7 +862,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
           if (len - 1 === i) {
             return {
               ...sel,
-              bounds: newBounds
+              bounds: newBounds,
             };
           }
           return sel;
@@ -876,7 +876,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
    * Remove the last selection from state
    */
   const handleClearLastSelection = useCallback(() => {
-    setSelections(prev => prev.slice(0, -1));
+    setSelections((prev) => prev.slice(0, -1));
   }, []);
 
   return {
@@ -888,11 +888,11 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     setSelections,
     setActiveCell: handleSetActiveCell,
     fillHandleProps: {
-      onMouseDown: handleFillHandleMouseDown
+      onMouseDown: handleFillHandleMouseDown,
     },
     fillSelection,
     clearLastSelection: handleClearLastSelection,
-    modifySelection
+    modifySelection,
   };
 };
 
