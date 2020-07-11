@@ -3,9 +3,9 @@ id: formula
 title: Formula
 ---
 
-You can `Bring your own` formula parser or use existing parsers like [Hot formula Parser](https://github.com/handsontable/formula-parser)
+You can use existing parsers like [Hot formula Parser](https://github.com/handsontable/formula-parser)
 
-To format a value in SpreadSheet Grid, you can try 
+To format a value in SpreadSheet Grid, `formatter` prop lets you easily hook into the rendering output.
 
 ```jsx
 import SpreadSheet from '@rowsncolumns/spreadsheet'
@@ -13,7 +13,7 @@ import { Parser as FormulaParser } from 'hot-formula-parser';
 const parser = new FormulaParser();
 
 <SpreadSheet
-  format={(value) => {
+  formatter={(value) => {
     if (value && value.startsWith('=')) {
       const output = parser.parse(value.substr(1))
       return output.result || output.error
