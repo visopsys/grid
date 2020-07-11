@@ -652,8 +652,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const { rowIndex, columnIndex } = props;
         const isRowHeader = rowIndex === 0;
         const isColumnHeader = columnIndex === 0;
-        const isHidden = hiddenRows[rowIndex] || hiddenColumns[columnIndex];
-        if (isHidden) return null;
         const isHeaderActive =
           isRowHeader || isColumnHeader
             ? isRowHeader
@@ -694,7 +692,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const showFilter = filterIndex !== void 0;
         const cellConfig = getValue(cell, true) as CellConfig;
         const additionalStyles = {
-          ...(showFilter ? { bold: true } : {}),
+          ...(showFilter ? { bold: true } : undefined),
         };
         const isFilterActive =
           filterIndex === void 0
@@ -719,8 +717,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         cells,
         selectedRowsAndCols,
         activeCell,
-        hiddenRows,
-        hiddenColumns,
         showGridLines,
         selectionMode,
         isLightMode,
@@ -732,9 +728,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const overlayRenderer = useCallback(
       (props: RendererProps) => {
         const { rowIndex, columnIndex } = props;
-        const isHidden = hiddenRows[rowIndex] || hiddenColumns[columnIndex];
         const cell = { rowIndex, columnIndex };
-        if (isHidden) return null;
         return (
           <CellOverlay {...props} {...(getValue(cell, true) as CellConfig)} />
         );
