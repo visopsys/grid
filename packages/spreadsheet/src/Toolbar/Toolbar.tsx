@@ -1081,6 +1081,7 @@ const BorderSelection: React.FC<BorderProps> = ({
   const [borderStyle, setBorderStyle] = useState<BORDER_STYLE>(
     BORDER_STYLE.THIN
   );
+  const theme = useTheme();
   const handleChangeColor = (value: string | undefined) => {
     setBorderColor(value);
     onBorderChange?.(value, borderStyle, borderVariant);
@@ -1093,6 +1094,7 @@ const BorderSelection: React.FC<BorderProps> = ({
     setBorderStyle(value);
     onBorderChange?.(borderColor, value, borderVariant);
   };
+  const bgColor = isLight ? theme.colors.gray[100] : theme.colors.gray[600];
 
   return (
     <Popover
@@ -1130,6 +1132,9 @@ const BorderSelection: React.FC<BorderProps> = ({
           <Box flex={1} display="flex" p={2} flexWrap="wrap" width={180}>
             <IconButton
               aria-label={translations.border_all}
+              background={
+                borderVariant === BORDER_VARIANT.ALL ? bgColor : "none"
+              }
               variant={borderVariant === BORDER_VARIANT.ALL ? "solid" : "ghost"}
               color={
                 borderVariant === BORDER_VARIANT.ALL
@@ -1355,12 +1360,15 @@ const BorderSelection: React.FC<BorderProps> = ({
                     </PopoverTrigger>
                     <PopoverContent
                       width={100}
-                      borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                      borderColor={isLight ? undefined : bgColor}
+                      borderStyle="solid"
                     >
                       <PopoverArrow />
                       <PopoverBody>
                         <Button
-                          background="none"
+                          background={
+                            borderStyle === BORDER_STYLE.THIN ? bgColor : "none"
+                          }
                           variant={
                             borderStyle === BORDER_STYLE.THIN
                               ? "solid"
@@ -1395,7 +1403,11 @@ const BorderSelection: React.FC<BorderProps> = ({
                           </svg>
                         </Button>
                         <Button
-                          background="none"
+                          background={
+                            borderStyle === BORDER_STYLE.MEDIUM
+                              ? bgColor
+                              : "none"
+                          }
                           variant={
                             borderStyle === BORDER_STYLE.MEDIUM
                               ? "solid"
@@ -1430,7 +1442,11 @@ const BorderSelection: React.FC<BorderProps> = ({
                           </svg>
                         </Button>
                         <Button
-                          background="none"
+                          background={
+                            borderStyle === BORDER_STYLE.THICK
+                              ? bgColor
+                              : "none"
+                          }
                           variant={
                             borderStyle === BORDER_STYLE.THICK
                               ? "solid"
@@ -1465,7 +1481,11 @@ const BorderSelection: React.FC<BorderProps> = ({
                           </svg>
                         </Button>
                         <Button
-                          background="none"
+                          background={
+                            borderStyle === BORDER_STYLE.DASHED
+                              ? bgColor
+                              : "none"
+                          }
                           variant={
                             borderStyle === BORDER_STYLE.DASHED
                               ? "solid"
@@ -1501,7 +1521,11 @@ const BorderSelection: React.FC<BorderProps> = ({
                           </svg>
                         </Button>
                         <Button
-                          background="none"
+                          background={
+                            borderStyle === BORDER_STYLE.DOTTED
+                              ? bgColor
+                              : "none"
+                          }
                           variant={
                             borderStyle === BORDER_STYLE.DOTTED
                               ? "solid"

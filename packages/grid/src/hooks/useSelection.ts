@@ -396,6 +396,9 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         return;
       }
 
+      /* Scroll to the active cell */
+      gridRef.current?.scrollToItem(coords);
+
       /**
        * If user is selecting the same same,
        * let not trigger another state change
@@ -404,9 +407,6 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
 
       /* Trigger new selection */
       newSelection(coords);
-
-      /* Scroll to the active cell */
-      gridRef.current?.scrollToItem(coords);
     },
     [activeCell, selections, allowMultipleSelection, allowDeselectSelection]
   );

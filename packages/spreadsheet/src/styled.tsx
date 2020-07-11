@@ -86,13 +86,14 @@ export const IconButton = forwardRef((props: IconButtonProps, ref) => {
       css={css`
         font-family: ${SYSTEM_FONT};
         line-height: 1.2;
-        background: transparent;
+        // background-color: transparent;
         cursor: pointer;
         line-height: inherit;
         overflow: visible;
         text-transform: none;
         border-style: none;
       `}
+      background="none"
       {...props}
     />
   );
