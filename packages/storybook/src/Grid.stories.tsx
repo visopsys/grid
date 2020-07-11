@@ -7,6 +7,7 @@ import Grid, {
   useEditable,
   useSizer as useAutoSizer,
   useTooltip,
+  Direction,
 } from "@rowsncolumns/grid";
 import { useMeasure } from "react-use";
 import { Rect, Text, Group, RegularPolygon } from "react-konva";

@@ -244,12 +244,12 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     }, [filterViews]);
 
     /* Cell where filter icon will appear */
-    const filterHeaderCells = useMemo((): string[] => {
-      const initialValue: string[] = [];
-      return filterViews.reduce((acc, filter) => {
+    const filterHeaderCells = useMemo(() => {
+      const initialValue: Record<string, number> = {};
+      return filterViews.reduce((acc, filter, index) => {
         const { bounds } = filter;
         for (let i = bounds.left; i <= bounds.right; i++) {
-          acc.push(cellIdentifier(bounds.top, i));
+          acc[cellIdentifier(bounds.top, i)] = index;
         }
         return acc;
       }, initialValue);
@@ -689,13 +689,17 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
               selectedRowsAndCols.cols.includes(columnIndex)
             : false;
         const isSelected = isRowSelected || isColumnSelected;
-        const showFilter = filterHeaderCells.includes(
-          cellIdentifier(rowIndex, columnIndex)
-        );
+        const filterIndex =
+          filterHeaderCells[cellIdentifier(rowIndex, columnIndex)];
+        const showFilter = filterIndex !== void 0;
         const cellConfig = getValue(cell, true) as CellConfig;
         const additionalStyles = {
           ...(showFilter ? { bold: true } : {}),
         };
+        const isFilterActive =
+          filterIndex === void 0
+            ? false
+            : !!filterViews?.[filterIndex]?.filters?.[columnIndex];
         return (
           <CellRenderer
             {...props}
@@ -706,6 +710,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             showStrokeOnFill={showGridLines}
             isSelected={isSelected}
             showFilter={showFilter}
+            isFilterActive={isFilterActive}
             onFilterClick={handleFilterClick}
           />
         );

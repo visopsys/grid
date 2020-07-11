@@ -26,6 +26,7 @@ export interface CellProps extends RendererProps, CellConfig {
   isSelected?: boolean;
   isLightMode?: boolean;
   showFilter?: boolean;
+  isFilterActive?: boolean;
   onFilterClick?: (cell: CellInterface) => void;
 }
 
@@ -105,14 +106,15 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     padding = 5,
     fontSize = DEFAULT_FONT_SIZE,
     wrap = "none",
-    lineHeight = 0.5,
+    lineHeight = 1,
     isLightMode,
     text,
     showStrokeOnFill = true,
     isSelected,
     selectionFill = "rgb(14, 101, 235, 0.1)",
     plaintext,
-    showFilter = false,
+    showFilter,
+    isFilterActive,
     onFilterClick,
   } = props;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
@@ -182,6 +184,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
       ) : null}
       {showFilter ? (
         <FilterIcon
+          isActive={isFilterActive}
           onClick={onFilterClick}
           rowIndex={props.rowIndex}
           columnIndex={props.columnIndex}

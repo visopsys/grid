@@ -22,7 +22,7 @@ export interface FilterComponentProps {
   onChange?: (
     filterIndex: number,
     columnIndex: number,
-    filter: FilterDefinition
+    filter?: FilterDefinition
   ) => void;
   onCancel?: () => void;
   values: React.ReactText[];
@@ -64,10 +64,14 @@ const FilterComponent = ({
     }
   }, []);
   const handleSubmit = useCallback(() => {
-    onChange?.(index, columnIndex, {
-      values: userValues,
-      operator: filter?.operator,
-    });
+    const selectedFilter =
+      userValues.length === values.length
+        ? undefined
+        : {
+            values: userValues,
+            operator: filter?.operator,
+          };
+    onChange?.(index, columnIndex, selectedFilter);
   }, [userValues]);
   const isSelectAll = values.length === userValues.length;
   const isIndeterminate = !isSelectAll && userValues.length > 0;

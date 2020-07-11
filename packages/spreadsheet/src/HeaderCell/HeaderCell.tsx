@@ -60,7 +60,7 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
       dragBoundFunc={(pos) => {
         return {
           ...pos,
-          ...(axis === "x" ? { y: 0 } : { x: 0 }),
+          ...(axis === AXIS.X ? { y: 0 } : { x: 0 }),
         };
       }}
       onDragMove={(e) => {
