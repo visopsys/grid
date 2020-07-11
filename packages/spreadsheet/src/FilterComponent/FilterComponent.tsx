@@ -81,7 +81,7 @@ const FilterComponent = ({
       const isChecked = userValues.indexOf(valueItem) !== -1;
       const label = value || "(Blanks)";
       return (
-        <Box key={key} pb={1}>
+        <Box key={key} pb={1} display="flex">
           <Checkbox
             onChange={handleChange}
             value={valueItem}
@@ -89,6 +89,7 @@ const FilterComponent = ({
             borderColor={borderColor}
             isChecked={isChecked}
             alignItems="flex-start"
+            lineHeight="1rem"
           >
             <Box fontSize={12}>{label}</Box>
           </Checkbox>
