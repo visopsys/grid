@@ -134,6 +134,10 @@ const Select: React.FC<SelectProps> = (props) => {
               {...getMenuProps()}
               pb={1}
               pt={1}
+              borderColor={isLight ? undefined : DARK_MODE_COLOR}
+              borderWidth={1}
+              borderStyle="solid"
+              display={isOpen ? "block" : "none"}
             >
               {isOpen &&
                 options.map((item, index) => {

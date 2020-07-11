@@ -403,7 +403,12 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             <AiOutlineFieldBinary fontSize={18} />
             <Icon name="chevron-down" fontSize={16} />
           </MenuButton>
-          <MenuList placement="top-start" minWidth={250}>
+          <MenuList
+            placement="top-start"
+            minWidth={250}
+            borderColor={isLight ? undefined : DARK_MODE_COLOR}
+            fontSize={14}
+          >
             <MenuItem
               onClick={() => {
                 onFormattingChangeAuto?.();
@@ -509,7 +514,11 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             </Box>
             <Icon name="chevron-down" fontSize={16} />
           </MenuButton>
-          <MenuList placement="top-start">
+          <MenuList
+            placement="top-start"
+            borderColor={isLight ? undefined : DARK_MODE_COLOR}
+            fontSize={14}
+          >
             {FONT_FAMILIES.map((font, idx) => {
               return (
                 <MenuItem
