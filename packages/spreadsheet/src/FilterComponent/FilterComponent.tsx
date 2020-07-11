@@ -94,6 +94,7 @@ const FilterComponent = ({
             isChecked={isChecked}
             alignItems="flex-start"
             lineHeight="1rem"
+            color={color}
           >
             <Box fontSize={12}>{label}</Box>
           </Checkbox>
@@ -150,7 +151,9 @@ const FilterComponent = ({
             minHeight={100}
             maxHeight={200}
             mt={2}
-            mb={2}
+            mb={1}
+            pt={2}
+            pb={2}
             pl={1}
             pr={1}
           >
@@ -170,7 +173,12 @@ const FilterComponent = ({
             >
               Done
             </Button>
-            <Button size="sm" variant="outline" onClick={onCancel}>
+            <Button
+              bg={borderColor}
+              size="sm"
+              variant="outline"
+              onClick={onCancel}
+            >
               Cancel
             </Button>
           </Box>
