@@ -33,7 +33,7 @@ const FilterIcon: React.FC<FilterIconProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const padding = (height - FILTER_ICON_DIM) / 2;
-  const posX = x + width - FILTER_ICON_DIM - padding + 0.5;
+  const posX = x + width - FILTER_ICON_DIM - 2; // - padding + 0.5;
   const posY = y + padding + 0.5;
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true);

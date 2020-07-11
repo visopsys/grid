@@ -734,7 +734,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
     const [rowStartIndex, rowStopIndex] = getVerticalRangeToRender();
     const [columnStartIndex, columnStopIndex] = getHorizontalRangeToRender();
-
     const estimatedTotalHeight = getEstimatedTotalHeight(
       rowCount,
       instanceProps.current
@@ -1599,7 +1598,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     const frozenRowCellOverlays: React.ReactNodeArray = [];
     for (
       let rowIndex = 0;
-      rowIndex < Math.min(columnStopIndex, frozenRows);
+      rowIndex < Math.min(rowStopIndex, frozenRows);
       rowIndex++
     ) {
       if (isHiddenRow?.(rowIndex)) continue;
