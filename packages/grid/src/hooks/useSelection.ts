@@ -404,6 +404,9 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
 
       /* Trigger new selection */
       newSelection(coords);
+
+      /* Scroll to the active cell */
+      gridRef.current?.scrollToItem(coords);
     },
     [activeCell, selections, allowMultipleSelection, allowDeselectSelection]
   );
