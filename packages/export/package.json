@@ -1,6 +1,6 @@
 {
   "name": "@rowsncolumns/export",
-  "version": "1.0.32",
+  "version": "1.0.33",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -20,7 +20,7 @@
     "@rowsncolumns/spreadsheet": "^1.4.11"
   },
   "devDependencies": {
-    "@rowsncolumns/spreadsheet": "^1.4.34"
+    "@rowsncolumns/spreadsheet": "^1.4.35"
   },
   "gitHead": "5ccdd79711e72fcf56579f342e781e768bc51c28"
 }
