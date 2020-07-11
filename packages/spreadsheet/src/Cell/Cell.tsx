@@ -155,7 +155,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
         context.strokeRect(0.5, 0.5, shape.width(), shape.height());
       }
     },
-    [hasFill, userFill, isSelected]
+    [hasFill, userFill, isSelected, defaultFill]
   );
   return (
     <>

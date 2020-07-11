@@ -896,7 +896,15 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
 
         return { rowIndex: bounds.top, columnIndex: bounds.left };
       },
-      [scrollLeft, scrollTop, rowCount, columnCount, mergedCellMap]
+      [
+        scrollLeft,
+        rowHeight,
+        columnWidth,
+        scrollTop,
+        rowCount,
+        columnCount,
+        mergedCellMap,
+      ]
     );
 
     /**
