@@ -49,7 +49,7 @@ module.exports = {
           items: [
             {
               label: "What is Spreadsheet",
-              to: "docs/",
+              to: "/docs",
             },
             {
               label: "Examples",
@@ -74,13 +74,21 @@ module.exports = {
           title: "More",
           items: [
             {
+              label: "Privacy policy",
+              to: "/privacy",
+            },
+            {
+              label: "Terms of use",
+              to: "/terms-of-use",
+            },
+            {
               label: "GitHub",
               href: "https://github.com/rowsncolumns",
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Rows n' Columns`,
+      copyright: `Copyright © ${new Date().getFullYear()} Rows n' Columns. Made in Sunny Singapore.`,
     },
   },
   presets: [
