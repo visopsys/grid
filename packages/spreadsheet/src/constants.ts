@@ -26,8 +26,9 @@ export const DARK_MODE_COLOR_LIGHT = "#252E3E";
 export const EMPTY_ARRAY = [];
 export const HEADER_BORDER_COLOR = "#C0C0C0";
 export const CELL_BORDER_COLOR = "#E3E2E2";
-export const FORMAT_PERCENT = "#.00%";
-export const FORMAT_CURRENCY = "$#.00";
+export const FORMAT_PERCENT = "0.00%";
+export const FORMAT_CURRENCY = "$0.00";
+export const FORMAT_DEFAULT_DECIMAL = "0.0";
 export const SYSTEM_FONT =
   "-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji";
 
@@ -184,7 +185,7 @@ export const FONT_FAMILIES = [
 export const AVAILABLE_FORMATS = [
   {
     label: "Number",
-    value: "#.00",
+    value: "0.00",
     sample: "1,000.12",
   },
   {
@@ -202,12 +203,12 @@ export const AVAILABLE_FORMATS = [
 export const AVAILABLE_CURRENCY_FORMATS = [
   {
     label: "Accounting",
-    value: "$(#.00)",
+    value: "$(0.00)",
     sample: "$(1,000.12)",
   },
   {
     label: "Financial",
-    value: "(#.00)",
+    value: "(0.00)",
     sample: "(1,000.12)",
   },
   {
@@ -437,4 +438,63 @@ export const cellsInSelectionVariant = (
     }
   }
   return cells;
+};
+
+/**
+ * Split format after decimal
+ * @param str
+ */
+export const splitDecimals = (str: string) => {
+  const regex = /(\d+)(.*)/gm;
+  let m;
+  const matches: string[] = [];
+  while ((m = regex.exec(str)) !== null) {
+    // This is necessary to avoid infinite loops with zero-width matches
+    if (m.index === regex.lastIndex) {
+      regex.lastIndex++;
+    }
+    // The result can be accessed through the `m`-variable.
+    m.forEach((match, groupIndex) => {
+      if (groupIndex > 0) {
+        matches.push(match);
+      }
+    });
+  }
+  return matches;
+};
+
+/**
+ * Increase decimal places
+ * @param format
+ */
+export const changeDecimals = (format?: string, step = 1) => {
+  /* Decrease decimal, without any format */
+  if (step < 0 && !format) return format;
+  /* If no format */
+  if (!format) return FORMAT_DEFAULT_DECIMAL;
+  const DEFAULT_FORMAT = `${format}.0`;
+  const decimalIndex = format.indexOf(".");
+  if (decimalIndex === -1) {
+    if (step < 0) return format;
+    return DEFAULT_FORMAT;
+  }
+  const decimalPortion = format.substr(decimalIndex + 1);
+  const [num, suffix] = splitDecimals(decimalPortion);
+  /* No decimals */
+  if (num === "") {
+    return DEFAULT_FORMAT;
+  }
+  const len = num.length + step;
+  /* Remove decimal */
+  if (len <= 0) {
+    return format.substr(0, decimalIndex);
+  }
+  return (
+    format.substr(0, decimalIndex) +
+    "." +
+    Array.from({ length: len })
+      .map((_, i) => "0")
+      .join("") +
+    suffix
+  );
 };

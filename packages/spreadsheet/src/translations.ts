@@ -4,6 +4,8 @@ export const translations = {
   print: "Print",
   format_as_currency: "Format as currency",
   format_as_percent: "Format as percent",
+  decrease_decimal: "Decrease decimal places",
+  increase_decimal: "Increase decimal places",
   bold: "Bold",
   italic: "Italic",
   underline: "Underline",
@@ -33,5 +35,5 @@ export const translations = {
   switch_dark_mode: "Switch to dark mode",
   clear_formatting: "Clear formatting",
   add_sheet: "Add sheet",
-  all_sheets: "All sheets"
+  all_sheets: "All sheets",
 };

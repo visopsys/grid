@@ -576,6 +576,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             color={config?.color}
             fontSize={config?.fontSize}
             fontFamily={config?.fontFamily}
+            horizontalAlign={config?.horizontalAlign}
           />
         );
       },

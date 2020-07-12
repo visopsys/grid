@@ -61,6 +61,8 @@ import {
   PercentIcon,
   PopoverContent,
   MenuItem,
+  DecreaseDecimalIcon,
+  IncreaseDecimalIcon,
 } from "./../styled";
 import {
   DARK_MODE_COLOR,
@@ -72,6 +74,8 @@ import {
   AVAILABLE_CURRENCY_FORMATS,
   FORMAT_PERCENT,
   FORMAT_CURRENCY,
+  FORMAT_DEFAULT_DECIMAL,
+  changeDecimals,
 } from "./../constants";
 import {
   FORMATTING_TYPE,
@@ -396,7 +400,42 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
           />
         </Tooltip>
 
-        <Separator borderColor={borderColor} />
+        <Tooltip
+          hasArrow
+          aria-label={translations.decrease_decimal}
+          label={translations.decrease_decimal}
+        >
+          <IconButton
+            aria-label={translations.decrease_decimal}
+            fontSize={20}
+            icon={DecreaseDecimalIcon}
+            size="sm"
+            onClick={() =>
+              onFormattingChange?.(
+                FORMATTING_TYPE.CUSTOM_FORMAT,
+                changeDecimals(format, -1)
+              )
+            }
+          />
+        </Tooltip>
+        <Tooltip
+          hasArrow
+          aria-label={translations.increase_decimal}
+          label={translations.increase_decimal}
+        >
+          <IconButton
+            aria-label={translations.increase_decimal}
+            fontSize={20}
+            icon={IncreaseDecimalIcon}
+            size="sm"
+            onClick={() =>
+              onFormattingChange?.(
+                FORMATTING_TYPE.CUSTOM_FORMAT,
+                changeDecimals(format)
+              )
+            }
+          />
+        </Tooltip>
 
         <Menu>
           <MenuButton

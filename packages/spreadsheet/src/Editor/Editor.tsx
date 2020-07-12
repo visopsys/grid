@@ -14,6 +14,7 @@ import {
   cellAddress,
   DEFAULT_FONT_FAMILY,
 } from "../constants";
+import { HORIZONTAL_ALIGNMENT } from "../types";
 
 export interface CustomEditorProps extends EditorProps {
   background?: string;
@@ -21,6 +22,7 @@ export interface CustomEditorProps extends EditorProps {
   fontSize?: number;
   fontFamily?: string;
   wrap?: any;
+  horizontalAlign?: any;
 }
 
 /**
@@ -47,6 +49,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
     wrap: cellWrap = "nowrap",
     selections,
     scrollPosition,
+    horizontalAlign,
     ...rest
   } = props;
   const { colorMode } = useColorMode();
@@ -160,6 +163,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
           background: "transparent",
           color: color,
           whiteSpace: cellWrap,
+          textAlign: horizontalAlign,
         }}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
           onChange(e.target.value, cell);

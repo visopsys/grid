@@ -211,7 +211,14 @@ export const defaultSheets: Sheet[] = [
     },
     mergedCells: [],
     selections: [],
-    cells: {},
+    cells: {
+      1: {
+        1: {
+          text: "12",
+          datatype: DATATYPE.Number,
+        },
+      },
+    },
     scrollState: { scrollTop: 0, scrollLeft: 0 },
     filterViews: [],
   },
@@ -1147,6 +1154,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       },
       []
     );
+
     return (
       <>
         <Global
