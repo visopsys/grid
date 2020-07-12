@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { ViewPortProps, GridRef, CellInterface, ItemSizer } from "./../Grid";
-import { debounce, AutoSizerCanvas, HiddenType } from "./../helpers";
+import { debounce, AutoSizerCanvas, HiddenType, isNull } from "./../helpers";
 import invariant from "tiny-invariant";
 
 interface TextFormattingOptions {
@@ -209,22 +209,24 @@ const useAutoSizer = ({
           const isCellConfig = typeof cellValue === "object";
           const text = isCellConfig ? cellValue.text : cellValue;
 
-          /* Reset fonts */
-          autoSizer.current.reset();
+          if (!isNull(text)) {
+            /* Reset fonts */
+            autoSizer.current.reset();
 
-          if (isCellConfig) {
-            const isBold = cellValue.bold;
-            autoSizer.current.setFont({
-              fontWeight: isBold ? "bold" : "normal",
-              fontSize: cellValue.fontSize,
-              fontFamily: cellValue.fontFamily,
-            });
-          }
+            if (isCellConfig) {
+              const isBold = cellValue.bold;
+              autoSizer.current.setFont({
+                fontWeight: isBold ? "bold" : "normal",
+                fontSize: cellValue.fontSize,
+                fontFamily: cellValue.fontFamily,
+              });
+            }
 
-          const metrics = autoSizer.current.measureText(text);
-          if (metrics) {
-            const width = Math.ceil(metrics.width) + cellSpacing;
-            if (width > maxWidth) maxWidth = width;
+            const metrics = autoSizer.current.measureText(text);
+            if (metrics) {
+              const width = Math.ceil(metrics.width) + cellSpacing;
+              if (width > maxWidth) maxWidth = width;
+            }
           }
         }
         start++;

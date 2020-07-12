@@ -785,10 +785,13 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                             : "rgba(255,255,255,0.04)"
                         }
                       >
-                        <option>0</option>
-                        <option>1</option>
-                        <option>2</option>
-                        <option>3</option>
+                        {Array.from({ length: 11 }).map((_, idx) => {
+                          return (
+                            <option value={idx} key={idx}>
+                              {idx}
+                            </option>
+                          );
+                        })}
                       </Select>
                     </FormControl>
 
@@ -808,10 +811,13 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                             : "rgba(255,255,255,0.04)"
                         }
                       >
-                        <option>0</option>
-                        <option>1</option>
-                        <option>2</option>
-                        <option>3</option>
+                        {Array.from({ length: 11 }).map((_, idx) => {
+                          return (
+                            <option value={idx} key={idx}>
+                              {idx}
+                            </option>
+                          );
+                        })}
                       </Select>
                     </FormControl>
                   </PopoverBody>
