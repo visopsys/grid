@@ -12,7 +12,6 @@ import { ThemeType } from "../styled";
 
 export interface HeaderCellProps extends RendererProps {
   isActive?: boolean;
-  isHidden?: boolean;
   onResize?: (axis: AXIS, index: number, dimension: number) => void;
   isLightMode?: boolean;
   theme: ThemeType;
@@ -91,7 +90,6 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
     y = 0,
     width = 0,
     height = 0,
-    isHidden,
     isLightMode,
     theme,
   } = props;
@@ -118,10 +116,7 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
   const handleMouseLeave = useCallback(() => {
     setShowResizer(false);
   }, []);
-  const handleAdjustColumn = useCallback(() => {
-    onAdjustColumn?.(columnIndex);
-  }, []);
-  if (isHidden) return null;
+  const handleAdjustColumn = () => onAdjustColumn?.(columnIndex);
   return (
     <Cell
       {...rest}

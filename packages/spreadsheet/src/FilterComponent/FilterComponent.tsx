@@ -107,6 +107,7 @@ const FilterComponent = ({
     },
     [items]
   );
+  const inputBoxHeight = "26px";
   return (
     <Box
       left={0}
@@ -138,6 +139,7 @@ const FilterComponent = ({
           </Button>
           <InputGroup size="sm" mt={2}>
             <InputLeftElement
+              height={inputBoxHeight}
               children={<Icon name="search" color="gray.300" />}
             />
             <Input
@@ -149,6 +151,7 @@ const FilterComponent = ({
                 setFilterText(e.target.value);
               }}
               ref={searchInputRef}
+              height={inputBoxHeight}
             />
           </InputGroup>
           <Box
