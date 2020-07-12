@@ -29,7 +29,7 @@ function Home() {
   return (
     <Layout
       title={"Home"}
-      description="React Components for Tabular Data. SpreadSheet and Datagrid for the Enterprise."
+      description="React Components for Tabular Data. SpreadSheet and DataGrid for the Enterprise."
     >
       <SimpleGrid
         columns={[1, 1, 2]}
@@ -44,7 +44,7 @@ function Home() {
             SpreadSheet Grid
           </Text>
           <Text mb={6} fontSize="lg">
-            Excel-like Datagrid component for React JS. Built for high
+            Excel-like DataGrid component for React JS. Built for high
             performance rendering similar to google sheets.
           </Text>
           <List styleType="disc" pb={5}>
