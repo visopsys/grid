@@ -70,6 +70,8 @@ import {
   DEFAULT_FONT_FAMILY,
   AVAILABLE_FORMATS,
   AVAILABLE_CURRENCY_FORMATS,
+  FORMAT_PERCENT,
+  FORMAT_CURRENCY,
 } from "./../constants";
 import {
   FORMATTING_TYPE,
@@ -360,12 +362,15 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
         >
           <IconButton
             aria-label={translations.format_as_currency}
-            variant={currency ? "solid" : "ghost"}
-            color={currency ? activeIconColor : iconColor}
+            variant={format === FORMAT_CURRENCY ? "solid" : "ghost"}
+            color={format === FORMAT_CURRENCY ? activeIconColor : iconColor}
             icon={MdAttachMoney}
             size="sm"
             onClick={() =>
-              onFormattingChange?.(FORMATTING_TYPE.CURRENCY, !currency)
+              onFormattingChange?.(
+                FORMATTING_TYPE.CUSTOM_FORMAT,
+                FORMAT_CURRENCY
+              )
             }
           />
         </Tooltip>
@@ -377,13 +382,16 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
         >
           <IconButton
             aria-label={translations.format_as_percent}
-            variant={percent ? "solid" : "ghost"}
-            color={percent ? activeIconColor : iconColor}
+            variant={format === FORMAT_PERCENT ? "solid" : "ghost"}
+            color={format === FORMAT_PERCENT ? activeIconColor : iconColor}
             fontSize={10}
             icon={PercentIcon}
             size="sm"
             onClick={() =>
-              onFormattingChange?.(FORMATTING_TYPE.PERCENT, !percent)
+              onFormattingChange?.(
+                FORMATTING_TYPE.CUSTOM_FORMAT,
+                FORMAT_PERCENT
+              )
             }
           />
         </Tooltip>
@@ -412,6 +420,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             <MenuItem
               onClick={() => {
                 onFormattingChangeAuto?.();
+                onFormattingChange?.(FORMATTING_TYPE.CUSTOM_FORMAT, undefined);
               }}
             >
               <Box width="24px">

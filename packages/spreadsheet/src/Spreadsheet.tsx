@@ -1147,7 +1147,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       },
       []
     );
-
     return (
       <>
         <Global
