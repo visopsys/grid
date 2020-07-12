@@ -136,9 +136,12 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   const showRect = !isNull(userFill) || isMergedCell;
   const hasFill = !isNull(userFill) || isSelected;
   const hasText = !isNull(text);
-  const textWidth = showFilter ? width - FILTER_ICON_DIM : width;
   /* Because of 1px + 0.5px (gridline width + spacing )*/
-  const cellSpacingAdjustment = 1.5;
+  const cellSpacingY = 1.5;
+  const cellSpacingX = 1;
+  const textWidth = showFilter
+    ? width - FILTER_ICON_DIM - cellSpacingX
+    : width - cellSpacingX;
   /**
    * Fill function
    */
@@ -164,8 +167,8 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
       ) : null}
       {hasText ? (
         <Text
-          x={x + cellSpacingAdjustment}
-          y={y + cellSpacingAdjustment}
+          x={x + cellSpacingX}
+          y={y + cellSpacingY}
           height={height}
           width={textWidth}
           text={text}

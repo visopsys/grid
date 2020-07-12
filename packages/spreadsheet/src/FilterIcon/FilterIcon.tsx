@@ -61,7 +61,7 @@ const FilterIcon: React.FC<FilterIconProps> = ({
       <Path
         data={isActive ? FUNNEL_PATH : FILTER_PATH}
         x={posX + 1}
-        y={posY}
+        y={posY + 1}
         fill={isHovered ? "white" : "green"}
         scaleY={0.6}
         scaleX={0.6}

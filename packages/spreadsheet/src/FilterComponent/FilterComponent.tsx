@@ -32,6 +32,20 @@ export interface FilterComponentProps {
   width: number;
 }
 
+/**
+ * Sort values
+ * @param a
+ * @param b
+ */
+const sortFn = (a: React.ReactText, b: React.ReactText) => {
+  if (typeof a === "string" && typeof b === "string") {
+    return Intl.Collator().compare(a, b);
+  }
+  if (a == b) return 0;
+  if (a > b) return 1;
+  return -1;
+};
+
 const FilterComponent = ({
   position,
   onChange,
@@ -79,9 +93,9 @@ const FilterComponent = ({
   }, [userValues]);
   const isSelectAll = values.length === userValues.length;
   const isIndeterminate = !isSelectAll && userValues.length > 0;
-  const items = values.filter((value) =>
-    new RegExp(filterText, "gi").test(value.toString())
-  );
+  const items = values
+    .filter((value) => new RegExp(filterText, "gi").test(value.toString()))
+    .sort(sortFn);
   const itemRenderer = useCallback(
     (index, key) => {
       const value = items[index];
