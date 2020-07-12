@@ -18,7 +18,7 @@ import {
   AutoSizerCanvas,
   isEqualCells,
   clampIndex,
-  HiddenFn,
+  HiddenType,
 } from "../helpers";
 
 export interface UseEditableOptions {
@@ -81,11 +81,11 @@ export interface UseEditableOptions {
   /**
    * Hidden rows
    */
-  isHiddenRow: HiddenFn;
+  isHiddenRow: HiddenType;
   /**
    * Hidden columns
    */
-  isHiddenColumn: HiddenFn;
+  isHiddenColumn: HiddenType;
 }
 
 export interface EditableResults {
