@@ -403,9 +403,12 @@ const useEditable = ({
     /* Call on before edit */
     if (canEdit(coords)) {
       currentActiveCellRef.current = coords;
+
+      /* Get offsets */
       const pos = gridRef.current.getCellOffsetFromCoords(coords);
       const scrollPosition = gridRef.current.getScrollPosition();
       const value = initialValue || getValue(coords) || "";
+
       setValue(value);
       setAutoFocus(autoFocus);
       setPosition(getCellPosition(pos, scrollPosition));

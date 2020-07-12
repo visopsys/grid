@@ -8,7 +8,7 @@ import {
   mergedCellBounds,
   isEqualCells,
   clampIndex,
-  HiddenFn,
+  HiddenType,
 } from "./../helpers";
 import { KeyCodes, Direction, MouseButtonCodes } from "./../types";
 
@@ -57,11 +57,15 @@ export interface UseSelectionOptions {
   /**
    * Hidden rows
    */
-  isHiddenRow: HiddenFn;
+  isHiddenRow: HiddenType;
   /**
    * Hidden columns
    */
-  isHiddenColumn: HiddenFn;
+  isHiddenColumn: HiddenType;
+  /**
+   * Always scroll to active cell
+   */
+  alwaysScrollToActiveCell?: boolean;
 }
 
 export interface SelectionResults {
@@ -133,6 +137,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     onFill,
     isHiddenRow = defaultIsHidden,
     isHiddenColumn = defaultIsHidden,
+    alwaysScrollToActiveCell = true,
   } = options || {};
   const [activeCell, setActiveCell] = useState<CellInterface | null>(
     initialActiveCell
@@ -396,8 +401,12 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         return;
       }
 
-      /* Scroll to the active cell */
-      gridRef.current?.scrollToItem(coords);
+      /**
+       * Scroll to the selected cell
+       */
+      if (alwaysScrollToActiveCell) {
+        gridRef.current?.scrollToItem(coords);
+      }
 
       /**
        * If user is selecting the same same,
@@ -408,7 +417,13 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       /* Trigger new selection */
       newSelection(coords);
     },
-    [activeCell, selections, allowMultipleSelection, allowDeselectSelection]
+    [
+      activeCell,
+      selections,
+      allowMultipleSelection,
+      allowDeselectSelection,
+      alwaysScrollToActiveCell,
+    ]
   );
 
   /**

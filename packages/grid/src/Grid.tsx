@@ -1113,19 +1113,51 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       }
     }, []);
 
+    /**
+     * Scrolls to cell
+     * Respects frozen rows and columns
+     */
     const scrollToItem = useCallback(
       (
         { rowIndex, columnIndex }: OptionalCellInterface,
         align: Align = Align.smart
       ) => {
+        const isFrozenRow = rowIndex && rowIndex < frozenRows;
+        const isFrozenColumn = columnIndex && columnIndex < frozenColumns;
         const frozenColumnOffset = getColumnOffset({
           index: frozenColumns,
           rowHeight,
           columnWidth,
           instanceProps: instanceProps.current,
         });
+        /* Making sure getColumnWidth works */
+        const x = columnIndex
+          ? getColumnOffset({
+              index: columnIndex,
+              rowHeight,
+              columnWidth,
+              instanceProps: instanceProps.current,
+            })
+          : void 0;
+        /* Making sure getRowHeight works */
+        const y = rowIndex
+          ? getRowOffset({
+              index: rowIndex,
+              rowHeight,
+              columnWidth,
+              instanceProps: instanceProps.current,
+            })
+          : void 0;
+        const width = columnIndex
+          ? getColumnWidth(columnIndex, instanceProps.current)
+          : 0;
+        const height = rowIndex
+          ? getRowHeight(rowIndex, instanceProps.current)
+          : 0;
+        const columnAlign = width > containerWidth ? Align.start : align;
+        const rowAlign = height > containerHeight ? Align.start : align;
         const newScrollLeft =
-          columnIndex !== void 0
+          columnIndex !== void 0 && !isFrozenColumn
             ? getOffsetForColumnAndAlignment({
                 index: columnIndex,
                 containerHeight,
@@ -1138,7 +1170,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 instanceProps: instanceProps.current,
                 scrollbarSize,
                 frozenOffset: frozenColumnOffset,
-                align,
+                align: columnAlign,
               })
             : void 0;
 
@@ -1149,7 +1181,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           instanceProps: instanceProps.current,
         });
         const newScrollTop =
-          rowIndex !== void 0
+          rowIndex !== void 0 && !isFrozenRow
             ? getOffsetForRowAndAlignment({
                 index: rowIndex,
                 containerHeight,
@@ -1162,7 +1194,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
                 instanceProps: instanceProps.current,
                 scrollbarSize,
                 frozenOffset: frozenRowOffset,
-                align,
+                align: rowAlign,
               })
             : void 0;
 

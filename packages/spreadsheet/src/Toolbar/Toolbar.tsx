@@ -1124,7 +1124,7 @@ const BorderSelection: React.FC<BorderProps> = ({
         </Box>
       </PopoverTrigger>
       <PopoverContent
-        width={240}
+        width={230}
         borderColor={isLight ? undefined : DARK_MODE_COLOR}
       >
         <PopoverArrow />
@@ -1148,6 +1148,9 @@ const BorderSelection: React.FC<BorderProps> = ({
             />
             <IconButton
               aria-label={translations.border_inner}
+              background={
+                borderVariant === BORDER_VARIANT.INNER ? bgColor : "none"
+              }
               variant={
                 borderVariant === BORDER_VARIANT.INNER ? "solid" : "ghost"
               }
@@ -1163,6 +1166,9 @@ const BorderSelection: React.FC<BorderProps> = ({
             />
             <IconButton
               aria-label={translations.border_horizontal}
+              background={
+                borderVariant === BORDER_VARIANT.HORIZONTAL ? bgColor : "none"
+              }
               variant={
                 borderVariant === BORDER_VARIANT.HORIZONTAL ? "solid" : "ghost"
               }
@@ -1178,6 +1184,9 @@ const BorderSelection: React.FC<BorderProps> = ({
             />
             <IconButton
               aria-label={translations.border_vertical}
+              background={
+                borderVariant === BORDER_VARIANT.VERTICAL ? bgColor : "none"
+              }
               variant={
                 borderVariant === BORDER_VARIANT.VERTICAL ? "solid" : "ghost"
               }
@@ -1193,6 +1202,9 @@ const BorderSelection: React.FC<BorderProps> = ({
             />
             <IconButton
               aria-label={translations.border_outer}
+              background={
+                borderVariant === BORDER_VARIANT.OUTER ? bgColor : "none"
+              }
               variant={
                 borderVariant === BORDER_VARIANT.OUTER ? "solid" : "ghost"
               }
@@ -1208,6 +1220,9 @@ const BorderSelection: React.FC<BorderProps> = ({
             />
             <IconButton
               aria-label={translations.border_left}
+              background={
+                borderVariant === BORDER_VARIANT.LEFT ? bgColor : "none"
+              }
               variant={
                 borderVariant === BORDER_VARIANT.LEFT ? "solid" : "ghost"
               }
@@ -1223,6 +1238,9 @@ const BorderSelection: React.FC<BorderProps> = ({
             />
             <IconButton
               aria-label={translations.border_right}
+              background={
+                borderVariant === BORDER_VARIANT.RIGHT ? bgColor : "none"
+              }
               variant={
                 borderVariant === BORDER_VARIANT.RIGHT ? "solid" : "ghost"
               }
@@ -1238,6 +1256,9 @@ const BorderSelection: React.FC<BorderProps> = ({
             />
             <IconButton
               aria-label={translations.border_top}
+              background={
+                borderVariant === BORDER_VARIANT.TOP ? bgColor : "none"
+              }
               variant={borderVariant === BORDER_VARIANT.TOP ? "solid" : "ghost"}
               color={
                 borderVariant === BORDER_VARIANT.TOP
@@ -1251,6 +1272,9 @@ const BorderSelection: React.FC<BorderProps> = ({
             />
             <IconButton
               aria-label={translations.border_bottom}
+              background={
+                borderVariant === BORDER_VARIANT.BOTTOM ? bgColor : "none"
+              }
               variant={
                 borderVariant === BORDER_VARIANT.BOTTOM ? "solid" : "ghost"
               }
@@ -1266,6 +1290,9 @@ const BorderSelection: React.FC<BorderProps> = ({
             />
             <IconButton
               aria-label={translations.border_none}
+              background={
+                borderVariant === BORDER_VARIANT.NONE ? bgColor : "none"
+              }
               variant={
                 borderVariant === BORDER_VARIANT.NONE ? "solid" : "ghost"
               }
@@ -1282,7 +1309,7 @@ const BorderSelection: React.FC<BorderProps> = ({
           </Box>
           <Box
             p={2}
-            borderLeft="gray.300"
+            borderLeft={bgColor}
             borderLeftWidth={1}
             borderLeftStyle="solid"
             flexDirection="column"

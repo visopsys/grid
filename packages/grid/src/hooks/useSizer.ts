@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { ViewPortProps, GridRef, CellInterface, ItemSizer } from "./../Grid";
-import { debounce, AutoSizerCanvas } from "./../helpers";
+import { debounce, AutoSizerCanvas, HiddenType } from "./../helpers";
 import invariant from "tiny-invariant";
 
 interface TextFormattingOptions {
@@ -68,6 +68,14 @@ export interface IProps {
    * Map of index to size
    */
   columnSizes?: SizeType;
+  /**
+   * Hidden rows
+   */
+  isHiddenRow: HiddenType;
+  /**
+   * Hidden columns
+   */
+  isHiddenColumn: HiddenType;
 }
 
 export enum ResizeStrategy {
@@ -121,6 +129,8 @@ const useAutoSizer = ({
   fontStyle = "italic",
   autoResize = true,
   columnSizes = {},
+  isHiddenRow,
+  isHiddenColumn,
 }: IProps): AutoResizerResults => {
   invariant(
     !(resizeStrategy === ResizeStrategy.full && rowCount === void 0),
@@ -139,6 +149,7 @@ const useAutoSizer = ({
   const isMounted = useRef(false);
   const getValueRef = useRef(getValue);
   const viewPortRef = useRef(viewport);
+  const hiddenRowRef = useRef(isHiddenRow);
   const debounceResizer = useRef(
     debounce(
       ({ rowIndex, columnIndex }: CellInterface) =>
@@ -151,6 +162,7 @@ const useAutoSizer = ({
   useEffect(() => {
     getValueRef.current = getValue;
     viewPortRef.current = viewport;
+    hiddenRowRef.current = isHiddenRow;
   });
 
   useEffect(() => {
@@ -162,9 +174,9 @@ const useAutoSizer = ({
     autoSizer.current.setFont({ fontFamily, fontSize, fontWeight, fontStyle });
   }, [fontFamily, fontSize, fontWeight, fontStyle]);
 
-  const getTextMetrics = (text: string) => {
+  const getTextMetrics = useCallback((text: string) => {
     return autoSizer.current.measureText(text);
-  };
+  }, []);
 
   /**
    * Calculate column width
@@ -182,6 +194,10 @@ const useAutoSizer = ({
         return Math.max(minColumnWidth, columnSizes[columnIndex]);
       }
       while (start < visibleRows) {
+        if (hiddenRowRef.current?.(start)) {
+          start++;
+          continue;
+        }
         const cellValue =
           getValueRef.current({
             rowIndex: start,
@@ -215,7 +231,7 @@ const useAutoSizer = ({
       }
       return maxWidth;
     },
-    [viewport, getValue, initialVisibleRows]
+    [viewport, initialVisibleRows]
   );
 
   const handleViewChange = useCallback(
@@ -244,7 +260,7 @@ const useAutoSizer = ({
   );
 
   return {
-    ...(autoResize ? { columnWidth: getColumnWidth } : {}),
+    ...(autoResize ? { columnWidth: getColumnWidth } : undefined),
     getColumnWidth,
     // getRowHeight,
     onViewChange: handleViewChange,

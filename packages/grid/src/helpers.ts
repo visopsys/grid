@@ -5,7 +5,7 @@ import {
   AreaProps,
   CellInterface,
   CellMetaData,
-  SelectionArea
+  SelectionArea,
 } from "./Grid";
 import { Direction } from "./types";
 
@@ -14,12 +14,12 @@ export enum Align {
   end = "end",
   center = "center",
   auto = "auto",
-  smart = "smart"
+  smart = "smart",
 }
 
 export enum ItemType {
   row = "row",
-  column = "column"
+  column = "column",
 }
 
 export interface IItemMetaData {
@@ -39,7 +39,7 @@ export const getRowStartIndexForOffset = ({
   rowCount,
   columnCount,
   instanceProps,
-  offset
+  offset,
 }: Omit<IItemMetaData, "index" | "itemType">): number => {
   return findNearestItem({
     itemType: ItemType.row,
@@ -48,7 +48,7 @@ export const getRowStartIndexForOffset = ({
     rowCount,
     columnCount,
     instanceProps,
-    offset
+    offset,
   });
 };
 
@@ -65,14 +65,14 @@ export const getRowStopIndexForStartIndex = ({
   columnWidth,
   scrollTop,
   containerHeight,
-  instanceProps
+  instanceProps,
 }: IRowStopIndex): number => {
   const itemMetadata = getItemMetadata({
     itemType: ItemType.row,
     rowHeight,
     columnWidth,
     index: startIndex,
-    instanceProps
+    instanceProps,
   });
   const maxOffset = scrollTop + containerHeight;
 
@@ -86,7 +86,7 @@ export const getRowStopIndexForStartIndex = ({
       rowHeight,
       columnWidth,
       index: stopIndex,
-      instanceProps
+      instanceProps,
     }).size;
   }
 
@@ -99,7 +99,7 @@ export const getColumnStartIndexForOffset = ({
   rowCount,
   columnCount,
   instanceProps,
-  offset
+  offset,
 }: Omit<IItemMetaData, "index" | "itemType">): number => {
   return findNearestItem({
     itemType: ItemType.column,
@@ -108,7 +108,7 @@ export const getColumnStartIndexForOffset = ({
     rowCount,
     columnCount,
     instanceProps,
-    offset
+    offset,
   });
 };
 
@@ -125,14 +125,14 @@ export const getColumnStopIndexForStartIndex = ({
   instanceProps,
   containerWidth,
   scrollLeft,
-  columnCount
+  columnCount,
 }: IColumnStopIndex): number => {
   const itemMetadata = getItemMetadata({
     itemType: ItemType.column,
     index: startIndex,
     rowHeight,
     columnWidth,
-    instanceProps
+    instanceProps,
   });
   const maxOffset = scrollLeft + containerWidth;
 
@@ -146,7 +146,7 @@ export const getColumnStopIndexForStartIndex = ({
       rowHeight,
       columnWidth,
       index: stopIndex,
-      instanceProps
+      instanceProps,
     }).size;
   }
 
@@ -172,14 +172,14 @@ export const getRowOffset = ({
   index,
   rowHeight,
   columnWidth,
-  instanceProps
+  instanceProps,
 }: Omit<IGetItemMetadata, "itemType">): number => {
   return getItemMetadata({
     itemType: ItemType.row,
     index,
     rowHeight,
     columnWidth,
-    instanceProps
+    instanceProps,
   }).offset;
 };
 
@@ -187,14 +187,14 @@ export const getColumnOffset = ({
   index,
   rowHeight,
   columnWidth,
-  instanceProps
+  instanceProps,
 }: Omit<IGetItemMetadata, "itemType">): number => {
   return getItemMetadata({
     itemType: ItemType.column,
     index,
     rowHeight,
     columnWidth,
-    instanceProps
+    instanceProps,
   }).offset;
 };
 
@@ -222,7 +222,7 @@ export const getItemMetadata = ({
   index,
   rowHeight,
   columnWidth,
-  instanceProps
+  instanceProps,
 }: IGetItemMetadata): CellMetaData => {
   let itemMetadataMap, itemSize, lastMeasuredIndex, recalcIndices: number[];
   if (itemType === "column") {
@@ -254,7 +254,7 @@ export const getItemMetadata = ({
 
       itemMetadataMap[i] = {
         offset,
-        size
+        size,
       };
 
       offset += size;
@@ -277,7 +277,7 @@ const findNearestItem = ({
   rowCount,
   columnCount,
   instanceProps,
-  offset
+  offset,
 }: Omit<IItemMetaData, "index">): number => {
   let itemMetadataMap, lastMeasuredIndex;
   if (itemType === "column") {
@@ -299,7 +299,7 @@ const findNearestItem = ({
       instanceProps,
       high: lastMeasuredIndex,
       low: 0,
-      offset
+      offset,
     });
   } else {
     // If we haven't yet measured this high, fallback to an exponential search with an inner binary search.
@@ -313,7 +313,7 @@ const findNearestItem = ({
       columnWidth,
       instanceProps,
       index: Math.max(0, lastMeasuredIndex),
-      offset
+      offset,
     });
   }
 };
@@ -330,7 +330,7 @@ const findNearestItemBinarySearch = ({
   instanceProps,
   high,
   low,
-  offset
+  offset,
 }: IBinarySearchArgs): number => {
   while (low <= high) {
     const middle = low + Math.floor((high - low) / 2);
@@ -339,7 +339,7 @@ const findNearestItemBinarySearch = ({
       rowHeight,
       columnWidth,
       index: middle,
-      instanceProps
+      instanceProps,
     }).offset;
 
     if (currentOffset === offset) {
@@ -366,7 +366,7 @@ const findNearestItemExponentialSearch = ({
   columnCount,
   instanceProps,
   index,
-  offset
+  offset,
 }: IItemMetaData) => {
   const itemCount = itemType === "column" ? columnCount : rowCount;
   let interval = 1;
@@ -378,7 +378,7 @@ const findNearestItemExponentialSearch = ({
       rowHeight,
       columnWidth,
       index,
-      instanceProps
+      instanceProps,
     }).offset < offset
   ) {
     index += interval;
@@ -392,7 +392,7 @@ const findNearestItemExponentialSearch = ({
     instanceProps,
     high: Math.min(index, itemCount - 1),
     low: Math.floor(index / 2),
-    offset
+    offset,
   });
 };
 
@@ -457,7 +457,7 @@ export const cellIdentifier = (rowIndex: number, columnIndex: number): string =>
 export function throttle(func: Function, limit: number): Function {
   let inThrottle: boolean;
 
-  return function(this: any): any {
+  return function (this: any): any {
     const args = arguments;
     const context = this;
 
@@ -481,7 +481,7 @@ export function debounce<T extends Function>(cb: T, wait = 300) {
 export function rafThrottle(callback: Function) {
   var active = false; // a simple flag
   var evt: any; // to keep track of the last event
-  var handler = function() {
+  var handler = function () {
     // fired only when screen has refreshed
     active = false; // release our flag
     callback(evt);
@@ -520,7 +520,7 @@ export const getOffsetForIndexAndAlignment = ({
   scrollOffset,
   instanceProps,
   scrollbarSize,
-  frozenOffset = 0
+  frozenOffset = 0,
 }: AlignmentProps): number => {
   const size = itemType === "column" ? containerWidth : containerHeight;
   const itemMetadata = getItemMetadata({
@@ -528,7 +528,7 @@ export const getOffsetForIndexAndAlignment = ({
     rowHeight,
     columnWidth,
     index,
-    instanceProps
+    instanceProps,
   });
 
   // Get estimated total size after ItemMetadata is computed,
@@ -583,7 +583,7 @@ export const getOffsetForColumnAndAlignment = (
 ) => {
   return getOffsetForIndexAndAlignment({
     itemType: ItemType.column,
-    ...props
+    ...props,
   });
 };
 
@@ -592,7 +592,7 @@ export const getOffsetForRowAndAlignment = (
 ) => {
   return getOffsetForIndexAndAlignment({
     itemType: ItemType.row,
-    ...props
+    ...props,
   });
 };
 
@@ -631,7 +631,7 @@ export function requestTimeout(callback: Function, delay: number): TimeoutID {
   }
 
   const timeoutID: TimeoutID = {
-    id: requestAnimationFrame(tick)
+    id: requestAnimationFrame(tick),
   };
 
   return timeoutID;
@@ -647,9 +647,9 @@ export const selectionFromActiveCell = (
         top: activeCell.rowIndex,
         left: activeCell.columnIndex,
         bottom: activeCell.rowIndex,
-        right: activeCell.columnIndex
-      }
-    }
+        right: activeCell.columnIndex,
+      },
+    },
   ];
 };
 
@@ -671,10 +671,10 @@ export const numberToAlphabet = (i: number): string => {
 export const prepareClipboardData = (rows: string[][]): [string, string] => {
   const html = ["<table>"];
   const csv: string[] = [];
-  rows.forEach(row => {
+  rows.forEach((row) => {
     html.push("<tr>");
     const csvRow: string[] = [];
-    row.forEach(cell => {
+    row.forEach((cell) => {
       html.push(`<td>${cell}</td>`);
       csvRow.push(`"${cell.replace(/"/g, '""')}"`);
     });
@@ -805,13 +805,13 @@ export const AutoSizerCanvas = (defaults: AutoSizerProps = {}) => {
     fontFamily = "Arial",
     fontSize = 12,
     fontWeight = "normal",
-    fontStyle = ""
+    fontStyle = "",
   } = defaults;
   var o: IOptions = {
     fontFamily,
     fontSize,
     fontWeight,
-    fontStyle
+    fontStyle,
   };
   const canvas =
     canUseDOM && <HTMLCanvasElement>document.createElement("canvas");
@@ -834,7 +834,7 @@ export const AutoSizerCanvas = (defaults: AutoSizerProps = {}) => {
     context,
     measureText,
     setFont,
-    reset
+    reset,
   };
 };
 
@@ -855,10 +855,10 @@ export const isEqualCells = (
  * @param rowIndex
  * @param direction
  */
-export type HiddenFn = (i: number) => boolean;
+export type HiddenType = (i: number) => boolean;
 export const clampIndex = (
   index: number,
-  isHidden: HiddenFn,
+  isHidden: HiddenType,
   direction: Direction
 ) => {
   switch (direction) {

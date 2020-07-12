@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   Box,
   Menu,
@@ -48,6 +48,7 @@ const FilterComponent = ({
   const [userValues, setUserValues] = useState(
     filter ? selectedValues : values
   );
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const theme = useTheme();
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
@@ -62,6 +63,9 @@ const FilterComponent = ({
     } else {
       setUserValues((prev) => prev.filter((v) => v !== value));
     }
+  }, []);
+  useEffect(() => {
+    searchInputRef.current?.focus();
   }, []);
   const handleSubmit = useCallback(() => {
     const selectedFilter =
@@ -144,6 +148,7 @@ const FilterComponent = ({
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setFilterText(e.target.value);
               }}
+              ref={searchInputRef}
             />
           </InputGroup>
           <Box
