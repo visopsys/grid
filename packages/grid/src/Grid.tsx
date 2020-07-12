@@ -241,6 +241,10 @@ export interface GridProps
    * Check if its a hidden column. Skip rendering hidden
    */
   isHiddenColumn?: (columnIndex: number) => boolean;
+  /**
+   * Scale
+   */
+  scale?: number;
 }
 
 export interface CellRangeArea extends CellInterface {
@@ -467,6 +471,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       gridLineRenderer = defaultGridLineRenderer,
       isHiddenRow,
       isHiddenColumn,
+      scale = 1,
       ...rest
     } = props;
 
@@ -2692,6 +2697,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             height={containerHeight}
             ref={stageRef}
             listening={listenToEvents}
+            scaleX={scale}
+            scaleY={scale}
             {...stageProps}
           >
             {wrapper(stageChildren)}
