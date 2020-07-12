@@ -408,6 +408,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
           <IconButton
             aria-label={translations.decrease_decimal}
             fontSize={20}
+            color={iconColor}
             icon={DecreaseDecimalIcon}
             size="sm"
             onClick={() =>
@@ -426,6 +427,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
           <IconButton
             aria-label={translations.increase_decimal}
             fontSize={20}
+            color={iconColor}
             icon={IncreaseDecimalIcon}
             size="sm"
             onClick={() =>
