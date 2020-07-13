@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from "react";
+import React, { memo, useCallback, useMemo, useState, useRef } from "react";
 import { Cell, RendererProps } from "@rowsncolumns/grid";
 import {
   number2Alpha,
@@ -19,7 +19,16 @@ export interface HeaderCellProps extends RendererProps {
 }
 
 interface DraggableRectProps
-  extends Pick<ShapeConfig, "x" | "y" | "height" | "width" | "onDblClick"> {
+  extends Pick<
+    ShapeConfig,
+    | "x"
+    | "y"
+    | "height"
+    | "width"
+    | "onDblClick"
+    | "onMouseEnter"
+    | "onMouseLeave"
+  > {
   axis?: AXIS;
   columnIndex: number;
   rowIndex: number;
@@ -44,21 +53,17 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
     parentY = 0,
     showResizer,
   } = props;
-  const cursor = axis === AXIS.X ? "e-resize" : "n-resize";
   const index = useMemo(() => (axis === AXIS.X ? columnIndex : rowIndex), [
     axis,
   ]);
   return (
     <Rect
-      visible={showResizer}
       perfectDrawEnabled={false}
-      fill={"#4C90FD"}
+      fill={showResizer ? "#4C90FD" : "transparent"}
       draggable
       strokeScaleEnabled={false}
       shadowForStrokeEnable={false}
       hitStrokeWidth={10}
-      onMouseEnter={() => (document.body.style.cursor = cursor)}
-      onMouseLeave={() => (document.body.style.cursor = "default")}
       onMouseDown={(e) => e.evt.stopPropagation()}
       dragBoundFunc={(pos) => {
         return {
@@ -114,10 +119,14 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
     : DARK_MODE_COLOR;
   const textColor = isLightMode ? "#333" : "white";
   const stroke = isLightMode ? HEADER_BORDER_COLOR : theme.colors.gray[600];
+  const axis = isRowHeader ? AXIS.X : AXIS.Y;
+  const cursor = axis === AXIS.X ? "e-resize" : "n-resize";
   const handleMouseEnter = useCallback(() => {
+    document.body.style.cursor = cursor;
     setShowResizer(true);
   }, []);
   const handleMouseLeave = useCallback(() => {
+    document.body.style.cursor = "default";
     setShowResizer(false);
   }, []);
   const handleAdjustColumn = () => onAdjustColumn?.(columnIndex);
@@ -133,8 +142,6 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
       textColor={textColor}
       stroke={stroke}
       fontSize={fontSize}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       {!isCorner ? (
         <DraggableRect
@@ -144,12 +151,14 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
           y={isRowHeader ? y : y + height - DRAG_HANDLE_WIDTH}
           width={isRowHeader ? DRAG_HANDLE_WIDTH : width}
           height={isRowHeader ? height : DRAG_HANDLE_WIDTH}
-          axis={isRowHeader ? AXIS.X : AXIS.Y}
+          axis={axis}
           rowIndex={rowIndex}
           columnIndex={columnIndex}
           onResize={onResize}
           onDblClick={handleAdjustColumn}
           showResizer={showResizer}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         />
       ) : null}
     </Cell>
