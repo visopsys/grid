@@ -498,6 +498,10 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
      * Check if selections are in
      */
     useEffect(() => {
+      /* Row and column headers */
+      if (activeCell?.rowIndex === 0 || activeCell?.columnIndex === 0) {
+        return;
+      }
       onActiveCellChange?.(
         activeCell,
         getValue(activeCell) as string | undefined
