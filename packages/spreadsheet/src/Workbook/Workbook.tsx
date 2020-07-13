@@ -88,6 +88,7 @@ export interface WorkbookProps
     filter?: FilterDefinition
   ) => void;
   StatusBar: React.ReactType;
+  scale?: number;
 }
 
 export type WorkBookRefAttribute = {
@@ -140,6 +141,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       allowNewSheet,
       StatusBar,
       showStatusBar,
+      scale = 1,
     } = props;
 
     const { colorMode } = useColorMode();
@@ -147,6 +149,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
     const [containerRef, { width, height }] = useMeasure({
       polyfill: ResizeObserver,
     });
+
     const {
       cells,
       activeCell,
@@ -163,7 +166,6 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       filterViews,
       rowCount = DEFAULT_ROW_COUNT,
       columnCount = DEFAULT_COLUMN_COUNT,
-      scale = 1,
     } = currentSheet;
 
     /* Current sheet ref */

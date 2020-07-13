@@ -192,6 +192,10 @@ export interface SpreadSheetProps {
    * Status bar component
    */
   StatusBar?: React.FC<StatusBarProps>;
+  /**
+   * Scale
+   */
+  initialScale?: number;
 }
 
 export interface Sheet {
@@ -212,7 +216,6 @@ export interface Sheet {
   filterViews?: FilterView[];
   rowCount?: number;
   columnCount?: number;
-  scale?: number;
 }
 
 export type SizeType = {
@@ -242,7 +245,6 @@ export const defaultSheets: Sheet[] = [
     cells: {},
     scrollState: { scrollTop: 0, scrollLeft: 0 },
     filterViews: [],
-    scale: 1.5,
   },
 ];
 
@@ -288,6 +290,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       allowNewSheet = true,
       showStatusBar = true,
       StatusBar = StatusBarComponent,
+      initialScale = 1,
     } = props;
     const [selectedSheet, setSelectedSheet] = useState<string | null>(() => {
       return activeSheet === void 0
@@ -296,6 +299,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           : null
         : activeSheet;
     });
+    const [scale, setScale] = useState(initialScale);
     const selectedSheetRef = useRef(selectedSheet);
     const currentGrid = useRef<WorkbookGridRef>(null);
     const [sheets, setSheets] = useImmer<Sheet[]>(initialSheets);
@@ -1201,12 +1205,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           false
         );
         /* Set scale */
-        setSheets((draft) => {
-          const sheet = draft.find((sheet) => sheet.id === selectedSheet);
-          if (sheet) {
-            sheet.scale = value;
-          }
-        });
+        setScale(value);
       },
       [selectedSheet]
     );
@@ -1263,7 +1262,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
               // canRedo={canRedo}
               // canUndo={canUndo}
               enableDarkMode={enableDarkMode}
-              scale={currentSheet.scale}
+              scale={scale}
               onScaleChange={handleScaleChange}
             />
           ) : null}
@@ -1276,6 +1275,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             />
           ) : null}
           <Workbook
+            scale={scale}
             StatusBar={StatusBar}
             showTabStrip={showTabStrip}
             isTabEditable={isTabEditable}
