@@ -27,6 +27,7 @@ interface DraggableRectProps
   onAdjustColumn?: (columnIndex: number) => void;
   parentX: number;
   parentY: number;
+  showResizer?: boolean;
 }
 const DRAG_HANDLE_WIDTH = 5;
 const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
@@ -41,6 +42,7 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
     onResize,
     parentX = 0,
     parentY = 0,
+    showResizer,
   } = props;
   const cursor = axis === AXIS.X ? "e-resize" : "n-resize";
   const index = useMemo(() => (axis === AXIS.X ? columnIndex : rowIndex), [
@@ -48,12 +50,13 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
   ]);
   return (
     <Rect
+      visible={showResizer}
       perfectDrawEnabled={false}
-      fill="#4C90FD"
+      fill={"#4C90FD"}
       draggable
       strokeScaleEnabled={false}
       shadowForStrokeEnable={false}
-      hitStrokeWidth={5}
+      hitStrokeWidth={10}
       onMouseEnter={() => (document.body.style.cursor = cursor)}
       onMouseLeave={() => (document.body.style.cursor = "default")}
       onMouseDown={(e) => e.evt.stopPropagation()}
@@ -133,7 +136,7 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {!isCorner && showResizer ? (
+      {!isCorner ? (
         <DraggableRect
           parentX={x}
           parentY={y}
@@ -146,6 +149,7 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
           columnIndex={columnIndex}
           onResize={onResize}
           onDblClick={handleAdjustColumn}
+          showResizer={showResizer}
         />
       ) : null}
     </Cell>
