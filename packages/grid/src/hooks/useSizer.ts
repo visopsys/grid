@@ -95,7 +95,7 @@ export interface AutoResizerResults {
   /**
    * Get column width based on resize strategy
    */
-  getColumnWidth: (columnIndex: number) => number;
+  getColumnWidth: (columnIndex: number, scale?: number) => number;
   /**
    * Text size getter
    */
@@ -182,7 +182,7 @@ const useAutoSizer = ({
    * Calculate column width
    */
   const getColumnWidth = useCallback(
-    (columnIndex: number) => {
+    (columnIndex: number, scale = 1) => {
       const { rowStartIndex, rowStopIndex } = viewPortRef.current;
       const visibleRows =
         resizeStrategy === ResizeStrategy.full
@@ -208,7 +208,6 @@ const useAutoSizer = ({
         if (cellValue !== null) {
           const isCellConfig = typeof cellValue === "object";
           const text = isCellConfig ? cellValue.text : cellValue;
-
           if (!isNull(text)) {
             /* Reset fonts */
             autoSizer.current.reset();
@@ -217,7 +216,7 @@ const useAutoSizer = ({
               const isBold = cellValue.bold;
               autoSizer.current.setFont({
                 fontWeight: isBold ? "bold" : "normal",
-                fontSize: cellValue.fontSize,
+                fontSize: (cellValue.fontSize || fontSize) * scale,
                 fontFamily: cellValue.fontFamily,
               });
             }

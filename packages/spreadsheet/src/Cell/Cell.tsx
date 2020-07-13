@@ -116,6 +116,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     showFilter,
     isFilterActive,
     onFilterClick,
+    scale,
   } = props;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
     strike ? TEXT_DECORATION.STRIKE : ""
@@ -180,7 +181,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
           textDecoration={textDecoration}
           padding={padding}
           wrap={wrap}
-          fontSize={fontSize}
+          fontSize={fontSize * scale}
           lineHeight={lineHeight}
           hitStrokeWidth={0}
           perfectDrawEnabled={false}

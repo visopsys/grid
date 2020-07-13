@@ -76,6 +76,7 @@ import {
   FORMAT_CURRENCY,
   FORMAT_DEFAULT_DECIMAL,
   changeDecimals,
+  SCALE_VALUES,
 } from "./../constants";
 import {
   FORMATTING_TYPE,
@@ -115,6 +116,8 @@ export interface ToolbarProps extends CellConfig {
   onUndo?: () => void;
   onRedo?: () => void;
   enableDarkMode?: boolean;
+  scale?: number;
+  onScaleChange?: (value: number) => void;
 }
 interface ColorPickerProps {
   resetLabel?: string;
@@ -276,6 +279,8 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
     onFormattingChangeAuto,
     onFormattingChangePlain,
     plaintext,
+    scale = 1,
+    onScaleChange,
   } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const theme = useTheme();
@@ -357,6 +362,44 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
           />
         </Tooltip>
 
+        <Separator borderColor={borderColor} />
+        <Menu>
+          <MenuButton
+            color={foregroundColor}
+            as={Button}
+            size="sm"
+            flexShrink={0}
+            paddingLeft={1}
+            paddingRight={1}
+            background="none"
+            fontSize={12}
+          >
+            {`${scale * 100}%`}
+            <Icon name="chevron-down" ml={1} fontSize={16} />
+          </MenuButton>
+          <MenuList
+            placement="top-start"
+            minWidth={100}
+            borderColor={isLight ? undefined : DARK_MODE_COLOR}
+            fontSize={14}
+          >
+            {SCALE_VALUES.map(({ label, value }) => {
+              return (
+                <MenuItem
+                  key={value}
+                  onClick={() => {
+                    onScaleChange?.(value);
+                  }}
+                >
+                  <Box width="24px">
+                    {value === scale && <Icon name="check" mr={1} />}
+                  </Box>
+                  {label}
+                </MenuItem>
+              );
+            })}
+          </MenuList>
+        </Menu>
         <Separator borderColor={borderColor} />
 
         <Tooltip

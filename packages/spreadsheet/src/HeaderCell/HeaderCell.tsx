@@ -15,6 +15,7 @@ export interface HeaderCellProps extends RendererProps {
   onResize?: (axis: AXIS, index: number, dimension: number) => void;
   isLightMode?: boolean;
   theme: ThemeType;
+  scale?: number;
 }
 
 interface DraggableRectProps
@@ -93,7 +94,7 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
     isLightMode,
     theme,
   } = props;
-  const { onResize, onAdjustColumn, ...rest } = props;
+  const { onResize, onAdjustColumn, scale = 1, ...rest } = props;
   const isCorner = rowIndex === columnIndex;
   const value = isCorner
     ? ""
@@ -117,6 +118,7 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
     setShowResizer(false);
   }, []);
   const handleAdjustColumn = () => onAdjustColumn?.(columnIndex);
+  const fontSize = 10 * scale;
   return (
     <Cell
       {...rest}
@@ -127,7 +129,7 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
       value={value}
       textColor={textColor}
       stroke={stroke}
-      fontSize={10}
+      fontSize={fontSize}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >

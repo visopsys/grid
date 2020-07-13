@@ -163,6 +163,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       filterViews,
       rowCount = DEFAULT_ROW_COUNT,
       columnCount = DEFAULT_COLUMN_COUNT,
+      scale = 1,
     } = currentSheet;
 
     /* Current sheet ref */
@@ -289,6 +290,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
           background={isLight ? "white" : DARK_MODE_COLOR_LIGHT}
         >
           <Grid
+            scale={scale}
             isLightMode={isLight}
             ref={forwardedRef}
             onResize={handleResize}

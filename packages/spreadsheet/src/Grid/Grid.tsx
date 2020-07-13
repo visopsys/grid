@@ -36,6 +36,7 @@ import {
   DARK_MODE_COLOR_LIGHT,
   HEADER_BORDER_COLOR,
   CELL_BORDER_COLOR,
+  number2Alpha,
 } from "./../constants";
 import HeaderCell from "./../HeaderCell";
 import Cell from "./../Cell";
@@ -126,6 +127,7 @@ export interface SheetGridProps {
     columnIndex: number,
     filter: FilterDefinition
   ) => void;
+  scale?: number;
 }
 
 export interface RowColSelection {
@@ -221,6 +223,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       selectionMode,
       isLightMode,
       onChangeFilter,
+      scale,
     } = props;
     const gridRef = useRef<GridRef | null>(null);
     const onSheetChangeRef = useRef(debounce(onSheetChange, 100));
@@ -301,6 +304,15 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       (cell: CellInterface | null, obj = false) => {
         if (!cell) return void 0;
         const { rowIndex, columnIndex } = cell;
+        /* Check if its header cell */
+        const isRowHeader = rowIndex === 0;
+        const isColumnHeader = columnIndex === 0;
+        if (isRowHeader) {
+          return { text: number2Alpha(columnIndex - 1), fontSize: 10 };
+        }
+        if (isColumnHeader) {
+          return { text: isColumnHeader, fontSize: 10 };
+        }
         return rowIndex in cells
           ? obj
             ? cells[rowIndex]?.[columnIndex]
@@ -475,11 +487,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const handleAdjustColumn = useCallback(
       (columnIndex: number) => {
         const width =
-          getColumnWidth(columnIndex) +
+          getColumnWidth(columnIndex, scale) +
           (columnHasFilter(columnIndex) ? FILTER_ICON_DIM : 0);
         onResize?.(AXIS.X, columnIndex, width);
       },
-      [cells, hiddenRows, hiddenColumns]
+      [cells, hiddenRows, hiddenColumns, scale]
     );
 
     /**
@@ -577,6 +589,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             fontSize={config?.fontSize}
             fontFamily={config?.fontFamily}
             horizontalAlign={config?.horizontalAlign}
+            scale={scale}
           />
         );
       },
@@ -673,6 +686,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
               onResize={onResize}
               onAdjustColumn={handleAdjustColumn}
               theme={theme}
+              scale={scale}
             />
           );
         }
@@ -713,6 +727,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             showFilter={showFilter}
             isFilterActive={isFilterActive}
             onFilterClick={handleFilterClick}
+            scale={scale}
           />
         );
       },
@@ -724,6 +739,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         selectionMode,
         isLightMode,
         theme,
+        scale,
         filterHeaderCells,
       ]
     );
@@ -785,6 +801,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     return (
       <GridWrapper>
         <Grid
+          scale={scale}
           isHiddenRow={isHiddenRow}
           enableCellOverlay
           shadowSettings={{

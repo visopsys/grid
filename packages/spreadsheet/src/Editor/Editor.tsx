@@ -23,6 +23,7 @@ export interface CustomEditorProps extends EditorProps {
   fontFamily?: string;
   wrap?: any;
   horizontalAlign?: any;
+  scale?: number;
 }
 
 /**
@@ -50,6 +51,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
     selections,
     scrollPosition,
     horizontalAlign,
+    scale = 1,
     ...rest
   } = props;
   const { colorMode } = useColorMode();
@@ -148,7 +150,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
         value={value}
         style={{
           fontFamily: cellFontFamily,
-          fontSize: cellFontSize,
+          fontSize: cellFontSize * scale,
           // lineHeight: 1.2,
           width: "100%",
           height: "100%",

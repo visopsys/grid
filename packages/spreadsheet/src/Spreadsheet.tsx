@@ -212,6 +212,7 @@ export interface Sheet {
   filterViews?: FilterView[];
   rowCount?: number;
   columnCount?: number;
+  scale?: number;
 }
 
 export type SizeType = {
@@ -241,6 +242,7 @@ export const defaultSheets: Sheet[] = [
     cells: {},
     scrollState: { scrollTop: 0, scrollLeft: 0 },
     filterViews: [],
+    scale: 1.5,
   },
 ];
 
@@ -1188,6 +1190,27 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       []
     );
 
+    /**
+     * Callback when scale changes
+     */
+    const handleScaleChange = useCallback(
+      (value) => {
+        /* Update grid dimensions */
+        currentGrid.current?.resetAfterIndices?.(
+          { rowIndex: 0, columnIndex: 0 },
+          false
+        );
+        /* Set scale */
+        setSheets((draft) => {
+          const sheet = draft.find((sheet) => sheet.id === selectedSheet);
+          if (sheet) {
+            sheet.scale = value;
+          }
+        });
+      },
+      [selectedSheet]
+    );
+
     return (
       <>
         <Global
@@ -1240,6 +1263,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
               // canRedo={canRedo}
               // canUndo={canUndo}
               enableDarkMode={enableDarkMode}
+              scale={currentSheet.scale}
+              onScaleChange={handleScaleChange}
             />
           ) : null}
           {showFormulabar ? (
