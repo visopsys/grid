@@ -581,12 +581,14 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         shouldForceUpdate: boolean = true
       ) => {
         if (typeof columnIndex === "number") {
+          instanceProps.current.recalcColumnIndices = [];
           instanceProps.current.lastMeasuredColumnIndex = Math.min(
             instanceProps.current.lastMeasuredColumnIndex,
             columnIndex - 1
           );
         }
         if (typeof rowIndex === "number") {
+          instanceProps.current.recalcRowIndices = [];
           instanceProps.current.lastMeasuredRowIndex = Math.min(
             instanceProps.current.lastMeasuredRowIndex,
             rowIndex - 1
