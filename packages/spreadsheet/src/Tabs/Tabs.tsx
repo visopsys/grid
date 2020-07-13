@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sheet } from "../Spreadsheet";
+import { Sheet, SpreadSheetProps } from "../Spreadsheet";
 import { GoPlus } from "react-icons/go";
 import { MdMenu, MdCheck } from "react-icons/md";
 import {
@@ -22,7 +22,8 @@ import {
 import TabItem from "./TabItem";
 import { translations } from "../translations";
 
-interface TabProps {
+interface TabProps
+  extends Pick<SpreadSheetProps, "isTabEditable" | "allowNewSheet"> {
   selectedSheet: string;
   sheets: Sheet[];
   onSelect?: (id: string) => void;
@@ -41,6 +42,8 @@ const Tabs: React.FC<TabProps> = (props) => {
     onChangeSheetName,
     onDeleteSheet,
     onDuplicateSheet,
+    isTabEditable,
+    allowNewSheet,
   } = props;
   const theme = useTheme();
   const { colorMode } = useColorMode();
@@ -48,20 +51,22 @@ const Tabs: React.FC<TabProps> = (props) => {
   const color = isLight ? theme.colors.gray[900] : theme.colors.gray[300];
   return (
     <Flex pl={COLUMN_HEADER_WIDTH} alignItems="center" minWidth={0} flex={1}>
-      <Tooltip
-        placement="top-start"
-        hasArrow
-        aria-label={translations.add_sheet}
-        label={translations.add_sheet}
-      >
-        <IconButton
+      {allowNewSheet && (
+        <Tooltip
+          placement="top-start"
+          hasArrow
           aria-label={translations.add_sheet}
-          icon={GoPlus}
-          onClick={onNewSheet}
-          variant="ghost"
-          color={color}
-        />
-      </Tooltip>
+          label={translations.add_sheet}
+        >
+          <IconButton
+            aria-label={translations.add_sheet}
+            icon={GoPlus}
+            onClick={onNewSheet}
+            variant="ghost"
+            color={color}
+          />
+        </Tooltip>
+      )}
       <Popover placement="top">
         <PopoverTrigger>
           <Box>

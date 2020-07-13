@@ -59,6 +59,9 @@ import { KeyCodes, Direction } from "@rowsncolumns/grid/dist/types";
 import invariant from "tiny-invariant";
 import { ThemeType } from "./styled";
 import Editor, { CustomEditorProps } from "./Editor/Editor";
+import StatusBarComponent from "./StatusBar";
+import { StatusBarProps } from "./StatusBar/StatusBar";
+import { current } from "immer";
 
 export interface SpreadSheetProps {
   /**
@@ -89,6 +92,10 @@ export interface SpreadSheetProps {
    * Array of sheets to render
    */
   sheets?: Sheet[];
+  /**
+   * Uncontrolled sheets
+   */
+  initialSheets?: Sheet[];
   /**
    * Active  sheet on the workbook
    */
@@ -165,6 +172,26 @@ export interface SpreadSheetProps {
    * Select mode
    */
   selectionMode?: SELECTION_MODE;
+  /**
+   * Show or hide tab strip
+   */
+  showTabStrip?: boolean;
+  /**
+   * Make tab editable
+   */
+  isTabEditable?: boolean;
+  /**
+   * Allow user to add new sheet
+   */
+  allowNewSheet?: boolean;
+  /**
+   * Show or hide status bar
+   */
+  showStatusBar?: boolean;
+  /**
+   * Status bar component
+   */
+  StatusBar?: React.FC<StatusBarProps>;
 }
 
 export interface Sheet {
@@ -240,7 +267,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       minRowHeight = DEFAULT_ROW_HEIGHT,
       CellRenderer,
       HeaderCellRenderer,
-      activeSheet = defaultActiveSheet,
+      activeSheet,
       onChangeSelectedSheet,
       onChange,
       onChangeCells,
@@ -254,9 +281,18 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       onActiveCellChange,
       onSelectionChange,
       selectionMode,
+      showTabStrip = true,
+      isTabEditable = true,
+      allowNewSheet = true,
+      showStatusBar = true,
+      StatusBar = StatusBarComponent,
     } = props;
     const [selectedSheet, setSelectedSheet] = useState<string | null>(() => {
-      return activeSheet || initialSheets.length ? initialSheets[0].id : null;
+      return activeSheet === void 0
+        ? initialSheets.length
+          ? initialSheets[0].id
+          : null
+        : activeSheet;
     });
     const selectedSheetRef = useRef(selectedSheet);
     const currentGrid = useRef<WorkbookGridRef>(null);
@@ -1211,6 +1247,10 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             />
           ) : null}
           <Workbook
+            StatusBar={StatusBar}
+            showTabStrip={showTabStrip}
+            isTabEditable={isTabEditable}
+            allowNewSheet={allowNewSheet}
             onResize={handleResize}
             formatter={formatter}
             ref={currentGrid}

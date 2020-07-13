@@ -15,7 +15,6 @@ import {
 } from "@rowsncolumns/grid";
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
-import QuickInfo from "./../QuickInfo";
 import {
   DARK_MODE_COLOR_LIGHT,
   EMPTY_ARRAY,
@@ -24,7 +23,8 @@ import {
 } from "../constants";
 import { current } from "immer";
 
-export interface WorkbookProps extends Omit<SpreadSheetProps, "onChange"> {
+export interface WorkbookProps
+  extends Omit<SpreadSheetProps, "onChange" | "StatusBar"> {
   currentSheet: Sheet;
   theme: ThemeType;
   sheets: Sheet[];
@@ -87,6 +87,7 @@ export interface WorkbookProps extends Omit<SpreadSheetProps, "onChange"> {
     columnIndex: number,
     filter?: FilterDefinition
   ) => void;
+  StatusBar: React.ReactType;
 }
 
 export type WorkBookRefAttribute = {
@@ -134,6 +135,11 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       onSelectionChange,
       selectionMode,
       onChangeFilter,
+      showTabStrip,
+      isTabEditable,
+      allowNewSheet,
+      StatusBar,
+      showStatusBar,
     } = props;
 
     const { colorMode } = useColorMode();
@@ -338,16 +344,22 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
             borderTopWidth={1}
             borderTopStyle="solid"
           >
-            <Tabs
-              sheets={sheets}
-              selectedSheet={selectedSheet}
-              onNewSheet={onNewSheet}
-              onSelect={onChangeSelectedSheet}
-              onChangeSheetName={onChangeSheetName}
-              onDeleteSheet={onDeleteSheet}
-              onDuplicateSheet={onDuplicateSheet}
-            />
-            <QuickInfo selections={selections} cells={cells} />
+            {showTabStrip && (
+              <Tabs
+                sheets={sheets}
+                selectedSheet={selectedSheet}
+                onNewSheet={onNewSheet}
+                onSelect={onChangeSelectedSheet}
+                onChangeSheetName={onChangeSheetName}
+                onDeleteSheet={onDeleteSheet}
+                onDuplicateSheet={onDuplicateSheet}
+                isTabEditable={isTabEditable}
+                allowNewSheet={allowNewSheet}
+              />
+            )}
+            {showStatusBar && (
+              <StatusBar selections={selections} cells={cells} />
+            )}
           </BottomPanel>
         </Flex>
       </>

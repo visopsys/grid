@@ -22,5 +22,13 @@ module.exports = {
       "csv",
     ],
     Advanced: ["ref"],
+    Features: [
+      "features/initialize",
+      "features/sheets",
+      "features/tabstrip",
+      "features/statusbar",
+      "features/gridlines",
+      "features/borders",
+    ],
   },
 };

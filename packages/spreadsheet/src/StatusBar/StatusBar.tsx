@@ -4,14 +4,14 @@ import { SelectionArea, isNull } from "@rowsncolumns/grid";
 import { Cells } from "../Spreadsheet";
 import { isNumeric } from "../constants";
 
-export interface QuickInfoProps {
+export interface StatusBarProps {
   selections: SelectionArea[];
   cells: Cells;
 }
 
 const EMPTY_ARRAY: SelectionArea[] = [];
 
-const QuickInfo: React.FC<QuickInfoProps> = memo(
+const StatusBar: React.FC<StatusBarProps> = memo(
   ({ selections = EMPTY_ARRAY, cells }) => {
     const { colorMode } = useColorMode();
     const isLight = colorMode === "light";
@@ -101,4 +101,4 @@ const QuickInfo: React.FC<QuickInfoProps> = memo(
   }
 );
 
-export default QuickInfo;
+export default StatusBar;
