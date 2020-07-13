@@ -471,7 +471,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       gridLineRenderer = defaultGridLineRenderer,
       isHiddenRow,
       isHiddenColumn,
-      scale = 2,
+      scale = 1,
       ...rest
     } = props;
 
