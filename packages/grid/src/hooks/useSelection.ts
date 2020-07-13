@@ -498,14 +498,14 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         columnIndex,
       });
 
-      const currenBounds = gridRef.current.getCellBounds({
+      const currentBounds = gridRef.current.getCellBounds({
         rowIndex,
         columnIndex,
       });
 
       switch (direction) {
         case Direction.Up:
-          if (isMergedCell) rowIndex = currenBounds.top;
+          if (isMergedCell) rowIndex = currentBounds.top;
           rowIndex = clampIndex(
             Math.max(rowIndex - 1, 0),
             isHiddenRow,
@@ -517,7 +517,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
           break;
 
         case Direction.Down:
-          if (isMergedCell) rowIndex = currenBounds.bottom;
+          if (isMergedCell) rowIndex = currentBounds.bottom;
           rowIndex = clampIndex(
             Math.min(rowIndex + 1, rowCount - 1),
             isHiddenRow,
@@ -528,7 +528,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
           break;
 
         case Direction.Left:
-          if (isMergedCell) columnIndex = currenBounds.left;
+          if (isMergedCell) columnIndex = currentBounds.left;
           columnIndex = clampIndex(
             Math.max(columnIndex - 1, 0),
             isHiddenColumn,
@@ -539,7 +539,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
           break;
 
         case Direction.Right:
-          if (isMergedCell) columnIndex = currenBounds.right;
+          if (isMergedCell) columnIndex = currentBounds.right;
           columnIndex = clampIndex(
             Math.min(columnIndex + 1, columnCount - 1),
             isHiddenColumn,

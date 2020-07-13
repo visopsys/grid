@@ -650,22 +650,25 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       },
       [theme]
     );
-    const selectedRowsAndCols: RowColSelection = useMemo(
-      () =>
-        selections.reduce(
-          (acc, { bounds }) => {
-            for (let i = bounds.left; i <= bounds.right; i++) {
-              acc.cols.push(i);
-            }
-            for (let i = bounds.top; i <= bounds.bottom; i++) {
-              acc.rows.push(i);
-            }
-            return acc;
-          },
-          { rows: [], cols: [] } as RowColSelection
-        ),
-      [selections]
-    );
+    const selectedRowsAndCols: RowColSelection = useMemo(() => {
+      const activeCellBounds: SelectionArea[] =
+        activeCell && gridRef.current
+          ? [{ bounds: gridRef.current?.getCellBounds?.(activeCell) }]
+          : [];
+      const initial: SelectionArea[] = [];
+      return initial.concat(selections, activeCellBounds).reduce(
+        (acc, { bounds }) => {
+          for (let i = bounds.left; i <= bounds.right; i++) {
+            acc.cols.push(i);
+          }
+          for (let i = bounds.top; i <= bounds.bottom; i++) {
+            acc.rows.push(i);
+          }
+          return acc;
+        },
+        { rows: [], cols: [] } as RowColSelection
+      );
+    }, [selections, activeCell, gridRef.current?.getCellBounds]);
 
     const itemRenderer = useCallback(
       (props: RendererProps) => {
@@ -675,10 +678,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const isHeaderActive =
           isRowHeader || isColumnHeader
             ? isRowHeader
-              ? activeCell?.columnIndex === columnIndex ||
-                selectedRowsAndCols.cols.includes(columnIndex)
-              : activeCell?.rowIndex === rowIndex ||
-                selectedRowsAndCols.rows.includes(rowIndex)
+              ? selectedRowsAndCols.cols.includes(columnIndex)
+              : selectedRowsAndCols.rows.includes(rowIndex)
             : false;
         const cell = { rowIndex, columnIndex };
         if (rowIndex === 0 || columnIndex === 0) {
