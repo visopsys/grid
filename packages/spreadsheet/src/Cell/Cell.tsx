@@ -99,7 +99,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     italic,
     bold,
     horizontalAlign,
-    verticalAlign = VERTICAL_ALIGNMENT.TOP,
+    verticalAlign = VERTICAL_ALIGNMENT.BOTTOM,
     underline,
     strike,
     fontFamily,
