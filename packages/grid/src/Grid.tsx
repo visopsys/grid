@@ -1001,7 +1001,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       if (instanceProps.current.recalcRowIndices.length) {
         instanceProps.current.recalcRowIndices.length = 0;
       }
-    }, [rowStopIndex, columnStopIndex]);
+    }, [rowStopIndex, columnStopIndex, scale]);
 
     /* Get current view port of the grid */
     const getViewPort = useCallback((): ViewPortProps => {
