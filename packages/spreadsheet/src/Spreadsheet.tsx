@@ -790,7 +790,11 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
                 ),
               };
           if (!bounds) return;
-          if (bounds.top === bounds.bottom && bounds.left === bounds.right)
+          if (
+            (bounds.top === bounds.bottom && bounds.left === bounds.right) ||
+            bounds.top === 0 ||
+            bounds.left === 0
+          )
             return;
           if (!sheet.mergedCells) {
             sheet.mergedCells = [];
