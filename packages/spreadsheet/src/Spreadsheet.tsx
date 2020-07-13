@@ -595,6 +595,10 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         if (!activeCell) return;
         const value = e.target.value;
         setFormulaInput(value);
+        /* Row and column headers */
+        if (activeCell?.rowIndex === 0 || activeCell?.columnIndex === 0) {
+          return;
+        }
         currentGrid.current?.setEditorValue(value, activeCell);
       },
       [activeCell, selectedSheet]
@@ -622,6 +626,10 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleFormulabarKeydown = useCallback(
       (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!activeCell) return;
+        /* Row and column headers */
+        if (activeCell?.rowIndex === 0 || activeCell?.columnIndex === 0) {
+          return;
+        }
 
         if (e.which === KeyCodes.Enter) {
           submitEditor(formulaInput, activeCell);
