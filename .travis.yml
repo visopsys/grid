@@ -4,5 +4,5 @@ node_js:
 before_script:
   - yarn
 script:
-  - yarn test
-  - yarn build  
+  - yarn build
+  - yarn test  
