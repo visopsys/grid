@@ -8,8 +8,7 @@
     "build:watch": "tsc -p . --watch",
     "check:types": "tsc --noEmit",
     "prepublish": "yarn build",
-    "prettier": "prettier src/**/*.{ts,tsx} --write",
-    "test": "jest"
+    "prettier": "prettier src/**/*.{ts,tsx} --write"
   },
   "publishConfig": {
     "access": "public"

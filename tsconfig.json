@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "module": "commonjs",
+    "module": "esnext",
     "noImplicitAny": true,
     "target": "es5",
     "downlevelIteration": true,
