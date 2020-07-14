@@ -388,7 +388,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
      */
     const { getColumnWidth, onViewChange } = useAutoSizer({
       gridRef,
-      minColumnWidth: 0,
+      frozenRows,
+      scale,
+      minColumnWidth: 10,
       isHiddenRow,
       isHiddenColumn,
       getValue: (cell: CellInterface) => {
@@ -487,11 +489,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const handleAdjustColumn = useCallback(
       (columnIndex: number) => {
         const width =
-          getColumnWidth(columnIndex, scale) +
+          getColumnWidth(columnIndex) +
           (columnHasFilter(columnIndex) ? FILTER_ICON_DIM : 0);
         onResize?.(AXIS.X, columnIndex, width);
       },
-      [cells, hiddenRows, hiddenColumns, scale]
+      [cells, hiddenRows, frozenRows, hiddenColumns, scale]
     );
 
     /**
