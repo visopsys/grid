@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "module": "esnext",
+    "module": "commonjs",
+    "target": "es2019",
     "noImplicitAny": true,
-    "target": "es5",
     "downlevelIteration": true,
     "moduleResolution": "node",
     "jsx": "react",
@@ -12,7 +12,7 @@
     "strict": true,
     "esModuleInterop": true,
     "strictNullChecks": true,
-    "outDir": "dist",
     "sourceMap": true
-  }
+  },
+  "exclude": ["node_modules"]
 }
