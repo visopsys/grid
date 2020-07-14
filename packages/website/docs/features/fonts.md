@@ -111,7 +111,7 @@ const sheets = [
 
 ### Loading local fonts
 
-Use the following config to load custom webfonts from a css families
+Use the following config to load webfonts from a css file
 
 ```jsx
 fontLoaderConfig = {
