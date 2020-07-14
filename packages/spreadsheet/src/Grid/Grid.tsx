@@ -41,7 +41,7 @@ import {
 import HeaderCell from "./../HeaderCell";
 import Cell from "./../Cell";
 import { GridWrapper, ThemeType } from "./../styled";
-import { Cells, CellConfig, SizeType } from "../Spreadsheet";
+import { Cells, CellConfig, SizeType, SheetID } from "../Spreadsheet";
 import { Direction } from "@rowsncolumns/grid/dist/types";
 import { AXIS, STROKE_FORMATTING, FormatType, SELECTION_MODE } from "../types";
 import Editor from "./../Editor";
@@ -75,7 +75,7 @@ export interface SheetGridProps {
   activeCell: CellInterface | null;
   selections: SelectionArea[];
   onSheetChange: (props: any) => void;
-  selectedSheet: string;
+  selectedSheet: SheetID;
   onScroll: (state: ScrollCoords) => void;
   scrollState?: ScrollCoords;
   onActiveCellChange?: (cell: CellInterface | null, value?: string) => void;
