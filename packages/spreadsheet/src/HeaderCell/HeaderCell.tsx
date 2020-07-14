@@ -80,6 +80,9 @@ const DraggableRect: React.FC<DraggableRectProps> = memo((props) => {
 
         onResize?.(axis, index, dimension);
       }}
+      onTouchStart={(e) => {
+        e.evt.stopPropagation();
+      }}
       x={x}
       y={y}
       width={width}

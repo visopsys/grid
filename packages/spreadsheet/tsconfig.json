@@ -1,19 +1,8 @@
 {
   "include": ["src/*"],
   "exclude": ["node_modules"],
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "declaration": true,
-    "module": "esnext",
-    "noImplicitAny": true,
-    "target": "es5",
-    "moduleResolution": "node",
-    "jsx": "react",
-    "skipLibCheck": true,
-    "allowJs": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "strictNullChecks": true,
-    "outDir": "dist",
-    "sourceMap": true
+    "outDir": "dist"
   }
 }
