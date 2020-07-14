@@ -229,3 +229,11 @@ Callback fired when selection changes
 ### `selectionMode`
 
 One of `row|cell|column`. Highlights the selected cell area
+
+## `fontList: string[]`
+
+List of all fonts that will appear in the font selector toolbar
+
+## `fontLoaderConfig`
+
+WebFont loader Configuration. Learn more about loading custom fonts using [WebfontLoader](https://github.com/typekit/webfontloader)

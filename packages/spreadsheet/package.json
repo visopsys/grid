@@ -21,6 +21,7 @@
     "@juggle/resize-observer": "^3.2.0",
     "@rowsncolumns/grid": "^3.4.37",
     "@types/react-list": "^0.8.5",
+    "@types/webfontloader": "^1.6.32",
     "downshift": "^5.4.5",
     "emotion-theming": "^10.0.27",
     "immer": "^7.0.3",
@@ -31,7 +32,8 @@
     "react-use-measure": "^2.0.1",
     "ssf": "^0.11.2",
     "tiny-invariant": "^1.1.0",
-    "use-immer": "^0.4.0"
+    "use-immer": "^0.4.0",
+    "webfontloader": "^1.6.28"
   },
   "gitHead": "6a49722a0458da91daacab63aacf01ab148dcda8"
 }

@@ -29,6 +29,7 @@ module.exports = {
       "features/statusbar",
       "features/gridlines",
       "features/borders",
+      "features/fonts",
     ],
   },
 };

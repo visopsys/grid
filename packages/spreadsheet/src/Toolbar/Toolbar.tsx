@@ -68,7 +68,6 @@ import {
   DARK_MODE_COLOR,
   FONT_SIZES,
   DEFAULT_FONT_SIZE,
-  FONT_FAMILIES,
   DEFAULT_FONT_FAMILY,
   AVAILABLE_FORMATS,
   AVAILABLE_CURRENCY_FORMATS,
@@ -118,6 +117,7 @@ export interface ToolbarProps extends CellConfig {
   enableDarkMode?: boolean;
   scale?: number;
   onScaleChange?: (value: number) => void;
+  fontList?: string[];
 }
 interface ColorPickerProps {
   resetLabel?: string;
@@ -281,6 +281,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
     plaintext,
     scale = 1,
     onScaleChange,
+    fontList = [],
   } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const theme = useTheme();
@@ -612,7 +613,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             borderColor={isLight ? undefined : DARK_MODE_COLOR}
             fontSize={14}
           >
-            {FONT_FAMILIES.map((font, idx) => {
+            {fontList.map((font, idx) => {
               return (
                 <MenuItem
                   onClick={() => {

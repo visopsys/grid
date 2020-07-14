@@ -40,6 +40,7 @@ import {
   cellsInSelectionVariant,
   SYSTEM_FONT,
   format as defaultFormat,
+  FONT_FAMILIES,
 } from "./constants";
 import {
   FORMATTING_TYPE,
@@ -61,7 +62,7 @@ import { ThemeType } from "./styled";
 import Editor, { CustomEditorProps } from "./Editor/Editor";
 import StatusBarComponent from "./StatusBar";
 import { StatusBarProps } from "./StatusBar/StatusBar";
-import { current } from "immer";
+import useFonts from "./hooks/useFonts";
 
 export interface SpreadSheetProps {
   /**
@@ -196,6 +197,14 @@ export interface SpreadSheetProps {
    * Scale
    */
   initialScale?: number;
+  /**
+   * Web font loader config
+   */
+  fontLoaderConfig?: WebFont.Config;
+  /**
+   * Visible font families
+   */
+  fontList?: string[];
 }
 
 export interface Sheet {
@@ -242,7 +251,14 @@ export const defaultSheets: Sheet[] = [
     },
     mergedCells: [],
     selections: [],
-    cells: {},
+    cells: {
+      1: {
+        1: {
+          text: "Hello world",
+          fontFamily: "Source Sans Pro",
+        },
+      },
+    },
     scrollState: { scrollTop: 0, scrollLeft: 0 },
     filterViews: [],
   },
@@ -291,6 +307,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       showStatusBar = true,
       StatusBar = StatusBarComponent,
       initialScale = 1,
+      fontLoaderConfig,
+      fontList = FONT_FAMILIES,
     } = props;
     const [selectedSheet, setSelectedSheet] = useState<string | null>(() => {
       return activeSheet === void 0
@@ -304,10 +322,24 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const currentGrid = useRef<WorkbookGridRef>(null);
     const [sheets, setSheets] = useImmer<Sheet[]>(initialSheets);
     const [formulaInput, setFormulaInput] = useState("");
+
     invariant(
       selectedSheet !== null,
       "Exception, selectedSheet is empty, Please specify a selected sheet using `selectedSheet` prop"
     );
+
+    /* Fonts */
+    const { isFontActive } = useFonts(fontLoaderConfig);
+
+    useEffect(() => {
+      if (isFontActive) {
+        console.log("isFontActive", isFontActive);
+        currentGrid.current?.resetAfterIndices?.({
+          rowIndex: 0,
+          columnIndex: 0,
+        });
+      }
+    }, [isFontActive]);
 
     useImperativeHandle(
       forwardedRef,
@@ -1272,6 +1304,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
               enableDarkMode={enableDarkMode}
               scale={scale}
               onScaleChange={handleScaleChange}
+              fontList={fontList}
             />
           ) : null}
           {showFormulabar ? (
