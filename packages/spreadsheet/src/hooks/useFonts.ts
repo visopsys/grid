@@ -13,11 +13,13 @@ const useFonts = (config?: WebFont.Config) => {
   // const { google } = props
   const [isFontActive, setIsFontActive] = useState(false);
   useEffect(() => {
-    WebFont.load({
-      ...config,
-      loading: () => setIsFontActive(false),
-      active: () => setIsFontActive(true),
-    });
+    if (config) {
+      WebFont.load({
+        ...config,
+        loading: () => setIsFontActive(false),
+        active: () => setIsFontActive(true),
+      });
+    }
   }, [config]);
 
   return {
