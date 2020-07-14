@@ -251,14 +251,7 @@ export const defaultSheets: Sheet[] = [
     },
     mergedCells: [],
     selections: [],
-    cells: {
-      1: {
-        1: {
-          text: "Hello world",
-          fontFamily: "Source Sans Pro",
-        },
-      },
-    },
+    cells: {},
     scrollState: { scrollTop: 0, scrollLeft: 0 },
     filterViews: [],
   },

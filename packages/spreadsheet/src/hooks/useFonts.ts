@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import WebFont from "webfontloader";
+import { canUseDOM } from "@rowsncolumns/grid";
+const WebFont = canUseDOM ? require("webfontloader") : null;
 
 export interface UseFontResults {
   isFontActive: boolean;
@@ -10,10 +11,9 @@ export interface UseFontProps {
 }
 
 const useFonts = (config?: WebFont.Config) => {
-  // const { google } = props
   const [isFontActive, setIsFontActive] = useState(false);
   useEffect(() => {
-    if (config) {
+    if (config && WebFont !== null) {
       WebFont.load({
         ...config,
         loading: () => setIsFontActive(false),
