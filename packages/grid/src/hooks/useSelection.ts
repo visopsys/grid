@@ -182,8 +182,23 @@ const useSelection = ({
     activeCellRef.current = activeCell;
   });
 
+  /* Check if cell is out of bounds */
+  const isCellOutOfBounds = useCallback(
+    (cell: CellInterface) => {
+      return (
+        cell.rowIndex < selectionTopBound ||
+        cell.columnIndex < selectionLeftBound
+      );
+    },
+    [selectionTopBound, selectionLeftBound]
+  );
+
   /* New selection */
   const newSelection = (start: CellInterface, end: CellInterface = start) => {
+    /* Validate bounds */
+    if (isCellOutOfBounds(start)) {
+      return;
+    }
     selectionStart.current = start;
     selectionEnd.current = end;
     const bounds = selectionFromStartEnd(start, end);
@@ -219,6 +234,9 @@ const useSelection = ({
   /* Modify current selection */
   const modifySelection = (coords: CellInterface, setInProgress?: boolean) => {
     if (!selectionStart.current) return;
+    if (isCellOutOfBounds(coords)) {
+      return;
+    }
 
     selectionEnd.current = coords;
     const bounds = selectionFromStartEnd(selectionStart.current, coords);
@@ -252,6 +270,10 @@ const useSelection = ({
     end: CellInterface = start
   ) => {
     if (!start) return;
+    /* Validate bounds */
+    if (isCellOutOfBounds(start)) {
+      return;
+    }
     selectionStart.current = start;
     selectionEnd.current = end;
     const bounds = selectionFromStartEnd(start, end);

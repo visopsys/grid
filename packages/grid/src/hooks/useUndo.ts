@@ -44,9 +44,8 @@ const useUndo = <T>(props: UndoProps = {}): UndoManager => {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       const isMeta = e.metaKey || e.ctrlKey;
-      const isUndo =
-        isMeta && (e.which === KeyCodes.Z || e.which === KeyCodes.KEY_Y);
-      const isRedo = e.shiftKey && isUndo;
+      const isUndo = isMeta && e.which === KeyCodes.Z;
+      const isRedo = (e.shiftKey && isUndo) || e.which === KeyCodes.KEY_Y;
       if (!isRedo && !isUndo) return;
       if (isRedo) {
         handleRedo();

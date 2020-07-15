@@ -9,6 +9,12 @@ module.exports = {
   themeConfig: {
     disableDarkMode: true,
     // sidebarCollapsible: false,
+    algolia: {
+      apiKey: "0c4892a9e16a5115dac7b31c0e43803d",
+      indexName: "rowsncolumns",
+      // appId: 'app-id', // Optional, if you run the DocSearch crawler on your own
+      // algoliaOptions: {}, // Optional, if provided by Algolia
+    },
     prism: {
       theme: require("prism-react-renderer/themes/dracula"),
     },
