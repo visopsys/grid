@@ -16,6 +16,7 @@ export interface HeaderCellProps extends RendererProps {
   isLightMode?: boolean;
   theme: ThemeType;
   scale?: number;
+  isFiltered?: boolean;
 }
 
 interface DraggableRectProps
@@ -105,7 +106,13 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
     isLightMode,
     theme,
   } = props;
-  const { onResize, onAdjustColumn, scale = 1, ...rest } = props;
+  const {
+    onResize,
+    onAdjustColumn,
+    scale = 1,
+    isFiltered = false,
+    ...rest
+  } = props;
   const isCorner = rowIndex === columnIndex;
   const value = isCorner
     ? ""
@@ -114,7 +121,9 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
     : rowIndex.toString();
   const isRowHeader = rowIndex === 0;
   const fill = isLightMode
-    ? isActive
+    ? isFiltered
+      ? "#E6F4EA"
+      : isActive
       ? "#E9EAED"
       : "#F8F9FA"
     : isActive

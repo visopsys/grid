@@ -164,6 +164,7 @@ const FilterComponent = ({
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setFilterText(e.target.value);
               }}
+              color={color}
               ref={searchInputRef}
               height={inputBoxHeight}
             />

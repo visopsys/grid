@@ -270,12 +270,32 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       }, initialValue);
     }, [filterViews]);
 
+    /* Filter row range */
+    const rowFilterRange = useMemo(() => {
+      const initialValue: Record<string, number[]> = {};
+      return filterViews.reduce((acc, { bounds }, index) => {
+        acc[index] = [bounds.top, bounds.bottom];
+        return acc;
+      }, initialValue);
+    }, [filterViews]);
+
     /* Has filter */
     const columnHasFilter = useCallback(
       (columnIndex) => {
         return columnsWithFilter.includes(columnIndex);
       },
       [columnsWithFilter]
+    );
+
+    const rowHasFilter = useCallback(
+      (rowIndex) => {
+        for (const i in rowFilterRange) {
+          const [min, max] = rowFilterRange[i];
+          if (rowIndex >= min && rowIndex <= max) return true;
+        }
+        return false;
+      },
+      [rowFilterRange]
     );
 
     useImperativeHandle(forwardedRef, () => {
@@ -675,16 +695,19 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const itemRenderer = useCallback(
       (props: RendererProps) => {
         const { rowIndex, columnIndex } = props;
-        const isRowHeader = rowIndex === 0;
-        const isColumnHeader = columnIndex === 0;
-        const isHeaderActive =
-          isRowHeader || isColumnHeader
-            ? isRowHeader
-              ? selectedRowsAndCols.cols.includes(columnIndex)
-              : selectedRowsAndCols.rows.includes(rowIndex)
-            : false;
         const cell = { rowIndex, columnIndex };
         if (rowIndex === 0 || columnIndex === 0) {
+          const isRowHeader = rowIndex === 0;
+          const isColumnHeader = columnIndex === 0;
+          const isHeaderActive =
+            isRowHeader || isColumnHeader
+              ? isRowHeader
+                ? selectedRowsAndCols.cols.includes(columnIndex)
+                : selectedRowsAndCols.rows.includes(rowIndex)
+              : false;
+          const isFilteredColumn = columnHasFilter(columnIndex);
+          const isFilteredRow = rowHasFilter(rowIndex);
+
           return (
             <HeaderCellRenderer
               {...props}
@@ -694,6 +717,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
               onAdjustColumn={handleAdjustColumn}
               theme={theme}
               scale={scale}
+              isFiltered={isFilteredColumn || isFilteredRow}
             />
           );
         }
