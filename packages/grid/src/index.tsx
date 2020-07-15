@@ -7,7 +7,7 @@ import useTooltip from "./hooks/useTooltip";
 import useSizer from "./hooks/useSizer";
 import useTouch from "./hooks/useTouch";
 import useCopyPaste from "./hooks/useCopyPaste";
-import useUndo, { createPatches } from "./hooks/useUndo";
+import useUndo from "./hooks/useUndo";
 import usePagination from "./hooks/usePagination";
 import useFilter from "./hooks/useFilter";
 
@@ -23,7 +23,6 @@ export {
   useCopyPaste,
   usePagination,
   useUndo,
-  createPatches,
   useTouch,
   useFilter,
 };
