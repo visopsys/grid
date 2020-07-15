@@ -31,4 +31,5 @@ export default Grid;
 export * from "./Grid";
 export * from "./helpers";
 export * from "./hooks/useFilter";
+export * from "./hooks/useUndo";
 export * from "./types";

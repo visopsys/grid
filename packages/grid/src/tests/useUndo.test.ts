@@ -1,5 +1,7 @@
 import { renderHook, act } from "@testing-library/react-hooks";
-import useUndo, { createPatches } from "./../hooks/useUndo";
+import useUndo, { PatchInterface } from "./../hooks/useUndo";
+
+type Patch = any;
 
 describe("useUndo", () => {
   it("is a function", () => {
@@ -14,7 +16,10 @@ describe("useUndo", () => {
 
   it("can add add to stack", () => {
     const { result } = renderHook(() => useUndo({}));
-    const patch = createPatches(["activeCell", 1], 0, null);
+    const patch: PatchInterface<Patch> = {
+      patches: [{ op: "replace", value: "b", path: ["hello"] }],
+      inversePatches: [{ op: "replace", value: "a", path: ["hello"] }],
+    };
 
     act(() => {
       result.current.add(patch);
@@ -24,7 +29,10 @@ describe("useUndo", () => {
 
   it("can add undo and redo", () => {
     const { result } = renderHook(() => useUndo({}));
-    const patch = createPatches(["activeCell", 1], 0, null);
+    const patch: PatchInterface<Patch> = {
+      patches: [{ op: "replace", value: "b", path: ["hello"] }],
+      inversePatches: [{ op: "replace", value: "a", path: ["hello"] }],
+    };
 
     act(() => {
       result.current.add(patch);
@@ -41,7 +49,10 @@ describe("useUndo", () => {
     const onUndo = jest.fn();
     const onRedo = jest.fn();
     const { result } = renderHook(() => useUndo({ onUndo, onRedo }));
-    const patch = createPatches(["activeCell", 1], 0, null);
+    const patch: PatchInterface<Patch> = {
+      patches: [{ op: "replace", value: "b", path: ["hello"] }],
+      inversePatches: [{ op: "replace", value: "a", path: ["hello"] }],
+    };
 
     act(() => {
       result.current.add(patch);

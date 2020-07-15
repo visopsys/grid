@@ -13,65 +13,31 @@ import { KeyCodes } from "../types";
 
 export interface UndoProps {
   id?: number;
-  onRedo?: (patches: Patches) => void;
-  onUndo?: (patches: Patches) => void;
+  onRedo?: (patches: any) => void;
+  onUndo?: (patches: any) => void;
 }
 
-export interface UndoResults {
+export interface UndoManager {
   undo: () => void;
   redo: () => void;
-  add: (stack: Stack) => void;
+  add: (patches: any) => void;
   canUndo: boolean;
   canRedo: boolean;
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
 }
 
-export type Path = any[];
-
-export interface Patches {
-  path: Path;
-  value: any;
-  op: PatchOperator;
-}
-
-export interface Stack {
-  patches: Patches;
-  inversePatches: Patches;
-}
-
-export enum PatchOperator {
-  ADD = "add",
-  REMOVE = "remove",
-  REPLACE = "replace",
-  MOVE = "move",
-}
-
-/**
- * Create patches
- * @param path
- * @param value
- * @param previousValue
- * @param op
- */
-export function createPatches(
-  path: Path,
-  value?: any,
-  previousValue?: any,
-  op: PatchOperator = PatchOperator.REPLACE,
-  opInverse: PatchOperator = op
-): Stack {
-  const patches: Patches = { op, value, path };
-  const inversePatches: Patches = { op: opInverse, value: previousValue, path };
-  return { patches, inversePatches };
+export interface PatchInterface<T> {
+  patches: T;
+  inversePatches: T;
 }
 
 /**
  * Undo/Redo hook
  * @param
  */
-const useUndo = (props: UndoProps = {}): UndoResults => {
+const useUndo = <T>(props: UndoProps = {}): UndoManager => {
   const { onRedo, onUndo } = props;
-  const undoStack = useRef<Stack[]>([]);
+  const undoStack = useRef<PatchInterface<T>[]>([]);
   const undoStackPointer = useRef<number>(-1);
   const [_, forceRender] = useReducer((s) => s + 1, 0);
 
@@ -115,7 +81,8 @@ const useUndo = (props: UndoProps = {}): UndoResults => {
     forceRender();
   };
 
-  const addUndoable = ({ patches, inversePatches }: Stack) => {
+  const addUndoable = (history: PatchInterface<T>) => {
+    const { patches, inversePatches } = history;
     const pointer = ++undoStackPointer.current;
     undoStack.current.length = pointer;
     undoStack.current[pointer] = { patches, inversePatches };
