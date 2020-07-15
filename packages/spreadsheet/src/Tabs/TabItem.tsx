@@ -42,6 +42,7 @@ const TabItem: React.FC<TabItemProps> = ({
   const color =
     isActive || isLight ? theme.colors.gray[900] : theme.colors.gray[300];
   const shadow = isActive ? "0 1px 3px 1px rgba(60,64,67,.15)" : undefined;
+  const borderColor = isLight ? theme.colors.gray[300] : theme.colors.gray[600];
   const enableEditmode = () => setIsEditmode(true);
   const disableEditmode = () => setIsEditmode(false);
   const height = "39px";
@@ -130,8 +131,8 @@ const TabItem: React.FC<TabItemProps> = ({
                     </PopoverTrigger>
                     <PopoverContent
                       width={200}
-                      // zIndex={1}
-                      borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                      borderStyle="solid"
+                      borderColor={borderColor}
                     >
                       <PopoverArrow />
                       <PopoverBody>

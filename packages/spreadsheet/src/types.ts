@@ -15,6 +15,7 @@ export enum FORMATTING_TYPE {
   FONT_FAMILY = "fontFamily",
   CUSTOM_FORMAT = "format",
   WRAP = "wrap",
+  ROTATION = "rotation",
 }
 
 export enum FONT_WEIGHT {
@@ -113,6 +114,7 @@ export interface CellFormatting extends CellDataFormatting {
   fontFamily?: string;
   readOnly?: boolean;
   wrap?: Wrap;
+  rotation?: number;
 }
 
 export type Wrap = "wrap" | "clip" | "overflow";

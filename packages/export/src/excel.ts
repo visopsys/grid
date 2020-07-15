@@ -191,6 +191,7 @@ export const parseExcel = async ({
         if (row.hidden) {
           _sheet.hiddenRows?.push(rowId);
         }
+
         _sheet.cells[rowId] = {};
         for (let j = 1; j <= columnCount; j++) {
           const cell = row.getCell(j);

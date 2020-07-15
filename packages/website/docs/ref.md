@@ -90,3 +90,11 @@ Get bounds of a cell
 ### `getScrollPosition?: () => ScrollCoords;`
 
 Get current scroll position of the grid
+
+### `getCellOffsetFromCoords: (coords: CellInterface) => CellPosition`
+
+Get cell x, y position relative to the container
+
+### `getCellCoordsFromOffset: (x: number, y: number) => CellInterface | null`
+
+Get cell coords `rowIndex, columnIndex` from relative position. Useful if you want to find cell based on mouse position

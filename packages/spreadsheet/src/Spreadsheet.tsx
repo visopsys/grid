@@ -198,6 +198,11 @@ export interface SpreadSheetProps {
    * Visible font families
    */
   fontList?: string[];
+  // TODO
+  // onMouseOver?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
+  // onMouseDown?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
+  // onMouseUp?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
+  // onClick?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
 }
 
 export interface Sheet {

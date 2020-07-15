@@ -25,6 +25,7 @@ import Grid, {
   FilterView,
   FilterDefinition,
   OptionalCellInterface,
+  CellPosition,
 } from "@rowsncolumns/grid";
 import { debounce, cellIdentifier } from "@rowsncolumns/grid/dist/helpers";
 import { ThemeProvider, ColorModeProvider } from "@chakra-ui/core";
@@ -164,6 +165,8 @@ export type WorkbookGridRef = {
   resizeRows?: (indices: number[]) => void;
   getCellBounds?: (coords: CellInterface) => AreaProps;
   getScrollPosition?: () => ScrollCoords;
+  getCellCoordsFromOffset?: (x: number, y: number) => CellInterface | null;
+  getCellOffsetFromCoords?: (coords: CellInterface) => CellPosition;
 };
 
 export interface ContextMenuProps {
@@ -314,6 +317,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         resizeRows: gridRef.current?.resizeRows,
         getCellBounds: gridRef.current?.getCellBounds,
         getScrollPosition: gridRef.current?.getScrollPosition,
+        getCellCoordsFromOffset: gridRef.current?.getCellCoordsFromOffset,
+        getCellOffsetFromCoords: gridRef.current?.getCellOffsetFromCoords,
       };
     });
 

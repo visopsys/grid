@@ -119,6 +119,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     isFilterActive,
     onFilterClick,
     scale,
+    rotation,
   } = props;
   const textWrap = wrap === "wrap" ? "word" : DEFAULT_WRAP;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
@@ -189,6 +190,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
           hitStrokeWidth={0}
           perfectDrawEnabled={false}
           listening={false}
+          rotation={rotation}
         />
       ) : null}
       {showFilter ? (

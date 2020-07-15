@@ -26,7 +26,8 @@ export enum KeyCodes {
   KEY_L = 76,
   KEY_E = 69,
   KEY_R = 82,
-  BACK_SLASH = 220
+  BACK_SLASH = 220,
+  KEY_Y = 89,
 }
 
 export enum Direction {

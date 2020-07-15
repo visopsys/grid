@@ -2781,8 +2781,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
             height={containerHeight}
             ref={stageRef}
             listening={listenToEvents}
-            // scaleX={scale}
-            // scaleY={scale}
             {...stageProps}
           >
             {wrapper(stageChildren)}

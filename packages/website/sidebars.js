@@ -30,6 +30,7 @@ module.exports = {
       "features/gridlines",
       "features/borders",
       "features/fonts",
+      "features/undo-redo",
     ],
   },
 };
