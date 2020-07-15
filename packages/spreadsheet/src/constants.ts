@@ -277,7 +277,7 @@ export const cellsInSelectionVariant = (
   variant: BORDER_VARIANT | undefined,
   borderStyle: BORDER_STYLE = BORDER_STYLE.THIN,
   color?: string,
-  boundGetter?: (coords: CellInterface) => AreaProps
+  boundGetter?: (coords: CellInterface | null) => AreaProps | undefined
 ) => {
   const thickness =
     borderStyle === BORDER_STYLE.MEDIUM

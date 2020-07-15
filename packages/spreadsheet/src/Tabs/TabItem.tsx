@@ -12,16 +12,17 @@ import { MdArrowDropDown } from "react-icons/md";
 import { KeyCodes } from "@rowsncolumns/grid/dist/types";
 import { DARK_MODE_COLOR } from "../constants";
 import { IconButton, Button, PopoverContent } from "../styled";
+import { SheetID } from "../Spreadsheet";
 
 interface TabItemProps {
   name: string;
   isLight: boolean;
   isActive: boolean;
-  id: string;
-  onSelect?: (id: string) => void;
-  onChangeSheetName?: (id: string, value: string) => void;
-  onDeleteSheet?: (id: string) => void;
-  onDuplicateSheet?: (id: string) => void;
+  id: SheetID;
+  onSelect?: (id: SheetID) => void;
+  onChangeSheetName?: (id: SheetID, value: string) => void;
+  onDeleteSheet?: (id: SheetID) => void;
+  onDuplicateSheet?: (id: SheetID) => void;
 }
 
 const TabItem: React.FC<TabItemProps> = ({

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sheet, SpreadSheetProps } from "../Spreadsheet";
+import { Sheet, SpreadSheetProps, SheetID } from "../Spreadsheet";
 import { GoPlus } from "react-icons/go";
 import { MdMenu, MdCheck } from "react-icons/md";
 import {
@@ -24,13 +24,13 @@ import { translations } from "../translations";
 
 interface TabProps
   extends Pick<SpreadSheetProps, "isTabEditable" | "allowNewSheet"> {
-  selectedSheet: string;
+  selectedSheet: SheetID;
   sheets: Sheet[];
-  onSelect?: (id: string) => void;
+  onSelect?: (id: SheetID) => void;
   onNewSheet?: () => void;
-  onChangeSheetName?: (id: string, value: string) => void;
-  onDeleteSheet?: (id: string) => void;
-  onDuplicateSheet?: (id: string) => void;
+  onChangeSheetName?: (id: SheetID, value: string) => void;
+  onDeleteSheet?: (id: SheetID) => void;
+  onDuplicateSheet?: (id: SheetID) => void;
 }
 
 const Tabs: React.FC<TabProps> = (props) => {

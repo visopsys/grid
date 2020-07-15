@@ -41,7 +41,7 @@ import {
 import HeaderCell from "./../HeaderCell";
 import Cell from "./../Cell";
 import { GridWrapper, ThemeType } from "./../styled";
-import { Cells, CellConfig, SizeType } from "../Spreadsheet";
+import { Cells, CellConfig, SizeType, SheetID } from "../Spreadsheet";
 import { Direction } from "@rowsncolumns/grid/dist/types";
 import { AXIS, STROKE_FORMATTING, FormatType, SELECTION_MODE } from "../types";
 import Editor from "./../Editor";
@@ -75,7 +75,7 @@ export interface SheetGridProps {
   activeCell: CellInterface | null;
   selections: SelectionArea[];
   onSheetChange: (props: any) => void;
-  selectedSheet: string;
+  selectedSheet: SheetID;
   onScroll: (state: ScrollCoords) => void;
   scrollState?: ScrollCoords;
   onActiveCellChange?: (cell: CellInterface | null, value?: string) => void;
@@ -388,7 +388,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
      */
     const { getColumnWidth, onViewChange } = useAutoSizer({
       gridRef,
-      minColumnWidth: 0,
+      frozenRows,
+      scale,
+      minColumnWidth: 10,
       isHiddenRow,
       isHiddenColumn,
       getValue: (cell: CellInterface) => {
@@ -487,11 +489,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const handleAdjustColumn = useCallback(
       (columnIndex: number) => {
         const width =
-          getColumnWidth(columnIndex, scale) +
+          getColumnWidth(columnIndex) +
           (columnHasFilter(columnIndex) ? FILTER_ICON_DIM : 0);
         onResize?.(AXIS.X, columnIndex, width);
       },
-      [cells, hiddenRows, hiddenColumns, scale]
+      [cells, hiddenRows, frozenRows, hiddenColumns, scale]
     );
 
     /**

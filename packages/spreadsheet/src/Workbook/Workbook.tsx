@@ -5,7 +5,13 @@ import Grid from "./../Grid";
 import { Flex, useColorMode } from "@chakra-ui/core";
 import { BottomPanel, ThemeType } from "./../styled";
 import Tabs from "./../Tabs";
-import { SpreadSheetProps, Sheet, Cells, SizeType } from "../Spreadsheet";
+import {
+  SpreadSheetProps,
+  Sheet,
+  Cells,
+  SizeType,
+  SheetID,
+} from "../Spreadsheet";
 import {
   CellInterface,
   SelectionArea,
@@ -28,61 +34,66 @@ export interface WorkbookProps
   currentSheet: Sheet;
   theme: ThemeType;
   sheets: Sheet[];
-  selectedSheet: string;
+  selectedSheet: React.ReactText;
   onFill?: (
-    id: string,
+    id: SheetID,
     activeCell: CellInterface,
     currentSelection: SelectionArea | null,
     selections: SelectionArea[]
   ) => void;
   onDelete?: (
-    id: string,
+    id: SheetID,
     activeCell: CellInterface,
     selections: SelectionArea[]
   ) => void;
-  onChangeSelectedSheet: (id: string) => void;
+  onChangeSelectedSheet: (id: SheetID) => void;
   onNewSheet?: () => void;
-  onSheetChange?: (id: string, props: any) => void;
-  onScroll?: (id: string, scrollState: ScrollCoords) => void;
-  onChangeSheetName?: (id: string, value: string) => void;
-  onDeleteSheet?: (id: string) => void;
-  onDuplicateSheet?: (id: string) => void;
-  onResize?: (id: string, axis: AXIS, index: number, dimension: number) => void;
+  onSheetChange?: (id: SheetID, props: any) => void;
+  onScroll?: (id: SheetID, scrollState: ScrollCoords) => void;
+  onChangeSheetName?: (id: SheetID, value: string) => void;
+  onDeleteSheet?: (id: SheetID) => void;
+  onDuplicateSheet?: (id: SheetID) => void;
+  onResize?: (
+    id: SheetID,
+    axis: AXIS,
+    index: number,
+    dimension: number
+  ) => void;
   onActiveCellValueChange: (value: string) => void;
   rowSizes?: SizeType;
   columnSizes?: SizeType;
-  onKeyDown?: (id: string, e: React.KeyboardEvent<HTMLDivElement>) => void;
+  onKeyDown?: (id: SheetID, e: React.KeyboardEvent<HTMLDivElement>) => void;
   hiddenRows?: number[];
   hiddenColumns?: number[];
-  onChange?: (id: string, changes: Cells) => void;
+  onChange?: (id: SheetID, changes: Cells) => void;
   onPaste?: (
-    id: string,
+    id: SheetID,
     rows: (string | null)[][],
     activeCell: CellInterface | null
   ) => void;
-  onCut?: (id: string, selection: SelectionArea) => void;
+  onCut?: (id: SheetID, selection: SelectionArea) => void;
   onInsertRow?: (
-    id: string,
+    id: SheetID,
     cell: CellInterface | null,
     selections: SelectionArea[]
   ) => void;
   onDeleteRow?: (
-    id: string,
+    id: SheetID,
     cell: CellInterface | null,
     selections: SelectionArea[]
   ) => void;
   onInsertColumn?: (
-    id: string,
+    id: SheetID,
     cell: CellInterface | null,
     selections: SelectionArea[]
   ) => void;
   onDeleteColumn?: (
-    id: string,
+    id: SheetID,
     cell: CellInterface | null,
     selections: SelectionArea[]
   ) => void;
   onChangeFilter: (
-    id: string,
+    id: SheetID,
     index: number,
     columnIndex: number,
     filter?: FilterDefinition

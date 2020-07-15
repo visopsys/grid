@@ -76,6 +76,14 @@ export interface IProps {
    * Hidden columns
    */
   isHiddenColumn: HiddenType;
+  /**
+   * Number of frozen rows
+   */
+  frozenRows?: number;
+  /**
+   * Current scaling factor
+   */
+  scale?: number;
 }
 
 export enum ResizeStrategy {
@@ -129,6 +137,8 @@ const useAutoSizer = ({
   fontStyle = "italic",
   autoResize = true,
   columnSizes = {},
+  frozenRows = 0,
+  scale = 1,
   isHiddenRow,
   isHiddenColumn,
 }: IProps): AutoResizerResults => {
@@ -179,10 +189,50 @@ const useAutoSizer = ({
   }, []);
 
   /**
+   * Get width of a single cell
+   */
+  const getCellWidth = useCallback(
+    (rowIndex: number, columnIndex: number) => {
+      let width = 0;
+      const cellValue =
+        getValueRef.current({
+          rowIndex,
+          columnIndex,
+        }) ?? null;
+
+      /* Check if its null */
+      if (cellValue !== null) {
+        const isCellConfig = typeof cellValue === "object";
+        const text = isCellConfig ? cellValue.text : cellValue;
+        if (!isNull(text)) {
+          /* Reset fonts */
+          autoSizer.current.reset();
+
+          if (isCellConfig) {
+            const isBold = cellValue.bold;
+            autoSizer.current.setFont({
+              fontWeight: isBold ? "bold" : "normal",
+              fontSize: (cellValue.fontSize || fontSize) * scale,
+              fontFamily: cellValue.fontFamily,
+            });
+          }
+
+          const metrics = autoSizer.current.measureText(text);
+          if (metrics) {
+            width = Math.ceil(metrics.width) + cellSpacing;
+          }
+        }
+      }
+      return width;
+    },
+    [scale]
+  );
+
+  /**
    * Calculate column width
    */
   const getColumnWidth = useCallback(
-    (columnIndex: number, scale = 1) => {
+    (columnIndex: number) => {
       const { rowStartIndex, rowStopIndex } = viewPortRef.current;
       const visibleRows =
         resizeStrategy === ResizeStrategy.full
@@ -190,49 +240,30 @@ const useAutoSizer = ({
           : rowStopIndex || initialVisibleRows;
       let start = resizeStrategy === ResizeStrategy.full ? 0 : rowStartIndex;
       let maxWidth = minColumnWidth;
-      if (columnIndex in columnSizes) {
-        return Math.max(minColumnWidth, columnSizes[columnIndex]);
+
+      /* Calculate for frozen rows */
+      for (let i = 0; i < frozenRows; i++) {
+        if (hiddenRowRef.current?.(i)) {
+          continue;
+        }
+        const width = getCellWidth(i, columnIndex);
+        if (width > maxWidth) maxWidth = width;
       }
+
+      /* Loop through all visible rows */
       while (start < visibleRows) {
         if (hiddenRowRef.current?.(start)) {
           start++;
           continue;
         }
-        const cellValue =
-          getValueRef.current({
-            rowIndex: start,
-            columnIndex,
-          }) ?? null;
-
-        /* Check if its null */
-        if (cellValue !== null) {
-          const isCellConfig = typeof cellValue === "object";
-          const text = isCellConfig ? cellValue.text : cellValue;
-          if (!isNull(text)) {
-            /* Reset fonts */
-            autoSizer.current.reset();
-
-            if (isCellConfig) {
-              const isBold = cellValue.bold;
-              autoSizer.current.setFont({
-                fontWeight: isBold ? "bold" : "normal",
-                fontSize: (cellValue.fontSize || fontSize) * scale,
-                fontFamily: cellValue.fontFamily,
-              });
-            }
-
-            const metrics = autoSizer.current.measureText(text);
-            if (metrics) {
-              const width = Math.ceil(metrics.width) + cellSpacing;
-              if (width > maxWidth) maxWidth = width;
-            }
-          }
-        }
+        const width = getCellWidth(start, columnIndex);
+        if (width > maxWidth) maxWidth = width;
         start++;
       }
+
       return maxWidth;
     },
-    [viewport, initialVisibleRows]
+    [viewport, initialVisibleRows, frozenRows, scale]
   );
 
   const handleViewChange = useCallback(
