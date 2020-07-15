@@ -67,7 +67,7 @@ const FilterComponent = ({
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
   const color = isLight ? DARK_MODE_COLOR : theme.colors.white;
-  const borderColor = isLight ? theme.colors.gray[300] : DARK_MODE_COLOR;
+  const borderColor = isLight ? theme.colors.gray[300] : theme.colors.gray[600];
   const bgColor = isLight ? theme.colors.white : theme.colors.gray[700];
   let { x = 0, y } = position;
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,7 +130,15 @@ const FilterComponent = ({
       zIndex={1}
       transform={`translate(${x}px, ${y}px)`}
     >
-      <Box shadow="md" bg={bgColor} width={width}>
+      <Box
+        shadow="md"
+        bg={bgColor}
+        borderColor={borderColor}
+        borderWidth={1}
+        borderStyle="solid"
+        borderRadius={5}
+        width={width}
+      >
         <Box padding={3}>
           <Button
             onClick={() => setUserValues(values)}

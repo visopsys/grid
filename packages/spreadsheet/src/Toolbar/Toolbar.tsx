@@ -384,7 +384,8 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
           <MenuList
             placement="top-start"
             minWidth={100}
-            borderColor={isLight ? undefined : DARK_MODE_COLOR}
+            borderColor={borderColor}
+            borderStyle="solid"
             fontSize={14}
           >
             {SCALE_VALUES.map(({ label, value }) => {
@@ -502,7 +503,8 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
           <MenuList
             placement="top-start"
             minWidth={250}
-            borderColor={isLight ? undefined : DARK_MODE_COLOR}
+            borderColor={borderColor}
+            borderStyle="solid"
             fontSize={14}
           >
             <MenuItem
@@ -613,7 +615,8 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
           </MenuButton>
           <MenuList
             placement="top-start"
-            borderColor={isLight ? undefined : DARK_MODE_COLOR}
+            borderColor={borderColor}
+            borderStyle="solid"
             fontSize={14}
           >
             {fontList.map((font, idx) => {
@@ -746,7 +749,8 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                 </PopoverTrigger>
                 <PopoverContent
                   width={280}
-                  borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                  borderColor={borderColor}
+                  borderStyle="solid"
                 >
                   <PopoverArrow />
                   <PopoverBody>
@@ -795,7 +799,8 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                 </PopoverTrigger>
                 <PopoverContent
                   width={280}
-                  borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                  borderColor={borderColor}
+                  borderStyle="solid"
                 >
                   <PopoverArrow />
                   <PopoverBody>
@@ -860,9 +865,8 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                 </PopoverTrigger>
                 <PopoverContent
                   width={220}
-                  borderColor={
-                    isLight ? theme.colors.gray[500] : DARK_MODE_COLOR
-                  }
+                  borderColor={borderColor}
+                  borderStyle="solid"
                 >
                   <PopoverArrow />
                   <PopoverBody color={foregroundColor}>
@@ -950,7 +954,8 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                 </PopoverTrigger>
                 <PopoverContent
                   width="auto"
-                  borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                  borderColor={borderColor}
+                  borderStyle="solid"
                 >
                   <PopoverArrow />
                   <Box display="flex">
@@ -1051,7 +1056,8 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                 </PopoverTrigger>
                 <PopoverContent
                   width="auto"
-                  borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                  borderColor={borderColor}
+                  borderStyle="solid"
                 >
                   <PopoverArrow />
                   <Box display="flex">
@@ -1151,7 +1157,8 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                 </PopoverTrigger>
                 <PopoverContent
                   width="auto"
-                  borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                  borderColor={borderColor}
+                  borderStyle="solid"
                 >
                   <PopoverArrow />
                   <Box display="flex">
@@ -1272,7 +1279,9 @@ const BorderSelection: React.FC<BorderProps> = ({
     onBorderChange?.(borderColor, value, borderVariant);
   };
   const bgColor = isLight ? theme.colors.gray[100] : theme.colors.gray[600];
-
+  const contentBorderColor = isLight
+    ? theme.colors.gray[300]
+    : theme.colors.gray[600];
   return (
     <Popover
       usePortal
@@ -1302,7 +1311,8 @@ const BorderSelection: React.FC<BorderProps> = ({
       </PopoverTrigger>
       <PopoverContent
         width={230}
-        borderColor={isLight ? undefined : DARK_MODE_COLOR}
+        borderColor={contentBorderColor}
+        borderStyle="solid"
       >
         <PopoverArrow />
         <Box display="flex">
@@ -1522,7 +1532,8 @@ const BorderSelection: React.FC<BorderProps> = ({
                     <PopoverContent
                       zIndex={1}
                       width={280}
-                      borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                      borderColor={contentBorderColor}
+                      borderStyle="solid"
                     >
                       <PopoverArrow />
                       <PopoverBody>
@@ -1564,7 +1575,7 @@ const BorderSelection: React.FC<BorderProps> = ({
                     </PopoverTrigger>
                     <PopoverContent
                       width={100}
-                      borderColor={isLight ? undefined : bgColor}
+                      borderColor={contentBorderColor}
                       borderStyle="solid"
                     >
                       <PopoverArrow />

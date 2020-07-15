@@ -57,7 +57,10 @@ const ContextMenu: React.FC<ContextMenuComponentProps> = ({
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
   const color = isLight ? theme.colors.gray[800] : theme.colors.gray[100];
-  const dividerColor = theme.colors.gray[300];
+  const borderColor = isLight ? theme.colors.gray[300] : theme.colors.gray[600];
+  const dividerColor = isLight
+    ? theme.colors.gray[300]
+    : "rgba(255, 255, 255, 0.16)";
   return (
     <Box
       left={0}
@@ -70,7 +73,8 @@ const ContextMenu: React.FC<ContextMenuComponentProps> = ({
         <MenuList
           fontSize={14}
           color={color}
-          borderColor={isLight ? undefined : DARK_MODE_COLOR}
+          borderColor={borderColor}
+          borderStyle="solid"
         >
           <MenuItem
             alignItems="center"

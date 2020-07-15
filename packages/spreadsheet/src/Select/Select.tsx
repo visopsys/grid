@@ -31,6 +31,7 @@ const Select: React.FC<SelectProps> = (props) => {
   const theme = useTheme();
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
+  const borderColor = isLight ? theme.colors.gray[300] : theme.colors.gray[600];
   const inputBorderColor = isLight
     ? theme.colors.gray[300]
     : theme.colors.gray[600];
@@ -134,9 +135,9 @@ const Select: React.FC<SelectProps> = (props) => {
               {...getMenuProps()}
               pb={1}
               pt={1}
-              borderColor={isLight ? theme.colors.gray[100] : DARK_MODE_COLOR}
-              borderWidth={1}
+              borderColor={borderColor}
               borderStyle="solid"
+              borderWidth={1}
               display={isOpen ? "block" : "none"}
             >
               {isOpen &&
