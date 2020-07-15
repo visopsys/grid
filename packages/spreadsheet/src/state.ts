@@ -288,6 +288,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
                 }
               }
 
+              /* Keep reference of active cell, so we can focus back */
               draft.currentActiveCell = activeCell;
             }
             break;
@@ -397,6 +398,8 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
                   }
                 }
               }
+              /* Keep reference of active cell, so we can focus back */
+              draft.currentActiveCell = activeCell;
             }
             break;
           }

@@ -320,6 +320,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       fontList = FONT_FAMILIES,
     } = props;
 
+    /* Last active cells: for undo, redo */
+    const lastActiveCellRef = useRef<CellInterface | null | undefined>(null);
+
     /**
      * Some grid side-effects during undo/redo
      */
@@ -351,6 +354,10 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           type: ACTION_TYPE.APPLY_PATCHES,
           patches,
         });
+
+        if (lastActiveCellRef.current) {
+          currentGrid.current?.setActiveCell(lastActiveCellRef.current);
+        }
       },
       onRedo: (patches) => {
         /* Side-effects */
@@ -360,6 +367,13 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           type: ACTION_TYPE.APPLY_PATCHES,
           patches,
         });
+
+        const activeCellPatch = patches.find((item: Patch) =>
+          item.path.includes("currentActiveCell")
+        );
+        if (activeCellPatch) {
+          currentGrid.current?.setActiveCell(activeCellPatch.value);
+        }
       },
     });
     const getCellBounds = useCallback((cell: CellInterface | null) => {
@@ -387,8 +401,12 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const [scale, setScale] = useState(initialScale);
     const selectedSheetRef = useRef(selectedSheet);
     const currentGrid = useRef<WorkbookGridRef>(null);
-    // const [sheets, setSheets] = useImmer<Sheet[]>(initialSheets);
     const [formulaInput, setFormulaInput] = useState("");
+
+    /* Last */
+    useEffect(() => {
+      lastActiveCellRef.current = currentActiveCell;
+    }, [currentActiveCell]);
 
     /* Selected sheet */
     const setSelectedSheet = useCallback(
