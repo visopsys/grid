@@ -443,6 +443,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       clearLastSelection,
       ...selectionProps
     } = useSelection({
+      selectionTopBound: 1,
+      selectionLeftBound: 1,
       allowMultipleSelection,
       initialActiveCell,
       initialSelections,

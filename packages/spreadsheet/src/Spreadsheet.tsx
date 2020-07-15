@@ -882,7 +882,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handlePaste = useCallback(
       (id: SheetID, rows, activeCell: CellInterface | null) => {
         if (!activeCell) return;
-        console.log("callllled");
         const { rowIndex, columnIndex } = activeCell;
         const endRowIndex = Math.max(rowIndex, rowIndex + rows.length - 1);
         const endColumnIndex = Math.max(

@@ -7,7 +7,7 @@ describe("useSelection", () => {
   });
 
   it("sets initialselection to be empty", () => {
-    const { result } = renderHook(() => useSelection());
+    const { result } = renderHook(() => useSelection({}));
     expect(result.current.selections).toStrictEqual([]);
   });
 

@@ -66,6 +66,22 @@ export interface UseSelectionOptions {
    * Always scroll to active cell
    */
   alwaysScrollToActiveCell?: boolean;
+  /**
+   * Top bound of selection
+   */
+  selectionTopBound?: number;
+  /**
+   * Bottom bound
+   */
+  selectionBottomBound?: number;
+  /**
+   * Left bound
+   */
+  selectionLeftBound?: number;
+  /**
+   * Right bound
+   */
+  selectionRightBound?: number;
 }
 
 export interface SelectionResults {
@@ -124,21 +140,24 @@ const defaultIsHidden = (i: number) => false;
  * Hook to enable selection in datagrid
  * @param initialSelection
  */
-const useSelection = (options?: UseSelectionOptions): SelectionResults => {
-  const {
-    gridRef,
-    initialActiveCell = null,
-    initialSelections = EMPTY_SELECTION,
-    columnCount = 0,
-    rowCount = 0,
-    allowMultipleSelection = true,
-    persistantSelectionMode = false,
-    allowDeselectSelection = true,
-    onFill,
-    isHiddenRow = defaultIsHidden,
-    isHiddenColumn = defaultIsHidden,
-    alwaysScrollToActiveCell = true,
-  } = options || {};
+const useSelection = ({
+  gridRef,
+  initialActiveCell = null,
+  initialSelections = EMPTY_SELECTION,
+  columnCount = 0,
+  rowCount = 0,
+  allowMultipleSelection = true,
+  persistantSelectionMode = false,
+  allowDeselectSelection = true,
+  onFill,
+  isHiddenRow = defaultIsHidden,
+  isHiddenColumn = defaultIsHidden,
+  alwaysScrollToActiveCell = true,
+  selectionTopBound = 0,
+  selectionBottomBound = rowCount - 1,
+  selectionLeftBound = 0,
+  selectionRightBound = columnCount - 1,
+}: UseSelectionOptions): SelectionResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(
     initialActiveCell
   );
@@ -228,11 +247,14 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   };
 
   /* Adds a new selection, CMD key */
-  const appendSelection = (coords: CellInterface | null) => {
-    if (!coords) return;
-    selectionStart.current = coords;
-    selectionEnd.current = coords;
-    const bounds = selectionFromStartEnd(coords, coords);
+  const appendSelection = (
+    start: CellInterface,
+    end: CellInterface = start
+  ) => {
+    if (!start) return;
+    selectionStart.current = start;
+    selectionEnd.current = end;
+    const bounds = selectionFromStartEnd(start, end);
     if (!bounds) return;
     setActiveCell({ rowIndex: bounds.top, columnIndex: bounds.left });
     setSelections((prev) => [...prev, { bounds }]);
@@ -507,46 +529,46 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
         case Direction.Up:
           if (isMergedCell) rowIndex = currentBounds.top;
           rowIndex = clampIndex(
-            Math.max(rowIndex - 1, 0),
+            Math.max(rowIndex - 1, selectionTopBound),
             isHiddenRow,
             direction
           );
           // Shift + Ctrl/Commmand
           // TODO: Scroll to last contentful cell
-          if (metaKeyPressed) rowIndex = 0;
+          if (metaKeyPressed) rowIndex = selectionTopBound;
           break;
 
         case Direction.Down:
           if (isMergedCell) rowIndex = currentBounds.bottom;
           rowIndex = clampIndex(
-            Math.min(rowIndex + 1, rowCount - 1),
+            Math.min(rowIndex + 1, selectionBottomBound),
             isHiddenRow,
             direction
           );
           // Shift + Ctrl/Commmand
-          if (metaKeyPressed) rowIndex = rowCount - 1;
+          if (metaKeyPressed) rowIndex = selectionBottomBound;
           break;
 
         case Direction.Left:
           if (isMergedCell) columnIndex = currentBounds.left;
           columnIndex = clampIndex(
-            Math.max(columnIndex - 1, 0),
+            Math.max(columnIndex - 1, selectionLeftBound),
             isHiddenColumn,
             direction
           );
           // Shift + Ctrl/Commmand
-          if (metaKeyPressed) columnIndex = 0;
+          if (metaKeyPressed) columnIndex = selectionLeftBound;
           break;
 
         case Direction.Right:
           if (isMergedCell) columnIndex = currentBounds.right;
           columnIndex = clampIndex(
-            Math.min(columnIndex + 1, columnCount - 1),
+            Math.min(columnIndex + 1, selectionRightBound),
             isHiddenColumn,
             direction
           );
           // Shift + Ctrl/Commmand
-          if (metaKeyPressed) columnIndex = columnCount - 1;
+          if (metaKeyPressed) columnIndex = selectionRightBound;
           break;
       }
 
@@ -578,47 +600,59 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
       /* Keep the item in view */
       gridRef.current.scrollToItem(scrollToCell);
     },
-    [activeCell, isHiddenRow, isHiddenColumn]
+    [
+      activeCell,
+      isHiddenRow,
+      isHiddenColumn,
+      selectionLeftBound,
+      selectionTopBound,
+    ]
   );
 
   // ⌘A or ⌘+Shift+Space
   const selectAll = () => {
-    selectionStart.current = { rowIndex: 0, columnIndex: 0 };
-    modifySelection({ rowIndex: rowCount - 1, columnIndex: columnCount - 1 });
+    selectionStart.current = {
+      rowIndex: selectionTopBound,
+      columnIndex: selectionLeftBound,
+    };
+    modifySelection({
+      rowIndex: selectionBottomBound,
+      columnIndex: selectionRightBound,
+    });
   };
 
   // Ctrl+Space
-  const selectColumn = () => {
+  const selectColumn = useCallback(() => {
     if (!selectionEnd.current || !selectionStart.current) return;
     selectionStart.current = {
-      rowIndex: 0,
+      rowIndex: selectionTopBound,
       columnIndex: selectionStart.current.columnIndex,
     };
     modifySelection({
       rowIndex: rowCount - 1,
       columnIndex: selectionEnd.current.columnIndex,
     });
-  };
+  }, [selectionTopBound]);
 
   // Shift+Space
-  const selectRow = () => {
+  const selectRow = useCallback(() => {
     if (!selectionEnd.current || !selectionStart.current) return;
     selectionStart.current = {
       rowIndex: selectionStart.current.rowIndex,
-      columnIndex: 0,
+      columnIndex: selectionLeftBound,
     };
     modifySelection({
       rowIndex: selectionEnd.current.rowIndex,
-      columnIndex: columnCount - 1,
+      columnIndex: selectionRightBound,
     });
-  };
+  }, [selectionLeftBound]);
 
   //  Home
   const selectFirstCellInRow = () => {
     if (!selectionStart.current || !gridRef?.current) return;
     const cell = {
       rowIndex: selectionStart.current.rowIndex,
-      columnIndex: 0,
+      columnIndex: selectionLeftBound,
     };
     newSelection(cell);
 
@@ -629,7 +663,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
     if (!selectionStart.current || !gridRef?.current) return;
     const cell = {
       rowIndex: selectionStart.current.rowIndex,
-      columnIndex: columnCount - 1,
+      columnIndex: selectionRightBound,
     };
     newSelection(cell);
     gridRef?.current.scrollToItem(cell);
@@ -639,7 +673,7 @@ const useSelection = (options?: UseSelectionOptions): SelectionResults => {
   const selectFirstCellInColumn = () => {
     if (!selectionStart.current || !gridRef?.current) return;
     const cell = {
-      rowIndex: 0,
+      rowIndex: selectionTopBound,
       columnIndex: selectionStart.current.columnIndex,
     };
     newSelection(cell);

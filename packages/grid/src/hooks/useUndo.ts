@@ -41,21 +41,13 @@ const useUndo = <T>(props: UndoProps = {}): UndoManager => {
   const undoStackPointer = useRef<number>(-1);
   const [_, forceRender] = useReducer((s) => s + 1, 0);
 
-  // Enable global undo
-  // useEffect(() => {
-  //   document.addEventListener('keydown', handleKeyDown)
-  //   return () => {
-  //     document.removeEventListener('keydown', handleKeyDown)
-  //   }
-  // }, [])
-
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       const isMeta = e.metaKey || e.ctrlKey;
-      const isUndo = isMeta && e.which === KeyCodes.Z;
-      const isRedo = (e.shiftKey && isUndo) || (isMeta && KeyCodes.KEY_Y);
+      const isUndo =
+        isMeta && (e.which === KeyCodes.Z || e.which === KeyCodes.KEY_Y);
+      const isRedo = e.shiftKey && isUndo;
       if (!isRedo && !isUndo) return;
-
       if (isRedo) {
         handleRedo();
       } else {
