@@ -12,34 +12,22 @@ import React, {
 import Toolbar from "./Toolbar";
 import Formulabar from "./Formulabar";
 import Workbook from "./Workbook";
-import {
-  theme,
-  ThemeProvider,
-  ColorModeProvider,
-  Flex,
-  IUseColorMode,
-  Grid,
-} from "@chakra-ui/core";
+import { theme, ThemeProvider, ColorModeProvider, Flex } from "@chakra-ui/core";
 import { Global, css } from "@emotion/core";
 import {
   CellInterface,
   SelectionArea,
   ScrollCoords,
   AreaProps,
-  selectionFromActiveCell,
   FilterView,
   FilterDefinition,
-  Filter,
   useUndo,
 } from "@rowsncolumns/grid";
 import {
   createNewSheet,
   uuid,
-  detectDataType,
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_ROW_HEIGHT,
-  EMPTY_ARRAY,
-  cellsInSelectionVariant,
   SYSTEM_FONT,
   format as defaultFormat,
   FONT_FAMILIES,
@@ -50,13 +38,10 @@ import {
   AXIS,
   BORDER_VARIANT,
   BORDER_STYLE,
-  STROKE_FORMATTING,
   FormatType,
-  DATATYPE,
   SELECTION_MODE,
   HORIZONTAL_ALIGNMENT,
 } from "./types";
-import { useImmer } from "use-immer";
 import { WorkbookGridRef } from "./Grid/Grid";
 import { KeyCodes, Direction } from "@rowsncolumns/grid/dist/types";
 import invariant from "tiny-invariant";
@@ -353,6 +338,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         dispatch({
           type: ACTION_TYPE.APPLY_PATCHES,
           patches,
+          undoable: false,
         });
 
         if (lastActiveCellRef.current) {
@@ -366,6 +352,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         dispatch({
           type: ACTION_TYPE.APPLY_PATCHES,
           patches,
+          undoable: false,
         });
 
         const activeCellPatch = patches.find((item: Patch) =>
@@ -575,7 +562,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleFormattingChangeAuto = useCallback(() => {
       const sheet = sheets.find((sheet) => sheet.id === selectedSheet);
       if (sheet) {
-        const { selections, activeCell, cells } = sheet;
+        const { selections, activeCell } = sheet;
         const sel = selections.length
           ? selections
           : activeCell
@@ -602,7 +589,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     const handleFormattingChangePlain = useCallback(() => {
       const sheet = sheets.find((sheet) => sheet.id === selectedSheet);
       if (sheet) {
-        const { selections, activeCell, cells } = sheet;
+        const { selections, activeCell } = sheet;
         const sel = selections.length
           ? selections
           : activeCell
@@ -630,7 +617,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       (key, value) => {
         const sheet = sheets.find((sheet) => sheet.id === selectedSheet);
         if (sheet) {
-          const { selections, activeCell, cells } = sheet;
+          const { selections, activeCell } = sheet;
           const sel = selections.length
             ? selections
             : activeCell
@@ -926,7 +913,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Handle cut event
      */
     const handleCut = useCallback((id: SheetID, selection: SelectionArea) => {
-      const { bounds } = selection;
       dispatch({
         type: ACTION_TYPE.REMOVE_CELLS,
         id,
@@ -1121,6 +1107,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         >
           {showToolbar ? (
             <Toolbar
+              wrap={activeCellConfig?.wrap}
               datatype={activeCellConfig?.datatype}
               plaintext={activeCellConfig?.plaintext}
               format={activeCellConfig?.format}

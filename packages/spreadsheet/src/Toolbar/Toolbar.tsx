@@ -63,6 +63,8 @@ import {
   MenuItem,
   DecreaseDecimalIcon,
   IncreaseDecimalIcon,
+  WrapClipIcon,
+  WrapIcon,
 } from "./../styled";
 import {
   DARK_MODE_COLOR,
@@ -282,6 +284,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
     scale = 1,
     onScaleChange,
     fontList = [],
+    wrap = "clip",
   } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const theme = useTheme();
@@ -1118,6 +1121,80 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                         )
                       }
                     />
+                  </Box>
+                </PopoverContent>
+              </>
+            );
+          }}
+        </Popover>
+        <Popover usePortal placement="top-start">
+          {({ onClose }) => {
+            return (
+              <>
+                <PopoverTrigger>
+                  <Box>
+                    <Tooltip
+                      hasArrow
+                      aria-label={translations.text_wrapping}
+                      label={translations.text_wrapping}
+                    >
+                      <IconButton
+                        aria-label={translations.text_wrapping}
+                        variant="ghost"
+                        color={iconColor}
+                        icon={wrap === "clip" ? WrapClipIcon : WrapIcon}
+                        fontSize={20}
+                        size="sm"
+                      />
+                    </Tooltip>
+                  </Box>
+                </PopoverTrigger>
+                <PopoverContent
+                  width="auto"
+                  borderColor={isLight ? undefined : DARK_MODE_COLOR}
+                >
+                  <PopoverArrow />
+                  <Box display="flex">
+                    <Tooltip
+                      hasArrow
+                      aria-label={translations.text_clip}
+                      label={translations.text_clip}
+                    >
+                      <Box>
+                        <IconButton
+                          aria-label={translations.text_clip}
+                          variant={wrap === "clip" ? "solid" : "ghost"}
+                          color={wrap === "clip" ? activeIconColor : iconColor}
+                          icon={WrapClipIcon}
+                          fontSize={20}
+                          size="sm"
+                          onClick={() => {
+                            onFormattingChange?.(FORMATTING_TYPE.WRAP, "clip");
+                            onClose?.();
+                          }}
+                        />
+                      </Box>
+                    </Tooltip>
+                    <Tooltip
+                      hasArrow
+                      aria-label={translations.text_wrap}
+                      label={translations.text_wrap}
+                    >
+                      <Box>
+                        <IconButton
+                          aria-label={translations.text_wrap}
+                          variant={wrap === "wrap" ? "solid" : "ghost"}
+                          color={wrap === "wrap" ? activeIconColor : iconColor}
+                          icon={WrapIcon}
+                          fontSize={20}
+                          size="sm"
+                          onClick={() => {
+                            onFormattingChange?.(FORMATTING_TYPE.WRAP, "wrap");
+                            onClose?.();
+                          }}
+                        />
+                      </Box>
+                    </Tooltip>
                   </Box>
                 </PopoverContent>
               </>

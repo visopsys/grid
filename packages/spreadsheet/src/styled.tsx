@@ -117,6 +117,42 @@ export const DecreaseDecimalIcon = () => {
   );
 };
 
+export const WrapClipIcon = () => {
+  return (
+    <svg
+      stroke="currentColor"
+      fill="currentColor"
+      strokeWidth="0"
+      viewBox="0 -6 24 24"
+      aria-hidden="true"
+      focusable="false"
+      height="1em"
+      width="1em"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M0,0 L2,0 L2,14 L0,14 L0,0 Z M12,0 L14,0 L14,14 L12,14 L12,0 Z M4,6 L12,6 L12,8 L4,8 L4,6 Z" />
+    </svg>
+  );
+};
+
+export const WrapIcon = () => {
+  return (
+    <svg
+      stroke="currentColor"
+      fill="currentColor"
+      strokeWidth="0"
+      viewBox="0 -6 24 24"
+      aria-hidden="true"
+      focusable="false"
+      height="1em"
+      width="1em"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M14,0 L0,0 L0,2 L14,2 L14,0 Z M0,12 L4,12 L4,10 L0,10 L0,12 Z M11.5,5 L0,5 L0,7 L11.75,7 C12.58,7 13.25,7.67 13.25,8.5 C13.25,9.33 12.58,10 11.75,10 L9,10 L9,8 L6,11 L9,14 L9,12 L11.5,12 C13.43,12 15,10.43 15,8.5 C15,6.57 13.43,5 11.5,5 Z" />
+    </svg>
+  );
+};
+
 export const IconButton = forwardRef((props: IconButtonProps, ref) => {
   return (
     <ChakraIconButtonButton

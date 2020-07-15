@@ -36,4 +36,7 @@ export const translations = {
   clear_formatting: "Clear formatting",
   add_sheet: "Add sheet",
   all_sheets: "All sheets",
+  text_wrapping: "Text wrapping",
+  text_wrap: "Wrap",
+  text_clip: "Clip",
 };

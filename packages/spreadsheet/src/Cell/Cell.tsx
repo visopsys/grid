@@ -37,6 +37,8 @@ export interface CellRenderProps extends Omit<CellProps, "text"> {
   selectionFill?: string;
 }
 
+const DEFAULT_WRAP = "none";
+
 /**
  * Cell renderer
  * @param props
@@ -105,7 +107,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     fontFamily,
     padding = 4,
     fontSize = DEFAULT_FONT_SIZE,
-    wrap = "none",
+    wrap = DEFAULT_WRAP,
     lineHeight = 1,
     isLightMode,
     text,
@@ -118,6 +120,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     onFilterClick,
     scale,
   } = props;
+  const textWrap = wrap === "wrap" ? "word" : DEFAULT_WRAP;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
     strike ? TEXT_DECORATION.STRIKE : ""
   }`;
@@ -180,7 +183,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
           fontStyle={textStyle}
           textDecoration={textDecoration}
           padding={padding}
-          wrap={wrap}
+          wrap={textWrap}
           fontSize={fontSize * scale}
           lineHeight={lineHeight}
           hitStrokeWidth={0}

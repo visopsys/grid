@@ -2,13 +2,11 @@ import produce, { enablePatches, applyPatches, Patch } from "immer";
 import { uuid, detectDataType, cellsInSelectionVariant } from "./constants";
 import { Sheet, SheetID, Cells } from "./Spreadsheet";
 import {
-  UndoManager,
   PatchInterface,
   CellInterface,
   SelectionArea,
   AreaProps,
   selectionFromActiveCell,
-  ScrollState,
   ScrollCoords,
   Filter,
   FilterDefinition,
@@ -340,7 +338,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
             const sheet = draft.sheets.find(
               (sheet) => sheet.id === action.id
             ) as Sheet;
-            const { selections, activeCell } = action;
+            const { selections } = action;
             if (sheet) {
               for (let i = 0; i < selections.length; i++) {
                 const { bounds } = selections[i];
@@ -359,7 +357,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
             const sheet = draft.sheets.find(
               (sheet) => sheet.id === action.id
             ) as Sheet;
-            const { selections, activeCell } = action;
+            const { selections } = action;
             if (sheet) {
               for (let i = 0; i < selections.length; i++) {
                 const { bounds } = selections[i];
@@ -776,7 +774,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
       },
       (patches, inversePatches) => {
         const { undoable = true } = action;
-        if (action.type === ACTION_TYPE.APPLY_PATCHES || undoable === false) {
+        if (undoable === false) {
           return;
         }
         requestAnimationFrame(() =>
