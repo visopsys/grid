@@ -954,8 +954,8 @@ export const GridWithFrozenEdges: React.FC = () => {
         selection={selection}
         width={width}
         height={height}
-        columnCount={200}
-        rowCount={200}
+        columnCount={100000}
+        rowCount={100000}
         frozenColumns={frozenColumns}
         frozenRows={frozenRows}
         columnWidth={(index) => {
@@ -1126,8 +1126,8 @@ export const EditableGrid: React.FC = () => {
         <Grid
           width={width}
           height={height}
-          columnCount={200}
-          rowCount={200}
+          columnCount={100000}
+          rowCount={100000}
           ref={gridRef}
           activeCell={activeCell}
           selections={selections}

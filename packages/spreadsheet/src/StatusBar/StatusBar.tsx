@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import { Text, Box, useColorMode } from "@chakra-ui/core";
 import { SelectionArea, isNull } from "@rowsncolumns/grid";
 import { Cells } from "../Spreadsheet";
@@ -24,10 +24,23 @@ const StatusBar: React.FC<StatusBarProps> = memo(
     let count = 0;
     let avg = 0;
     let sum = 0;
+    const getMinMax = (o: Object) => {
+      const keys = Object.keys(o ?? {}).map(Number);
+      return [Math.min(...keys), Math.max(...keys)];
+    };
+    const [minRow, maxRow] = useMemo(() => {
+      return getMinMax(cells);
+    }, [cells]);
+
     for (let i = 0; i < selections.length; i++) {
       const { bounds } = selections[i];
-      for (let j = bounds.top; j <= bounds.bottom; j++) {
-        for (let k = bounds.left; k <= bounds.right; k++) {
+      const top = Math.max(minRow, bounds.top);
+      const bottom = Math.min(maxRow, bounds.bottom);
+      for (let j = top; j <= bottom; j++) {
+        const [minCol, maxCol] = getMinMax(cells[j]);
+        const left = Math.max(minCol, bounds.left);
+        const right = Math.min(maxCol, bounds.right);
+        for (let k = left; k <= right; k++) {
           const cell = cells[j]?.[k];
           if (cell === void 0) continue;
           if (!isNull(cell.text) && isNumeric(cell)) {

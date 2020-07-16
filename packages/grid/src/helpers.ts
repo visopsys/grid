@@ -784,21 +784,35 @@ export const findNextCellWithinBounds = (
 };
 
 /**
+ * Check if 2 areas overlap
+ * @param area1
+ * @param area2
+ */
+export const overlaps = (area1: AreaProps, area2: AreaProps): boolean => {
+  if (area1.left > area2.right || area2.left > area1.right) {
+    return false;
+  }
+  if (area1.top > area2.bottom || area2.top > area1.bottom) {
+    return false;
+  }
+  return true;
+};
+
+/**
  * Get maximum bound of an area, caters to merged cells
  * @param area
  * @param boundGetter
  */
 export const mergedCellBounds = (
   area: AreaProps,
-  boundGetter: (coords: CellInterface) => AreaProps
+  mergedCells: AreaProps[]
 ): AreaProps => {
-  for (let i = area.top; i <= area.bottom; i++) {
-    for (let j = area.left; j <= area.right; j++) {
-      const bounds = boundGetter({ rowIndex: i, columnIndex: j });
-      if (bounds.bottom > area.bottom) area.bottom = bounds.bottom;
-      if (bounds.right > area.right) area.right = bounds.right;
-      if (bounds.left < area.left) area.left = bounds.left;
-      if (bounds.top < area.top) area.top = bounds.top;
+  for (const bounds of mergedCells) {
+    if (overlaps(area, bounds)) {
+      area.top = Math.min(area.top, bounds.top);
+      area.bottom = Math.max(area.bottom, bounds.bottom);
+      area.right = Math.max(area.right, bounds.right);
+      area.left = Math.min(area.left, bounds.left);
     }
   }
   return area;

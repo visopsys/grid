@@ -243,13 +243,22 @@ export const defaultSheets: Sheet[] = [
   {
     id: defaultActiveSheet,
     name: "Sheet1",
+    rowCount: 20000,
+    columnCount: 20000,
     frozenColumns: 0,
     frozenRows: 0,
     activeCell: {
       rowIndex: 1,
       columnIndex: 1,
     },
-    mergedCells: [],
+    mergedCells: [
+      {
+        top: 2,
+        left: 2,
+        right: 5,
+        bottom: 5,
+      },
+    ],
     selections: [],
     cells: {},
     scrollState: { scrollTop: 0, scrollLeft: 0 },

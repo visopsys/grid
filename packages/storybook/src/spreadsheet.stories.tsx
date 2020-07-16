@@ -26,8 +26,6 @@ export const Default = () => {
         }}
       >
         <Spreadsheet
-          // rowCount={80}
-          // columnCount={20}
           // sheets={sheets}
           // onNewSheet={handleNewSheet}
           onChange={(...args) => {

@@ -403,8 +403,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       }, initialValue);
     }, [userHiddenColumns]);
 
-    const previousHiddenRows = usePrevious<Record<string, true>>(hiddenRows);
-
     const isHiddenRow = useCallback(
       (rowIndex: number) => {
         return hiddenRows[rowIndex];
@@ -565,13 +563,14 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       selectionLeftBound,
       allowMultipleSelection,
       initialActiveCell,
-      initialSelections,
+      // initialSelections,
       gridRef,
       rowCount,
       columnCount,
       onFill,
       isHiddenRow,
       isHiddenColumn,
+      mergedCells,
       mouseDownInterceptor: handleMouseDownSelection,
       mouseMoveInterceptor: handleMouseMoveSelection,
     });
@@ -701,11 +700,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
      */
     useEffect(() => {
       /* Batch this cos of debounce */
-      onSheetChangeRef.current?.({ selections, activeCell });
+      onSheetChangeRef.current?.({ activeCell, selections });
 
       /* Callback */
       onSelectionChange?.(activeCell, selections);
-    }, [activeCell, selections]);
+    }, [selections, activeCell]);
 
     /**
      * If grid changes, lets restore the state
@@ -727,7 +726,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         false
       );
       setActiveCell(initialActiveCell, false);
-      setSelections(initialSelections);
+      // setSelections(initialSelections);
       /* Hide filter */
       hideFilter();
     }, [selectedSheet]);

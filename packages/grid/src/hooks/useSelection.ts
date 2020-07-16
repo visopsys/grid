@@ -82,6 +82,13 @@ export interface UseSelectionOptions {
    * Right bound
    */
   selectionRightBound?: number;
+  /**
+   * merged cells
+   */
+  mergedCells?: AreaProps[];
+  /**
+   * Mousedown
+   */
   mouseDownInterceptor: (
     e: React.MouseEvent<HTMLDivElement>,
     coords: CellInterface,
@@ -186,6 +193,7 @@ const useSelection = ({
   selectionRightBound = columnCount - 1,
   mouseDownInterceptor,
   mouseMoveInterceptor,
+  mergedCells = [],
 }: UseSelectionOptions): SelectionResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(
     initialActiveCell
@@ -257,7 +265,7 @@ const useSelection = ({
       left: Math.min(boundsStart.left, boundsEnd.left),
       right: Math.max(boundsStart.right, boundsEnd.right),
     };
-    return mergedCellBounds(bounds, gridRef.current.getCellBounds);
+    return mergedCellBounds(bounds, mergedCells);
   };
 
   /* Modify current selection */
@@ -266,7 +274,6 @@ const useSelection = ({
     if (isCellOutOfBounds(coords)) {
       return;
     }
-
     selectionEnd.current = coords;
     const bounds = selectionFromStartEnd(selectionStart.current, coords);
     if (!bounds) return;
