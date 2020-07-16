@@ -12,7 +12,7 @@ export interface StrokeCellProps
 /**
  * Only used for strokes
  */
-const CellOverlay: React.FC<StrokeCellProps> = memo(props => {
+const CellOverlay: React.FC<StrokeCellProps> = memo((props) => {
   const {
     x,
     y,
@@ -33,7 +33,7 @@ const CellOverlay: React.FC<StrokeCellProps> = memo(props => {
     strokeRightWidth = strokeWidth,
     strokeBottomWidth = strokeWidth,
     strokeLeftWidth = strokeWidth,
-    lineCap = "square"
+    lineCap = "square",
   } = props;
   const userStroke =
     strokeTopColor || strokeRightColor || strokeBottomColor || strokeLeftColor;
@@ -55,6 +55,24 @@ const CellOverlay: React.FC<StrokeCellProps> = memo(props => {
           context.setAttr("lineCap", lineCap);
           context.setLineDash(strokeTopDash);
         }
+        /* Bottom border */
+        if (strokeBottomColor) {
+          context.moveTo(0.5, shape.height() + 0.5);
+          context.lineTo(shape.width() + 0.5, shape.height() + 0.5);
+          context.setAttr("lineWidth", strokeBottomWidth);
+          context.setAttr("strokeStyle", strokeBottomColor);
+          context.setAttr("lineCap", lineCap);
+          context.setLineDash(strokeBottomDash);
+        }
+        /* Left border */
+        if (strokeLeftColor) {
+          context.moveTo(0.5, 0.5);
+          context.lineTo(0.5, shape.height() + 0.5);
+          context.setAttr("strokeStyle", strokeLeftColor);
+          context.setAttr("lineWidth", strokeLeftWidth);
+          context.setAttr("lineCap", lineCap);
+          context.setLineDash(strokeLeftDash);
+        }
         /* Right border */
         if (strokeRightColor) {
           context.moveTo(shape.width() + 0.5, 0.5);
@@ -63,24 +81,6 @@ const CellOverlay: React.FC<StrokeCellProps> = memo(props => {
           context.setAttr("lineWidth", strokeRightWidth);
           context.setAttr("lineCap", lineCap);
           context.setLineDash(strokeRightDash);
-        }
-        /* Bottom border */
-        if (strokeBottomColor) {
-          context.moveTo(shape.width() + 0.5, shape.height() + 0.5);
-          context.lineTo(0.5, shape.height() + 0.5);
-          context.setAttr("lineWidth", strokeBottomWidth);
-          context.setAttr("strokeStyle", strokeBottomColor);
-          context.setAttr("lineCap", lineCap);
-          context.setLineDash(strokeBottomDash);
-        }
-        /* Left border */
-        if (strokeLeftColor) {
-          context.moveTo(0.5, shape.height() + 0.5);
-          context.lineTo(0.5, 0.5);
-          context.setAttr("strokeStyle", strokeLeftColor);
-          context.setAttr("lineWidth", strokeLeftWidth);
-          context.setAttr("lineCap", lineCap);
-          context.setLineDash(strokeLeftDash);
         }
         context.stroke();
       }}
@@ -113,7 +113,7 @@ const CellRenderer = (props: RendererProps) => {
     strokeRightWidth = strokeWidth,
     strokeBottomWidth = strokeWidth,
     strokeLeftWidth = strokeWidth,
-    lineCap = "square"
+    lineCap = "square",
   } = props;
   return (
     <CellOverlay
