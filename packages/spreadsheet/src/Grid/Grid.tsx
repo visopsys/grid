@@ -233,6 +233,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       selectionTopBound = 1,
       selectionLeftBound = 1,
     } = props;
+
     const gridRef = useRef<GridRef | null>(null);
     const onSheetChangeRef = useRef(debounce(onSheetChange, 100));
     const frozenRows = Math.max(1, userFrozenRows + 1);
@@ -253,6 +254,13 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         };
       });
     }, [filterViews]);
+
+    const isCellRowHeader = useCallback((rowIndex: number) => {
+      return rowIndex === 0;
+    }, []);
+    const isCellColumnHeader = useCallback((columnIndex: number) => {
+      return columnIndex === 0;
+    }, []);
 
     /* Cell where filter icon will appear */
     const filterHeaderCells = useMemo(() => {
@@ -335,8 +343,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         if (!cell) return void 0;
         const { rowIndex, columnIndex } = cell;
         /* Check if its header cell */
-        const isRowHeader = rowIndex === 0;
-        const isColumnHeader = columnIndex === 0;
+        const isRowHeader = isCellRowHeader(rowIndex);
+        const isColumnHeader = isCellColumnHeader(columnIndex);
         const cellId = cellIdentifier(rowIndex, columnIndex);
         const isFilterHeader = filterHeaderCells[cellId] !== void 0;
 
@@ -455,6 +463,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       clearLastSelection,
       appendSelection,
       selectAll,
+      clearSelections,
       ...selectionProps
     } = useSelection({
       selectionTopBound,
@@ -477,8 +486,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         if (!gridRef.current) return;
         const isShiftKey = e.nativeEvent.shiftKey;
         const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
-        const isRowHeader = coords.rowIndex === 0;
-        const isColumnHeader = coords.columnIndex === 0;
+        const isRowHeader = isCellRowHeader(coords.rowIndex);
+        const isColumnHeader = isCellColumnHeader(coords.columnIndex);
         if (isRowHeader && isColumnHeader) {
           selectAll();
           return false;
@@ -520,6 +529,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             /* Scroll to the new active cell */
             gridRef.current.scrollToItem(activeCell);
           } else {
+            /* Clear all selections */
+            clearSelections();
             startRef.current = start;
             endRef.current = start;
             modifySelection(end);
@@ -839,9 +850,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       (props: RendererProps) => {
         const { rowIndex, columnIndex } = props;
         const cell = { rowIndex, columnIndex };
-        if (rowIndex === 0 || columnIndex === 0) {
-          const isRowHeader = rowIndex === 0;
-          const isColumnHeader = columnIndex === 0;
+        const isRowHeader = isCellRowHeader(rowIndex);
+        const isColumnHeader = isCellColumnHeader(columnIndex);
+        if (isRowHeader || isColumnHeader) {
           const isHeaderActive =
             isRowHeader || isColumnHeader
               ? isRowHeader

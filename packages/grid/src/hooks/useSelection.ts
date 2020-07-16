@@ -146,12 +146,21 @@ export interface SelectionResults {
    * Clears the last selection
    */
   clearLastSelection: () => void;
+  /**
+   * Select all cells
+   */
   selectAll: () => void;
+  /**
+   * Add a new selection
+   */
   appendSelection: (start: CellInterface, end: CellInterface) => void;
+  /**
+   * Clear all current selections
+   */
+  clearSelections: () => void;
 }
 
 const EMPTY_SELECTION: SelectionArea[] = [];
-const EMPTY_ARRAY: any[] = [];
 const defaultIsHidden = (i: number) => false;
 
 /**
@@ -826,7 +835,10 @@ const useSelection = ({
               bounds,
               direction
             );
-            if (nextCell) setActiveCell(nextCell);
+            if (nextCell) {
+              setActiveCell(nextCell);
+              if (gridRef.current) gridRef.current.scrollToItem(nextCell);
+            }
           } else {
             if (isShiftKey) {
               keyNavigate(Direction.Left);
@@ -1003,6 +1015,7 @@ const useSelection = ({
     modifySelection,
     selectAll,
     appendSelection,
+    clearSelections,
   };
 };
 
