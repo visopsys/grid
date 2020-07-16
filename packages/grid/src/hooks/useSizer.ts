@@ -155,6 +155,10 @@ const useAutoSizer = ({
     rowStopIndex: 0,
     columnStartIndex: 0,
     columnStopIndex: 0,
+    visibleRowStartIndex: 0,
+    visibleRowStopIndex: 0,
+    visibleColumnStartIndex: 0,
+    visibleColumnStopIndex: 0,
   });
   const isMounted = useRef(false);
   const getValueRef = useRef(getValue);
