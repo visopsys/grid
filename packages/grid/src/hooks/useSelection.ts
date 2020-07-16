@@ -512,6 +512,7 @@ const useSelection = ({
       alwaysScrollToActiveCell,
       rowCount,
       columnCount,
+      mergedCells,
     ]
   );
 
@@ -545,7 +546,7 @@ const useSelection = ({
 
       gridRef.current?.scrollToItem(coords);
     },
-    [rowCount, columnCount]
+    [rowCount, columnCount, mergedCells]
   );
   /**
    * Mouse up handler

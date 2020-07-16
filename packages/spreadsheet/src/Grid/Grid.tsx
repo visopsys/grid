@@ -513,7 +513,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           return false;
         }
       },
-      [rowCount, columnCount, frozenRows, frozenColumns]
+      [rowCount, columnCount, frozenRows, frozenColumns, mergedCells]
     );
 
     /* Mouse move */
@@ -539,7 +539,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           return false;
         }
       },
-      [rowCount, columnCount]
+      [rowCount, columnCount, mergedCells]
     );
 
     /**
