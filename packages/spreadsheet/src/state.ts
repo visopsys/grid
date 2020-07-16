@@ -306,6 +306,8 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
                   sheet.cells[i][j] = cellValue;
                 }
               }
+              /* Keep reference of active cell, so we can focus back */
+              draft.currentActiveCell = activeCell;
             }
             break;
           }

@@ -449,35 +449,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       resizeOnScroll: false,
     });
 
-    /**
-     * Selection
-     */
-    const {
-      selections,
-      activeCell,
-      setActiveCell,
-      setActiveCellState,
-      setSelections,
-      modifySelection,
-      newSelection,
-      clearLastSelection,
-      appendSelection,
-      selectAll,
-      clearSelections,
-      ...selectionProps
-    } = useSelection({
-      selectionTopBound,
-      selectionLeftBound,
-      allowMultipleSelection,
-      initialActiveCell,
-      initialSelections,
-      gridRef,
-      rowCount,
-      columnCount,
-      onFill,
-      isHiddenRow,
-      isHiddenColumn,
-      mouseDownInterceptor: (
+    /* Mouse down seelction */
+    const handleMouseDownSelection = useCallback(
+      (
         e: React.MouseEvent<HTMLDivElement>,
         coords: CellInterface,
         startRef,
@@ -541,13 +515,19 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           return false;
         }
       },
-      mouseMoveInterceptor: (_, coords: CellInterface, startRef, endRef) => {
+      [rowCount, columnCount, frozenRows, frozenColumns]
+    );
+
+    /* Mouse move */
+    const handleMouseMoveSelection = useCallback(
+      (_, coords: CellInterface, startRef, endRef) => {
         const isRowHeader =
           startRef.current?.rowIndex === selectionTopBound &&
           endRef.current?.rowIndex === rowCount - 1;
         const isColumnHeader =
           startRef.current?.columnIndex === selectionLeftBound &&
           endRef.current?.columnIndex === columnCount - 1;
+
         if (isRowHeader && isColumnHeader) return false;
         if (isRowHeader || isColumnHeader) {
           const end = isRowHeader
@@ -561,6 +541,39 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           return false;
         }
       },
+      [rowCount, columnCount]
+    );
+
+    /**
+     * Selection
+     */
+    const {
+      selections,
+      activeCell,
+      setActiveCell,
+      setActiveCellState,
+      setSelections,
+      modifySelection,
+      newSelection,
+      clearLastSelection,
+      appendSelection,
+      selectAll,
+      clearSelections,
+      ...selectionProps
+    } = useSelection({
+      selectionTopBound,
+      selectionLeftBound,
+      allowMultipleSelection,
+      initialActiveCell,
+      initialSelections,
+      gridRef,
+      rowCount,
+      columnCount,
+      onFill,
+      isHiddenRow,
+      isHiddenColumn,
+      mouseDownInterceptor: handleMouseDownSelection,
+      mouseMoveInterceptor: handleMouseMoveSelection,
     });
 
     /**
