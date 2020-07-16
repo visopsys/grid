@@ -442,6 +442,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       selections,
       activeCell,
       setActiveCell,
+      setActiveCellState,
       setSelections,
       modifySelection,
       newSelection,
@@ -464,7 +465,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       mouseDownInterceptor: (
         e: React.MouseEvent<HTMLDivElement>,
         coords: CellInterface,
-        startRef
+        startRef,
+        endRef
       ) => {
         if (!gridRef.current) return;
         const isShiftKey = e.nativeEvent.shiftKey;
@@ -505,28 +507,30 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
               };
 
           if (isShiftKey) {
-            startRef.current = start;
             modifySelection(end);
           } else if (isMetaKey) {
             appendSelection(start, end);
-            setActiveCell(activeCell);
+            setActiveCellState(activeCell);
+            /* Scroll to the new active cell */
+            gridRef.current.scrollToItem(activeCell);
           } else {
-            setActiveCell(activeCell);
             startRef.current = start;
+            endRef.current = start;
             modifySelection(end);
+            setActiveCellState(activeCell);
+            /* Scroll to the new active cell */
+            gridRef.current.scrollToItem(activeCell);
           }
           return false;
         }
       },
       mouseMoveInterceptor: (_, coords: CellInterface, startRef, endRef) => {
         const isRowHeader =
-          coords.rowIndex === 0 ||
-          (startRef.current?.rowIndex === selectionTopBound &&
-            endRef.current?.rowIndex === rowCount - 1);
+          startRef.current?.rowIndex === selectionTopBound &&
+          endRef.current?.rowIndex === rowCount - 1;
         const isColumnHeader =
-          coords.columnIndex === 0 ||
-          (startRef.current?.columnIndex === selectionLeftBound &&
-            endRef.current?.columnIndex === columnCount - 1);
+          startRef.current?.columnIndex === selectionLeftBound &&
+          endRef.current?.columnIndex === columnCount - 1;
         if (isRowHeader && isColumnHeader) return false;
         if (isRowHeader || isColumnHeader) {
           const end = isRowHeader
