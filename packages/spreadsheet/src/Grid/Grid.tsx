@@ -573,6 +573,21 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       mergedCells,
       mouseDownInterceptor: handleMouseDownSelection,
       mouseMoveInterceptor: handleMouseMoveSelection,
+      canSelectionSpanMergedCells: (bounds: AreaProps) => {
+        if (
+          bounds.top === selectionTopBound &&
+          bounds.bottom === rowCount - 1
+        ) {
+          return false;
+        }
+        if (
+          bounds.left === selectionLeftBound &&
+          bounds.right === columnCount - 1
+        ) {
+          return false;
+        }
+        return true;
+      },
     });
 
     /**

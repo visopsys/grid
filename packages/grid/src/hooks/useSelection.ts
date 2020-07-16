@@ -101,6 +101,7 @@ export interface UseSelectionOptions {
     start: React.MutableRefObject<CellInterface | null>,
     end: React.MutableRefObject<CellInterface | null>
   ) => boolean | undefined;
+  canSelectionSpanMergedCells: (bounds: AreaProps) => boolean;
 }
 
 export interface SelectionResults {
@@ -169,7 +170,7 @@ export interface SelectionResults {
 
 const EMPTY_SELECTION: SelectionArea[] = [];
 const defaultIsHidden = (i: number) => false;
-
+const defaultSelectionSpan = () => true;
 /**
  * Hook to enable selection in datagrid
  * @param initialSelection
@@ -194,6 +195,7 @@ const useSelection = ({
   mouseDownInterceptor,
   mouseMoveInterceptor,
   mergedCells = [],
+  canSelectionSpanMergedCells = defaultSelectionSpan,
 }: UseSelectionOptions): SelectionResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(
     initialActiveCell
@@ -265,7 +267,9 @@ const useSelection = ({
       left: Math.min(boundsStart.left, boundsEnd.left),
       right: Math.max(boundsStart.right, boundsEnd.right),
     };
-    return mergedCellBounds(bounds, mergedCells);
+    return canSelectionSpanMergedCells(bounds)
+      ? mergedCellBounds(bounds, mergedCells)
+      : bounds;
   };
 
   /* Modify current selection */
