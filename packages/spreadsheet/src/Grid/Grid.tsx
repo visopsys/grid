@@ -511,9 +511,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             appendSelection(start, end);
             setActiveCell(activeCell);
           } else {
+            setActiveCell(activeCell);
             startRef.current = start;
             modifySelection(end);
-            setActiveCell(activeCell);
           }
           return false;
         }
