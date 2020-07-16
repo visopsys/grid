@@ -251,14 +251,7 @@ export const defaultSheets: Sheet[] = [
       rowIndex: 1,
       columnIndex: 1,
     },
-    mergedCells: [
-      {
-        top: 2,
-        left: 2,
-        right: 5,
-        bottom: 5,
-      },
-    ],
+    mergedCells: [],
     selections: [],
     cells: {},
     scrollState: { scrollTop: 0, scrollLeft: 0 },
