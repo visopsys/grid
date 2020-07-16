@@ -203,7 +203,6 @@ const useAutoSizer = ({
           rowIndex,
           columnIndex,
         }) ?? null;
-
       /* Check if its null */
       if (cellValue !== null) {
         const isCellConfig = typeof cellValue === "object";

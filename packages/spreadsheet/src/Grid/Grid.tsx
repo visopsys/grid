@@ -337,19 +337,25 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         /* Check if its header cell */
         const isRowHeader = rowIndex === 0;
         const isColumnHeader = columnIndex === 0;
+        const cellId = cellIdentifier(rowIndex, columnIndex);
+        const isFilterHeader = filterHeaderCells[cellId] !== void 0;
+
         if (isRowHeader) {
           return { text: number2Alpha(columnIndex - 1), fontSize: 10 };
         }
         if (isColumnHeader) {
           return { text: isColumnHeader, fontSize: 10 };
         }
+        const cellConfig = isFilterHeader
+          ? { ...cells[rowIndex]?.[columnIndex], bold: true }
+          : cells[rowIndex]?.[columnIndex];
         return rowIndex in cells
           ? obj
-            ? cells[rowIndex]?.[columnIndex]
-            : cells[rowIndex]?.[columnIndex]?.text
+            ? cellConfig
+            : cellConfig?.text
           : void 0;
       },
-      [cells]
+      [cells, filterHeaderCells]
     );
 
     /**
@@ -880,9 +886,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           filterHeaderCells[cellIdentifier(rowIndex, columnIndex)];
         const showFilter = filterIndex !== void 0;
         const cellConfig = getValue(cell, true) as CellConfig;
-        const additionalStyles = {
-          ...(showFilter ? { bold: true } : undefined),
-        };
         const isFilterActive =
           filterIndex === void 0
             ? false
@@ -891,7 +894,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           <CellRenderer
             {...props}
             {...cellConfig}
-            {...additionalStyles}
             isLightMode={isLightMode}
             formatter={formatter}
             showStrokeOnFill={showGridLines}
