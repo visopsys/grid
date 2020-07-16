@@ -488,31 +488,32 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             visibleRowStartIndex,
             visibleColumnStartIndex,
           } = gridRef.current.getViewPort();
+          const activeCell = isColumnHeader
+            ? {
+                ...coords,
+                columnIndex:
+                  actualFrozenColumns >= selectionLeftBound
+                    ? selectionLeftBound
+                    : visibleColumnStartIndex,
+              }
+            : {
+                ...coords,
+                rowIndex:
+                  actualFrozenRows >= selectionTopBound
+                    ? selectionTopBound
+                    : visibleRowStartIndex,
+              };
 
           if (isShiftKey) {
             startRef.current = start;
             modifySelection(end);
           } else if (isMetaKey) {
             appendSelection(start, end);
-          } else {
-            const activeCell = isColumnHeader
-              ? {
-                  ...coords,
-                  columnIndex:
-                    actualFrozenColumns >= selectionLeftBound
-                      ? selectionLeftBound
-                      : visibleColumnStartIndex,
-                }
-              : {
-                  ...coords,
-                  rowIndex:
-                    actualFrozenRows >= selectionTopBound
-                      ? selectionTopBound
-                      : visibleRowStartIndex,
-                };
             setActiveCell(activeCell);
+          } else {
             startRef.current = start;
             modifySelection(end);
+            setActiveCell(activeCell);
           }
           return false;
         }
