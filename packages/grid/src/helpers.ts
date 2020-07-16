@@ -804,9 +804,10 @@ export const overlaps = (area1: AreaProps, area2: AreaProps): boolean => {
  * @param boundGetter
  */
 export const mergedCellBounds = (
-  area: AreaProps,
+  _area: AreaProps,
   mergedCells: AreaProps[]
 ): AreaProps => {
+  const area = { ..._area };
   for (const bounds of mergedCells) {
     if (overlaps(area, bounds)) {
       area.top = Math.min(area.top, bounds.top);
