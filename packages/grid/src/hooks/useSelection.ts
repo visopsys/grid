@@ -118,6 +118,10 @@ export interface SelectionResults {
    */
   setActiveCell: (coords: CellInterface | null, shouldScroll?: boolean) => void;
   /**
+   * Only saves internal state
+   */
+  setActiveCellState: (coords: CellInterface | null) => void;
+  /**
    * Array of all selection bounds
    */
   selections: SelectionArea[];
@@ -990,6 +994,7 @@ const useSelection = ({
     newSelection,
     setSelections,
     setActiveCell: handleSetActiveCell,
+    setActiveCellState: setActiveCell,
     fillHandleProps: {
       onMouseDown: handleFillHandleMouseDown,
     },
