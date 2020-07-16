@@ -563,7 +563,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       selectionLeftBound,
       allowMultipleSelection,
       initialActiveCell,
-      // initialSelections,
+      initialSelections,
       gridRef,
       rowCount,
       columnCount,
@@ -726,7 +726,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         false
       );
       setActiveCell(initialActiveCell, false);
-      // setSelections(initialSelections);
+      setSelections(initialSelections);
       /* Hide filter */
       hideFilter();
     }, [selectedSheet]);
