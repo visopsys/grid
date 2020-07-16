@@ -508,7 +508,7 @@ const useEditable = ({
 
       makeEditable({ rowIndex, columnIndex }, initialValue);
     },
-    [selections, activeCell]
+    [getValue, selections, activeCell]
   );
 
   /**

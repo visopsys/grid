@@ -320,6 +320,10 @@ export interface ViewPortProps {
   rowStopIndex: number;
   columnStartIndex: number;
   columnStopIndex: number;
+  visibleRowStartIndex: number;
+  visibleRowStopIndex: number;
+  visibleColumnStartIndex: number;
+  visibleColumnStopIndex: number;
 }
 
 export interface InstanceInterface {
@@ -663,13 +667,20 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     );
 
     const getVerticalRangeToRender = () => {
+      const frozenRowHeight = getRowOffset({
+        index: frozenRows,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+        scale,
+      });
       const startIndex = getRowStartIndexForOffset({
         rowHeight,
         columnWidth,
         rowCount,
         columnCount,
         instanceProps: instanceProps.current,
-        offset: scrollTop,
+        offset: scrollTop + frozenRowHeight,
         scale,
       });
       const stopIndex = getRowStopIndexForStartIndex({
@@ -703,13 +714,20 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     };
 
     const getHorizontalRangeToRender = () => {
+      const frozenColumnWidth = getColumnOffset({
+        index: frozenColumns,
+        rowHeight,
+        columnWidth,
+        instanceProps: instanceProps.current,
+        scale,
+      });
       const startIndex = getColumnStartIndexForOffset({
         rowHeight,
         columnWidth,
         rowCount,
         columnCount,
         instanceProps: instanceProps.current,
-        offset: scrollLeft,
+        offset: scrollLeft + frozenColumnWidth,
         scale,
       });
 
@@ -743,8 +761,18 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       ];
     };
 
-    const [rowStartIndex, rowStopIndex] = getVerticalRangeToRender();
-    const [columnStartIndex, columnStopIndex] = getHorizontalRangeToRender();
+    const [
+      rowStartIndex,
+      rowStopIndex,
+      visibleRowStartIndex,
+      visibleRowStopIndex,
+    ] = getVerticalRangeToRender();
+    const [
+      columnStartIndex,
+      columnStopIndex,
+      visibleColumnStartIndex,
+      visibleColumnStopIndex,
+    ] = getHorizontalRangeToRender();
     const estimatedTotalHeight = getEstimatedTotalHeight(
       rowCount,
       instanceProps.current
@@ -1012,8 +1040,21 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         rowStopIndex,
         columnStartIndex,
         columnStopIndex,
+        visibleRowStartIndex,
+        visibleRowStopIndex,
+        visibleColumnStartIndex,
+        visibleColumnStopIndex,
       };
-    }, [rowStartIndex, rowStopIndex, columnStartIndex, columnStopIndex]);
+    }, [
+      rowStartIndex,
+      rowStopIndex,
+      columnStartIndex,
+      columnStopIndex,
+      visibleRowStartIndex,
+      visibleRowStopIndex,
+      visibleColumnStartIndex,
+      visibleColumnStopIndex,
+    ]);
 
     /**
      * When the grid is scrolling,
@@ -1322,8 +1363,21 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         rowStopIndex,
         columnStartIndex,
         columnStopIndex,
+        visibleRowStartIndex,
+        visibleRowStopIndex,
+        visibleColumnStartIndex,
+        visibleColumnStopIndex,
       });
-    }, [rowStartIndex, rowStopIndex, columnStartIndex, columnStopIndex]);
+    }, [
+      rowStartIndex,
+      rowStopIndex,
+      columnStartIndex,
+      columnStopIndex,
+      visibleRowStartIndex,
+      visibleRowStopIndex,
+      visibleColumnStartIndex,
+      visibleColumnStopIndex,
+    ]);
 
     /* Draw gridlines */
     const gridLines = [];

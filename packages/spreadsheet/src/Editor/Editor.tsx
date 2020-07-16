@@ -54,6 +54,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
     scale = 1,
     ...rest
   } = props;
+  const wrapping: any = cellWrap === "wrap" ? "wrap" : "nowrap";
   const { colorMode } = useColorMode();
   const isLight = colorMode === "light";
   const backgroundColor =
@@ -86,7 +87,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
       const textWidth = textSizer.current.measureText(text)?.width || 0;
       return Math.max(textWidth + padding, width + borderWidth / 2);
     },
-    [width, cellFontSize, cellFontFamily, cellWrap]
+    [width, cellFontSize, cellFontFamily, wrapping]
   );
   useEffect(() => {
     setInputWidth(getWidth(value));
@@ -164,7 +165,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
           verticalAlign: "top",
           background: "transparent",
           color: color,
-          whiteSpace: cellWrap,
+          whiteSpace: wrapping,
           textAlign: horizontalAlign,
         }}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {

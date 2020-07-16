@@ -82,6 +82,18 @@ export interface UseSelectionOptions {
    * Right bound
    */
   selectionRightBound?: number;
+  mouseDownInterceptor: (
+    e: React.MouseEvent<HTMLDivElement>,
+    coords: CellInterface,
+    start: React.MutableRefObject<CellInterface | null>,
+    end: React.MutableRefObject<CellInterface | null>
+  ) => boolean | undefined;
+  mouseMoveInterceptor: (
+    e: globalThis.MouseEvent,
+    coords: CellInterface,
+    start: React.MutableRefObject<CellInterface | null>,
+    end: React.MutableRefObject<CellInterface | null>
+  ) => boolean | undefined;
 }
 
 export interface SelectionResults {
@@ -130,6 +142,8 @@ export interface SelectionResults {
    * Clears the last selection
    */
   clearLastSelection: () => void;
+  selectAll: () => void;
+  appendSelection: (start: CellInterface, end: CellInterface) => void;
 }
 
 const EMPTY_SELECTION: SelectionArea[] = [];
@@ -157,6 +171,8 @@ const useSelection = ({
   selectionBottomBound = rowCount - 1,
   selectionLeftBound = 0,
   selectionRightBound = columnCount - 1,
+  mouseDownInterceptor,
+  mouseMoveInterceptor,
 }: UseSelectionOptions): SelectionResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(
     initialActiveCell
@@ -378,6 +394,13 @@ const useSelection = ({
       /* Activate selection mode */
       isSelecting.current = true;
 
+      if (
+        mouseDownInterceptor?.(e, coords, selectionStart, selectionEnd) ===
+        false
+      ) {
+        return;
+      }
+
       /* Shift key */
       if (isShiftKey) {
         modifySelection(coords);
@@ -483,6 +506,12 @@ const useSelection = ({
     );
 
     if (!coords) return;
+
+    if (
+      mouseMoveInterceptor?.(e, coords, selectionStart, selectionEnd) === false
+    ) {
+      return;
+    }
 
     if (isEqualCells(firstActiveCell.current, coords)) {
       return clearSelections();
@@ -967,6 +996,8 @@ const useSelection = ({
     fillSelection,
     clearLastSelection: handleClearLastSelection,
     modifySelection,
+    selectAll,
+    appendSelection,
   };
 };
 

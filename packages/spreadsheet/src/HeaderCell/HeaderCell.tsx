@@ -17,6 +17,7 @@ export interface HeaderCellProps extends RendererProps {
   theme: ThemeType;
   scale?: number;
   isFiltered?: boolean;
+  isSelected?: boolean;
 }
 
 interface DraggableRectProps
@@ -110,7 +111,8 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
     onResize,
     onAdjustColumn,
     scale = 1,
-    isFiltered = false,
+    isFiltered,
+    isSelected,
     ...rest
   } = props;
   const isCorner = rowIndex === columnIndex;
@@ -122,14 +124,18 @@ const HeaderCell: React.FC<HeaderCellProps> = memo((props) => {
   const isRowHeader = rowIndex === 0;
   const fill = isLightMode
     ? isFiltered
-      ? "#E6F4EA"
+      ? isSelected
+        ? "#198039"
+        : "#E6F4EA"
+      : isSelected
+      ? "#5F6268"
       : isActive
       ? "#E9EAED"
       : "#F8F9FA"
     : isActive
     ? theme.colors.gray[700]
     : DARK_MODE_COLOR;
-  const textColor = isLightMode ? "#333" : "white";
+  const textColor = isSelected || !isLightMode ? "white" : "#333";
   const stroke = isLightMode ? HEADER_BORDER_COLOR : theme.colors.gray[600];
   const axis = isRowHeader ? AXIS.X : AXIS.Y;
   const cursor = axis === AXIS.X ? "e-resize" : "n-resize";
