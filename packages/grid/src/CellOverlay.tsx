@@ -45,44 +45,50 @@ const CellOverlay: React.FC<StrokeCellProps> = memo((props) => {
       width={width}
       height={height}
       sceneFunc={(context, shape) => {
-        context.beginPath();
         /* Top border */
         if (strokeTopColor) {
+          context.beginPath();
           context.moveTo(0.5, 0.5);
           context.lineTo(shape.width(), 0.5);
           context.setAttr("strokeStyle", strokeTopColor);
           context.setAttr("lineWidth", strokeTopWidth);
           context.setAttr("lineCap", lineCap);
           context.setLineDash(strokeTopDash);
+          context.stroke();
         }
         /* Bottom border */
         if (strokeBottomColor) {
+          context.beginPath();
           context.moveTo(0.5, shape.height() + 0.5);
           context.lineTo(shape.width() + 0.5, shape.height() + 0.5);
           context.setAttr("lineWidth", strokeBottomWidth);
           context.setAttr("strokeStyle", strokeBottomColor);
           context.setAttr("lineCap", lineCap);
           context.setLineDash(strokeBottomDash);
+          context.stroke();
         }
         /* Left border */
         if (strokeLeftColor) {
+          context.beginPath();
           context.moveTo(0.5, 0.5);
           context.lineTo(0.5, shape.height() + 0.5);
           context.setAttr("strokeStyle", strokeLeftColor);
           context.setAttr("lineWidth", strokeLeftWidth);
           context.setAttr("lineCap", lineCap);
           context.setLineDash(strokeLeftDash);
+          context.stroke();
         }
         /* Right border */
         if (strokeRightColor) {
+          context.beginPath();
           context.moveTo(shape.width() + 0.5, 0.5);
           context.lineTo(shape.width() + 0.5, shape.height() + 0.5);
           context.setAttr("strokeStyle", strokeRightColor);
           context.setAttr("lineWidth", strokeRightWidth);
           context.setAttr("lineCap", lineCap);
           context.setLineDash(strokeRightDash);
+          context.stroke();
         }
-        context.stroke();
       }}
     />
   );

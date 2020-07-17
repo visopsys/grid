@@ -1268,7 +1268,6 @@ const BorderSelection: React.FC<BorderProps> = ({
   const theme = useTheme();
   const handleChangeColor = (value: string | undefined) => {
     setBorderColor(value);
-    onBorderChange?.(value, borderStyle, borderVariant);
   };
   const handleChangeVariant = (value: BORDER_VARIANT) => {
     setBorderVariant(value);
@@ -1276,7 +1275,6 @@ const BorderSelection: React.FC<BorderProps> = ({
   };
   const handleChangeBorderStyle = (value: BORDER_STYLE) => {
     setBorderStyle(value);
-    onBorderChange?.(borderColor, value, borderVariant);
   };
   const bgColor = isLight ? theme.colors.gray[100] : theme.colors.gray[600];
   const contentBorderColor = isLight

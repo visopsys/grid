@@ -427,6 +427,7 @@ export const cellsInSelectionVariant = (
           case BORDER_VARIANT.LEFT:
             if (k === bounds.left) {
               cells[rowIndex][columnIndex] = {
+                ...cells[rowIndex][columnIndex],
                 strokeLeftColor: color,
                 strokeLeftDash: dash,
                 strokeLeftWidth: thickness,
@@ -438,6 +439,7 @@ export const cellsInSelectionVariant = (
           case BORDER_VARIANT.RIGHT:
             if (k === bounds.right) {
               cells[rowIndex][columnIndex] = {
+                ...cells[rowIndex][columnIndex],
                 strokeRightColor: color,
                 strokeRightDash: dash,
                 strokeRightWidth: thickness,
@@ -449,6 +451,7 @@ export const cellsInSelectionVariant = (
           case BORDER_VARIANT.TOP:
             if (j === bounds.top) {
               cells[rowIndex][columnIndex] = {
+                ...cells[rowIndex][columnIndex],
                 strokeTopColor: color,
                 strokeTopDash: dash,
                 strokeTopWidth: thickness,
@@ -460,6 +463,7 @@ export const cellsInSelectionVariant = (
           case BORDER_VARIANT.BOTTOM:
             if (j === bounds.bottom) {
               cells[rowIndex][columnIndex] = {
+                ...cells[rowIndex][columnIndex],
                 strokeBottomColor: color,
                 strokeBottomDash: dash,
                 strokeBottomWidth: thickness,
