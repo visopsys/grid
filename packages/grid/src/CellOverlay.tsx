@@ -12,28 +12,25 @@ export interface StrokeCellProps
 /**
  * Only used for strokes
  */
-const CellOverlay: React.FC<StrokeCellProps> = memo((props) => {
+const CellOverlay: React.FC<StrokeCellProps> = memo(props => {
   const {
     x,
     y,
     width,
     height,
-    stroke,
-    strokeTopColor = stroke,
-    strokeRightColor = stroke,
-    strokeBottomColor = stroke,
-    strokeLeftColor = stroke,
-    strokeDash = EMPTY_ARRAY,
-    strokeTopDash = strokeDash,
-    strokeRightDash = strokeDash,
-    strokeBottomDash = strokeDash,
-    strokeLeftDash = strokeDash,
-    strokeWidth = 1,
-    strokeTopWidth = strokeWidth,
-    strokeRightWidth = strokeWidth,
-    strokeBottomWidth = strokeWidth,
-    strokeLeftWidth = strokeWidth,
-    lineCap = "square",
+    strokeTopColor,
+    strokeRightColor,
+    strokeBottomColor,
+    strokeLeftColor,
+    strokeTopDash,
+    strokeRightDash,
+    strokeBottomDash,
+    strokeLeftDash,
+    strokeTopWidth,
+    strokeRightWidth,
+    strokeBottomWidth,
+    strokeLeftWidth,
+    lineCap
   } = props;
   const userStroke =
     strokeTopColor || strokeRightColor || strokeBottomColor || strokeLeftColor;
@@ -110,16 +107,16 @@ const CellRenderer = (props: RendererProps) => {
     strokeBottomColor = stroke,
     strokeLeftColor = stroke,
     strokeDash = EMPTY_ARRAY,
-    strokeTopDash = strokeDash,
-    strokeRightDash = strokeDash,
-    strokeBottomDash = strokeDash,
-    strokeLeftDash = strokeDash,
+    strokeTopDash = EMPTY_ARRAY,
+    strokeRightDash = EMPTY_ARRAY,
+    strokeBottomDash = EMPTY_ARRAY,
+    strokeLeftDash = EMPTY_ARRAY,
     strokeWidth = 1,
     strokeTopWidth = strokeWidth,
     strokeRightWidth = strokeWidth,
     strokeBottomWidth = strokeWidth,
     strokeLeftWidth = strokeWidth,
-    lineCap = "square",
+    lineCap = "square"
   } = props;
   return (
     <CellOverlay
@@ -127,7 +124,6 @@ const CellRenderer = (props: RendererProps) => {
       y={y}
       width={width}
       height={height}
-      stroke={stroke}
       strokeTopColor={strokeTopColor}
       strokeRightColor={strokeRightColor}
       strokeBottomColor={strokeBottomColor}
@@ -137,7 +133,6 @@ const CellRenderer = (props: RendererProps) => {
       strokeRightDash={strokeRightDash}
       strokeBottomDash={strokeBottomDash}
       strokeLeftDash={strokeLeftDash}
-      strokeWidth={strokeWidth}
       strokeTopWidth={strokeTopWidth}
       strokeRightWidth={strokeRightWidth}
       strokeBottomWidth={strokeBottomWidth}
