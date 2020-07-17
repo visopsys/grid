@@ -53,6 +53,7 @@ import { CustomEditorProps } from "../Editor/Editor";
 import FilterComponent from "./../FilterComponent";
 import { FILTER_ICON_DIM } from "../FilterIcon/FilterIcon";
 import usePrevious from "./../hooks/usePrevious";
+import { ContextMenuComponentProps } from "../ContextMenu/ContextMenu";
 
 const EMPTY_ARRAY: any = [];
 const EMPTY_OBJECT: any = {};
@@ -132,7 +133,7 @@ export interface SheetGridProps {
   scale?: number;
   selectionTopBound?: number;
   selectionLeftBound?: number;
-  ContextMenu: React.ReactType;
+  ContextMenu?: React.ReactType<ContextMenuComponentProps>;
 }
 
 export interface RowColSelection {
@@ -1060,7 +1061,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           onViewChange={onViewChange}
         />
         {editorComponent}
-        {contextMenuProps && (
+        {ContextMenu !== void 0 && contextMenuProps && (
           <ContextMenu
             onRequestClose={hideContextMenu}
             activeCell={activeCell}

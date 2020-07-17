@@ -99,7 +99,6 @@ export interface WorkbookProps
     filter?: FilterDefinition
   ) => void;
   StatusBar: React.ReactType;
-  ContextMenu: React.ReactType;
   scale?: number;
 }
 

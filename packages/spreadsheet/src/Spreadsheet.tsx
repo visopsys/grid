@@ -188,7 +188,7 @@ export interface SpreadSheetProps {
   /**
    * Context menu component
    */
-  ContextMenu?: React.FC<ContextMenuComponentProps>;
+  ContextMenu?: React.ReactType<ContextMenuComponentProps>;
   /**
    * Scale
    */
