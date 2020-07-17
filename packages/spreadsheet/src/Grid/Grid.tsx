@@ -798,12 +798,6 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         );
       },
       gridRef,
-      getValue: (cell: CellInterface) => {
-        const isRowHeader = isCellRowHeader(cell.rowIndex);
-        const isColumnHeader = isCellColumnHeader(cell.columnIndex);
-        if (isRowHeader || isColumnHeader) return null;
-        return getValue(cell);
-      },
     });
 
     /**
