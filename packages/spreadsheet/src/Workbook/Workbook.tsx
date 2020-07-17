@@ -99,6 +99,7 @@ export interface WorkbookProps
     filter?: FilterDefinition
   ) => void;
   StatusBar: React.ReactType;
+  ContextMenu: React.ReactType;
   scale?: number;
 }
 
@@ -143,7 +144,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       onDeleteColumn,
       onDeleteRow,
       CellEditor,
-      allowMultipleSelection,
+      selectionPolicy,
       onSelectionChange,
       selectionMode,
       onChangeFilter,
@@ -153,6 +154,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       StatusBar,
       showStatusBar,
       scale = 1,
+      ContextMenu,
     } = props;
 
     const { colorMode } = useColorMode();
@@ -346,10 +348,11 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
             columnCount={columnCount}
             showGridLines={showGridLines}
             CellEditor={CellEditor}
-            allowMultipleSelection={allowMultipleSelection}
+            selectionPolicy={selectionPolicy}
             selectionMode={selectionMode}
             filterViews={filterViews}
             onChangeFilter={handleChangeFilter}
+            ContextMenu={ContextMenu}
           />
         </Flex>
         <Flex>

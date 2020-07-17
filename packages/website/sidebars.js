@@ -31,6 +31,8 @@ module.exports = {
       "features/borders",
       "features/fonts",
       "features/undo-redo",
+      "features/selection",
+      "features/context-menu",
     ],
   },
 };

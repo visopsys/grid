@@ -22,6 +22,7 @@ import {
   FilterView,
   FilterDefinition,
   useUndo,
+  SelectionPolicy,
 } from "@rowsncolumns/grid";
 import {
   createNewSheet,
@@ -52,6 +53,8 @@ import { StatusBarProps } from "./StatusBar/StatusBar";
 import useFonts from "./hooks/useFonts";
 import { createStateReducer, ACTION_TYPE } from "./state";
 import { Patch } from "immer";
+import { ContextMenuComponentProps } from "./ContextMenu/ContextMenu";
+import ContextMenuComponent from "./ContextMenu";
 
 export interface SpreadSheetProps {
   /**
@@ -139,9 +142,9 @@ export interface SpreadSheetProps {
    */
   CellEditor?: React.ReactType<CustomEditorProps>;
   /**
-   * Allow multiple selection
+   * Allow user to customize single, multiple or range selection
    */
-  allowMultipleSelection?: boolean;
+  selectionPolicy?: SelectionPolicy;
   /**
    * Callback when active cell changes
    */
@@ -182,6 +185,10 @@ export interface SpreadSheetProps {
    * Status bar component
    */
   StatusBar?: React.FC<StatusBarProps>;
+  /**
+   * Context menu component
+   */
+  ContextMenu?: React.FC<ContextMenuComponentProps>;
   /**
    * Scale
    */
@@ -297,7 +304,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       fontFamily = SYSTEM_FONT,
       minHeight = 400,
       CellEditor = Editor,
-      allowMultipleSelection = true,
       onActiveCellChange,
       onSelectionChange,
       selectionMode,
@@ -306,10 +312,12 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       allowNewSheet = true,
       showStatusBar = true,
       StatusBar = StatusBarComponent,
+      ContextMenu = ContextMenuComponent,
       initialScale = 1,
       onScaleChange,
       fontLoaderConfig,
       fontList = FONT_FAMILIES,
+      selectionPolicy,
     } = props;
 
     /* Last active cells: for undo, redo */
@@ -1194,11 +1202,12 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             onDeleteRow={handleDeleteRow}
             onDeleteColumn={handleDeleteColumn}
             CellEditor={CellEditor}
-            allowMultipleSelection={allowMultipleSelection}
             onSelectionChange={onSelectionChange}
             selectionMode={selectionMode}
             onChangeFilter={handleChangeFilter}
             showStatusBar={showStatusBar}
+            selectionPolicy={selectionPolicy}
+            ContextMenu={ContextMenu}
           />
         </Flex>
       </>

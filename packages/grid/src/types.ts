@@ -49,3 +49,5 @@ export enum MouseButtonCodes {
   "middle" = 2,
   "right" = 3,
 }
+
+export type SelectionPolicy = "single" | "range" | "multiple";

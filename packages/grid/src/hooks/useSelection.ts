@@ -10,7 +10,12 @@ import {
   clampIndex,
   HiddenType,
 } from "./../helpers";
-import { KeyCodes, Direction, MouseButtonCodes } from "./../types";
+import {
+  KeyCodes,
+  Direction,
+  MouseButtonCodes,
+  SelectionPolicy,
+} from "./../types";
 
 export interface UseSelectionOptions {
   /**
@@ -33,10 +38,6 @@ export interface UseSelectionOptions {
    * No of rows in the grid
    */
   rowCount?: number;
-  /**
-   * Allow multiple selection
-   */
-  allowMultipleSelection?: boolean;
   /**
    * Allow deselect a selected area
    */
@@ -102,6 +103,10 @@ export interface UseSelectionOptions {
     end: React.MutableRefObject<CellInterface | null>
   ) => boolean | undefined;
   canSelectionSpanMergedCells: (bounds: AreaProps) => boolean;
+  /**
+   * Selection policy
+   */
+  selectionPolicy?: SelectionPolicy;
 }
 
 export interface SelectionResults {
@@ -181,7 +186,7 @@ const useSelection = ({
   initialSelections = EMPTY_SELECTION,
   columnCount = 0,
   rowCount = 0,
-  allowMultipleSelection = true,
+  selectionPolicy = "multiple",
   persistantSelectionMode = false,
   allowDeselectSelection = true,
   onFill,
@@ -274,6 +279,9 @@ const useSelection = ({
 
   /* Modify current selection */
   const modifySelection = (coords: CellInterface, setInProgress?: boolean) => {
+    if (selectionPolicy === "single") {
+      return;
+    }
     if (!selectionStart.current) return;
     if (isCellOutOfBounds(coords)) {
       return;
@@ -309,6 +317,9 @@ const useSelection = ({
     start: CellInterface,
     end: CellInterface = start
   ) => {
+    if (selectionPolicy !== "multiple") {
+      return;
+    }
     if (!start) return;
     /* Validate bounds */
     if (isCellOutOfBounds(start)) {
@@ -400,8 +411,7 @@ const useSelection = ({
       }
       const isShiftKey = e.nativeEvent.shiftKey;
       const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
-      const allowMultiple =
-        persistantSelectionMode || (isMetaKey && allowMultipleSelection);
+      const allowMultiple = persistantSelectionMode || isMetaKey;
       const allowDeselect = allowDeselectSelection;
       const hasSelections = selections.length > 0;
       const isDeselecting = isMetaKey && allowDeselect;
@@ -409,11 +419,13 @@ const useSelection = ({
       /* Attaching mousemove to document, so we can detect drag move */
       if (!isContextMenuClick) {
         /* Prevent  mousemove if its contextmenu click */
-        if (allowMultipleSelection)
+        if (selectionPolicy !== "single") {
           document.addEventListener("mousemove", handleMouseMove);
+        }
       }
-      if (allowMultipleSelection)
+      if (selectionPolicy !== "single") {
         document.addEventListener("mouseup", handleMouseUp);
+      }
 
       /* Activate selection mode */
       isSelecting.current = true;
@@ -511,7 +523,7 @@ const useSelection = ({
     [
       activeCell,
       selections,
-      allowMultipleSelection,
+      selectionPolicy,
       allowDeselectSelection,
       alwaysScrollToActiveCell,
       rowCount,
@@ -688,6 +700,7 @@ const useSelection = ({
       isHiddenColumn,
       selectionLeftBound,
       selectionTopBound,
+      selectionPolicy,
     ]
   );
 
@@ -868,7 +881,7 @@ const useSelection = ({
           break;
       }
     },
-    [rowCount, columnCount, activeCell, selections]
+    [rowCount, columnCount, activeCell, selections, selectionPolicy]
   );
 
   /**

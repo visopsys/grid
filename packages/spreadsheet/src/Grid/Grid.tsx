@@ -27,6 +27,7 @@ import Grid, {
   OptionalCellInterface,
   CellPosition,
   ViewPortProps,
+  SelectionPolicy,
 } from "@rowsncolumns/grid";
 import { debounce, cellIdentifier } from "@rowsncolumns/grid/dist/helpers";
 import { ThemeProvider, ColorModeProvider } from "@chakra-ui/core";
@@ -47,7 +48,6 @@ import { Cells, CellConfig, SizeType, SheetID } from "../Spreadsheet";
 import { Direction } from "@rowsncolumns/grid/dist/types";
 import { AXIS, STROKE_FORMATTING, FormatType, SELECTION_MODE } from "../types";
 import Editor from "./../Editor";
-import ContextMenu from "./../ContextMenu";
 import { EditorProps } from "@rowsncolumns/grid/dist/hooks/useEditable";
 import { CustomEditorProps } from "../Editor/Editor";
 import FilterComponent from "./../FilterComponent";
@@ -120,7 +120,7 @@ export interface SheetGridProps {
   ) => void;
   showGridLines?: boolean;
   CellEditor?: React.ReactType<CustomEditorProps>;
-  allowMultipleSelection?: boolean;
+  selectionPolicy?: SelectionPolicy;
   selectionMode?: SELECTION_MODE;
   isLightMode?: boolean;
   filterViews?: FilterView[];
@@ -132,6 +132,7 @@ export interface SheetGridProps {
   scale?: number;
   selectionTopBound?: number;
   selectionLeftBound?: number;
+  ContextMenu: React.ReactType;
 }
 
 export interface RowColSelection {
@@ -224,7 +225,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       onDeleteRow,
       showGridLines,
       CellEditor = Editor,
-      allowMultipleSelection = true,
+      selectionPolicy,
       onSelectionChange,
       selectionMode,
       isLightMode,
@@ -232,6 +233,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       scale,
       selectionTopBound = 1,
       selectionLeftBound = 1,
+      ContextMenu,
     } = props;
 
     const gridRef = useRef<GridRef | null>(null);
@@ -559,9 +561,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       clearSelections,
       ...selectionProps
     } = useSelection({
+      selectionPolicy,
       selectionTopBound,
       selectionLeftBound,
-      allowMultipleSelection,
       initialActiveCell,
       initialSelections,
       gridRef,
