@@ -12,7 +12,7 @@ export interface StrokeCellProps
 /**
  * Only used for strokes
  */
-const CellOverlay: React.FC<StrokeCellProps> = memo(props => {
+const CellOverlay: React.FC<StrokeCellProps> = memo((props) => {
   const {
     x,
     y,
@@ -22,15 +22,15 @@ const CellOverlay: React.FC<StrokeCellProps> = memo(props => {
     strokeRightColor,
     strokeBottomColor,
     strokeLeftColor,
-    strokeTopDash,
-    strokeRightDash,
-    strokeBottomDash,
-    strokeLeftDash,
+    strokeTopDash = EMPTY_ARRAY,
+    strokeRightDash = EMPTY_ARRAY,
+    strokeBottomDash = EMPTY_ARRAY,
+    strokeLeftDash = EMPTY_ARRAY,
     strokeTopWidth,
     strokeRightWidth,
     strokeBottomWidth,
     strokeLeftWidth,
-    lineCap
+    lineCap,
   } = props;
   const userStroke =
     strokeTopColor || strokeRightColor || strokeBottomColor || strokeLeftColor;
@@ -116,7 +116,7 @@ const CellRenderer = (props: RendererProps) => {
     strokeRightWidth = strokeWidth,
     strokeBottomWidth = strokeWidth,
     strokeLeftWidth = strokeWidth,
-    lineCap = "square"
+    lineCap = "square",
   } = props;
   return (
     <CellOverlay

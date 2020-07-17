@@ -5,6 +5,7 @@ import {
   luminance,
   DEFAULT_FONT_SIZE,
   castToString,
+  INVALID_COLOR,
 } from "../constants";
 import {
   DATATYPE,
@@ -17,6 +18,7 @@ import {
 } from "./../types";
 import { CellConfig } from "../Spreadsheet";
 import { Shape, Text } from "react-konva";
+import { ShapeConfig } from "konva/types/Shape";
 import FilterIcon from "./../FilterIcon";
 import { FILTER_ICON_DIM } from "../FilterIcon/FilterIcon";
 
@@ -38,6 +40,7 @@ export interface CellRenderProps extends Omit<CellProps, "text"> {
 }
 
 const DEFAULT_WRAP = "none";
+const ERROR_TAG_WIDTH = 6.5;
 
 /**
  * Cell renderer
@@ -71,6 +74,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
     lineCap,
     format,
     currencySymbol,
+    dataValidation,
     ...cellProps
   } = props;
   const text = formatter
@@ -120,6 +124,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     onFilterClick,
     scale,
     rotation,
+    valid,
   } = props;
   const textWrap = wrap === "wrap" ? "word" : DEFAULT_WRAP;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
@@ -205,8 +210,37 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
           width={width}
         />
       ) : null}
+      {valid === false ? (
+        <ErrorTag x={x + width - ERROR_TAG_WIDTH} y={y + 1} />
+      ) : null}
     </>
   );
 });
+
+/**
+ * Error tag
+ * @param param0
+ */
+export const ErrorTag: React.FC<ShapeConfig> = ({
+  x,
+  y,
+  color = INVALID_COLOR,
+}) => {
+  return (
+    <Shape
+      x={x}
+      y={y}
+      sceneFunc={(context, shape) => {
+        context.beginPath();
+        context.setAttr("fillStyle", color);
+        context.moveTo(0, 0);
+        context.lineTo(ERROR_TAG_WIDTH, 0);
+        context.lineTo(ERROR_TAG_WIDTH, ERROR_TAG_WIDTH);
+        context.closePath();
+        context.fill();
+      }}
+    />
+  );
+};
 
 export default Cell;

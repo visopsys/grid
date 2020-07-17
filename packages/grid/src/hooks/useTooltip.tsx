@@ -1,19 +1,28 @@
-import React, { useCallback, useState, useMemo, isValidElement } from "react";
+import React, {
+  useCallback,
+  useState,
+  useMemo,
+  isValidElement,
+  useRef,
+  useEffect,
+} from "react";
 import { CellInterface, GridRef } from "../Grid";
+import { rafThrottle } from "../helpers";
 
 export interface TooltipOptions {
   /**
    * Tooltip component
    */
-  component?: React.FC<TooltipProps> | React.ComponentClass<TooltipProps>;
+  // component?: React.FC<TooltipProps> | React.ComponentClass<TooltipProps>;
+  getTooltip?: (cell: CellInterface | null) => React.ElementType | null;
   /**
    * Grid references
    */
   gridRef: React.MutableRefObject<GridRef | null>;
   /**
-   * Tooltip value getter of a cell
+   * Tooltip position
    */
-  getValue: (cell: CellInterface) => any;
+  position?: TooltipPosition;
 }
 
 export interface TooltipResults {
@@ -33,10 +42,6 @@ export interface TooltipResults {
 
 export interface TooltipProps {
   /**
-   * Tooltip content
-   */
-  content: string;
-  /**
    * Tooltip x position
    */
   x: number;
@@ -46,8 +51,10 @@ export interface TooltipProps {
   y: number;
 }
 
-const DefaultTooltipComponent: React.FC<TooltipProps> = ({ content, x, y }) => {
-  const offset = 10;
+export type TooltipPosition = "right" | "left" | "top" | "bottom";
+
+const DefaultTooltipComponent: React.FC<TooltipProps> = ({ x, y }) => {
+  const offset = 0;
   return (
     <div
       style={{
@@ -56,62 +63,84 @@ const DefaultTooltipComponent: React.FC<TooltipProps> = ({ content, x, y }) => {
         top: 0,
         transform: `translate(${x + offset}px, ${y + offset}px)`,
         maxWidth: 200,
-        background: "rgba(0,0,0,0.8)",
-        padding: 5,
-        borderRadius: 5,
-        color: "white",
+        background: "white",
+        boxShadow: "0 4px 8px 3px rgba(60,64,67,.15)",
+        padding: 12,
+        borderRadius: 4,
+        fontSize: 13,
       }}
     >
-      {content}
+      {x}
     </div>
   );
 };
 
+const getDefaultTooltip = (cell: CellInterface | null) =>
+  DefaultTooltipComponent;
+
 const useTooltip = ({
-  getValue,
   gridRef,
-  component: Component = DefaultTooltipComponent,
+  getTooltip = getDefaultTooltip,
+  position = "right",
 }: TooltipOptions): TooltipResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(null);
+  const activeCellRef = useRef(activeCell);
   const [tooltipPosition, setTooltipPosition] = useState<
     Pick<TooltipProps, "x" | "y">
   >({ x: 0, y: 0 });
-  const content = useMemo(
-    () => (activeCell ? getValue(activeCell) ?? null : null),
-    [activeCell]
-  );
-  const showTooltip = activeCell && content !== null;
+  const showTooltip = !!activeCell;
   const tooltipProps: TooltipProps = {
-    content,
     x: tooltipPosition.x,
     y: tooltipPosition.y,
   };
-  const tooltipComponent = showTooltip ? <Component {...tooltipProps} /> : null;
+  const TooltipComponent = useMemo(() => {
+    return getTooltip(activeCell);
+  }, [activeCell]);
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLElement>) => {
-      if (!gridRef.current) return;
-      const coords = gridRef.current.getCellCoordsFromOffset(
-        e.clientX,
-        e.clientY
-      );
-      if (!coords) return;
-      const { rowIndex, columnIndex } = coords;
-      setTooltipPosition({
-        x: e.clientX,
-        y: e.clientY,
-      });
-      /* Exit if its the same cell */
-      if (
-        activeCell &&
-        activeCell.rowIndex === rowIndex &&
-        activeCell.columnIndex === columnIndex
-      )
-        return;
-      setActiveCell({ rowIndex, columnIndex });
-    },
-    [activeCell]
-  );
+  const tooltipComponent =
+    showTooltip && TooltipComponent ? (
+      <TooltipComponent {...tooltipProps} />
+    ) : null;
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    if (!gridRef.current) return;
+    const coords = gridRef.current.getCellCoordsFromOffset(
+      e.clientX,
+      e.clientY
+    );
+
+    if (!coords) return;
+    const { rowIndex, columnIndex } = coords;
+    /* Exit if its the same cell */
+    if (
+      activeCellRef.current &&
+      activeCellRef.current.rowIndex === rowIndex &&
+      activeCellRef.current.columnIndex === columnIndex
+    )
+      return;
+
+    const {
+      x = 0,
+      y = 0,
+      width = 0,
+      height = 0,
+    } = gridRef.current.getCellOffsetFromCoords(coords);
+    const posX = position === "right" ? x + width : x;
+    const posY = y;
+    setTooltipPosition({
+      x: posX,
+      y: posY,
+    });
+    setActiveCell({ rowIndex, columnIndex });
+  }, []);
+
+  /* Raf throttler */
+  const mouseMoveThrottler = useRef(rafThrottle(handleMouseMove));
+
+  /* Update activecell ref */
+  useEffect(() => {
+    activeCellRef.current = activeCell;
+  }, [activeCell]);
 
   const handleMouseLeave = useCallback((e) => {
     setActiveCell(null);
@@ -119,7 +148,7 @@ const useTooltip = ({
 
   return {
     tooltipComponent,
-    onMouseMove: handleMouseMove,
+    onMouseMove: mouseMoveThrottler.current,
     onMouseLeave: handleMouseLeave,
   };
 };

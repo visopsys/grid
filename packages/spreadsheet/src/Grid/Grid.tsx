@@ -6,7 +6,7 @@ import React, {
   memo,
   useImperativeHandle,
   forwardRef,
-  useState
+  useState,
 } from "react";
 import Grid, {
   RendererProps,
@@ -27,7 +27,8 @@ import Grid, {
   OptionalCellInterface,
   CellPosition,
   ViewPortProps,
-  SelectionPolicy
+  SelectionPolicy,
+  useTooltip,
 } from "@rowsncolumns/grid";
 import { debounce, cellIdentifier } from "@rowsncolumns/grid/dist/helpers";
 import { ThemeProvider, ColorModeProvider } from "@chakra-ui/core";
@@ -39,20 +40,27 @@ import {
   DARK_MODE_COLOR_LIGHT,
   HEADER_BORDER_COLOR,
   CELL_BORDER_COLOR,
-  number2Alpha
+  number2Alpha,
+  cellToAddress,
 } from "./../constants";
 import HeaderCell from "./../HeaderCell";
 import Cell from "./../Cell";
 import { GridWrapper, ThemeType } from "./../styled";
 import { Cells, CellConfig, SizeType, SheetID } from "../Spreadsheet";
 import { Direction } from "@rowsncolumns/grid/dist/types";
-import { AXIS, STROKE_FORMATTING, FormatType, SELECTION_MODE } from "../types";
+import {
+  AXIS,
+  STROKE_FORMATTING,
+  FormatType,
+  SELECTION_MODE,
+  DataValidation,
+} from "../types";
 import Editor from "./../Editor";
 import { EditorProps } from "@rowsncolumns/grid/dist/hooks/useEditable";
 import { CustomEditorProps } from "../Editor/Editor";
 import FilterComponent from "./../FilterComponent";
 import { FILTER_ICON_DIM } from "../FilterIcon/FilterIcon";
-import usePrevious from "./../hooks/usePrevious";
+import TooltipComponent from "./../Tooltip";
 import { ContextMenuComponentProps } from "../ContextMenu/ContextMenu";
 
 const EMPTY_ARRAY: any = [];
@@ -236,7 +244,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       selectionTopBound = 1,
       selectionLeftBound = 1,
       ContextMenu,
-      snap
+      snap,
     } = props;
 
     const gridRef = useRef<GridRef | null>(null);
@@ -248,16 +256,16 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const debounceScroll = useRef(debounce(onScroll, 500));
     const [
       contextMenuProps,
-      setContextMenuProps
+      setContextMenuProps,
     ] = useState<ContextMenuProps | null>(null);
     const borderStyles = useMemo(() => {
-      return filterViews.map(filter => {
+      return filterViews.map((filter) => {
         return {
           bounds: filter.bounds,
           style: {
             strokeWidth: 1,
-            stroke: "green"
-          }
+            stroke: "green",
+          },
         };
       });
     }, [filterViews]);
@@ -304,14 +312,14 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
 
     /* Has filter */
     const columnHasFilter = useCallback(
-      columnIndex => {
+      (columnIndex) => {
         return columnsWithFilter.includes(columnIndex);
       },
       [columnsWithFilter]
     );
 
     const rowHasFilter = useCallback(
-      rowIndex => {
+      (rowIndex) => {
         for (const i in rowFilterRange) {
           const [min, max] = rowFilterRange[i];
           if (rowIndex >= min && rowIndex <= max) return true;
@@ -338,7 +346,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         getCellBounds: gridRef.current?.getCellBounds,
         getScrollPosition: gridRef.current?.getScrollPosition,
         getCellCoordsFromOffset: gridRef.current?.getCellCoordsFromOffset,
-        getCellOffsetFromCoords: gridRef.current?.getCellOffsetFromCoords
+        getCellOffsetFromCoords: gridRef.current?.getCellOffsetFromCoords,
       };
     });
 
@@ -355,15 +363,14 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const cellId = cellIdentifier(rowIndex, columnIndex);
         const isFilterHeader = filterHeaderCells[cellId] !== void 0;
 
-        if (isRowHeader) {
-          return { text: number2Alpha(columnIndex - 1), fontSize: 10 };
-        }
-        if (isColumnHeader) {
-          return { text: isColumnHeader, fontSize: 10 };
-        }
-        const cellConfig = isFilterHeader
+        const cellConfig = isRowHeader
+          ? { text: number2Alpha(columnIndex - 1), fontSize: 10 }
+          : isColumnHeader
+          ? { text: rowIndex, fontSize: 10 }
+          : isFilterHeader
           ? { ...cells[rowIndex]?.[columnIndex], bold: true }
           : cells[rowIndex]?.[columnIndex];
+
         return rowIndex in cells
           ? obj
             ? cellConfig
@@ -427,9 +434,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const {
       isTouchDevice,
       scrollTo: scrollToTouch,
-      scrollToTop: scrollToTopTouch
+      scrollToTop: scrollToTopTouch,
     } = useTouch({
-      gridRef
+      gridRef,
     });
 
     /**
@@ -451,7 +458,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       },
       columnSizes,
       autoResize: false,
-      resizeOnScroll: false
+      resizeOnScroll: false,
     });
 
     /* Mouse down seelction */
@@ -482,7 +489,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             : { ...coords, rowIndex: rowCount - 1 };
           const {
             visibleRowStartIndex,
-            visibleColumnStartIndex
+            visibleColumnStartIndex,
           } = gridRef.current.getViewPort();
           const activeCell = isColumnHeader
             ? {
@@ -490,14 +497,14 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
                 columnIndex:
                   actualFrozenColumns >= selectionLeftBound
                     ? selectionLeftBound
-                    : visibleColumnStartIndex
+                    : visibleColumnStartIndex,
               }
             : {
                 ...coords,
                 rowIndex:
                   actualFrozenRows >= selectionTopBound
                     ? selectionTopBound
-                    : visibleRowStartIndex
+                    : visibleRowStartIndex,
               };
 
           if (isShiftKey) {
@@ -541,7 +548,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           modifySelection(end);
           gridRef.current?.scrollToItem({
             rowIndex: isRowHeader ? void 0 : coords.rowIndex,
-            columnIndex: isColumnHeader ? void 0 : coords.columnIndex
+            columnIndex: isColumnHeader ? void 0 : coords.columnIndex,
           });
           return false;
         }
@@ -594,7 +601,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           return false;
         }
         return true;
-      }
+      },
     });
 
     /**
@@ -606,7 +613,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       activeCell,
       getValue,
       onPaste,
-      onCut
+      onCut,
     });
 
     const handleChangeFilter = useCallback(
@@ -620,7 +627,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const headerSelections = useMemo(() => {
       const sel: Record<string, Record<string, boolean>> = {
         rows: {},
-        cols: {}
+        cols: {},
       };
       for (let i = 0; i < selections.length; i++) {
         const { bounds } = selections[i];
@@ -646,7 +653,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       rowCount,
       selectionTopBound,
       selectionLeftBound,
-      columnCount
+      columnCount,
     ]);
 
     const isHeaderSelected = useCallback(
@@ -663,8 +670,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       frozenRows,
       frozenColumns,
       gridRef,
-      getFilterComponent: cell => {
-        return props => {
+      getFilterComponent: (cell) => {
+        return (props) => {
           return (
             <FilterComponent
               {...props}
@@ -674,13 +681,13 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           );
         };
       },
-      getValue
+      getValue,
     });
 
     const handleFilterClick = useCallback(
       (_, cell: CellInterface) => {
         const filterIndex = filterViews.findIndex(
-          views => views.bounds.top === cell.rowIndex
+          (views) => views.bounds.top === cell.rowIndex
         );
         const filterView = filterViews[filterIndex];
         const currentFilter = filterView?.filters?.[cell.columnIndex];
@@ -743,7 +750,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       gridRef.current?.resetAfterIndices(
         {
           rowIndex: 0,
-          columnIndex: 0
+          columnIndex: 0,
         },
         false
       );
@@ -763,9 +770,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const changes = {
           [rowIndex]: {
             [columnIndex]: {
-              text: value
-            }
-          }
+              text: value,
+            },
+          },
         };
 
         onChange?.(changes);
@@ -775,6 +782,29 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       },
       [cells]
     );
+
+    const { tooltipComponent, ...tooltipProps } = useTooltip({
+      getTooltip: (cell) => {
+        const cellConfig = getValue(cell, true) as CellConfig;
+        const isValid = cellConfig?.valid ?? true;
+        if (isValid) return null;
+        let content: string | undefined;
+        if (isValid === false) {
+          const validation = cellConfig.dataValidation;
+          content = validation?.prompt;
+        }
+        return (props) => (
+          <TooltipComponent {...props} {...cellConfig} content={content} />
+        );
+      },
+      gridRef,
+      getValue: (cell: CellInterface) => {
+        const isRowHeader = isCellRowHeader(cell.rowIndex);
+        const isColumnHeader = isCellColumnHeader(cell.columnIndex);
+        if (isRowHeader || isColumnHeader) return null;
+        return getValue(cell);
+      },
+    });
 
     /**
      * Editable
@@ -823,7 +853,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         if (isReadOnly) return false;
         return true;
       },
-      onDelete: onDelete
+      onDelete: onDelete,
     });
 
     const getNextFocusableCell = useCallback(
@@ -851,7 +881,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       [minRowHeight, hiddenRows, rowSizes, selectedSheet]
     );
     const contextWrapper = useCallback(
-      children => {
+      (children) => {
         return (
           <ThemeProvider theme={theme}>
             <ColorModeProvider>{children}</ColorModeProvider>
@@ -959,7 +989,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         isLightMode,
         theme,
         scale,
-        filterHeaderCells
+        filterHeaderCells,
       ]
     );
 
@@ -996,7 +1026,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const { x, y } = pos;
         setContextMenuProps({
           left: x,
-          top: y
+          top: y,
         });
       },
       []
@@ -1025,7 +1055,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           isHiddenRow={isHiddenRow}
           enableCellOverlay
           shadowSettings={{
-            stroke: shadowStroke
+            stroke: shadowStroke,
           }}
           showFrozenShadow
           gridLineColor={gridLineColor}
@@ -1064,6 +1094,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           }}
           onContextMenu={showContextMenu}
           onViewChange={onViewChange}
+          {...tooltipProps}
         />
         {editorComponent}
         {ContextMenu !== void 0 && contextMenuProps && (
@@ -1082,6 +1113,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           />
         )}
         {filterComponent}
+        {tooltipComponent}
       </GridWrapper>
     );
   })
