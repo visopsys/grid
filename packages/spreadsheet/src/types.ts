@@ -115,6 +115,8 @@ export interface CellFormatting extends CellDataFormatting {
   readOnly?: boolean;
   wrap?: Wrap;
   rotation?: number;
+  valid?: boolean;
+  dataValidation?: DataValidation;
 }
 
 export type Wrap = "wrap" | "clip" | "overflow";
@@ -178,4 +180,27 @@ export enum SELECTION_MODE {
   ROW = "row",
   COLUMN = "column",
   BOTH = "both",
+}
+export type DataValidationOperator =
+  | "between"
+  | "notBetween"
+  | "equal"
+  | "notEqual"
+  | "greaterThan"
+  | "lessThan"
+  | "greaterThanOrEqual"
+  | "lessThanOrEqual";
+
+export interface DataValidation {
+  type: "list" | "whole" | "decimal" | "date" | "textLength" | "custom";
+  formulae?: any[];
+  allowBlank?: boolean;
+  operator?: DataValidationOperator;
+  error?: string;
+  errorTitle?: string;
+  errorStyle?: string;
+  prompt?: string;
+  promptTitle?: string;
+  showErrorMessage?: boolean;
+  showInputMessage?: boolean;
 }

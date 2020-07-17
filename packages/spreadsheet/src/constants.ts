@@ -32,6 +32,7 @@ export const FORMAT_CURRENCY = "$0.00";
 export const FORMAT_DEFAULT_DECIMAL = "0.0";
 export const SYSTEM_FONT =
   "-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji";
+export const INVALID_COLOR = "#FF5621";
 
 /**
  * Number to alphabet
@@ -44,10 +45,20 @@ export const number2Alpha = (i: number): string => {
   ).toUpperCase();
 };
 
+/**
+ * Converts a letter to number
+ * A = 1
+ * B => 2
+ * @param letters
+ */
 export const alpha2number = (letters: string): number => {
   return letters.split("").reduce((r, a) => r * 26 + parseInt(a, 36) - 9, 0);
 };
 
+/**
+ * Converts address string to CellInterface
+ * @param address
+ */
 export const addressToCell = (address: string): CellInterface | null => {
   const regex = /([A-Z]+)(\d+)/gim;
   let m;
@@ -72,7 +83,11 @@ export const addressToCell = (address: string): CellInterface | null => {
   };
 };
 
-export const cellAddress = (cell: CellInterface | null): string | null => {
+/**
+ * Convert cellInterface to address string
+ * @param cell
+ */
+export const cellToAddress = (cell: CellInterface | null): string | null => {
   if (!cell) return null;
   return `${number2Alpha(cell.columnIndex - 1)}${cell.rowIndex}`;
 };

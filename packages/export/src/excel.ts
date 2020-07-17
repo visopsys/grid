@@ -11,7 +11,7 @@ import {
   Sheet,
   addressToCell,
   CellConfig,
-  cellAddress,
+  cellToAddress,
   uuid,
   cellsInSelectionVariant,
   HORIZONTAL_ALIGNMENT,
@@ -355,11 +355,11 @@ export const createExcelFileFromSheets = async (
     if (mergedCells.length) {
       for (let i = 0; i < mergedCells.length; i++) {
         const cur = mergedCells[i];
-        const topLeft = cellAddress({
+        const topLeft = cellToAddress({
           rowIndex: cur.top,
           columnIndex: cur.left,
         });
-        const bottomRight = cellAddress({
+        const bottomRight = cellToAddress({
           rowIndex: cur.bottom,
           columnIndex: cur.right,
         });
@@ -383,7 +383,7 @@ export const createExcelFileFromSheets = async (
       for (let k = 1; k <= cellCount; k++) {
         const cell = row[k];
         if (cell === void 0) continue;
-        const address = cellAddress({ rowIndex: j, columnIndex: k });
+        const address = cellToAddress({ rowIndex: j, columnIndex: k });
         if (address !== null) {
           const newCell = workSheet.getCell(address);
           const isNumber = cell.datatype === DATATYPE.Number;

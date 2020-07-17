@@ -11,8 +11,8 @@ import { KeyCodes, Direction } from "@rowsncolumns/grid/dist/types";
 import { useColorMode } from "@chakra-ui/core";
 import {
   DARK_MODE_COLOR_LIGHT,
-  cellAddress,
   DEFAULT_FONT_FAMILY,
+  cellToAddress,
 } from "../constants";
 import { HORIZONTAL_ALIGNMENT } from "../types";
 
@@ -106,7 +106,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
     inputRef.current.selectionStart = value.length;
   }, []);
   const address = useMemo(
-    () => hasScrollPositionChanged.current && cellAddress(activeCell),
+    () => hasScrollPositionChanged.current && cellToAddress(activeCell),
     [activeCell, hasScrollPositionChanged.current]
   );
   const inputHeight = height;
