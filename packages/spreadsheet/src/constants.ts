@@ -11,6 +11,7 @@ import {
   SelectionArea,
   CellInterface,
   AreaProps,
+  canUseDOM,
 } from "@rowsncolumns/grid";
 import SSF from "ssf";
 
@@ -272,6 +273,12 @@ export const luminance = (color: string | undefined, amount: number) => {
   );
 };
 
+/* DPR */
+const dpr = canUseDOM ? window.devicePixelRatio : 1;
+const dashDotWidth = Math.max(Math.floor(dpr / 2), 0.5);
+const dashDotArray =
+  dpr === 1 ? [dashDotWidth, dashDotWidth + dpr] : [dashDotWidth, dashDotWidth];
+
 export const cellsInSelectionVariant = (
   selections: SelectionArea[],
   variant: BORDER_VARIANT | undefined,
@@ -289,7 +296,7 @@ export const cellsInSelectionVariant = (
     borderStyle === BORDER_STYLE.DASHED
       ? [2, 2]
       : borderStyle === BORDER_STYLE.DOTTED
-      ? [1, 1]
+      ? dashDotArray
       : [];
 
   const dashEnabled = dash.length > 0;
