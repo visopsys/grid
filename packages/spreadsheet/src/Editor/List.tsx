@@ -161,7 +161,7 @@ const ListEditor: React.FC<ListEditorProps> = memo(
                 />
                 <Box
                   {...getMenuProps()}
-                  right="-2px"
+                  width="auto"
                   left="-2px"
                   shadow="md"
                   background={dropdownBgColor}
@@ -173,7 +173,7 @@ const ListEditor: React.FC<ListEditorProps> = memo(
                   borderColor={borderColor}
                   borderStyle="solid"
                   borderWidth={1}
-                  display={isOpen ? "block" : "none"}
+                  minWidth="calc(100% + 4px)"
                 >
                   {items.map((item, index) => {
                     return (

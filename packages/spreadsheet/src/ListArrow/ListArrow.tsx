@@ -4,7 +4,7 @@ import { ShapeConfig } from "konva/types/Shape";
 import { KonvaEventObject } from "konva/types/Node";
 import { CellInterface } from "@rowsncolumns/grid";
 
-export const ICON_DIM = 16;
+export const LIST_ICON_DIM = 16;
 
 export interface FilterIconProps extends ShapeConfig {
   rowIndex: number;
@@ -29,8 +29,8 @@ const FilterIcon: React.FC<FilterIconProps> = ({
   onClick
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const padding = (height - ICON_DIM) / 2;
-  const posX = x + width - ICON_DIM - 2; // - padding + 0.5;
+  const padding = (height - LIST_ICON_DIM) / 2;
+  const posX = x + width - LIST_ICON_DIM - 2; // - padding + 0.5;
   const posY = y + padding + 0.5;
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true);
@@ -50,9 +50,9 @@ const FilterIcon: React.FC<FilterIconProps> = ({
       <Rect
         x={posX}
         y={posY}
-        width={ICON_DIM}
-        height={ICON_DIM}
-        fill={isHovered ? ICON_COLOR : "white"}
+        width={LIST_ICON_DIM}
+        height={LIST_ICON_DIM}
+        fill={isHovered ? ICON_COLOR : "transparent"}
         cornerRadius={2}
       />
       <Path

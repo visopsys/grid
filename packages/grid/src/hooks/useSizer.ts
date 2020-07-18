@@ -88,7 +88,7 @@ export interface IProps {
 
 export enum ResizeStrategy {
   "lazy" = "lazy",
-  "full" = "full",
+  "full" = "full"
 }
 
 export interface AutoResizerResults {
@@ -140,7 +140,7 @@ const useAutoSizer = ({
   frozenRows = 0,
   scale = 1,
   isHiddenRow,
-  isHiddenColumn,
+  isHiddenColumn
 }: IProps): AutoResizerResults => {
   invariant(
     !(resizeStrategy === ResizeStrategy.full && rowCount === void 0),
@@ -158,7 +158,7 @@ const useAutoSizer = ({
     visibleRowStartIndex: 0,
     visibleRowStopIndex: 0,
     visibleColumnStartIndex: 0,
-    visibleColumnStopIndex: 0,
+    visibleColumnStopIndex: 0
   });
   const isMounted = useRef(false);
   const getValueRef = useRef(getValue);
@@ -201,7 +201,7 @@ const useAutoSizer = ({
       const cellValue =
         getValueRef.current({
           rowIndex,
-          columnIndex,
+          columnIndex
         }) ?? null;
       /* Check if its null */
       if (cellValue !== null) {
@@ -216,13 +216,16 @@ const useAutoSizer = ({
             autoSizer.current.setFont({
               fontWeight: isBold ? "bold" : "normal",
               fontSize: (cellValue.fontSize || fontSize) * scale,
-              fontFamily: cellValue.fontFamily,
+              fontFamily: cellValue.fontFamily
             });
           }
 
           const metrics = autoSizer.current.measureText(text);
           if (metrics) {
-            width = Math.ceil(metrics.width) + cellSpacing;
+            width =
+              Math.ceil(metrics.width) +
+              cellSpacing +
+              (cellValue?.spacing ?? 0);
           }
         }
       }
@@ -287,7 +290,7 @@ const useAutoSizer = ({
         if (!isMounted.current) return;
         debounceResizer.current({
           rowIndex: cells.rowStartIndex,
-          columnIndex: cells.columnStartIndex,
+          columnIndex: cells.columnStartIndex
         });
       }
     },
@@ -299,7 +302,7 @@ const useAutoSizer = ({
     getColumnWidth,
     // getRowHeight,
     onViewChange: handleViewChange,
-    getTextMetrics,
+    getTextMetrics
   };
 };
 

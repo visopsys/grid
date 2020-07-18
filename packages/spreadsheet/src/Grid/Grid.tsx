@@ -64,6 +64,7 @@ import FilterComponent from "./../FilterComponent";
 import { FILTER_ICON_DIM } from "../FilterIcon/FilterIcon";
 import TooltipComponent from "./../Tooltip";
 import { ContextMenuComponentProps } from "../ContextMenu/ContextMenu";
+import { LIST_ICON_DIM } from "../ListArrow/ListArrow";
 
 const EMPTY_ARRAY: any = [];
 const EMPTY_OBJECT: any = {};
@@ -471,7 +472,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const formattedValue = formatter
           ? formatter(cellConfig?.text, cellConfig?.datatype, cellConfig)
           : cellConfig.text;
-        return { ...cellConfig, text: formattedValue };
+        const spacing =
+          cellConfig?.dataValidation?.type === "list" ? LIST_ICON_DIM : 0;
+        return { ...cellConfig, text: formattedValue, spacing };
       },
       columnSizes,
       autoResize: false,
