@@ -365,11 +365,17 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const cellId = cellIdentifier(rowIndex, columnIndex);
         const isFilterHeader = filterHeaderCells[cellId] !== void 0;
 
-        const cellConfig = isRowHeader
-          ? { text: number2Alpha(columnIndex - 1), fontSize: 10 }
-          : isColumnHeader
-          ? { text: rowIndex, fontSize: 10 }
-          : isFilterHeader
+        if (isRowHeader) {
+          return obj
+            ? { text: number2Alpha(columnIndex - 1), fontSize: 10 }
+            : number2Alpha(columnIndex - 1);
+        }
+
+        if (isColumnHeader) {
+          return obj ? { text: rowIndex, fontSize: 10 } : rowIndex;
+        }
+
+        const cellConfig = isFilterHeader
           ? { ...cells[rowIndex]?.[columnIndex], bold: true }
           : cells[rowIndex]?.[columnIndex];
 
