@@ -174,10 +174,15 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
         onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
           if (!inputRef.current) return;
           const isShiftKey = e.nativeEvent.shiftKey;
+          const isMetaKey = e.nativeEvent.metaKey;
           const value = inputRef.current.value;
 
           // Enter key
           if (e.which === KeyCodes.Enter) {
+            /* Add a new line when Cmd/Ctrl key is pressed */
+            if (isMetaKey) {
+              return onChange(value + "\n", cell);
+            }
             onSubmit &&
               onSubmit(
                 value,

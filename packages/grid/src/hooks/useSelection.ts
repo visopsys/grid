@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  useMemo,
+} from "react";
 import { SelectionArea, CellInterface, GridRef, AreaProps } from "./../Grid";
 import {
   findNextCellWithinBounds,
@@ -1031,6 +1037,12 @@ const useSelection = ({
     setSelections((prev) => prev.slice(0, -1));
   }, []);
 
+  const fillHandleProps = useMemo(() => {
+    return {
+      onMouseDown: handleFillHandleMouseDown,
+    };
+  }, [handleFillHandleMouseDown]);
+
   return {
     activeCell,
     selections,
@@ -1040,9 +1052,7 @@ const useSelection = ({
     setSelections,
     setActiveCell: handleSetActiveCell,
     setActiveCellState: setActiveCell,
-    fillHandleProps: {
-      onMouseDown: handleFillHandleMouseDown,
-    },
+    fillHandleProps,
     fillSelection,
     clearLastSelection: handleClearLastSelection,
     modifySelection,

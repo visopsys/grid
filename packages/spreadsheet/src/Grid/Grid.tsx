@@ -430,6 +430,15 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       },
       [hiddenColumns]
     );
+    const isHiddenCell = useCallback(
+      (rowIndex: number, columnIndex: number) => {
+        const isRowHeader = isCellRowHeader(rowIndex);
+        const isColumnHeader = isCellColumnHeader(columnIndex);
+        if (isRowHeader || isColumnHeader) return false;
+        return cells?.[rowIndex]?.[columnIndex] === void 0;
+      },
+      [cells]
+    );
 
     /* Enable touch */
     const {
@@ -851,6 +860,31 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       onDelete: onDelete,
     });
 
+    /* Ref to store event references for editable and selection. This prevents re-rendering grid */
+    const eventRefs = useRef({
+      selectionProps: {
+        onMouseDown: selectionProps.onMouseDown,
+        onKeyDown: selectionProps.onKeyDown,
+      },
+      editableProps: {
+        onMouseDown: editableProps.onMouseDown,
+        onKeyDown: editableProps.onKeyDown,
+      },
+    });
+
+    useEffect(() => {
+      eventRefs.current = {
+        selectionProps: {
+          onMouseDown: selectionProps.onMouseDown,
+          onKeyDown: selectionProps.onKeyDown,
+        },
+        editableProps: {
+          onMouseDown: editableProps.onMouseDown,
+          onKeyDown: editableProps.onKeyDown,
+        },
+      };
+    });
+
     const getNextFocusableCell = useCallback(
       (cell: CellInterface, direction: Direction): CellInterface | null => {
         return nextFocusableCell(cell, direction);
@@ -1027,6 +1061,25 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       []
     );
 
+    const handleMouseDown = useCallback(
+      (e: React.MouseEvent<HTMLDivElement>) => {
+        eventRefs.current.selectionProps.onMouseDown(e);
+        eventRefs.current.editableProps.onMouseDown(e);
+        hideContextMenu();
+        hideFilter();
+      },
+      []
+    );
+
+    const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent<HTMLDivElement>) => {
+        eventRefs.current.selectionProps.onKeyDown(e);
+        eventRefs.current.editableProps.onKeyDown(e);
+        onKeyDown?.(e);
+      },
+      []
+    );
+
     /**
      * Hides context menu
      */
@@ -1041,6 +1094,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     const shadowStroke = isLightMode
       ? HEADER_BORDER_COLOR
       : theme?.colors.gray[600];
+    const shadowSettings = useMemo(() => {
+      return {
+        stroke: shadowStroke,
+      };
+    }, [shadowStroke]);
 
     return (
       <GridWrapper>
@@ -1048,10 +1106,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           snap={snap}
           scale={scale}
           isHiddenRow={isHiddenRow}
+          isHiddenCell={isHiddenCell}
           enableCellOverlay
-          shadowSettings={{
-            stroke: shadowStroke,
-          }}
+          shadowSettings={shadowSettings}
           showFrozenShadow
           gridLineColor={gridLineColor}
           showGridLines={showGridLines}
@@ -1075,18 +1132,9 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           frozenColumns={frozenColumns}
           {...selectionProps}
           {...editableProps}
+          onMouseDown={handleMouseDown}
+          onKeyDown={handleKeyDown}
           onScroll={handleScroll}
-          onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
-            selectionProps.onMouseDown(e);
-            editableProps.onMouseDown(e);
-            hideContextMenu();
-            hideFilter();
-          }}
-          onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-            selectionProps.onKeyDown(e);
-            editableProps.onKeyDown(e);
-            onKeyDown?.(e);
-          }}
           onContextMenu={showContextMenu}
           onViewChange={onViewChange}
           {...tooltipProps}

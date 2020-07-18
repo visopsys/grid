@@ -173,10 +173,18 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   return (
     <>
       {showRect ? (
-        <Shape x={x} y={y} width={width} height={height} sceneFunc={fillFunc} />
+        <Shape
+          visible={showRect}
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          sceneFunc={fillFunc}
+        />
       ) : null}
       {hasText ? (
         <Text
+          visible={hasText}
           x={x + cellSpacingX}
           y={y + cellSpacingY}
           height={height}

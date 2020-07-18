@@ -242,6 +242,10 @@ export interface GridProps
    */
   isHiddenColumn?: (columnIndex: number) => boolean;
   /**
+   * Is Hidden cell
+   */
+  isHiddenCell?: (rowIndex: number, columnIndex: number) => boolean;
+  /**
    * Scale
    */
   scale?: number;
@@ -488,6 +492,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       gridLineRenderer = defaultGridLineRenderer,
       isHiddenRow,
       isHiddenColumn,
+      isHiddenCell,
       scale = 1,
       ...rest
     } = props;
@@ -1603,7 +1608,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
            * Skip frozen columns
            * Skip merged cells that are out of bounds
            */
-          if (columnIndex < frozenColumns) {
+          if (
+            columnIndex < frozenColumns ||
+            isHiddenCell?.(rowIndex, columnIndex)
+          ) {
             continue;
           }
 
@@ -1706,7 +1714,8 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       if (
         rowIndex < frozenRows ||
         columnIndex < frozenColumns ||
-        isMergedCell({ rowIndex, columnIndex })
+        isMergedCell({ rowIndex, columnIndex }) ||
+        isHiddenCell?.(rowIndex, columnIndex)
       ) {
         continue;
       }
@@ -1763,7 +1772,10 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnIndex++
       ) {
         /* Skip merged cells columns */
-        if (columnIndex < frozenColumns) {
+        if (
+          columnIndex < frozenColumns ||
+          isHiddenCell?.(rowIndex, columnIndex)
+        ) {
           continue;
         }
 
@@ -1872,6 +1884,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnIndex < Math.min(columnStopIndex, frozenColumns);
         columnIndex++
       ) {
+        if (isHiddenCell?.(rowIndex, columnIndex)) {
+          continue;
+        }
         const isMerged = isMergedCell({ rowIndex, columnIndex });
         const bounds = getCellBounds({ rowIndex, columnIndex });
         const actualRowIndex = isMerged ? bounds.top : rowIndex;
@@ -2053,6 +2068,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnIndex < Math.min(columnStopIndex, frozenColumns);
         columnIndex++
       ) {
+        if (isHiddenCell?.(rowIndex, columnIndex)) {
+          continue;
+        }
         const isMerged = isMergedCell({ rowIndex, columnIndex });
         const bounds = getCellBounds({ rowIndex, columnIndex });
         const actualRowIndex = isMerged ? bounds.top : rowIndex;
