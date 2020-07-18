@@ -1618,7 +1618,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           const actualColumnIndex = isMerged ? bounds.left : columnIndex;
           const actualBottom = Math.max(rowIndex, bounds.bottom);
           const actualRight = Math.max(columnIndex, bounds.right);
-          if (isHiddenCell?.(actualRowIndex, actualColumnIndex)) {
+          if (!isMerged && isHiddenCell?.(actualRowIndex, actualColumnIndex)) {
             continue;
           }
           if (isMerged) {
@@ -1782,7 +1782,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         const actualColumnIndex = isMerged ? bounds.left : columnIndex;
         const actualBottom = Math.max(rowIndex, bounds.bottom);
         const actualRight = Math.max(columnIndex, bounds.right);
-        if (isHiddenCell?.(actualRowIndex, actualColumnIndex)) {
+        if (!isMerged && isHiddenCell?.(actualRowIndex, actualColumnIndex)) {
           continue;
         }
         if (isMerged) {
@@ -1890,7 +1890,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         const actualColumnIndex = isMerged ? bounds.left : columnIndex;
         const actualBottom = Math.max(rowIndex, bounds.bottom);
         const actualRight = Math.max(columnIndex, bounds.right);
-        if (isHiddenCell?.(actualRowIndex, actualColumnIndex)) {
+        if (!isMerged && isHiddenCell?.(actualRowIndex, actualColumnIndex)) {
           continue;
         }
         if (isMerged) {
@@ -2074,7 +2074,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         const actualColumnIndex = isMerged ? bounds.left : columnIndex;
         const actualBottom = Math.max(rowIndex, bounds.bottom);
         const actualRight = Math.max(columnIndex, bounds.right);
-        if (isHiddenCell?.(actualRowIndex, actualColumnIndex)) {
+        if (!isMerged && isHiddenCell?.(actualRowIndex, actualColumnIndex)) {
           continue;
         }
         if (isMerged) {
