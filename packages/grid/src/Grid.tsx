@@ -1608,10 +1608,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
            * Skip frozen columns
            * Skip merged cells that are out of bounds
            */
-          if (
-            columnIndex < frozenColumns ||
-            isHiddenCell?.(rowIndex, columnIndex)
-          ) {
+          if (columnIndex < frozenColumns) {
             continue;
           }
 
@@ -1622,6 +1619,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
           const actualBottom = Math.max(rowIndex, bounds.bottom);
           const actualRight = Math.max(columnIndex, bounds.right);
           if (isMerged) {
+            if (isHiddenCell?.(actualRowIndex, actualColumnIndex)) {
+              continue;
+            }
             const cellId = cellIdentifier(bounds.top, bounds.left);
             if (mergedCellRenderMap.has(cellId)) {
               continue;
@@ -1772,10 +1772,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnIndex++
       ) {
         /* Skip merged cells columns */
-        if (
-          columnIndex < frozenColumns ||
-          isHiddenCell?.(rowIndex, columnIndex)
-        ) {
+        if (columnIndex < frozenColumns) {
           continue;
         }
 
@@ -1786,6 +1783,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         const actualBottom = Math.max(rowIndex, bounds.bottom);
         const actualRight = Math.max(columnIndex, bounds.right);
         if (isMerged) {
+          if (isHiddenCell?.(actualRowIndex, actualColumnIndex)) {
+            continue;
+          }
           const cellId = cellIdentifier(bounds.top, bounds.left);
           if (mergedCellRenderMap.has(cellId)) {
             continue;
@@ -1884,9 +1884,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnIndex < Math.min(columnStopIndex, frozenColumns);
         columnIndex++
       ) {
-        if (isHiddenCell?.(rowIndex, columnIndex)) {
-          continue;
-        }
         const isMerged = isMergedCell({ rowIndex, columnIndex });
         const bounds = getCellBounds({ rowIndex, columnIndex });
         const actualRowIndex = isMerged ? bounds.top : rowIndex;
@@ -1894,6 +1891,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         const actualBottom = Math.max(rowIndex, bounds.bottom);
         const actualRight = Math.max(columnIndex, bounds.right);
         if (isMerged) {
+          if (isHiddenCell?.(actualRowIndex, actualColumnIndex)) {
+            continue;
+          }
           const cellId = cellIdentifier(bounds.top, bounds.left);
           if (mergedCellRenderMap.has(cellId)) {
             continue;
@@ -2068,9 +2068,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         columnIndex < Math.min(columnStopIndex, frozenColumns);
         columnIndex++
       ) {
-        if (isHiddenCell?.(rowIndex, columnIndex)) {
-          continue;
-        }
         const isMerged = isMergedCell({ rowIndex, columnIndex });
         const bounds = getCellBounds({ rowIndex, columnIndex });
         const actualRowIndex = isMerged ? bounds.top : rowIndex;
@@ -2078,6 +2075,9 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         const actualBottom = Math.max(rowIndex, bounds.bottom);
         const actualRight = Math.max(columnIndex, bounds.right);
         if (isMerged) {
+          if (isHiddenCell?.(actualRowIndex, actualColumnIndex)) {
+            continue;
+          }
           const cellId = cellIdentifier(bounds.top, bounds.left);
           if (mergedCellRenderMap.has(cellId)) {
             continue;
