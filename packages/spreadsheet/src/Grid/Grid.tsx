@@ -29,6 +29,7 @@ import Grid, {
   ViewPortProps,
   SelectionPolicy,
   useTooltip,
+  StylingProps,
 } from "@rowsncolumns/grid";
 import { debounce, cellIdentifier } from "@rowsncolumns/grid/dist/helpers";
 import { ThemeProvider, ColorModeProvider } from "@chakra-ui/core";
@@ -258,7 +259,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       contextMenuProps,
       setContextMenuProps,
     ] = useState<ContextMenuProps | null>(null);
-    const borderStyles = useMemo(() => {
+    const borderStyles = useMemo((): StylingProps => {
       return filterViews.map((filter) => {
         return {
           bounds: filter.bounds,
@@ -587,16 +588,16 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       mergedCells,
       mouseDownInterceptor: handleMouseDownSelection,
       mouseMoveInterceptor: handleMouseMoveSelection,
-      canSelectionSpanMergedCells: (bounds: AreaProps) => {
+      canSelectionSpanMergedCells: (start, end) => {
         if (
-          bounds.top === selectionTopBound &&
-          bounds.bottom === rowCount - 1
+          start.rowIndex === selectionTopBound ||
+          end.rowIndex === rowCount - 1
         ) {
           return false;
         }
         if (
-          bounds.left === selectionLeftBound &&
-          bounds.right === columnCount - 1
+          start.columnIndex === selectionLeftBound ||
+          end.columnIndex === columnCount - 1
         ) {
           return false;
         }
