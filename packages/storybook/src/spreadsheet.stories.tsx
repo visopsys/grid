@@ -226,3 +226,41 @@ export const FilterViews = () => {
 
   return <App />;
 };
+
+const initialValidationSheet = [
+  {
+    name: "Sheet 1",
+    id: 0,
+    cells: {
+      2: {
+        2: {
+          text: "Hi",
+          valid: false,
+          dataValidation: {
+            prompt: "Something went wrong",
+          },
+        },
+      },
+    },
+  },
+];
+export const DataValidation = () => {
+  const App = () => {
+    const [sheets, setSheets] = useState(initialValidationSheet);
+    return (
+      <>
+        <div
+          style={{
+            margin: 10,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 800,
+          }}
+        >
+          <Spreadsheet sheets={sheets} onChange={setSheets} />
+        </div>
+      </>
+    );
+  };
+  return <App />;
+};

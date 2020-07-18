@@ -356,31 +356,33 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
             snap={snap}
           />
         </Flex>
-        <Flex>
-          <BottomPanel
-            background={isLight ? "#f1f3f4" : theme.colors.gray[800]}
-            borderTopColor={isLight ? "#e8eaed" : theme?.colors.gray[600]}
-            borderTopWidth={1}
-            borderTopStyle="solid"
-          >
-            {showTabStrip && (
-              <Tabs
-                sheets={sheets}
-                selectedSheet={selectedSheet}
-                onNewSheet={onNewSheet}
-                onSelect={onChangeSelectedSheet}
-                onChangeSheetName={onChangeSheetName}
-                onDeleteSheet={onDeleteSheet}
-                onDuplicateSheet={onDuplicateSheet}
-                isTabEditable={isTabEditable}
-                allowNewSheet={allowNewSheet}
-              />
-            )}
-            {showStatusBar && (
-              <StatusBar selections={selections} cells={cells} />
-            )}
-          </BottomPanel>
-        </Flex>
+        {showTabStrip || showStatusBar ? (
+          <Flex>
+            <BottomPanel
+              background={isLight ? "#f1f3f4" : theme.colors.gray[800]}
+              borderTopColor={isLight ? "#e8eaed" : theme?.colors.gray[600]}
+              borderTopWidth={1}
+              borderTopStyle="solid"
+            >
+              {showTabStrip && (
+                <Tabs
+                  sheets={sheets}
+                  selectedSheet={selectedSheet}
+                  onNewSheet={onNewSheet}
+                  onSelect={onChangeSelectedSheet}
+                  onChangeSheetName={onChangeSheetName}
+                  onDeleteSheet={onDeleteSheet}
+                  onDuplicateSheet={onDuplicateSheet}
+                  isTabEditable={isTabEditable}
+                  allowNewSheet={allowNewSheet}
+                />
+              )}
+              {showStatusBar && (
+                <StatusBar selections={selections} cells={cells} />
+              )}
+            </BottomPanel>
+          </Flex>
+        ) : null}
       </>
     );
   })

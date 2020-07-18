@@ -35,9 +35,9 @@ const Formulabar: React.FC<FormulabarProps & FormulaRef> = memo(
     return (
       <InputGroup
         size="sm"
-        borderBottomWidth={0}
-        borderBottomColor={borderColor}
-        borderLeftColor={borderColor}
+        borderTopWidth={1}
+        borderTopStyle="solid"
+        borderTopColor={borderColor}
         height={height}
       >
         <InputLeftAddon
@@ -54,6 +54,7 @@ const Formulabar: React.FC<FormulabarProps & FormulaRef> = memo(
           children="fx"
           height="auto"
           userSelect="none"
+          borderLeftColor={borderColor}
         />
         <Input
           borderTopWidth={0}

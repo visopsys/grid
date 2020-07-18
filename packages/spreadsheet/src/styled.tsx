@@ -39,6 +39,7 @@ export const StyledToolbar = styled(Toolbar)`
   display: flex;
   align-items: center;
   min-width: 0;
+  border-bottom-width: 0;
 `;
 
 type SeparatorProps = {

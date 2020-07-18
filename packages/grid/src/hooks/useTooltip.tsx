@@ -125,11 +125,12 @@ const useTooltip = ({
       width = 0,
       height = 0,
     } = gridRef.current.getCellOffsetFromCoords(coords);
+    const scrollPosition = gridRef.current.getScrollPosition();
     const posX = position === "right" ? x + width : x;
     const posY = y;
     setTooltipPosition({
-      x: posX,
-      y: posY,
+      x: posX - scrollPosition.scrollLeft,
+      y: posY - scrollPosition.scrollTop,
     });
     setActiveCell({ rowIndex, columnIndex });
   }, []);

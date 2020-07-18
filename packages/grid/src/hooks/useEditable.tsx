@@ -400,6 +400,9 @@ const useEditable = ({
     /* Check if its the same cell */
     if (isEqualCells(coords, currentActiveCellRef.current)) return;
 
+    /*  Focus */
+    gridRef.current?.scrollToItem(coords);
+
     /* Call on before edit */
     if (canEdit(coords)) {
       currentActiveCellRef.current = coords;
