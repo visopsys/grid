@@ -22,7 +22,7 @@
     "@rowsncolumns/grid": "^3.4.57",
     "@types/react-list": "^0.8.5",
     "@types/webfontloader": "^1.6.32",
-    "downshift": "^5.4.5",
+    "downshift": "^5.4.6",
     "emotion-theming": "^10.0.27",
     "immer": "^7.0.3",
     "react-color": "^2.18.1",

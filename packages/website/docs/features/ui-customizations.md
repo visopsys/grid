@@ -64,6 +64,15 @@ Hides Count, Average and Sum status section
 
 Display only the grid without any toolbars
 
+```jsx
+<SpreadSheet
+  showToolbar={false}
+  showTabStrip={false}
+  showFormulabar={false}
+  showStatusBar={false}
+/>
+```
+
 <SpreadSheet
   showToolbar={false}
   showTabStrip={false}

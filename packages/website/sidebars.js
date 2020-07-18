@@ -6,7 +6,7 @@ module.exports = {
       "formula",
       "formatting",
       "konva",
-      "roadmap",
+      "roadmap"
     ],
     "Getting Started": ["install", "options"],
     Examples: [
@@ -19,7 +19,7 @@ module.exports = {
       "range_selection",
       "autofilter",
       "excel",
-      "csv",
+      "csv"
     ],
     Advanced: ["ref"],
     Features: [
@@ -35,6 +35,7 @@ module.exports = {
       "features/context-menu",
       "features/scroll",
       "features/ui-customizations",
-    ],
-  },
+      "features/data-validation"
+    ]
+  }
 };

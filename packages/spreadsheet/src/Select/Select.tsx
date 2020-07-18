@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { IconButton, Tooltip } from "./../styled";
 import Downshift from "downshift";
 import { Box, useTheme, useColorMode } from "@chakra-ui/core";
@@ -19,14 +19,14 @@ export interface Option {
   label: string | number;
 }
 
-const Select: React.FC<SelectProps> = (props) => {
+const Select: React.FC<SelectProps> = memo(props => {
   const {
     options,
     value,
     onChange,
     format,
     inputWidth = 44,
-    enableInput = true,
+    enableInput = true
   } = props;
   const theme = useTheme();
   const { colorMode } = useColorMode();
@@ -41,8 +41,8 @@ const Select: React.FC<SelectProps> = (props) => {
   return (
     <Downshift
       selectedItem={value}
-      onChange={(sel) => onChange?.(sel)}
-      itemToString={(item) => (item ? item.value.toString() : "")}
+      onChange={sel => onChange?.(sel)}
+      itemToString={item => (item ? item.value.toString() : "")}
     >
       {({
         getInputProps,
@@ -56,7 +56,7 @@ const Select: React.FC<SelectProps> = (props) => {
         selectItem,
         closeMenu,
         getToggleButtonProps,
-        openMenu,
+        openMenu
       }) => {
         const inputProps = getInputProps();
         return (
@@ -74,7 +74,7 @@ const Select: React.FC<SelectProps> = (props) => {
                     color: inputColor,
                     borderStyle: "solid",
                     borderWidth: 1,
-                    fontSize: 12,
+                    fontSize: 12
                   }}
                   {...inputProps}
                   onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -140,7 +140,7 @@ const Select: React.FC<SelectProps> = (props) => {
               borderWidth={1}
               display={isOpen ? "block" : "none"}
             >
-              {isOpen &&
+              {true &&
                 options.map((item, index) => {
                   const { label, value } = item;
                   return (
@@ -157,13 +157,17 @@ const Select: React.FC<SelectProps> = (props) => {
                         style: {
                           cursor: "pointer",
                           backgroundColor:
-                            highlightedIndex === index
+                            highlightedIndex === index ||
+                            selectedItem?.value === item.value
                               ? isLight
                                 ? theme.colors.gray[100]
                                 : "rgba(255,255,255,0.06)"
                               : dropdownBgColor,
-                          fontWeight: selectedItem === item ? "bold" : "normal",
-                        },
+                          fontWeight:
+                            selectedItem?.value === item.value
+                              ? "bold"
+                              : "normal"
+                        }
                       })}
                     >
                       {label}
@@ -176,6 +180,6 @@ const Select: React.FC<SelectProps> = (props) => {
       }}
     </Downshift>
   );
-};
+});
 
 export default Select;

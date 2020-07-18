@@ -5,7 +5,7 @@ import {
   luminance,
   DEFAULT_FONT_SIZE,
   castToString,
-  INVALID_COLOR,
+  INVALID_COLOR
 } from "../constants";
 import {
   DATATYPE,
@@ -14,12 +14,13 @@ import {
   HORIZONTAL_ALIGNMENT,
   TEXT_DECORATION,
   VERTICAL_ALIGNMENT,
-  FormatType,
+  FormatType
 } from "./../types";
 import { CellConfig } from "../Spreadsheet";
-import { Shape, Text } from "react-konva";
+import { Shape, Text, Arrow } from "react-konva";
 import { ShapeConfig } from "konva/types/Shape";
 import FilterIcon from "./../FilterIcon";
+import ListArrow from "./../ListArrow";
 import { FILTER_ICON_DIM } from "../FilterIcon/FilterIcon";
 
 export interface CellProps extends RendererProps, CellConfig {
@@ -30,6 +31,7 @@ export interface CellProps extends RendererProps, CellConfig {
   showFilter?: boolean;
   isFilterActive?: boolean;
   onFilterClick?: (cell: CellInterface) => void;
+  onEdit?: (cell: CellInterface) => void;
 }
 
 export interface CellRenderProps extends Omit<CellProps, "text"> {
@@ -46,14 +48,14 @@ const ERROR_TAG_WIDTH = 6.5;
  * Cell renderer
  * @param props
  */
-const Cell: React.FC<CellProps> = memo((props) => {
+const Cell: React.FC<CellProps> = memo(props => {
   const {
     datatype,
     decimals,
     percent,
     currency,
     formatter,
-    isLightMode,
+    isLightMode
   } = props;
   const {
     stroke,
@@ -77,22 +79,30 @@ const Cell: React.FC<CellProps> = memo((props) => {
     dataValidation,
     ...cellProps
   } = props;
+  const cellType = dataValidation?.type;
   const text = formatter
     ? formatter(props.text, datatype, {
         decimals,
         percent,
         currency,
         format,
-        currencySymbol,
+        currencySymbol
       })
     : castToString(props.text);
-  return <DefaultCell isLightMode={isLightMode} {...cellProps} text={text} />;
+  return (
+    <DefaultCell
+      isLightMode={isLightMode}
+      {...cellProps}
+      text={text}
+      type={cellType}
+    />
+  );
 });
 
 /**
  * Default cell renderer
  */
-const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
+const DefaultCell: React.FC<CellRenderProps> = memo(props => {
   const {
     x = 0,
     y = 0,
@@ -125,6 +135,8 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     scale,
     rotation,
     valid,
+    type,
+    onEdit
   } = props;
   const textWrap = wrap === "wrap" ? "word" : DEFAULT_WRAP;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
@@ -149,9 +161,11 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   /* Because of 1px + 0.5px (gridline width + spacing )*/
   const cellSpacingY = 1.5;
   const cellSpacingX = 1;
-  const textWidth = showFilter
-    ? width - FILTER_ICON_DIM - cellSpacingX
-    : width - cellSpacingX;
+  const showArrow = type === "list";
+  const textWidth =
+    showFilter || showArrow
+      ? width - FILTER_ICON_DIM - cellSpacingX
+      : width - cellSpacingX;
   /**
    * Fill function
    */
@@ -217,6 +231,16 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
           height={height}
           width={width}
         />
+      ) : showArrow ? (
+        <ListArrow
+          onClick={onEdit}
+          rowIndex={props.rowIndex}
+          columnIndex={props.columnIndex}
+          x={x}
+          y={y}
+          height={height}
+          width={width}
+        />
       ) : null}
       {valid === false ? (
         <ErrorTag x={x + width - ERROR_TAG_WIDTH} y={y + 1} />
@@ -232,7 +256,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
 export const ErrorTag: React.FC<ShapeConfig> = ({
   x,
   y,
-  color = INVALID_COLOR,
+  color = INVALID_COLOR
 }) => {
   return (
     <Shape
