@@ -1,6 +1,9 @@
-// @ts-nocheck
 import React, { useState, useCallback } from "react";
-import Spreadsheet, { Sheet, defaultSheets } from "@rowsncolumns/spreadsheet";
+import Spreadsheet, {
+  Sheet,
+  defaultSheets,
+  DATATYPE
+} from "@rowsncolumns/spreadsheet";
 import { parse, download } from "@rowsncolumns/export";
 
 export default {
@@ -133,6 +136,8 @@ export const FilterViews = () => {
         frozenRows: 1,
         frozenColumns: 1,
         hiddenRows: [],
+        activeCell: null,
+        selections: [],
         cells: {
           1: {
             1: {
@@ -227,10 +232,12 @@ export const FilterViews = () => {
   return <App />;
 };
 
-const initialValidationSheet = [
+const initialValidationSheet: Sheet[] = [
   {
     name: "Sheet 1",
     id: 0,
+    activeCell: null,
+    selections: [],
     cells: {
       2: {
         2: {
@@ -242,13 +249,35 @@ const initialValidationSheet = [
             formulae: ["Singapore", "Japan", "China"]
           }
         }
+      },
+      3: {
+        2: {
+          text: "",
+          dataValidation: {
+            allowBlank: true,
+            formulae: [10, 100],
+            operator: "between",
+            type: "decimal"
+          }
+        }
+      },
+      4: {
+        2: {
+          text: "TRUE",
+          datatype: DATATYPE.Boolean,
+          dataValidation: {
+            allowBlank: true,
+            type: "boolean",
+            formulae: ["TRUE", "FALSE"]
+          }
+        }
       }
     }
   }
 ];
 export const DataValidation = () => {
   const App = () => {
-    const [sheets, setSheets] = useState(initialValidationSheet);
+    const [sheets, setSheets] = useState<Sheet[]>(initialValidationSheet);
     return (
       <>
         <div

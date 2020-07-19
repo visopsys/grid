@@ -12,7 +12,7 @@ export interface FilterIconProps extends ShapeConfig {
   onClick?: (cell: CellInterface) => void;
 }
 
-const ICON_PATH = "M7 10l5 5 5-5z";
+export const ARROW_ICON_PATH = "M7 10l5 5 5-5z";
 const ICON_COLOR = "#808080";
 
 /**
@@ -56,7 +56,7 @@ const FilterIcon: React.FC<FilterIconProps> = ({
         cornerRadius={2}
       />
       <Path
-        data={ICON_PATH}
+        data={ARROW_ICON_PATH}
         x={posX - 1}
         y={posY - 1}
         fill={isHovered ? "white" : ICON_COLOR}

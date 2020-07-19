@@ -43,7 +43,8 @@ import {
   CELL_BORDER_COLOR,
   number2Alpha,
   cellToAddress,
-  getEditorType
+  getEditorType,
+  DEFAULT_CHECKBOX_VALUES
 } from "./../constants";
 import HeaderCell from "./../HeaderCell";
 import Cell from "./../Cell";
@@ -966,6 +967,33 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       [cells]
     );
 
+    /**
+     * Called when checkbox is checked/unchecked
+     */
+    const handleCheck = useCallback(
+      (cell: CellInterface, checked: boolean) => {
+        const cellConfig = getValue(cell, true) as CellConfig;
+        const type = cellConfig.dataValidation?.type;
+        const formulae: string[] =
+          cellConfig.dataValidation?.formulae ?? DEFAULT_CHECKBOX_VALUES;
+        if (!type) {
+          console.error("Type is not specified", cellConfig);
+          return;
+        }
+        const text = formulae[checked ? 0 : 1];
+        const changes = {
+          [cell.rowIndex]: {
+            [cell.columnIndex]: {
+              text
+            }
+          }
+        };
+        onChange?.(changes);
+        onActiveCellValueChange?.(text);
+      },
+      [cells]
+    );
+
     const itemRenderer = useCallback(
       (props: RendererProps) => {
         const { rowIndex, columnIndex } = props;
@@ -1021,6 +1049,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           filterIndex === void 0
             ? false
             : !!filterViews?.[filterIndex]?.filters?.[columnIndex];
+
         return (
           <CellRenderer
             {...props}
@@ -1034,6 +1063,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
             onFilterClick={handleFilterClick}
             scale={scale}
             onEdit={handleEdit}
+            onCheck={handleCheck}
           />
         );
       },

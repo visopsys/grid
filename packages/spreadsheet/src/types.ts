@@ -197,7 +197,8 @@ export type DataValidationType =
   | "decimal"
   | "date"
   | "textLength"
-  | "custom";
+  | "custom"
+  | "boolean";
 
 export interface DataValidation {
   type: DataValidationType;
@@ -213,4 +214,9 @@ export interface DataValidation {
   showInputMessage?: boolean;
 }
 
-export type EditorType = "text" | "list" | "date";
+export enum EditorType {
+  TEXT = "text",
+  DATE = "date",
+  LIST = "list",
+  BOOLEAN = "boolean"
+}

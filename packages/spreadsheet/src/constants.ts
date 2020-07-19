@@ -562,9 +562,10 @@ export const changeDecimals = (format?: string, step = 1) => {
 export const getEditorType = (type?: DataValidationType): EditorType => {
   switch (type) {
     case "list":
-      return "list";
-
+      return EditorType.LIST;
     default:
-      return "text";
+      return EditorType.TEXT;
   }
 };
+
+export const DEFAULT_CHECKBOX_VALUES = ["TRUE", "FALSE"];

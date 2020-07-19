@@ -21,6 +21,8 @@ import { Shape, Text, Arrow } from "react-konva";
 import { ShapeConfig } from "konva/types/Shape";
 import FilterIcon from "./../FilterIcon";
 import ListArrow from "./../ListArrow";
+import Checkbox from "./../Checkbox";
+
 import { FILTER_ICON_DIM } from "../FilterIcon/FilterIcon";
 
 export interface CellProps extends RendererProps, CellConfig {
@@ -32,6 +34,7 @@ export interface CellProps extends RendererProps, CellConfig {
   isFilterActive?: boolean;
   onFilterClick?: (cell: CellInterface) => void;
   onEdit?: (cell: CellInterface) => void;
+  onCheck?: (cell: CellInterface, value: boolean) => void;
 }
 
 export interface CellRenderProps extends Omit<CellProps, "text"> {
@@ -80,6 +83,10 @@ const Cell: React.FC<CellProps> = memo(props => {
     ...cellProps
   } = props;
   const cellType = dataValidation?.type;
+  const checked =
+    cellType === "boolean"
+      ? props.text === dataValidation?.formulae?.[0]
+      : false;
   const text = formatter
     ? formatter(props.text, datatype, {
         decimals,
@@ -95,6 +102,7 @@ const Cell: React.FC<CellProps> = memo(props => {
       {...cellProps}
       text={text}
       type={cellType}
+      checked={checked}
     />
   );
 });
@@ -136,8 +144,11 @@ const DefaultCell: React.FC<CellRenderProps> = memo(props => {
     rotation,
     valid,
     type,
-    onEdit
+    onEdit,
+    checked,
+    onCheck
   } = props;
+  const isBoolean = datatype === DATATYPE.Boolean;
   const textWrap = wrap === "wrap" ? "word" : DEFAULT_WRAP;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
     strike ? TEXT_DECORATION.STRIKE : ""
@@ -196,7 +207,18 @@ const DefaultCell: React.FC<CellRenderProps> = memo(props => {
           sceneFunc={fillFunc}
         />
       ) : null}
-      {hasText ? (
+      {isBoolean ? (
+        <Checkbox
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          checked={checked}
+          onChange={onCheck}
+          rowIndex={props.rowIndex}
+          columnIndex={props.columnIndex}
+        />
+      ) : hasText ? (
         <Text
           visible={hasText}
           x={x + cellSpacingX}
