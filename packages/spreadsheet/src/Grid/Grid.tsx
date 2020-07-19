@@ -710,7 +710,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
     });
 
     const handleFilterClick = useCallback(
-      (_, cell: CellInterface) => {
+      (cell: CellInterface) => {
         const filterIndex = filterViews.findIndex(
           (views) => views.bounds.top === cell.rowIndex
         );
