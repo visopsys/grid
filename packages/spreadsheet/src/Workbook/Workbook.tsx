@@ -62,7 +62,12 @@ export interface WorkbookProps
   onActiveCellValueChange: (value: string) => void;
   rowSizes?: SizeType;
   columnSizes?: SizeType;
-  onKeyDown?: (id: SheetID, e: React.KeyboardEvent<HTMLDivElement>) => void;
+  onKeyDown?: (
+    id: SheetID,
+    e: React.KeyboardEvent<HTMLDivElement>,
+    cell: CellInterface | null,
+    selections: SelectionArea[]
+  ) => void;
   hiddenRows?: number[];
   hiddenColumns?: number[];
   onChange?: (id: SheetID, changes: Cells) => void;
@@ -290,9 +295,13 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
     );
 
     const handleKeyDown = useCallback(
-      (e: React.KeyboardEvent<HTMLDivElement>) => {
+      (
+        e: React.KeyboardEvent<HTMLDivElement>,
+        activeCell: CellInterface | null,
+        selections: SelectionArea[]
+      ) => {
         if (isNull(selectedSheetRef.current)) return;
-        onKeyDown?.(selectedSheetRef.current, e);
+        onKeyDown?.(selectedSheetRef.current, e, activeCell, selections);
       },
       [currentSheet]
     );

@@ -652,13 +652,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       return [activeCellConfig, activeCell];
     }, [currentSheet]);
 
-    /* TODO: Better keydown handler and remove ref */
-    const activeCellRef = useRef(activeCellConfig);
-    /* TODO: Remove after keydown handler is fixed */
-    useEffect(() => {
-      activeCellRef.current = activeCellConfig;
-    }, [activeCellConfig]);
-
     const handleActiveCellChange = useCallback(
       (id: SheetID, cell: CellInterface | null, value) => {
         if (!cell) return;
@@ -982,16 +975,26 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Handle keydown events
      */
     const handleKeyDown = useCallback(
-      (id: SheetID, event: React.KeyboardEvent<HTMLDivElement>) => {
+      (
+        id: SheetID,
+        event: React.KeyboardEvent<HTMLDivElement>,
+        activeCell: CellInterface | null,
+        selections: SelectionArea[]
+      ) => {
+        if (!activeCell) return;
         const isMeta = event.metaKey || event.ctrlKey;
         const isShift = event.shiftKey;
         const keyCode = event.which;
+        const getCellConfig = (cell: CellInterface) => {
+          const sheet = sheets.find((sheet) => sheet.id === id);
+          return sheet?.cells?.[cell.rowIndex]?.[cell.columnIndex];
+        };
         switch (keyCode) {
           case KeyCodes.KEY_B:
             if (!isMeta) return;
             handleFormattingChange(
               FORMATTING_TYPE.BOLD,
-              !activeCellRef.current?.bold
+              !getCellConfig(activeCell)?.bold
             );
             break;
 
@@ -999,7 +1002,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             if (!isMeta) return;
             handleFormattingChange(
               FORMATTING_TYPE.ITALIC,
-              !activeCellRef.current?.italic
+              !getCellConfig(activeCell)?.italic
             );
             break;
 
@@ -1007,7 +1010,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             if (!isMeta) return;
             handleFormattingChange(
               FORMATTING_TYPE.UNDERLINE,
-              !activeCellRef.current?.underline
+              !getCellConfig(activeCell)?.underline
             );
             break;
 
@@ -1015,7 +1018,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             if (!isMeta || !isShift) return;
             handleFormattingChange(
               FORMATTING_TYPE.STRIKE,
-              !activeCellRef.current?.strike
+              !getCellConfig(activeCell)?.strike
             );
             break;
 
@@ -1043,7 +1046,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         /* Pass it on to undo hook */
         onUndoKeyDown?.(event);
       },
-      [activeCellConfig, currentSheet]
+      [sheets, currentSheet]
     );
 
     /**

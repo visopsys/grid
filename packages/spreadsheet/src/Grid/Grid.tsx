@@ -108,7 +108,11 @@ export interface SheetGridProps {
   mergedCells?: AreaProps[];
   frozenRows?: number;
   frozenColumns?: number;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  onKeyDown?: (
+    e: React.KeyboardEvent<HTMLDivElement>,
+    cell: CellInterface | null,
+    selections: SelectionArea[]
+  ) => void;
   hiddenRows?: number[];
   hiddenColumns?: number[];
   onPaste?: (
@@ -1128,16 +1132,16 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         hideContextMenu();
         hideFilter();
       },
-      [selectedSheet, activeCell, selections]
+      [cells, selectedSheet, activeCell, selections]
     );
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>) => {
         eventRefs.current.selectionProps.onKeyDown(e);
         eventRefs.current.editableProps.onKeyDown(e);
-        onKeyDown?.(e);
+        onKeyDown?.(e, activeCell, selections);
       },
-      [selectedSheet, activeCell, selections]
+      [cells, selectedSheet, activeCell, selections]
     );
 
     /**
