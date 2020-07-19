@@ -12,6 +12,7 @@ export interface TextEditorProps {
   color: string;
   wrapping: any;
   horizontalAlign: any;
+  underline?: boolean;
 }
 
 const TextEditor: React.FC<TextEditorProps> = memo(
@@ -34,6 +35,7 @@ const TextEditor: React.FC<TextEditorProps> = memo(
       color,
       wrapping,
       horizontalAlign,
+      underline,
       ...rest
     } = props;
     return (
@@ -58,7 +60,8 @@ const TextEditor: React.FC<TextEditorProps> = memo(
           background: "transparent",
           color: color,
           whiteSpace: wrapping,
-          textAlign: horizontalAlign
+          textAlign: horizontalAlign,
+          textDecoration: underline ? "underline" : "none",
         }}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
           onChange(e.target.value);

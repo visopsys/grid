@@ -15,23 +15,23 @@ export enum FORMATTING_TYPE {
   FONT_FAMILY = "fontFamily",
   CUSTOM_FORMAT = "format",
   WRAP = "wrap",
-  ROTATION = "rotation"
+  ROTATION = "rotation",
 }
 
 export enum FONT_WEIGHT {
   BOLD = "bold",
-  NORMAL = "normal"
+  NORMAL = "normal",
 }
 
 export enum FONT_STYLE {
   ITALIC = "italic",
-  NORMAL = "normal"
+  NORMAL = "normal",
 }
 
 export enum TEXT_DECORATION {
   STRIKE = "line-through",
   NONE = "",
-  UNDERLINE = "underline"
+  UNDERLINE = "underline",
 }
 
 export enum VERTICAL_ALIGNMENT {
@@ -39,7 +39,7 @@ export enum VERTICAL_ALIGNMENT {
   MIDDLE = "middle",
   BOTTOM = "bottom",
   JUSTIFY = "justify",
-  DISTRIBUTED = "distributed"
+  DISTRIBUTED = "distributed",
 }
 
 export enum HORIZONTAL_ALIGNMENT {
@@ -49,10 +49,11 @@ export enum HORIZONTAL_ALIGNMENT {
   FILL = "fill",
   CENTER_CONTINOUS = "centerContinuous",
   JUSTIFY = "justify",
-  DISTRIBUTED = "distributed"
+  DISTRIBUTED = "distributed",
 }
 
 export enum DATATYPE {
+  Null = "null",
   Number = "number",
   String = "string",
   Date = "date",
@@ -60,7 +61,7 @@ export enum DATATYPE {
   RichText = "richtext",
   Boolean = "boolean",
   Error = "error",
-  Hyperlink = "hyperlink"
+  Hyperlink = "hyperlink",
 }
 
 export enum STROKE_FORMATTING {
@@ -78,7 +79,7 @@ export enum STROKE_FORMATTING {
   STROKE_TOP_DASH = "strokeTopDash",
   STROKE_RIGHT_DASH = "strokeRightDash",
   STROKE_BOTTOM_DASH = "strokeBottomDash",
-  STROKE_LEFT_DASH = "strokeLeftDash"
+  STROKE_LEFT_DASH = "strokeLeftDash",
 }
 
 export interface CellFormatting extends CellDataFormatting {
@@ -117,6 +118,7 @@ export interface CellFormatting extends CellDataFormatting {
   rotation?: number;
   valid?: boolean;
   dataValidation?: DataValidation;
+  hyperlink?: string;
 }
 
 export type Wrap = "wrap" | "clip" | "overflow";
@@ -131,7 +133,7 @@ export interface CellDataFormatting {
 
 export enum AXIS {
   X = "x",
-  Y = "y"
+  Y = "y",
 }
 
 export enum BORDER_VARIANT {
@@ -144,20 +146,20 @@ export enum BORDER_VARIANT {
   RIGHT = "right",
   BOTTOM = "bottom",
   TOP = "top",
-  NONE = "none"
+  NONE = "none",
 }
 
 export enum OPERATION_TYPE {
   CELL_ATTRIBUTE = "cell_attribute",
   CHANGE_SHEET_NAME = "change_sheet_name",
   SHEET_ADD = "sheet_add",
-  SHEET_REMOVE = "sheet_remove"
+  SHEET_REMOVE = "sheet_remove",
 }
 
 export enum RESOURCE_TYPE {
   SHEET = "sheet",
   CELL = "cell",
-  SELECTION = "selection"
+  SELECTION = "selection",
 }
 
 export enum BORDER_STYLE {
@@ -166,7 +168,7 @@ export enum BORDER_STYLE {
   "THICK" = "thick",
   "DASHED" = "dashed",
   "DOTTED" = "dotted",
-  "DOUBLE" = "double"
+  "DOUBLE" = "double",
 }
 
 export type FormatType = (
@@ -179,7 +181,7 @@ export enum SELECTION_MODE {
   CELL = "cell",
   ROW = "row",
   COLUMN = "column",
-  BOTH = "both"
+  BOTH = "both",
 }
 export type DataValidationOperator =
   | "between"
@@ -218,5 +220,5 @@ export enum EditorType {
   TEXT = "text",
   DATE = "date",
   LIST = "list",
-  BOOLEAN = "boolean"
+  BOOLEAN = "boolean",
 }

@@ -5,7 +5,7 @@ import {
   luminance,
   DEFAULT_FONT_SIZE,
   castToString,
-  INVALID_COLOR
+  INVALID_COLOR,
 } from "../constants";
 import {
   DATATYPE,
@@ -14,7 +14,7 @@ import {
   HORIZONTAL_ALIGNMENT,
   TEXT_DECORATION,
   VERTICAL_ALIGNMENT,
-  FormatType
+  FormatType,
 } from "./../types";
 import { CellConfig } from "../Spreadsheet";
 import { Shape, Text, Arrow } from "react-konva";
@@ -51,14 +51,14 @@ const ERROR_TAG_WIDTH = 6.5;
  * Cell renderer
  * @param props
  */
-const Cell: React.FC<CellProps> = memo(props => {
+const Cell: React.FC<CellProps> = memo((props) => {
   const {
     datatype,
     decimals,
     percent,
     currency,
     formatter,
-    isLightMode
+    isLightMode,
   } = props;
   const {
     stroke,
@@ -82,9 +82,9 @@ const Cell: React.FC<CellProps> = memo(props => {
     dataValidation,
     ...cellProps
   } = props;
-  const cellType = dataValidation?.type;
+  const validatorType = dataValidation?.type;
   const checked =
-    cellType === "boolean"
+    validatorType === "boolean"
       ? props.text === dataValidation?.formulae?.[0]
       : false;
   const text = formatter
@@ -93,7 +93,7 @@ const Cell: React.FC<CellProps> = memo(props => {
         percent,
         currency,
         format,
-        currencySymbol
+        currencySymbol,
       })
     : castToString(props.text);
   return (
@@ -101,7 +101,7 @@ const Cell: React.FC<CellProps> = memo(props => {
       isLightMode={isLightMode}
       {...cellProps}
       text={text}
-      type={cellType}
+      type={validatorType}
       checked={checked}
     />
   );
@@ -110,7 +110,7 @@ const Cell: React.FC<CellProps> = memo(props => {
 /**
  * Default cell renderer
  */
-const DefaultCell: React.FC<CellRenderProps> = memo(props => {
+const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   const {
     x = 0,
     y = 0,
@@ -143,10 +143,10 @@ const DefaultCell: React.FC<CellRenderProps> = memo(props => {
     scale,
     rotation,
     valid,
-    type,
+    type: validatorType,
     onEdit,
     checked,
-    onCheck
+    onCheck,
   } = props;
   const isBoolean = datatype === DATATYPE.Boolean;
   const textWrap = wrap === "wrap" ? "word" : DEFAULT_WRAP;
@@ -172,7 +172,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo(props => {
   /* Because of 1px + 0.5px (gridline width + spacing )*/
   const cellSpacingY = 1.5;
   const cellSpacingX = 1;
-  const showArrow = type === "list";
+  const showArrow = validatorType === "list";
   const textWidth =
     showFilter || showArrow
       ? width - FILTER_ICON_DIM - cellSpacingX
@@ -278,7 +278,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo(props => {
 export const ErrorTag: React.FC<ShapeConfig> = ({
   x,
   y,
-  color = INVALID_COLOR
+  color = INVALID_COLOR,
 }) => {
   return (
     <Shape

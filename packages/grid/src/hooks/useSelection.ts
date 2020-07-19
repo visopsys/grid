@@ -516,7 +516,6 @@ const useSelection = ({
        * Scroll to the selected cell
        */
       if (alwaysScrollToActiveCell) {
-        gridRef.current?.scrollToItem(coords);
       }
 
       /**
@@ -547,7 +546,7 @@ const useSelection = ({
     (e: globalThis.MouseEvent) => {
       /* Exit if user is not in selection mode */
       if (!isSelecting.current || !gridRef?.current) return;
-
+      e.preventDefault();
       const coords = gridRef.current.getCellCoordsFromOffset(
         e.clientX,
         e.clientY

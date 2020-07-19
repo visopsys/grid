@@ -10,7 +10,7 @@ import {
   ScrollCoords,
   Filter,
   FilterDefinition,
-  isNull
+  isNull,
 } from "@rowsncolumns/grid";
 import {
   CellFormatting,
@@ -19,7 +19,7 @@ import {
   AXIS,
   BORDER_STYLE,
   BORDER_VARIANT,
-  DATATYPE
+  DATATYPE,
 } from "./types";
 
 /* Enabled patches in immer */
@@ -33,14 +33,14 @@ export const defaultSheets: Sheet[] = [
     frozenRows: 0,
     activeCell: {
       rowIndex: 1,
-      columnIndex: 1
+      columnIndex: 1,
     },
     mergedCells: [],
     selections: [],
     cells: {},
     scrollState: { scrollTop: 0, scrollLeft: 0 },
-    filterViews: []
-  }
+    filterViews: [],
+  },
 ];
 
 export interface StateInterface {
@@ -77,7 +77,7 @@ export enum ACTION_TYPE {
   INSERT_ROW = "INSERT_ROW",
   REMOVE_CELLS = "REMOVE_CELLS",
   PASTE = "PASTE",
-  REPLACE_SHEETS = "REPLACE_SHEETS"
+  REPLACE_SHEETS = "REPLACE_SHEETS",
 }
 
 export type ActionTypes =
@@ -136,8 +136,6 @@ export type ActionTypes =
   | {
       type: ACTION_TYPE.FORMATTING_CHANGE;
       id: SheetID;
-      selections: SelectionArea[];
-      activeCell: CellInterface | null;
       key: keyof CellFormatting;
       value: any;
       undoable?: boolean;
@@ -242,21 +240,21 @@ const initialState: StateInterface = {
   selectedSheet: 0,
   sheets: defaultSheets,
   currentActiveCell: null,
-  currentSelections: null
+  currentSelections: null,
 };
 
 export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
   return (state = initialState, action: ActionTypes): StateInterface => {
     return produce(
       state,
-      draft => {
+      (draft) => {
         switch (action.type) {
           case ACTION_TYPE.SELECT_SHEET:
             draft.selectedSheet = action.id;
             break;
 
           case ACTION_TYPE.CHANGE_SHEET_NAME: {
-            const sheet = draft.sheets.find(sheet => sheet.id === action.id);
+            const sheet = draft.sheets.find((sheet) => sheet.id === action.id);
             if (sheet) {
               sheet.name = action.name;
             }
@@ -270,7 +268,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
           }
 
           case ACTION_TYPE.CHANGE_SHEET_CELL: {
-            const sheet = draft.sheets.find(sheet => sheet.id === action.id);
+            const sheet = draft.sheets.find((sheet) => sheet.id === action.id);
             if (sheet) {
               const { activeCell } = sheet;
               for (const row in action.changes) {
@@ -297,7 +295,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
           }
 
           case ACTION_TYPE.UPDATE_FILL: {
-            const sheet = draft.sheets.find(sheet => sheet.id === action.id);
+            const sheet = draft.sheets.find((sheet) => sheet.id === action.id);
             if (sheet) {
               const { activeCell, fillSelection } = action;
               const { rowIndex, columnIndex } = activeCell;
@@ -318,8 +316,8 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.DELETE_SHEET: {
             const { id } = action;
-            const index = draft.sheets.findIndex(sheet => sheet.id === id);
-            const newSheets = draft.sheets.filter(sheet => sheet.id !== id);
+            const index = draft.sheets.findIndex((sheet) => sheet.id === id);
+            const newSheets = draft.sheets.filter((sheet) => sheet.id !== id);
             const newSelectedSheet =
               draft.selectedSheet === draft.sheets[index].id
                 ? newSheets[Math.max(0, index - 1)].id
@@ -331,7 +329,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.SHEET_SELECTION_CHANGE: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               sheet.activeCell = action.activeCell;
@@ -342,7 +340,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.FORMATTING_CHANGE_AUTO: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             const { selections } = action;
             if (sheet) {
@@ -361,7 +359,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.FORMATTING_CHANGE_PLAIN: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             const { selections } = action;
             if (sheet) {
@@ -382,12 +380,16 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.FORMATTING_CHANGE: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
-            const { selections, activeCell, key, value } = action;
+            const { key, value } = action;
             if (sheet) {
-              for (let i = 0; i < selections.length; i++) {
-                const { bounds } = selections[i];
+              const { selections, activeCell } = sheet;
+              const sel = selections.length
+                ? selections
+                : [{ bounds: getCellBounds(activeCell) }];
+              for (let i = 0; i < sel.length; i++) {
+                const { bounds } = sel[i];
                 if (!bounds) continue;
                 for (let j = bounds.top; j <= bounds.bottom; j++) {
                   sheet.cells[j] = sheet.cells[j] ?? {};
@@ -410,12 +412,12 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.DELETE_CELLS: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               const { activeCell, selections } = action;
               if (selections.length) {
-                selections.forEach(sel => {
+                selections.forEach((sel) => {
                   const { bounds } = sel;
                   for (let i = bounds.top; i <= bounds.bottom; i++) {
                     if (sheet.cells[i] === void 0) continue;
@@ -437,12 +439,12 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.REMOVE_CELLS: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               const { activeCell, selections } = action;
               if (selections.length) {
-                selections.forEach(sel => {
+                selections.forEach((sel) => {
                   const { bounds } = sel;
                   for (let i = bounds.top; i <= bounds.bottom; i++) {
                     for (let j = bounds.left; j <= bounds.right; j++) {
@@ -461,21 +463,21 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
           /* Clear formatting */
           case ACTION_TYPE.CLEAR_FORMATTING: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               const { activeCell, selections } = sheet;
               if (selections.length) {
-                selections.forEach(sel => {
+                selections.forEach((sel) => {
                   const { bounds } = sel;
                   for (let i = bounds.top; i <= bounds.bottom; i++) {
                     if (sheet.cells[i] === void 0) continue;
                     for (let j = bounds.left; j <= bounds.right; j++) {
                       if (sheet.cells[i][j] === void 0) continue;
-                      Object.values(FORMATTING_TYPE).forEach(key => {
+                      Object.values(FORMATTING_TYPE).forEach((key) => {
                         delete sheet.cells[i]?.[j]?.[key];
                       });
-                      Object.values(STROKE_FORMATTING).forEach(key => {
+                      Object.values(STROKE_FORMATTING).forEach((key) => {
                         delete sheet.cells[i]?.[j]?.[key];
                       });
                     }
@@ -484,10 +486,10 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
               } else if (activeCell) {
                 const { rowIndex, columnIndex } = activeCell;
                 if (sheet.cells?.[rowIndex]?.[columnIndex]) {
-                  Object.values(FORMATTING_TYPE).forEach(key => {
+                  Object.values(FORMATTING_TYPE).forEach((key) => {
                     delete sheet.cells[rowIndex]?.[columnIndex]?.[key];
                   });
-                  Object.values(STROKE_FORMATTING).forEach(key => {
+                  Object.values(STROKE_FORMATTING).forEach((key) => {
                     delete sheet.cells[rowIndex]?.[columnIndex]?.[key];
                   });
                 }
@@ -498,7 +500,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.RESIZE: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               const { axis, index, dimension } = action;
@@ -515,7 +517,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.MERGE_CELLS: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               const { selections, activeCell } = sheet;
@@ -533,7 +535,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
               }
               sheet.mergedCells = sheet.mergedCells ?? [];
               /* Check if cell is already merged */
-              const index = sheet.mergedCells.findIndex(area => {
+              const index = sheet.mergedCells.findIndex((area) => {
                 return (
                   area.left === bounds.left &&
                   area.right === bounds.right &&
@@ -552,7 +554,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.FROZEN_ROW_CHANGE: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               sheet.frozenRows = action.count;
@@ -562,7 +564,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.FROZEN_COLUMN_CHANGE: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               sheet.frozenColumns = action.count;
@@ -572,7 +574,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.SET_BORDER: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               const { color, variant, borderStyle } = action;
@@ -591,12 +593,12 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
                 for (const col in boundedCells[row]) {
                   if (variant === BORDER_VARIANT.NONE) {
                     // Delete all stroke formatting rules
-                    Object.values(STROKE_FORMATTING).forEach(key => {
+                    Object.values(STROKE_FORMATTING).forEach((key) => {
                       delete sheet.cells[row]?.[col]?.[key];
                     });
                   } else {
                     const styles = boundedCells[row][col];
-                    Object.keys(styles).forEach(key => {
+                    Object.keys(styles).forEach((key) => {
                       sheet.cells[row] = cells[row] ?? {};
                       sheet.cells[row][col] = cells[row][col] ?? {};
                       // @ts-ignore
@@ -611,7 +613,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.UPDATE_SCROLL: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               sheet.scrollState = action.scrollState;
@@ -621,7 +623,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.CHANGE_FILTER: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               const { columnIndex, filterViewIndex, filter } = action;
@@ -633,7 +635,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
                 sheet.filterViews = sheet.filterViews ?? [];
                 if (!sheet.filterViews[filterViewIndex].filters) {
                   sheet.filterViews[filterViewIndex].filters = {
-                    [columnIndex]: filter
+                    [columnIndex]: filter,
                   };
                 } else {
                   (sheet.filterViews[filterViewIndex].filters as Filter)[
@@ -647,7 +649,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.DELETE_COLUMN: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               const { activeCell } = action;
@@ -677,7 +679,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.DELETE_ROW: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               const { activeCell } = action;
@@ -697,7 +699,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.INSERT_COLUMN: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               const { activeCell } = action;
@@ -726,7 +728,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.INSERT_ROW: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               const { activeCell } = action;
@@ -747,7 +749,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
           case ACTION_TYPE.PASTE: {
             const sheet = draft.sheets.find(
-              sheet => sheet.id === action.id
+              (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
               const { rows, activeCell } = action;
