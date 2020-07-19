@@ -284,7 +284,11 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
                   /* Get datatype of user input */
                   const datatype = detectDataType(value);
                   cell.text = value;
-                  cell.datatype = isBoolean ? DATATYPE.Boolean : datatype;
+                  cell.datatype = isBoolean
+                    ? DATATYPE.Boolean
+                    : datatype === void 0
+                    ? cell.datatype
+                    : datatype;
                 }
               }
 

@@ -816,14 +816,24 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       getTooltip: (cell) => {
         const cellConfig = getValue(cell, true) as CellConfig;
         const isValid = cellConfig?.valid ?? true;
-        if (isValid) return null;
+        const datatype = cellConfig?.datatype;
+        const isHyperLink = datatype === DATATYPE.Hyperlink;
+        const showTooltip = !isValid || isHyperLink;
+        if (!showTooltip) return null;
         let content: string | undefined;
         if (isValid === false) {
           const validation = cellConfig.dataValidation;
           content = validation?.prompt;
         }
+        const position = isHyperLink ? "bottom" : "right";
         return (props) => (
-          <TooltipComponent {...props} {...cellConfig} content={content} />
+          <TooltipComponent
+            {...props}
+            {...cellConfig}
+            position={position}
+            content={content}
+            variant={!isValid && "error"}
+          />
         );
       },
       gridRef,

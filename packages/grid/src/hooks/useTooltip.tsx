@@ -7,7 +7,7 @@ import React, {
   useEffect,
 } from "react";
 import { CellInterface, GridRef } from "../Grid";
-import { rafThrottle } from "../helpers";
+import { rafThrottle, debounce, throttle } from "../helpers";
 
 export interface TooltipOptions {
   /**
@@ -19,10 +19,6 @@ export interface TooltipOptions {
    * Grid references
    */
   gridRef: React.MutableRefObject<GridRef | null>;
-  /**
-   * Tooltip position
-   */
-  position?: TooltipPosition;
 }
 
 export interface TooltipResults {
@@ -44,24 +40,25 @@ export interface TooltipProps {
   /**
    * Tooltip x position
    */
-  x: number;
+  x?: number;
   /**
    * Tooltip y position
    */
-  y: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  scrollLeft?: number;
+  scrollTop?: number;
 }
 
-export type TooltipPosition = "right" | "left" | "top" | "bottom";
-
-const DefaultTooltipComponent: React.FC<TooltipProps> = ({ x, y }) => {
-  const offset = 0;
+const DefaultTooltipComponent: React.FC<TooltipProps> = ({ x = 0, y = 0 }) => {
   return (
     <div
       style={{
         position: "absolute",
         left: 0,
         top: 0,
-        transform: `translate(${x + offset}px, ${y + offset}px)`,
+        transform: `translate(${x}px, ${y}px)`,
         maxWidth: 200,
         background: "white",
         boxShadow: "0 4px 8px 3px rgba(60,64,67,.15)",
@@ -81,25 +78,36 @@ const getDefaultTooltip = (cell: CellInterface | null) =>
 const useTooltip = ({
   gridRef,
   getTooltip = getDefaultTooltip,
-  position = "right",
 }: TooltipOptions): TooltipResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(null);
+  const isTooltipActive = useRef(false);
   const activeCellRef = useRef(activeCell);
   const [tooltipPosition, setTooltipPosition] = useState<
-    Pick<TooltipProps, "x" | "y">
-  >({ x: 0, y: 0 });
+    Pick<
+      TooltipProps,
+      "x" | "y" | "width" | "height" | "scrollLeft" | "scrollTop"
+    >
+  >({});
   const showTooltip = !!activeCell;
-  const tooltipProps: TooltipProps = {
-    x: tooltipPosition.x,
-    y: tooltipPosition.y,
-  };
   const TooltipComponent = useMemo(() => {
     return getTooltip(activeCell);
   }, [activeCell]);
 
+  const handleTooltipMouseEnter = useCallback(() => {
+    isTooltipActive.current = true;
+  }, []);
+  const handleTooltipMouseLeave = useCallback(() => {
+    isTooltipActive.current = false;
+    setActiveCell(null);
+  }, []);
+
   const tooltipComponent =
     showTooltip && TooltipComponent ? (
-      <TooltipComponent {...tooltipProps} />
+      <TooltipComponent
+        {...tooltipPosition}
+        onMouseEnter={handleTooltipMouseEnter}
+        onMouseLeave={handleTooltipMouseLeave}
+      />
     ) : null;
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
@@ -119,38 +127,33 @@ const useTooltip = ({
     )
       return;
 
-    const {
-      x = 0,
-      y = 0,
-      width = 0,
-      height = 0,
-    } = gridRef.current.getCellOffsetFromCoords(coords);
+    const pos = gridRef.current.getCellOffsetFromCoords(coords);
     const scrollPosition = gridRef.current.getScrollPosition();
-    const posX = position === "right" ? x + width : x;
-    const posY = y;
     setTooltipPosition({
-      x: posX - scrollPosition.scrollLeft,
-      y: posY - scrollPosition.scrollTop,
+      ...pos,
+      ...scrollPosition,
     });
     setActiveCell({ rowIndex, columnIndex });
   }, []);
 
+  const handleMouseLeave = useCallback((e) => {
+    if (isTooltipActive.current) return;
+    setActiveCell(null);
+  }, []);
+
   /* Raf throttler */
-  const mouseMoveThrottler = useRef(rafThrottle(handleMouseMove));
+  const mouseMoveThrottler = useRef(throttle(handleMouseMove, 100));
+  const mouseLeaveThrottler = useRef(debounce(handleMouseLeave, 3000));
 
   /* Update activecell ref */
   useEffect(() => {
     activeCellRef.current = activeCell;
   }, [activeCell]);
 
-  const handleMouseLeave = useCallback((e) => {
-    setActiveCell(null);
-  }, []);
-
   return {
     tooltipComponent,
     onMouseMove: mouseMoveThrottler.current,
-    onMouseLeave: handleMouseLeave,
+    onMouseLeave: mouseLeaveThrottler.current,
   };
 };
 

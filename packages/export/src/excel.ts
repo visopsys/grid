@@ -91,8 +91,10 @@ const getCellText = (cell: ExcelJS.Cell): string | undefined => {
       return "";
     case ValueType.Formula:
       return (cell.value as CellFormulaValue).result?.toString();
-    case ValueType.Hyperlink:
-      return (cell.value as CellHyperlinkValue).text;
+    case ValueType.Hyperlink: {
+      const text = (cell.value as CellHyperlinkValue).text;
+      return typeof text === "string" ? text : "Unable to parse";
+    }
     default:
       return cell.value?.toString();
   }
