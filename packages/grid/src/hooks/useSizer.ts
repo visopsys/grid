@@ -197,12 +197,12 @@ const useAutoSizer = ({
    */
   const getCellWidth = useCallback(
     (rowIndex: number, columnIndex: number) => {
-      let width = 0;
       const cellValue =
         getValueRef.current({
           rowIndex,
           columnIndex
         }) ?? null;
+      let width = cellValue?.spacing ?? 0;
       /* Check if its null */
       if (cellValue !== null) {
         const isCellConfig = typeof cellValue === "object";
@@ -222,10 +222,7 @@ const useAutoSizer = ({
 
           const metrics = autoSizer.current.measureText(text);
           if (metrics) {
-            width =
-              Math.ceil(metrics.width) +
-              cellSpacing +
-              (cellValue?.spacing ?? 0);
+            width += Math.ceil(metrics.width) + cellSpacing;
           }
         }
       }

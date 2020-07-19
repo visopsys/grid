@@ -472,8 +472,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const formattedValue = formatter
           ? formatter(cellConfig?.text, cellConfig?.datatype, cellConfig)
           : cellConfig.text;
+        const iconPadding = 5;
         const spacing =
-          cellConfig?.dataValidation?.type === "list" ? LIST_ICON_DIM : 0;
+          cellConfig?.dataValidation?.type === "list"
+            ? LIST_ICON_DIM + iconPadding
+            : 0;
         return { ...cellConfig, text: formattedValue, spacing };
       },
       columnSizes,
