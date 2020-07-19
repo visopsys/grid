@@ -7,6 +7,7 @@ import ExcelJS, {
   Borders,
   FormulaType,
   CellHyperlinkValue,
+  CellRichTextValue,
 } from "exceljs";
 import {
   Sheet,
@@ -95,6 +96,10 @@ const getCellText = (cell: ExcelJS.Cell): string | undefined => {
       const text = (cell.value as CellHyperlinkValue).text;
       return typeof text === "string" ? text : "Unable to parse";
     }
+    case ValueType.RichText:
+      return (cell.value as CellRichTextValue).richText
+        .map((value) => value.text)
+        .join(" ");
     default:
       return cell.value?.toString();
   }
