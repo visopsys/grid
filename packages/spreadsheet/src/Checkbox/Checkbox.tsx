@@ -25,7 +25,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
   checked,
   onChange,
   rowIndex,
-  columnIndex
+  columnIndex,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const dim = CHECKBOX_ICON_DIM;
@@ -54,7 +54,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
         scaleY={0.8}
         scaleX={0.8}
         listening={false}
-        fill={ICON_COLOR}
+        fill={isHovered ? "#444" : ICON_COLOR}
       />
     </Group>
   );
