@@ -67,6 +67,15 @@ function Home() {
             >
               Get Started
             </Button>
+            <Button
+              ml={2}
+              as="a"
+              href="/demo"
+              variantColor="teal"
+              _hover={{ color: "white" }}
+            >
+              Demo
+            </Button>
           </Box>
         </Box>
         <Box minWidth={[0, 0, 500, 700]} display="flex" pt={5}>

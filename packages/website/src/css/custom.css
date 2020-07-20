@@ -27,3 +27,8 @@
 .navbar__title {
   font-weight: bold;
 }
+
+
+.main-wrapper {
+  display: flex;
+}
