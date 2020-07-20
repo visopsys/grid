@@ -5,9 +5,225 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
-import SpreadSheet from "@rowsncolumns/spreadsheet";
+import SpreadSheet, { uuid } from "@rowsncolumns/spreadsheet";
 import { SimpleGrid, Box, Text, Button, List, ListItem } from "@chakra-ui/core";
 import { Global, css } from "@emotion/core";
+
+const initialState = [
+  {
+    name: "Sheet 1",
+    id: uuid(),
+    activeCell: null,
+    selections: [],
+    mergedCells: [
+      {
+        top: 3,
+        left: 4,
+        right: 8,
+        bottom: 3,
+      },
+    ],
+    cells: {
+      2: {
+        2: {
+          text: "Hello world",
+        },
+        3: {
+          text: "Tooltips",
+          tooltip: "Thanks for the support. Spread the word!",
+        },
+      },
+      3: {
+        2: {
+          text: "Black bg",
+          fill: "#000000",
+          color: "white",
+        },
+        4: {
+          text: "Filter views",
+          bold: true,
+          fill: "#eeeeee",
+        },
+      },
+      4: {
+        2: {
+          text: "Pink text",
+          fill: "pink",
+          color: "black",
+        },
+        4: {
+          text: "First Name",
+        },
+        5: {
+          text: "Last Name",
+        },
+        6: {
+          text: "Country",
+        },
+        7: {
+          text: "Age",
+        },
+        8: {
+          text: "Date",
+        },
+      },
+      5: {
+        2: {
+          text: "#VALUE",
+          valid: false,
+          dataValidation: {
+            prompt: "Select a country from the list",
+            type: "list",
+            formulae: ["Singapore", "China", "Japan", "USA"],
+          },
+        },
+        4: {
+          text: "Dulce",
+        },
+        5: {
+          text: "Abril",
+        },
+        6: {
+          text: "Female",
+        },
+        7: {
+          text: "United States",
+        },
+        8: {
+          text: "32",
+          datatype: "number",
+        },
+      },
+      6: {
+        4: {
+          text: "Mara",
+        },
+        5: {
+          text: "Hashimoto",
+        },
+        6: {
+          text: "Female",
+        },
+        7: {
+          text: "Great Britain",
+        },
+        8: {
+          text: "25",
+          datatype: "number",
+        },
+      },
+      7: {
+        4: {
+          text: "Philip",
+        },
+        5: {
+          text: "Gent",
+        },
+        6: {
+          text: "Male",
+        },
+        7: {
+          text: "France",
+        },
+        8: {
+          text: "36",
+          datatype: "number",
+        },
+      },
+      8: {
+        2: {
+          fill: "#4FC3F7",
+        },
+        4: {
+          text: "Kathleen",
+        },
+        5: {
+          text: "Hanner",
+        },
+        6: {
+          text: "Female",
+        },
+        7: {
+          text: "United States",
+        },
+        8: {
+          text: "25",
+          datatype: "number",
+        },
+      },
+      9: {
+        2: {
+          fill: "#4FC3F7",
+        },
+        4: {
+          text: "Loreta",
+        },
+        5: {
+          text: "Curren",
+        },
+        6: {
+          text: "Female",
+        },
+        7: {
+          text: "France",
+        },
+        8: {
+          text: "18",
+          datatype: "number",
+        },
+      },
+      10: {
+        2: {
+          text: "TRUE",
+          datatype: "boolean",
+          dataValidation: {
+            allowBlank: true,
+            type: "boolean",
+            formulae: ["TRUE", "FALSE"],
+          },
+        },
+        3: {
+          text: "Checkboxes",
+        },
+        4: {
+          text: "Belinda",
+        },
+        5: {
+          text: "Partain",
+        },
+        6: {
+          text: "Female",
+        },
+        7: {
+          text: "Spain",
+        },
+        8: {
+          text: "29",
+          datatype: "number",
+        },
+      },
+      11: {
+        2: {
+          datatype: "hyperlink",
+          text: "Visit Google",
+          color: "#1155CC",
+          underline: true,
+          hyperlink: "http://google.com",
+        },
+      },
+    },
+    filterViews: [
+      {
+        bounds: {
+          top: 4,
+          bottom: 20,
+          left: 4,
+          right: 8,
+        },
+      },
+    ],
+  },
+];
 
 function Feature({ imageUrl, title, description }) {
   const imgUrl = useBaseUrl(imageUrl);
@@ -40,7 +256,7 @@ function Home() {
         `}
       />
       <Box padding={2} flex={1} display="flex">
-        <SpreadSheet initialColorMode="light" />
+        <SpreadSheet initialColorMode="light" sheets={initialState} />
       </Box>
     </Layout>
   );
