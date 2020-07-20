@@ -266,7 +266,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
     );
 
     const handleActiveCellChange = useCallback(
-      (cell: CellInterface | null, value: string | undefined) => {
+      (cell: CellInterface | null, value: React.ReactText | undefined) => {
         if (isNull(selectedSheetRef.current)) return;
         onActiveCellChange?.(selectedSheetRef.current, cell, value);
       },

@@ -36,7 +36,7 @@ function Home() {
         className="container"
         height={["auto", "auto", 600]}
         spacing={30}
-        pt={10}
+        pt={5}
         pb={10}
       >
         <Box justifyContent="center" display="flex" flexDirection="column">
@@ -69,7 +69,7 @@ function Home() {
             </Button>
           </Box>
         </Box>
-        <Box minWidth={[0, 0, 500, 700]} display="flex">
+        <Box minWidth={[0, 0, 500, 700]} display="flex" pt={5}>
           <SpreadSheet initialColorMode="light" />
         </Box>
       </SimpleGrid>

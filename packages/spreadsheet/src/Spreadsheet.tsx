@@ -143,7 +143,7 @@ export interface SpreadSheetProps {
   onActiveCellChange?: (
     id: SheetID,
     cell: CellInterface | null,
-    value?: string
+    value?: React.ReactText
   ) => void;
   /**
    * Callback fired when selection changes
