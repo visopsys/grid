@@ -1581,6 +1581,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      * Lets users draw cells on top of existing canvas
      */
     const cellOverlays: React.ReactNodeArray = [];
+
     if (columnCount > 0 && rowCount) {
       for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
         /* Skip frozen rows */

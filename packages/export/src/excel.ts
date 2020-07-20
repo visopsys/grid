@@ -20,6 +20,7 @@ import {
   VERTICAL_ALIGNMENT,
   DEFAULT_ROW_COUNT,
   DEFAULT_COLUMN_COUNT,
+  dotArray,
 } from "@rowsncolumns/spreadsheet";
 import {
   CellInterface,
@@ -301,21 +302,29 @@ export const parseExcel = async ({
                 continue;
               }
               if (key === "bottom") {
+                strokes.strokeBottomDash =
+                  border[key]?.style === "dotted" ? dotArray : [];
                 strokes.strokeBottomWidth = 1;
                 strokes.strokeBottomColor =
                   "#" + border[key]?.color?.argb?.slice(2);
               }
               if (key === "top") {
+                strokes.strokeTopDash =
+                  border[key]?.style === "dotted" ? dotArray : [];
                 strokes.strokeTopWidth = 1;
                 strokes.strokeTopColor =
                   "#" + border[key]?.color?.argb?.slice(2);
               }
               if (key === "left") {
+                strokes.strokeLeftDash =
+                  border[key]?.style === "dotted" ? dotArray : [];
                 strokes.strokeLeftWidth = 1;
                 strokes.strokeLeftColor =
                   "#" + border[key]?.color?.argb?.slice(2);
               }
               if (key === "right") {
+                strokes.strokeRightDash =
+                  border[key]?.style === "dotted" ? dotArray : [];
                 strokes.strokeRightWidth = 1;
                 strokes.strokeRightColor =
                   "#" + border[key]?.color?.argb?.slice(2);

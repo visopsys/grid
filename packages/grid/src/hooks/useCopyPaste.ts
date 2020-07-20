@@ -186,6 +186,7 @@ const useCopyPaste = ({
   const handleProgramaticCopy = useCallback(() => {
     if (!gridRef.current) return;
     gridRef.current.focus();
+    console.log("called");
     document.execCommand("copy");
   }, []);
 

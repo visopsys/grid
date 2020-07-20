@@ -294,10 +294,13 @@ export const luminance = (color: string | undefined, amount: number) => {
 
 /* DPR */
 const dpr = canUseDOM ? window.devicePixelRatio : 1;
+const dprRounded = Math.floor(dpr / 2);
 const dashDotWidth = Math.max(Math.floor(dpr / 2), 0.5);
-const dashDotArray =
-  dpr === 1 ? [dashDotWidth, dashDotWidth + dpr] : [dashDotWidth, dashDotWidth];
-
+export const dotArray =
+  dpr === 1
+    ? [dashDotWidth, dashDotWidth + dpr]
+    : [dashDotWidth + dprRounded, dashDotWidth + dprRounded];
+export const dashArray = [2, 2];
 export const cellsInSelectionVariant = (
   selections: SelectionArea[],
   variant: BORDER_VARIANT | undefined,
@@ -313,9 +316,9 @@ export const cellsInSelectionVariant = (
       : 1;
   const dash =
     borderStyle === BORDER_STYLE.DASHED
-      ? [2, 2]
+      ? dashArray
       : borderStyle === BORDER_STYLE.DOTTED
-      ? dashDotArray
+      ? dotArray
       : [];
 
   const dashEnabled = dash.length > 0;

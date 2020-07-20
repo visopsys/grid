@@ -239,6 +239,7 @@ export type Cell = Record<string, CellConfig>;
 export interface CellConfig extends CellFormatting {
   text?: string | number;
   result?: string | number | any;
+  formula?: string;
 }
 
 const defaultActiveSheet = uuid();
@@ -319,6 +320,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
     /* Last active cells: for undo, redo */
     const lastActiveCellRef = useRef<CellInterface | null | undefined>(null);
+    const lastSelectionsRef = useRef<SelectionArea[] | null | undefined>([]);
 
     /**
      * Some grid side-effects during undo/redo
@@ -356,6 +358,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         if (lastActiveCellRef.current) {
           currentGrid.current?.setActiveCell(lastActiveCellRef.current);
         }
+        if (lastSelectionsRef.current) {
+          currentGrid.current?.setSelections(lastSelectionsRef.current);
+        }
       },
       onRedo: (patches) => {
         /* Side-effects */
@@ -370,8 +375,14 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         const activeCellPatch = patches.find((item: Patch) =>
           item.path.includes("currentActiveCell")
         );
+        const selectionsPatch = patches.find((item: Patch) =>
+          item.path.includes("currentSelections")
+        );
         if (activeCellPatch) {
           currentGrid.current?.setActiveCell(activeCellPatch.value);
+        }
+        if (selectionsPatch) {
+          currentGrid.current?.setSelections(selectionsPatch.value);
         }
       },
     });
@@ -396,7 +407,12 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       }
     );
 
-    const { selectedSheet, sheets, currentActiveCell } = state;
+    const {
+      selectedSheet,
+      sheets,
+      currentActiveCell,
+      currentSelections,
+    } = state;
     const [scale, setScale] = useState(initialScale);
     const selectedSheetRef = useRef(selectedSheet);
     const currentGrid = useRef<WorkbookGridRef>(null);
@@ -405,7 +421,8 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     /* Last */
     useEffect(() => {
       lastActiveCellRef.current = currentActiveCell;
-    }, [currentActiveCell]);
+      lastSelectionsRef.current = currentSelections;
+    }, [currentActiveCell, currentSelections]);
 
     /* Selected sheet */
     const setSelectedSheet = useCallback(
@@ -745,9 +762,11 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       (
         id: SheetID,
         activeCell: CellInterface,
-        fillSelection: SelectionArea | null
+        fillSelection: SelectionArea | null,
+        selections: SelectionArea[]
       ) => {
         if (!fillSelection) return;
+
         dispatch({
           type: ACTION_TYPE.UPDATE_FILL,
           id,

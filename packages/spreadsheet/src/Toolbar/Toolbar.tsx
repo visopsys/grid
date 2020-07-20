@@ -30,7 +30,7 @@ import {
   MdFormatColorReset,
   MdLineStyle,
 } from "react-icons/md";
-import { AiOutlineMergeCells, AiOutlineFieldBinary } from "react-icons/ai";
+import { AiOutlineMergeCells } from "react-icons/ai";
 import { BsColumns } from "react-icons/bs";
 import { IoMdColorFill, IoMdMoon } from "react-icons/io";
 import {
@@ -126,6 +126,7 @@ interface ColorPickerProps {
   color?: string;
   onChange: (value: string | undefined) => void;
 }
+const BUTTON_HEIGHT = "26px";
 const ColorPicker: React.FC<ColorPickerProps> = ({
   color,
   onChange,
@@ -315,6 +316,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             color={iconColor}
             icon={MdUndo}
             size="sm"
+            height={BUTTON_HEIGHT}
             isDisabled={!canUndo}
             onClick={onUndo}
           />
@@ -332,6 +334,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             color={iconColor}
             icon={MdRedo}
             size="sm"
+            height={BUTTON_HEIGHT}
             isDisabled={!canRedo}
             onClick={onRedo}
           />
@@ -362,25 +365,33 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             color={iconColor}
             icon={MdFormatClear}
             size="sm"
+            height={BUTTON_HEIGHT}
             onClick={() => onClearFormatting?.()}
           />
         </Tooltip>
 
         <Separator borderColor={borderColor} />
         <Menu>
-          <MenuButton
-            color={foregroundColor}
-            as={Button}
-            size="sm"
-            flexShrink={0}
-            paddingLeft={1}
-            paddingRight={1}
-            background="none"
-            fontSize={12}
+          <Tooltip
+            hasArrow
+            aria-label={translations.zoom}
+            label={translations.zoom}
           >
-            {`${scale * 100}%`}
-            <Icon name="chevron-down" ml={1} fontSize={16} />
-          </MenuButton>
+            <MenuButton
+              color={foregroundColor}
+              as={Button}
+              size="sm"
+              flexShrink={0}
+              paddingLeft={1}
+              paddingRight={1}
+              background="none"
+              fontSize={12}
+              height={BUTTON_HEIGHT}
+            >
+              {`${scale * 100}%`}
+              <Icon name="chevron-down" ml={1} fontSize={16} />
+            </MenuButton>
+          </Tooltip>
           <MenuList
             placement="top-start"
             minWidth={100}
@@ -418,6 +429,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             color={format === FORMAT_CURRENCY ? activeIconColor : iconColor}
             icon={MdAttachMoney}
             size="sm"
+            height={BUTTON_HEIGHT}
             onClick={() =>
               onFormattingChange?.(
                 FORMATTING_TYPE.CUSTOM_FORMAT,
@@ -439,6 +451,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             fontSize={10}
             icon={PercentIcon}
             size="sm"
+            height={BUTTON_HEIGHT}
             onClick={() =>
               onFormattingChange?.(
                 FORMATTING_TYPE.CUSTOM_FORMAT,
@@ -459,6 +472,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             color={iconColor}
             icon={DecreaseDecimalIcon}
             size="sm"
+            height={BUTTON_HEIGHT}
             onClick={() =>
               onFormattingChange?.(
                 FORMATTING_TYPE.CUSTOM_FORMAT,
@@ -478,6 +492,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             color={iconColor}
             icon={IncreaseDecimalIcon}
             size="sm"
+            height={BUTTON_HEIGHT}
             onClick={() =>
               onFormattingChange?.(
                 FORMATTING_TYPE.CUSTOM_FORMAT,
@@ -488,18 +503,25 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
         </Tooltip>
 
         <Menu>
-          <MenuButton
-            color={foregroundColor}
-            as={Button}
-            size="sm"
-            flexShrink={0}
-            paddingLeft={1}
-            paddingRight={1}
-            background="none"
+          <Tooltip
+            hasArrow
+            aria-label={translations.more_formats}
+            label={translations.more_formats}
           >
-            <AiOutlineFieldBinary fontSize={18} />
-            <Icon name="chevron-down" fontSize={16} />
-          </MenuButton>
+            <MenuButton
+              color={foregroundColor}
+              as={Button}
+              size="sm"
+              flexShrink={0}
+              paddingLeft={1}
+              paddingRight={1}
+              background="none"
+              height={BUTTON_HEIGHT}
+            >
+              <Box fontSize={12}>123</Box>
+              <Icon name="chevron-down" fontSize={16} />
+            </MenuButton>
+          </Tooltip>
           <MenuList
             placement="top-start"
             minWidth={250}
@@ -586,33 +608,40 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
         <Separator borderColor={borderColor} />
 
         <Menu>
-          <MenuButton
-            paddingLeft={1}
-            paddingRight={1}
-            as={Button}
-            background="none"
-            fontSize={12}
-            fontWeight="normal"
-            size="sm"
-            width={100}
-            textAlign="left"
-            display="flex"
-            whiteSpace="nowrap"
-            minWidth={0}
-            flexShrink={0}
-            color={foregroundColor}
+          <Tooltip
+            hasArrow
+            aria-label={translations.font}
+            label={translations.font}
           >
-            <Box
+            <MenuButton
+              paddingLeft={1}
+              paddingRight={1}
+              as={Button}
+              background="none"
+              fontSize={12}
+              fontWeight="normal"
+              size="sm"
+              width={100}
+              textAlign="left"
+              display="flex"
               whiteSpace="nowrap"
-              overflow="hidden"
-              flex={1}
-              // @ts-ignore
-              textOverflow="ellipsis"
+              minWidth={0}
+              flexShrink={0}
+              height={BUTTON_HEIGHT}
+              color={foregroundColor}
             >
-              {fontFamily}
-            </Box>
-            <Icon name="chevron-down" fontSize={16} />
-          </MenuButton>
+              <Box
+                whiteSpace="nowrap"
+                overflow="hidden"
+                flex={1}
+                // @ts-ignore
+                textOverflow="ellipsis"
+              >
+                {fontFamily}
+              </Box>
+              <Icon name="chevron-down" fontSize={16} />
+            </MenuButton>
+          </Tooltip>
           <MenuList
             placement="top-start"
             borderColor={borderColor}
@@ -662,6 +691,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             icon={MdFormatBold}
             fontSize={20}
             size="sm"
+            height={BUTTON_HEIGHT}
             onClick={() => onFormattingChange?.(FORMATTING_TYPE.BOLD, !bold)}
           />
         </Tooltip>
@@ -678,6 +708,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             icon={MdFormatItalic}
             fontSize={20}
             size="sm"
+            height={BUTTON_HEIGHT}
             onClick={() =>
               onFormattingChange?.(FORMATTING_TYPE.ITALIC, !italic)
             }
@@ -696,6 +727,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             icon={MdFormatUnderlined}
             fontSize={20}
             size="sm"
+            height={BUTTON_HEIGHT}
             onClick={() =>
               onFormattingChange?.(FORMATTING_TYPE.UNDERLINE, !underline)
             }
@@ -714,6 +746,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             icon={MdStrikethroughS}
             fontSize={20}
             size="sm"
+            height={BUTTON_HEIGHT}
             onClick={() =>
               onFormattingChange?.(FORMATTING_TYPE.STRIKE, !strike)
             }
@@ -740,6 +773,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                         flexDirection="column"
                         aria-label={translations.text_color}
                         background="none"
+                        height={BUTTON_HEIGHT}
                       >
                         <MdTextFields />
                         <Rect color={color} />
@@ -790,6 +824,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                         flexDirection="column"
                         aria-label={translations.fill_color}
                         background="none"
+                        height={BUTTON_HEIGHT}
                       >
                         <IoMdColorFill />
                         <Rect color={fill} />
@@ -837,6 +872,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             icon={AiOutlineMergeCells}
             fontSize={20}
             size="sm"
+            height={BUTTON_HEIGHT}
             onClick={() => onMergeCells?.()}
           />
         </Tooltip>
@@ -859,6 +895,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                         icon={BsColumns}
                         fontSize={20}
                         size="sm"
+                        height={BUTTON_HEIGHT}
                       />
                     </Tooltip>
                   </Box>
@@ -948,6 +985,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                         icon={MdFormatAlignLeft}
                         fontSize={20}
                         size="sm"
+                        height={BUTTON_HEIGHT}
                       />
                     </Tooltip>
                   </Box>
@@ -1050,6 +1088,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                         icon={MdVerticalAlignBottom}
                         fontSize={20}
                         size="sm"
+                        height={BUTTON_HEIGHT}
                       />
                     </Tooltip>
                   </Box>
@@ -1151,6 +1190,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                         icon={wrap === "clip" ? WrapClipIcon : WrapIcon}
                         fontSize={20}
                         size="sm"
+                        height={BUTTON_HEIGHT}
                       />
                     </Tooltip>
                   </Box>

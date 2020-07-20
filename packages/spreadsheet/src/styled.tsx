@@ -61,7 +61,9 @@ export const Rect = styled(Box)`
   height: 2px;
   background: ${(props) => props.color};
   width: 20px;
-  margin-top: 3px;
+  margin-top: 0;
+  position: relative;
+  top: 2px;
 `;
 
 export const BottomPanel = styled(Box)`

@@ -39,4 +39,7 @@ export const translations = {
   text_wrapping: "Text wrapping",
   text_wrap: "Wrap",
   text_clip: "Clip",
+  more_formats: "More formats",
+  zoom: "Zoom",
+  font: "Font",
 };

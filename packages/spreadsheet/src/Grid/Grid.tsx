@@ -94,7 +94,10 @@ export interface SheetGridProps {
   selectedSheet: SheetID;
   onScroll: (state: ScrollCoords) => void;
   scrollState?: ScrollCoords;
-  onActiveCellChange?: (cell: CellInterface | null, value?: string) => void;
+  onActiveCellChange?: (
+    cell: CellInterface | null,
+    value?: React.ReactText
+  ) => void;
   onSelectionChange?: (
     cell: CellInterface | null,
     selections: SelectionArea[]
@@ -363,7 +366,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
      * Get cell value or text
      */
     const getValue = useCallback(
-      (cell: CellInterface | null, obj = false) => {
+      (cell: CellInterface | null): CellConfig | undefined => {
         if (!cell) return void 0;
         const { rowIndex, columnIndex } = cell;
         /* Check if its header cell */
@@ -373,26 +376,27 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const isFilterHeader = filterHeaderCells[cellId] !== void 0;
 
         if (isRowHeader) {
-          return obj
-            ? { text: number2Alpha(columnIndex - 1), fontSize: 10 }
-            : number2Alpha(columnIndex - 1);
+          return { text: number2Alpha(columnIndex - 1), fontSize: 10 };
         }
 
         if (isColumnHeader) {
-          return obj ? { text: rowIndex, fontSize: 10 } : rowIndex;
+          return { text: rowIndex, fontSize: 10 };
         }
 
         const cellConfig = isFilterHeader
           ? { ...cells[rowIndex]?.[columnIndex], bold: true }
           : cells[rowIndex]?.[columnIndex];
 
-        return rowIndex in cells
-          ? obj
-            ? cellConfig
-            : cellConfig?.text
-          : void 0;
+        return rowIndex in cells ? cellConfig : void 0;
       },
       [cells, filterHeaderCells]
+    );
+
+    const getValueText = useCallback(
+      (cell) => {
+        return getValue(cell)?.text;
+      },
+      [cells]
     );
 
     /**
@@ -407,7 +411,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           const { values, operator } = filters[columnIndex];
           for (let k = bounds.top + 1; k <= bounds.bottom; k++) {
             const cell = { rowIndex: k, columnIndex: parseInt(columnIndex) };
-            const value = getValue(cell) || "";
+            const cellConfig = getValue(cell);
+            const value = cellConfig?.text ?? "";
             if (!values.includes(value)) {
               rows[k] = true;
             }
@@ -474,10 +479,10 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       isHiddenRow,
       isHiddenColumn,
       getValue: (cell: CellInterface) => {
-        const cellConfig = getValue(cell, true) as CellConfig;
+        const cellConfig = getValue(cell);
         const formattedValue = formatter
           ? formatter(cellConfig?.text, cellConfig?.datatype, cellConfig)
-          : cellConfig.text;
+          : cellConfig?.text;
         const iconPadding = 5;
         const spacing =
           cellConfig?.dataValidation?.type === "list"
@@ -640,7 +645,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       gridRef,
       selections,
       activeCell,
-      getValue,
+      getValue: getValueText,
       onPaste,
       onCut,
     });
@@ -710,7 +715,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
           );
         };
       },
-      getValue,
+      getValue: getValueText,
     });
 
     const handleFilterClick = useCallback(
@@ -747,10 +752,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       if (activeCell?.rowIndex === 0 || activeCell?.columnIndex === 0) {
         return;
       }
-      onActiveCellChange?.(
-        activeCell,
-        getValue(activeCell) as string | undefined
-      );
+      onActiveCellChange?.(activeCell, getValue(activeCell)?.text);
     }, [activeCell]);
 
     /**
@@ -787,6 +789,8 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       setSelections(initialSelections);
       /* Hide filter */
       hideFilter();
+      /* Hide editor */
+      hideEditor();
     }, [selectedSheet]);
 
     const handleSubmit = useCallback(
@@ -814,7 +818,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
 
     const { tooltipComponent, ...tooltipProps } = useTooltip({
       getTooltip: (cell) => {
-        const cellConfig = getValue(cell, true) as CellConfig;
+        const cellConfig = getValue(cell);
         const isValid = cellConfig?.valid ?? true;
         const datatype = cellConfig?.datatype;
         const isHyperLink = datatype === DATATYPE.Hyperlink;
@@ -822,7 +826,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         if (!showTooltip) return null;
         let content: string | undefined;
         if (isValid === false) {
-          const validation = cellConfig.dataValidation;
+          const validation = cellConfig?.dataValidation;
           content = validation?.prompt;
         }
         const position = isHyperLink ? "bottom" : "right";
@@ -856,7 +860,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       ...editableProps
     } = useEditable({
       getEditor: (cell: CellInterface | null) => {
-        const config = getValue(cell, true) as CellConfig;
+        const config = getValue(cell);
         const type = getEditorType(config?.dataValidation?.type);
         const options = config?.dataValidation?.formulae;
         return (props: EditorProps) => (
@@ -883,11 +887,11 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       selections,
       activeCell,
       onSubmit: handleSubmit,
-      getValue,
+      getValue: getValueText,
       onChange: onActiveCellValueChange,
       canEdit: (cell: CellInterface) => {
         if (cell.rowIndex === 0 || cell.columnIndex === 0) return false;
-        const isReadOnly = (getValue(cell, true) as CellConfig)?.readOnly;
+        const isReadOnly = getValue(cell)?.readOnly;
         if (isReadOnly) return false;
         return true;
       },
@@ -988,10 +992,10 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
      */
     const handleCheck = useCallback(
       (cell: CellInterface, checked: boolean) => {
-        const cellConfig = getValue(cell, true) as CellConfig;
-        const type = cellConfig.dataValidation?.type;
+        const cellConfig = getValue(cell);
+        const type = cellConfig?.dataValidation?.type;
         const formulae: string[] =
-          cellConfig.dataValidation?.formulae ?? DEFAULT_CHECKBOX_VALUES;
+          cellConfig?.dataValidation?.formulae ?? DEFAULT_CHECKBOX_VALUES;
         if (!type) {
           console.error("Type is not specified", cellConfig);
           return;
@@ -1060,7 +1064,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const filterIndex =
           filterHeaderCells[cellIdentifier(rowIndex, columnIndex)];
         const showFilter = filterIndex !== void 0;
-        const cellConfig = getValue(cell, true) as CellConfig;
+        const cellConfig = getValue(cell);
         const isFilterActive =
           filterIndex === void 0
             ? false
@@ -1100,9 +1104,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       (props: RendererProps) => {
         const { rowIndex, columnIndex } = props;
         const cell = { rowIndex, columnIndex };
-        return (
-          <CellOverlay {...props} {...(getValue(cell, true) as CellConfig)} />
-        );
+        return <CellOverlay {...props} {...getValue(cell)} />;
       },
       [cells, selectedRowsAndCols, activeCell, hiddenRows, hiddenColumns]
     );

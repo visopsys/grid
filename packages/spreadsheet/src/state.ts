@@ -270,7 +270,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
           case ACTION_TYPE.CHANGE_SHEET_CELL: {
             const sheet = draft.sheets.find((sheet) => sheet.id === action.id);
             if (sheet) {
-              const { activeCell } = sheet;
+              const { activeCell, selections } = sheet;
               for (const row in action.changes) {
                 sheet.cells[row] = sheet.cells[row] ?? {};
                 for (const col in action.changes[row]) {
@@ -294,6 +294,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
 
               /* Keep reference of active cell, so we can focus back */
               draft.currentActiveCell = activeCell;
+              draft.currentSelections = selections;
             }
             break;
           }
@@ -301,6 +302,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
           case ACTION_TYPE.UPDATE_FILL: {
             const sheet = draft.sheets.find((sheet) => sheet.id === action.id);
             if (sheet) {
+              const { selections } = sheet;
               const { activeCell, fillSelection } = action;
               const { rowIndex, columnIndex } = activeCell;
               const cellValue = sheet.cells[rowIndex]?.[columnIndex];
@@ -314,6 +316,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
               }
               /* Keep reference of active cell, so we can focus back */
               draft.currentActiveCell = activeCell;
+              draft.currentSelections = selections;
             }
             break;
           }
@@ -410,6 +413,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
               }
               /* Keep reference of active cell, so we can focus back */
               draft.currentActiveCell = activeCell;
+              draft.currentSelections = selections;
             }
             break;
           }
@@ -756,6 +760,7 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
               (sheet) => sheet.id === action.id
             ) as Sheet;
             if (sheet) {
+              const { selections } = sheet;
               const { rows, activeCell } = action;
               const { rowIndex, columnIndex } = activeCell;
               const { cells } = sheet;
@@ -770,6 +775,8 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
                   cells[r][c].text = text === null || isNull(text) ? "" : text;
                 }
               }
+              /* Keep reference of active cell, so we can focus back */
+              draft.currentActiveCell = activeCell;
             }
             break;
           }
