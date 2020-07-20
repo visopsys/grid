@@ -126,7 +126,7 @@ interface ColorPickerProps {
   color?: string;
   onChange: (value: string | undefined) => void;
 }
-const BUTTON_HEIGHT = "26px";
+const BUTTON_HEIGHT = "28px";
 const ColorPicker: React.FC<ColorPickerProps> = ({
   color,
   onChange,
@@ -299,6 +299,8 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
     <StyledToolbar
       pr={2}
       pl={2}
+      pt={1}
+      pb={1}
       borderColor={borderColor}
       backgroundColor={backgroundColor}
       color={foregroundColor}
