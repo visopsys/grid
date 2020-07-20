@@ -28,6 +28,8 @@ type ToolbarProps = {
   backgroundColor: string;
   pr?: number;
   pl?: number;
+  pt?: number;
+  pb?: number;
 };
 const Toolbar: React.FC<ToolbarProps> = (props) => <Box {...props} />;
 export const StyledToolbar = styled(Toolbar)`
