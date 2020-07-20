@@ -6,22 +6,9 @@ module.exports = {
       "formula",
       "formatting",
       "konva",
-      "roadmap"
+      "roadmap",
     ],
     "Getting Started": ["install", "options"],
-    Examples: [
-      "sizing",
-      "freezing",
-      "merging",
-      "styles",
-      "editor",
-      "conditional_formatting",
-      "range_selection",
-      "autofilter",
-      "excel",
-      "csv"
-    ],
-    Advanced: ["ref"],
     Features: [
       "features/initialize",
       "features/sheets",
@@ -37,7 +24,20 @@ module.exports = {
       "features/ui-customizations",
       "features/data-validation",
       "features/datatypes",
-      "features/tooltips"
-    ]
-  }
+      "features/tooltips",
+    ],
+    Examples: [
+      "sizing",
+      "freezing",
+      "merging",
+      "styles",
+      "editor",
+      "conditional_formatting",
+      "range_selection",
+      "autofilter",
+      "excel",
+      "csv",
+    ],
+    Advanced: ["ref"],
+  },
 };
