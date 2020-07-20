@@ -11,7 +11,7 @@ import {
   PopoverContentProps,
   useColorMode,
   MenuItem as ChakraMenuItem,
-  MenuItemProps,
+  MenuItemProps
 } from "@chakra-ui/core";
 import { Box } from "@chakra-ui/core";
 import { SYSTEM_FONT } from "./constants";
@@ -31,12 +31,12 @@ type ToolbarProps = {
   pt?: number;
   pb?: number;
 };
-const Toolbar: React.FC<ToolbarProps> = (props) => <Box {...props} />;
+const Toolbar: React.FC<ToolbarProps> = props => <Box {...props} />;
 export const StyledToolbar = styled(Toolbar)`
   min-height: 40px;
-  border-color: ${(props) => props.borderColor};
+  border-color: ${props => props.borderColor};
   border-style: solid;
-  background: ${(props) => props.backgroundColor};
+  background: ${props => props.backgroundColor};
   border-width: 1px 0;
   display: flex;
   align-items: center;
@@ -48,20 +48,20 @@ type SeparatorProps = {
   className?: string;
   borderColor: string;
 };
-const SeparatorComponent: React.FC<SeparatorProps> = (props) => (
+const SeparatorComponent: React.FC<SeparatorProps> = props => (
   <div className={props.className}>{props.children}</div>
 );
 export const Separator = styled(SeparatorComponent)`
-  border-color: ${(props) => props.borderColor};
+  border-color: ${props => props.borderColor};
   border-width: 0 1px 0 0;
   height: 24px;
   border-style: solid;
-  margin: 0 ${(props) => props.theme.space[1]};
+  margin: 0 ${props => props.theme.space[1]};
 `;
 
 export const Rect = styled(Box)`
   height: 2px;
-  background: ${(props) => props.color};
+  background: ${props => props.color};
   width: 20px;
   margin-top: 0;
   position: relative;
@@ -154,6 +154,24 @@ export const WrapIcon = () => {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path d="M14,0 L0,0 L0,2 L14,2 L14,0 Z M0,12 L4,12 L4,10 L0,10 L0,12 Z M11.5,5 L0,5 L0,7 L11.75,7 C12.58,7 13.25,7.67 13.25,8.5 C13.25,9.33 12.58,10 11.75,10 L9,10 L9,8 L6,11 L9,14 L9,12 L11.5,12 C13.43,12 15,10.43 15,8.5 C15,6.57 13.43,5 11.5,5 Z" />
+    </svg>
+  );
+};
+
+export const MergeCellsIcon = () => {
+  return (
+    <svg
+      stroke="currentColor"
+      fill="currentColor"
+      strokeWidth="0"
+      viewBox="-1 -1 20 20"
+      aria-hidden="true"
+      focusable="false"
+      height="1em"
+      width="1em"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M3,6 L1,6 L1,2 L8,2 L8,4 L3,4 L3,6 Z M10,4 L10,2 L17,2 L17,6 L15,6 L15,4 L10,4 Z M10,14 L15,14 L15,12 L17,12 L17,16 L10,16 L10,14 Z M1,12 L3,12 L3,14 L8,14 L8,16 L1,16 L1,12 Z M1,8 L5,8 L5,6 L8,9 L5,12 L5,10 L1,10 L1,8 Z M10,9 L13,6 L13,8 L17,8 L17,10 L13,10 L13,12 L10,9 Z" />
     </svg>
   );
 };

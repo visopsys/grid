@@ -1,6 +1,6 @@
 import React from "react";
 import { TooltipProps } from "@rowsncolumns/grid";
-import { INVALID_COLOR, HYPERLINK_COLOR } from "../constants";
+import { INVALID_COLOR, HYPERLINK_COLOR, ERROR_COLOR } from "../constants";
 import { Box, Link } from "@chakra-ui/core";
 import { CellConfig } from "../Spreadsheet";
 import { DATATYPE } from "../types";
@@ -15,7 +15,7 @@ export interface TipProps extends TooltipProps, CellConfig {
 }
 
 export type TooltipPosition = "right" | "left" | "top" | "bottom";
-export type TooltipVariant = "error" | "info";
+export type TooltipVariant = "invalid" | "error" | "info";
 
 const Tooltip: React.FC<TipProps> = ({
   x = 0,
@@ -32,10 +32,16 @@ const Tooltip: React.FC<TipProps> = ({
   hyperlink,
   text,
   onMouseEnter,
-  onMouseLeave,
+  onMouseLeave
 }) => {
-  const title = valid === false ? "Invalid:" : "";
-  const variantColor = variant === "error" ? INVALID_COLOR : "transparent";
+  const title =
+    variant === "invalid" ? "Invalid:" : variant === "error" ? "Error:" : "";
+  const variantColor =
+    variant === "invalid"
+      ? INVALID_COLOR
+      : variant === "error"
+      ? ERROR_COLOR
+      : "transparent";
 
   const posX = position === "right" ? x + width - scrollLeft : x - scrollLeft;
   const posY = position === "bottom" ? y + height - scrollTop : y - scrollTop;
@@ -55,6 +61,7 @@ const Tooltip: React.FC<TipProps> = ({
         fontSize: 13,
         borderLeft: `4px ${variantColor} solid`,
         backfaceVisibility: "hidden",
+        userSelect: "none"
       }}
       onMouseLeave={onMouseLeave}
       onMouseEnter={onMouseEnter}
@@ -91,7 +98,7 @@ const HyperLink: React.FC<TooltipContentProps> = ({ title, url }) => {
 const Alert: React.FC<TooltipContentProps> = ({
   title,
   content,
-  variantColor,
+  variantColor
 }) => {
   return (
     <>

@@ -6,6 +6,7 @@ import {
   DEFAULT_FONT_SIZE,
   castToString,
   INVALID_COLOR,
+  ERROR_COLOR
 } from "../constants";
 import {
   DATATYPE,
@@ -14,15 +15,14 @@ import {
   HORIZONTAL_ALIGNMENT,
   TEXT_DECORATION,
   VERTICAL_ALIGNMENT,
-  FormatType,
+  FormatType
 } from "./../types";
 import { CellConfig } from "../Spreadsheet";
-import { Shape, Text, Arrow } from "react-konva";
+import { Shape, Text } from "react-konva";
 import { ShapeConfig } from "konva/types/Shape";
 import FilterIcon from "./../FilterIcon";
 import ListArrow from "./../ListArrow";
 import Checkbox from "./../Checkbox";
-
 import { FILTER_ICON_DIM } from "../FilterIcon/FilterIcon";
 
 export interface CellProps extends RendererProps, CellConfig {
@@ -51,14 +51,14 @@ const ERROR_TAG_WIDTH = 6.5;
  * Cell renderer
  * @param props
  */
-const Cell: React.FC<CellProps> = memo((props) => {
+const Cell: React.FC<CellProps> = memo(props => {
   const {
     datatype,
     decimals,
     percent,
     currency,
     formatter,
-    isLightMode,
+    isLightMode
   } = props;
   const {
     stroke,
@@ -82,20 +82,23 @@ const Cell: React.FC<CellProps> = memo((props) => {
     dataValidation,
     ...cellProps
   } = props;
+
   const validatorType = dataValidation?.type;
   const checked =
     validatorType === "boolean"
       ? props.text === dataValidation?.formulae?.[0]
       : false;
+  const isFormula = datatype === DATATYPE.Formula;
+  const textValue = isFormula ? props.error || props.result : props.text;
   const text = formatter
-    ? formatter(props.text, datatype, {
+    ? formatter(textValue, datatype, {
         decimals,
         percent,
         currency,
         format,
-        currencySymbol,
+        currencySymbol
       })
-    : castToString(props.text);
+    : castToString(textValue);
   return (
     <DefaultCell
       isLightMode={isLightMode}
@@ -110,7 +113,7 @@ const Cell: React.FC<CellProps> = memo((props) => {
 /**
  * Default cell renderer
  */
-const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
+const DefaultCell: React.FC<CellRenderProps> = memo(props => {
   const {
     x = 0,
     y = 0,
@@ -123,7 +126,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     italic,
     bold,
     horizontalAlign,
-    verticalAlign = VERTICAL_ALIGNMENT.BOTTOM,
+    verticalAlign = "bottom",
     underline,
     strike,
     fontFamily,
@@ -147,6 +150,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     onEdit,
     checked,
     onCheck,
+    error
   } = props;
   const isBoolean = datatype === DATATYPE.Boolean;
   const textWrap = wrap === "wrap" ? "word" : DEFAULT_WRAP;
@@ -161,8 +165,8 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   const hAlign =
     horizontalAlign === void 0
       ? datatype === DATATYPE.Number && !plaintext
-        ? HORIZONTAL_ALIGNMENT.RIGHT
-        : HORIZONTAL_ALIGNMENT.LEFT
+        ? "right"
+        : "left"
       : horizontalAlign;
   const defaultFill = isLightMode ? "white" : DARK_MODE_COLOR_LIGHT;
   const textColor = userColor ? userColor : isLightMode ? "#333" : "white";
@@ -173,6 +177,9 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   const cellSpacingY = 1.5;
   const cellSpacingX = 1;
   const showArrow = validatorType === "list";
+  const isInValid = valid === false;
+  const hasError = !!error;
+  const showTag = isInValid || hasError;
   const textWidth =
     showFilter || showArrow
       ? width - FILTER_ICON_DIM - cellSpacingX
@@ -264,8 +271,12 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
           width={width}
         />
       ) : null}
-      {valid === false ? (
-        <ErrorTag x={x + width - ERROR_TAG_WIDTH} y={y + 1} />
+      {showTag ? (
+        <ErrorTag
+          color={isInValid ? INVALID_COLOR : ERROR_COLOR}
+          x={x + width - ERROR_TAG_WIDTH}
+          y={y + 1}
+        />
       ) : null}
     </>
   );
@@ -278,13 +289,13 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
 export const ErrorTag: React.FC<ShapeConfig> = ({
   x,
   y,
-  color = INVALID_COLOR,
+  color = INVALID_COLOR
 }) => {
   return (
     <Shape
       x={x}
       y={y}
-      sceneFunc={(context, shape) => {
+      sceneFunc={context => {
         context.beginPath();
         context.setAttr("fillStyle", color);
         context.moveTo(0, 0);

@@ -4,7 +4,7 @@ import React, {
   useMemo,
   isValidElement,
   useRef,
-  useEffect,
+  useEffect
 } from "react";
 import { CellInterface, GridRef } from "../Grid";
 import { rafThrottle, debounce, throttle } from "../helpers";
@@ -64,7 +64,7 @@ const DefaultTooltipComponent: React.FC<TooltipProps> = ({ x = 0, y = 0 }) => {
         boxShadow: "0 4px 8px 3px rgba(60,64,67,.15)",
         padding: 12,
         borderRadius: 4,
-        fontSize: 13,
+        fontSize: 13
       }}
     >
       {x}
@@ -77,7 +77,7 @@ const getDefaultTooltip = (cell: CellInterface | null) =>
 
 const useTooltip = ({
   gridRef,
-  getTooltip = getDefaultTooltip,
+  getTooltip = getDefaultTooltip
 }: TooltipOptions): TooltipResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(null);
   const isTooltipActive = useRef(false);
@@ -131,19 +131,19 @@ const useTooltip = ({
     const scrollPosition = gridRef.current.getScrollPosition();
     setTooltipPosition({
       ...pos,
-      ...scrollPosition,
+      ...scrollPosition
     });
     setActiveCell({ rowIndex, columnIndex });
   }, []);
 
-  const handleMouseLeave = useCallback((e) => {
+  const handleMouseLeave = useCallback(e => {
     if (isTooltipActive.current) return;
     setActiveCell(null);
   }, []);
 
   /* Raf throttler */
   const mouseMoveThrottler = useRef(throttle(handleMouseMove, 100));
-  const mouseLeaveThrottler = useRef(debounce(handleMouseLeave, 3000));
+  const mouseLeaveThrottler = useRef(debounce(handleMouseLeave, 2000));
 
   /* Update activecell ref */
   useEffect(() => {
@@ -153,7 +153,7 @@ const useTooltip = ({
   return {
     tooltipComponent,
     onMouseMove: mouseMoveThrottler.current,
-    onMouseLeave: mouseLeaveThrottler.current,
+    onMouseLeave: mouseLeaveThrottler.current
   };
 };
 

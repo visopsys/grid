@@ -28,9 +28,8 @@ import {
   MdBorderClear,
   MdEdit,
   MdFormatColorReset,
-  MdLineStyle,
+  MdLineStyle
 } from "react-icons/md";
-import { AiOutlineMergeCells } from "react-icons/ai";
 import { BsColumns } from "react-icons/bs";
 import { IoMdColorFill, IoMdMoon } from "react-icons/io";
 import {
@@ -49,7 +48,7 @@ import {
   MenuButton,
   MenuList,
   Icon,
-  MenuDivider,
+  MenuDivider
 } from "@chakra-ui/core";
 import {
   StyledToolbar,
@@ -65,6 +64,7 @@ import {
   IncreaseDecimalIcon,
   WrapClipIcon,
   WrapIcon,
+  MergeCellsIcon
 } from "./../styled";
 import {
   DARK_MODE_COLOR,
@@ -77,7 +77,7 @@ import {
   FORMAT_CURRENCY,
   FORMAT_DEFAULT_DECIMAL,
   changeDecimals,
-  SCALE_VALUES,
+  SCALE_VALUES
 } from "./../constants";
 import {
   FORMATTING_TYPE,
@@ -85,7 +85,7 @@ import {
   VERTICAL_ALIGNMENT,
   HORIZONTAL_ALIGNMENT,
   BORDER_VARIANT,
-  BORDER_STYLE,
+  BORDER_STYLE
 } from "./../types";
 import { translations } from "../translations";
 import { CellConfig } from "../Spreadsheet";
@@ -130,7 +130,7 @@ const BUTTON_HEIGHT = "28px";
 const ColorPicker: React.FC<ColorPickerProps> = ({
   color,
   onChange,
-  resetLabel = "Reset",
+  resetLabel = "Reset"
 }) => {
   return (
     <Box pb={2}>
@@ -244,14 +244,14 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
           "#1c4587",
           "#073763",
           "#20124d",
-          "#4c1130",
+          "#4c1130"
         ]}
       />
     </Box>
   );
 };
 
-const Toolbar: React.FC<ToolbarProps> = (props) => {
+const Toolbar: React.FC<ToolbarProps> = props => {
   const {
     bold,
     italic,
@@ -285,7 +285,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
     scale = 1,
     onScaleChange,
     fontList = [],
-    wrap = "clip",
+    wrap = "clip"
   } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const theme = useTheme();
@@ -671,12 +671,12 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
         <Separator borderColor={borderColor} />
 
         <SelectDropdown
-          options={FONT_SIZES.map((size) => ({ label: size, value: size }))}
-          onChange={(item) => {
+          options={FONT_SIZES.map(size => ({ label: size, value: size }))}
+          onChange={item => {
             onFormattingChange?.(FORMATTING_TYPE.FONT_SIZE, item?.value);
           }}
           value={{ value: fontSize, label: fontSize }}
-          format={(value) => parseInt(value)}
+          format={value => parseInt(value)}
         />
 
         <Separator borderColor={borderColor} />
@@ -871,7 +871,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
             aria-label={translations.merge_cells}
             variant="ghost"
             color={iconColor}
-            icon={AiOutlineMergeCells}
+            icon={MergeCellsIcon}
             fontSize={20}
             size="sm"
             height={BUTTON_HEIGHT}
@@ -916,7 +916,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                       <Select
                         size="sm"
                         value={frozenRows}
-                        onChange={(e) =>
+                        onChange={e =>
                           onFrozenRowChange?.(Number(e.target.value))
                         }
                         borderColor={
@@ -942,7 +942,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                       <Select
                         size="sm"
                         value={frozenColumns}
-                        onChange={(e) =>
+                        onChange={e =>
                           onFrozenColumnChange?.(Number(e.target.value))
                         }
                         borderColor={
@@ -1001,20 +1001,14 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                   <Box display="flex">
                     <IconButton
                       aria-label={translations.horizontal_align}
-                      variant={
-                        horizontalAlign === HORIZONTAL_ALIGNMENT.LEFT
-                          ? "solid"
-                          : "ghost"
-                      }
+                      variant={horizontalAlign === "left" ? "solid" : "ghost"}
                       color={
-                        horizontalAlign === HORIZONTAL_ALIGNMENT.LEFT
-                          ? activeIconColor
-                          : iconColor
+                        horizontalAlign === "left" ? activeIconColor : iconColor
                       }
                       onClick={() =>
                         onFormattingChange?.(
                           FORMATTING_TYPE.HORIZONTAL_ALIGN,
-                          HORIZONTAL_ALIGNMENT.LEFT
+                          "left"
                         )
                       }
                       icon={MdFormatAlignLeft}
@@ -1023,20 +1017,16 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                     />
                     <IconButton
                       aria-label={translations.horizontal_align}
-                      variant={
-                        horizontalAlign === HORIZONTAL_ALIGNMENT.CENTER
-                          ? "solid"
-                          : "ghost"
-                      }
+                      variant={horizontalAlign === "center" ? "solid" : "ghost"}
                       color={
-                        horizontalAlign === HORIZONTAL_ALIGNMENT.CENTER
+                        horizontalAlign === "center"
                           ? activeIconColor
                           : iconColor
                       }
                       onClick={() =>
                         onFormattingChange?.(
                           FORMATTING_TYPE.HORIZONTAL_ALIGN,
-                          HORIZONTAL_ALIGNMENT.CENTER
+                          "center"
                         )
                       }
                       icon={MdFormatAlignCenter}
@@ -1045,20 +1035,16 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                     />
                     <IconButton
                       aria-label={translations.horizontal_align}
-                      variant={
-                        horizontalAlign === HORIZONTAL_ALIGNMENT.RIGHT
-                          ? "solid"
-                          : "ghost"
-                      }
+                      variant={horizontalAlign === "right" ? "solid" : "ghost"}
                       color={
-                        horizontalAlign === HORIZONTAL_ALIGNMENT.RIGHT
+                        horizontalAlign === "right"
                           ? activeIconColor
                           : iconColor
                       }
                       onClick={() =>
                         onFormattingChange?.(
                           FORMATTING_TYPE.HORIZONTAL_ALIGN,
-                          HORIZONTAL_ALIGNMENT.RIGHT
+                          "right"
                         )
                       }
                       icon={MdFormatAlignRight}
@@ -1104,15 +1090,9 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                   <Box display="flex">
                     <IconButton
                       aria-label={translations.horizontal_align}
-                      variant={
-                        verticalAlign === VERTICAL_ALIGNMENT.TOP
-                          ? "solid"
-                          : "ghost"
-                      }
+                      variant={verticalAlign === "top" ? "solid" : "ghost"}
                       color={
-                        verticalAlign === VERTICAL_ALIGNMENT.TOP
-                          ? activeIconColor
-                          : iconColor
+                        verticalAlign === "top" ? activeIconColor : iconColor
                       }
                       icon={MdVerticalAlignTop}
                       fontSize={20}
@@ -1120,21 +1100,15 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                       onClick={() =>
                         onFormattingChange?.(
                           FORMATTING_TYPE.VERTICAL_ALIGN,
-                          VERTICAL_ALIGNMENT.TOP
+                          "top"
                         )
                       }
                     />
                     <IconButton
                       aria-label={translations.horizontal_align}
-                      variant={
-                        verticalAlign === VERTICAL_ALIGNMENT.MIDDLE
-                          ? "solid"
-                          : "ghost"
-                      }
+                      variant={verticalAlign === "middle" ? "solid" : "ghost"}
                       color={
-                        verticalAlign === VERTICAL_ALIGNMENT.MIDDLE
-                          ? activeIconColor
-                          : iconColor
+                        verticalAlign === "middle" ? activeIconColor : iconColor
                       }
                       icon={MdVerticalAlignCenter}
                       fontSize={20}
@@ -1142,21 +1116,15 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                       onClick={() =>
                         onFormattingChange?.(
                           FORMATTING_TYPE.VERTICAL_ALIGN,
-                          VERTICAL_ALIGNMENT.MIDDLE
+                          "middle"
                         )
                       }
                     />
                     <IconButton
                       aria-label={translations.horizontal_align}
-                      variant={
-                        verticalAlign === VERTICAL_ALIGNMENT.BOTTOM
-                          ? "solid"
-                          : "ghost"
-                      }
+                      variant={verticalAlign === "bottom" ? "solid" : "ghost"}
                       color={
-                        verticalAlign === VERTICAL_ALIGNMENT.BOTTOM
-                          ? activeIconColor
-                          : iconColor
+                        verticalAlign === "bottom" ? activeIconColor : iconColor
                       }
                       icon={MdVerticalAlignBottom}
                       fontSize={20}
@@ -1164,7 +1132,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                       onClick={() =>
                         onFormattingChange?.(
                           FORMATTING_TYPE.VERTICAL_ALIGN,
-                          VERTICAL_ALIGNMENT.BOTTOM
+                          "bottom"
                         )
                       }
                     />
@@ -1300,7 +1268,7 @@ const BorderSelection: React.FC<BorderProps> = ({
   iconColor,
   activeIconColor,
   onBorderChange,
-  isLight,
+  isLight
 }) => {
   const [borderColor, setBorderColor] = useState<string | undefined>("#000000");
   const [borderVariant, setBorderVariant] = useState<BORDER_VARIANT>();
@@ -1579,7 +1547,7 @@ const BorderSelection: React.FC<BorderProps> = ({
                       <PopoverBody>
                         <ColorPicker
                           color={borderColor}
-                          onChange={(value) => {
+                          onChange={value => {
                             handleChangeColor(value);
                             onClose?.();
                           }}

@@ -15,42 +15,39 @@ export enum FORMATTING_TYPE {
   FONT_FAMILY = "fontFamily",
   CUSTOM_FORMAT = "format",
   WRAP = "wrap",
-  ROTATION = "rotation",
+  ROTATION = "rotation"
 }
 
 export enum FONT_WEIGHT {
   BOLD = "bold",
-  NORMAL = "normal",
+  NORMAL = "normal"
 }
 
 export enum FONT_STYLE {
   ITALIC = "italic",
-  NORMAL = "normal",
+  NORMAL = "normal"
 }
 
 export enum TEXT_DECORATION {
   STRIKE = "line-through",
   NONE = "",
-  UNDERLINE = "underline",
+  UNDERLINE = "underline"
 }
 
-export enum VERTICAL_ALIGNMENT {
-  TOP = "top",
-  MIDDLE = "middle",
-  BOTTOM = "bottom",
-  JUSTIFY = "justify",
-  DISTRIBUTED = "distributed",
-}
-
-export enum HORIZONTAL_ALIGNMENT {
-  LEFT = "left",
-  CENTER = "center",
-  RIGHT = "right",
-  FILL = "fill",
-  CENTER_CONTINOUS = "centerContinuous",
-  JUSTIFY = "justify",
-  DISTRIBUTED = "distributed",
-}
+export type VERTICAL_ALIGNMENT =
+  | "top"
+  | "middle"
+  | "bottom"
+  | "justify"
+  | "distributed";
+export type HORIZONTAL_ALIGNMENT =
+  | "left"
+  | "center"
+  | "right"
+  | "fill"
+  | "centerContinuous"
+  | "justify"
+  | "distributed";
 
 export enum DATATYPE {
   Null = "null",
@@ -61,7 +58,7 @@ export enum DATATYPE {
   RichText = "richtext",
   Boolean = "boolean",
   Error = "error",
-  Hyperlink = "hyperlink",
+  Hyperlink = "hyperlink"
 }
 
 export enum STROKE_FORMATTING {
@@ -79,7 +76,7 @@ export enum STROKE_FORMATTING {
   STROKE_TOP_DASH = "strokeTopDash",
   STROKE_RIGHT_DASH = "strokeRightDash",
   STROKE_BOTTOM_DASH = "strokeBottomDash",
-  STROKE_LEFT_DASH = "strokeLeftDash",
+  STROKE_LEFT_DASH = "strokeLeftDash"
 }
 
 export interface CellFormatting extends CellDataFormatting {
@@ -116,7 +113,6 @@ export interface CellFormatting extends CellDataFormatting {
   readOnly?: boolean;
   wrap?: Wrap;
   rotation?: number;
-  valid?: boolean;
   dataValidation?: DataValidation;
   hyperlink?: string;
 }
@@ -133,7 +129,7 @@ export interface CellDataFormatting {
 
 export enum AXIS {
   X = "x",
-  Y = "y",
+  Y = "y"
 }
 
 export enum BORDER_VARIANT {
@@ -146,20 +142,20 @@ export enum BORDER_VARIANT {
   RIGHT = "right",
   BOTTOM = "bottom",
   TOP = "top",
-  NONE = "none",
+  NONE = "none"
 }
 
 export enum OPERATION_TYPE {
   CELL_ATTRIBUTE = "cell_attribute",
   CHANGE_SHEET_NAME = "change_sheet_name",
   SHEET_ADD = "sheet_add",
-  SHEET_REMOVE = "sheet_remove",
+  SHEET_REMOVE = "sheet_remove"
 }
 
 export enum RESOURCE_TYPE {
   SHEET = "sheet",
   CELL = "cell",
-  SELECTION = "selection",
+  SELECTION = "selection"
 }
 
 export enum BORDER_STYLE {
@@ -168,20 +164,22 @@ export enum BORDER_STYLE {
   "THICK" = "thick",
   "DASHED" = "dashed",
   "DOTTED" = "dotted",
-  "DOUBLE" = "double",
+  "DOUBLE" = "double"
 }
 
 export type FormatType = (
-  value: React.ReactText | undefined,
+  value: FormatInputValue,
   datatype?: DATATYPE,
   formatting?: CellDataFormatting
 ) => string | undefined;
+
+export type FormatInputValue = React.ReactText | undefined | boolean | Date;
 
 export enum SELECTION_MODE {
   CELL = "cell",
   ROW = "row",
   COLUMN = "column",
-  BOTH = "both",
+  BOTH = "both"
 }
 export type DataValidationOperator =
   | "between"
@@ -202,6 +200,25 @@ export type DataValidationType =
   | "custom"
   | "boolean";
 
+export type CellErrorValue =
+  | "#N/A"
+  | "#REF!"
+  | "#NAME?"
+  | "#DIV/0!"
+  | "#NULL!"
+  | "#VALUE!"
+  | "#NUM!";
+
+export enum ErrorValue {
+  NotApplicable = "#N/A",
+  Ref = "#REF!",
+  Name = "#NAME?",
+  DivZero = "#DIV/0!",
+  Null = "#NULL!",
+  Value = "#VALUE!",
+  Num = "#NUM!"
+}
+
 export interface DataValidation {
   type: DataValidationType;
   formulae?: any[];
@@ -220,5 +237,7 @@ export enum EditorType {
   TEXT = "text",
   DATE = "date",
   LIST = "list",
-  BOOLEAN = "boolean",
+  BOOLEAN = "boolean"
 }
+
+export type ResultType = string | number | boolean | Date;
