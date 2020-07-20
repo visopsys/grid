@@ -2,18 +2,16 @@ import React, {
   useCallback,
   useState,
   useMemo,
-  isValidElement,
   useRef,
-  useEffect
+  useEffect,
 } from "react";
 import { CellInterface, GridRef } from "../Grid";
-import { rafThrottle, debounce, throttle } from "../helpers";
+import { debounce, throttle } from "../helpers";
 
-export interface DefaultTooltipOptions {
+export interface TooltipOptions {
   /**
    * Tooltip component
    */
-  // component?: React.FC<TooltipProps> | React.ComponentClass<TooltipProps>;
   getTooltip?: (cell: CellInterface | null) => React.ElementType | null;
   /**
    * Grid references
@@ -36,7 +34,7 @@ export interface TooltipResults {
   onMouseLeave: (e: React.MouseEvent<HTMLInputElement>) => void;
 }
 
-export interface TooltipProps {
+export interface DefaultTooltipProps {
   /**
    * Tooltip x position
    */
@@ -51,7 +49,10 @@ export interface TooltipProps {
   scrollTop?: number;
 }
 
-const DefaultTooltipComponent: React.FC<TooltipProps> = ({ x = 0, y = 0 }) => {
+const DefaultTooltipComponent: React.FC<DefaultTooltipProps> = ({
+  x = 0,
+  y = 0,
+}) => {
   return (
     <div
       style={{
@@ -64,7 +65,7 @@ const DefaultTooltipComponent: React.FC<TooltipProps> = ({ x = 0, y = 0 }) => {
         boxShadow: "0 4px 8px 3px rgba(60,64,67,.15)",
         padding: 12,
         borderRadius: 4,
-        fontSize: 13
+        fontSize: 13,
       }}
     >
       {x}
@@ -72,19 +73,18 @@ const DefaultTooltipComponent: React.FC<TooltipProps> = ({ x = 0, y = 0 }) => {
   );
 };
 
-const getDefaultTooltip = (cell: CellInterface | null) =>
-  DefaultTooltipComponent;
+const getDefaultTooltip = () => DefaultTooltipComponent;
 
 const useTooltip = ({
   gridRef,
-  getTooltip = getDefaultTooltip
+  getTooltip = getDefaultTooltip,
 }: TooltipOptions): TooltipResults => {
   const [activeCell, setActiveCell] = useState<CellInterface | null>(null);
   const isTooltipActive = useRef(false);
   const activeCellRef = useRef(activeCell);
   const [tooltipPosition, setTooltipPosition] = useState<
     Pick<
-      TooltipProps,
+      DefaultTooltipProps,
       "x" | "y" | "width" | "height" | "scrollLeft" | "scrollTop"
     >
   >({});
@@ -131,12 +131,12 @@ const useTooltip = ({
     const scrollPosition = gridRef.current.getScrollPosition();
     setTooltipPosition({
       ...pos,
-      ...scrollPosition
+      ...scrollPosition,
     });
     setActiveCell({ rowIndex, columnIndex });
   }, []);
 
-  const handleMouseLeave = useCallback(e => {
+  const handleMouseLeave = useCallback(() => {
     if (isTooltipActive.current) return;
     setActiveCell(null);
   }, []);
@@ -153,7 +153,7 @@ const useTooltip = ({
   return {
     tooltipComponent,
     onMouseMove: mouseMoveThrottler.current,
-    onMouseLeave: mouseLeaveThrottler.current
+    onMouseLeave: mouseLeaveThrottler.current,
   };
 };
 

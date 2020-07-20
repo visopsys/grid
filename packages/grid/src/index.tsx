@@ -32,4 +32,5 @@ export * from "./helpers";
 export * from "./hooks/useFilter";
 export * from "./hooks/useUndo";
 export * from "./hooks/useTooltip";
+export * from "./hooks/useEditable";
 export * from "./types";
