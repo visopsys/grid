@@ -290,6 +290,12 @@ const initialValidationSheet: Sheet[] = [
           result: "4",
           error: "#VALUE!"
         }
+      },
+      7: {
+        2: {
+          text: "tooltip",
+          tooltip: "hello world"
+        }
       }
     }
   }

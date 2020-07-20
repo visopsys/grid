@@ -12,7 +12,13 @@ import React, {
 import Toolbar from "./Toolbar";
 import Formulabar from "./Formulabar";
 import Workbook from "./Workbook";
-import { theme, ThemeProvider, ColorModeProvider, Flex } from "@chakra-ui/core";
+import {
+  theme,
+  ThemeProvider,
+  ColorModeProvider,
+  Flex,
+  TooltipProps
+} from "@chakra-ui/core";
 import { Global, css } from "@emotion/core";
 import {
   CellInterface,
@@ -57,6 +63,7 @@ import { createStateReducer, ACTION_TYPE } from "./state";
 import { Patch } from "immer";
 import { ContextMenuComponentProps } from "./ContextMenu/ContextMenu";
 import ContextMenuComponent from "./ContextMenu";
+import TooltipComponent from "./Tooltip";
 
 export interface SpreadSheetProps {
   /**
@@ -184,6 +191,10 @@ export interface SpreadSheetProps {
    */
   ContextMenu?: React.ReactType<ContextMenuComponentProps>;
   /**
+   * Tooltip component
+   */
+  Tooltip?: React.ReactType<TooltipProps>;
+  /**
    * Scale
    */
   initialScale?: number;
@@ -244,6 +255,10 @@ export interface CellConfig extends CellFormatting {
    * For formulas, result will be displayed instead
    */
   text?: string | number;
+  /**
+   * Add tooltip
+   */
+  tooltip?: string;
   /**
    * Result from formula calculation
    */
@@ -326,6 +341,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       showStatusBar = true,
       StatusBar = StatusBarComponent,
       ContextMenu = ContextMenuComponent,
+      Tooltip = TooltipComponent,
       initialScale = 1,
       onScaleChange,
       fontLoaderConfig,
@@ -1234,6 +1250,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             showStatusBar={showStatusBar}
             selectionPolicy={selectionPolicy}
             ContextMenu={ContextMenu}
+            Tooltip={Tooltip}
             snap={snap}
           />
         </Flex>

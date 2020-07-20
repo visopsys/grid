@@ -31,7 +31,11 @@ import Grid, {
   StylingProps
 } from "@rowsncolumns/grid";
 import { debounce, cellIdentifier } from "@rowsncolumns/grid/dist/helpers";
-import { ThemeProvider, ColorModeProvider } from "@chakra-ui/core";
+import {
+  ThemeProvider,
+  ColorModeProvider,
+  TooltipProps
+} from "@chakra-ui/core";
 import {
   COLUMN_HEADER_WIDTH,
   DEFAULT_COLUMN_WIDTH,
@@ -55,7 +59,6 @@ import { EditorProps } from "@rowsncolumns/grid/dist/hooks/useEditable";
 import { CustomEditorProps } from "../Editor/Editor";
 import FilterComponent from "./../FilterComponent";
 import { FILTER_ICON_DIM } from "../FilterIcon/FilterIcon";
-import TooltipComponent from "./../Tooltip";
 import { ContextMenuComponentProps } from "../ContextMenu/ContextMenu";
 import { LIST_ICON_DIM } from "../ListArrow/ListArrow";
 
@@ -145,6 +148,7 @@ export interface SheetGridProps {
   selectionTopBound?: number;
   selectionLeftBound?: number;
   ContextMenu?: React.ReactType<ContextMenuComponentProps>;
+  Tooltip?: React.ReactType<TooltipProps>;
   snap?: boolean;
 }
 
@@ -247,6 +251,7 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
       selectionTopBound = 1,
       selectionLeftBound = 1,
       ContextMenu,
+      Tooltip,
       snap
     } = props;
 
@@ -803,9 +808,10 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         const isValid = cellConfig?.valid ?? true;
         const datatype = cellConfig?.datatype;
         const hasError = !!cellConfig?.error;
+        const hasTooltip = cellConfig?.tooltip;
         const isHyperLink = datatype === DATATYPE.Hyperlink;
         const showTooltip =
-          isValid === false || hasError === true || isHyperLink;
+          isValid === false || hasError === true || isHyperLink || hasTooltip;
         if (!showTooltip) return null;
         let content: string | undefined;
         if (isValid === false) {
@@ -815,11 +821,14 @@ const SheetGrid: React.FC<SheetGridProps & RefAttributeGrid> = memo(
         if (hasError) {
           content = cellConfig?.error;
         }
+        if (hasTooltip) {
+          content = cellConfig?.tooltip;
+        }
         const variant =
           isValid === false ? "invalid" : hasError ? "error" : void 0;
         const position = isHyperLink ? "bottom" : "right";
         return props => (
-          <TooltipComponent
+          <Tooltip
             {...props}
             {...cellConfig}
             position={position}

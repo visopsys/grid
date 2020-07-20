@@ -10,14 +10,14 @@ import {
   Sheet,
   Cells,
   SizeType,
-  SheetID,
+  SheetID
 } from "../Spreadsheet";
 import {
   CellInterface,
   SelectionArea,
   ScrollCoords,
   isNull,
-  FilterDefinition,
+  FilterDefinition
 } from "@rowsncolumns/grid";
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
@@ -25,7 +25,7 @@ import {
   DARK_MODE_COLOR_LIGHT,
   EMPTY_ARRAY,
   DEFAULT_COLUMN_COUNT,
-  DEFAULT_ROW_COUNT,
+  DEFAULT_ROW_COUNT
 } from "../constants";
 import { current } from "immer";
 
@@ -159,13 +159,14 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       showStatusBar,
       scale = 1,
       ContextMenu,
-      snap,
+      Tooltip,
+      snap
     } = props;
 
     const { colorMode } = useColorMode();
     const isLight = colorMode === "light";
     const [containerRef, { width, height }] = useMeasure({
-      polyfill: ResizeObserver,
+      polyfill: ResizeObserver
     });
 
     const {
@@ -183,7 +184,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       showGridLines = true,
       filterViews,
       rowCount = DEFAULT_ROW_COUNT,
-      columnCount = DEFAULT_COLUMN_COUNT,
+      columnCount = DEFAULT_COLUMN_COUNT
     } = currentSheet;
 
     /* Current sheet ref */
@@ -362,6 +363,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
             filterViews={filterViews}
             onChangeFilter={handleChangeFilter}
             ContextMenu={ContextMenu}
+            Tooltip={Tooltip}
             snap={snap}
           />
         </Flex>

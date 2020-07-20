@@ -17,7 +17,7 @@ export enum DATATYPE {
 ```
 
 :::note
-We are actively working to add support for these datatables
+We are actively working to add support for these datatypes
 
 1. Date
 1. Formula

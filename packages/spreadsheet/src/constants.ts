@@ -38,6 +38,7 @@ export const SYSTEM_FONT =
   "-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji";
 export const INVALID_COLOR = "#FF5621";
 export const ERROR_COLOR = "#C63929";
+export const INFO_COLOR = "#1D72E8";
 export const HYPERLINK_COLOR = "#1155CC";
 
 /**

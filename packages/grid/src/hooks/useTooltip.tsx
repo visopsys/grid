@@ -9,7 +9,7 @@ import React, {
 import { CellInterface, GridRef } from "../Grid";
 import { rafThrottle, debounce, throttle } from "../helpers";
 
-export interface TooltipOptions {
+export interface DefaultTooltipOptions {
   /**
    * Tooltip component
    */

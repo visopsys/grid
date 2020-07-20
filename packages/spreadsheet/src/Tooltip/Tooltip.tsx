@@ -1,11 +1,16 @@
 import React from "react";
-import { TooltipProps } from "@rowsncolumns/grid";
-import { INVALID_COLOR, HYPERLINK_COLOR, ERROR_COLOR } from "../constants";
+import { DefaultTooltipOptions } from "@rowsncolumns/grid";
+import {
+  INVALID_COLOR,
+  HYPERLINK_COLOR,
+  ERROR_COLOR,
+  INFO_COLOR
+} from "../constants";
 import { Box, Link } from "@chakra-ui/core";
 import { CellConfig } from "../Spreadsheet";
 import { DATATYPE } from "../types";
 
-export interface TipProps extends TooltipProps, CellConfig {
+export interface TooltipProps extends DefaultTooltipOptions, CellConfig {
   valid?: boolean;
   content?: string;
   onMouseEnter?: () => void;
@@ -17,7 +22,7 @@ export interface TipProps extends TooltipProps, CellConfig {
 export type TooltipPosition = "right" | "left" | "top" | "bottom";
 export type TooltipVariant = "invalid" | "error" | "info";
 
-const Tooltip: React.FC<TipProps> = ({
+const Tooltip: React.FC<TooltipProps> = ({
   x = 0,
   y = 0,
   width = 0,
@@ -41,8 +46,7 @@ const Tooltip: React.FC<TipProps> = ({
       ? INVALID_COLOR
       : variant === "error"
       ? ERROR_COLOR
-      : "transparent";
-
+      : INFO_COLOR;
   const posX = position === "right" ? x + width - scrollLeft : x - scrollLeft;
   const posY = position === "bottom" ? y + height - scrollTop : y - scrollTop;
   return (
