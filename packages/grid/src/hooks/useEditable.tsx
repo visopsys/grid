@@ -369,6 +369,8 @@ const useEditable = ({
   const [autoFocus, setAutoFocus] = useState<boolean>(true);
   const isDirtyRef = useRef<boolean>(false);
   const currentValueRef = useRef(value);
+  /* To prevent stale closures data */
+  const getValueRef = useRef(getValue);
   const showEditor = useCallback(() => setShowEditor(true), []);
   const hideEditor = useCallback(() => {
     setShowEditor(false);
@@ -383,46 +385,54 @@ const useEditable = ({
     currentValueRef.current = value;
   });
 
+  /* Keep getvalue ref in sync with upstream prop */
+  useEffect(() => {
+    getValueRef.current = getValue;
+  }, [getValue]);
+
   /**
    * Make a cell editable
    * @param coords
    * @param initialValue
    */
-  const makeEditable = (
-    coords: CellInterface,
-    initialValue?: string,
-    autoFocus: boolean = true
-  ) => {
-    if (!gridRef.current) return;
-    /* Get actual coords for merged cells */
-    coords = gridRef.current.getActualCellCoords(coords);
+  const makeEditable = useCallback(
+    (
+      coords: CellInterface,
+      initialValue?: string,
+      autoFocus: boolean = true
+    ) => {
+      if (!gridRef.current) return;
+      /* Get actual coords for merged cells */
+      coords = gridRef.current.getActualCellCoords(coords);
 
-    /* Check if its the same cell */
-    if (isEqualCells(coords, currentActiveCellRef.current)) return;
+      /* Check if its the same cell */
+      if (isEqualCells(coords, currentActiveCellRef.current)) return;
 
-    /*  Focus */
-    gridRef.current?.scrollToItem(coords);
+      /*  Focus */
+      gridRef.current?.scrollToItem(coords);
 
-    /* Call on before edit */
-    if (canEdit(coords)) {
-      currentActiveCellRef.current = coords;
+      /* Call on before edit */
+      if (canEdit(coords)) {
+        currentActiveCellRef.current = coords;
 
-      /* Get offsets */
-      const pos = gridRef.current.getCellOffsetFromCoords(coords);
-      const scrollPosition = gridRef.current.getScrollPosition();
-      const value = initialValue || getValue(coords) || "";
+        /* Get offsets */
+        const pos = gridRef.current.getCellOffsetFromCoords(coords);
+        const scrollPosition = gridRef.current.getScrollPosition();
+        const value = initialValue || getValueRef.current(coords) || "";
 
-      setValue(value);
-      setAutoFocus(autoFocus);
-      setPosition(getCellPosition(pos, scrollPosition));
-      showEditor();
-      /* In the next frame */
-      /**
-       * Fixes a bug where on first keypress, input's onChange handler gets fired
-       */
-      requestAnimationFrame(() => onChange?.(value, coords));
-    }
-  };
+        setValue(value);
+        setAutoFocus(autoFocus);
+        setPosition(getCellPosition(pos, scrollPosition));
+        showEditor();
+        /* In the next frame */
+        /**
+         * Fixes a bug where on first keypress, input's onChange handler gets fired
+         */
+        requestAnimationFrame(() => onChange?.(value, coords));
+      }
+    },
+    []
+  );
 
   /**
    * Get current cell position based on scroll position

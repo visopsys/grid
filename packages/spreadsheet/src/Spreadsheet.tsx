@@ -604,6 +604,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         dispatch({
           type: ACTION_TYPE.NEW_SHEET,
           sheet: newSheet,
+          index,
         });
       },
       [sheets, selectedSheet]
