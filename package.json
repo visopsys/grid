@@ -8,6 +8,7 @@
   "scripts": {
     "storybook": "lerna run storybook --stream",
     "docs:start": "cd packages/website; yarn docs:start",
+    "docs:build": "cd packages/website; yarn docs:build;",
     "docs:deploy": "cd packages/website; yarn docs:build; vercel --prod",
     "build": "lerna run build",
     "build:watch": "lerna run build:watch --stream --concurrency 20 --parallel",

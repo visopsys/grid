@@ -177,14 +177,14 @@ const useFilter = ({
     const { filter, filterView } = currentFilter;
     const { columnIndex } = filterCell;
     const { bounds } = filterView;
-    var values = new Set();
+    var filterValues = new Set();
     for (let i = bounds.top + 1; i <= bounds.bottom; i++) {
       const cell = { rowIndex: i, columnIndex };
       const text = getValue(cell);
       const value = isNull(text) ? "" : text;
-      values.add(value);
+      filterValues.add(value);
     }
-    return [...values];
+    return [...filterValues];
   }, [filterCell, currentFilter]);
 
   const filterComponent =
