@@ -81,7 +81,7 @@ function Home() {
             {/* <Button variantColor='blue' mr={2}>Demo</Button> */}
             <Button
               as="a"
-              href="/docs"
+              href="/docs/install"
               variantColor="purple"
               _hover={{ color: "white" }}
             >
