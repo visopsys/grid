@@ -253,6 +253,9 @@ function Home() {
           .footer {
             display: none;
           }
+          .main-wrapper {
+            display: flex;
+          }
         `}
       />
       <Box padding={2} flex={1} display="flex" minWidth={0}>
