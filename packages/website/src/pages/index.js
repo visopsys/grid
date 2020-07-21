@@ -29,7 +29,7 @@ function Feature({ imageUrl, title, description, url, align = "center" }) {
         <Button
           variant="link"
           as="a"
-          mt={3}
+          mt={1}
           href={url}
           variantColor="teal"
           _hover={{ color: "teal" }}
