@@ -15,6 +15,7 @@ module.exports = {
       "features/tabstrip",
       "features/statusbar",
       "features/gridlines",
+      "features/cell-renderer",
       "features/borders",
       "features/fonts",
       "features/undo-redo",
@@ -25,6 +26,7 @@ module.exports = {
       "features/data-validation",
       "features/datatypes",
       "features/tooltips",
+      "features/hidden-rows-columns",
     ],
     Examples: [
       "sizing",

@@ -608,13 +608,13 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       mouseMoveInterceptor: handleMouseMoveSelection,
       canSelectionSpanMergedCells: (start, end) => {
         if (
-          start.rowIndex === selectionTopBound ||
+          start.rowIndex === selectionTopBound &&
           end.rowIndex === rowCount - 1
         ) {
           return false;
         }
         if (
-          start.columnIndex === selectionLeftBound ||
+          start.columnIndex === selectionLeftBound &&
           end.columnIndex === columnCount - 1
         ) {
           return false;

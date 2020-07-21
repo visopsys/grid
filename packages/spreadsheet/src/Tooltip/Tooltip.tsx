@@ -90,7 +90,12 @@ const HyperLink: React.FC<TooltipContentProps> = ({ title, url }) => {
   return (
     <>
       <Box mb={1} fontWeight="bold">
-        <Link color={HYPERLINK_COLOR} href={url} target="_blank">
+        <Link
+          color={HYPERLINK_COLOR}
+          _hover={{ color: HYPERLINK_COLOR }}
+          href={url}
+          target="_blank"
+        >
           {title}
         </Link>
       </Box>

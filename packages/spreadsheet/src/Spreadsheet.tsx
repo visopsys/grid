@@ -86,14 +86,6 @@ export interface SpreadSheetProps {
    */
   activeSheet?: string;
   /**
-   * Hide rows
-   */
-  hiddenRows?: number[];
-  /**
-   * Hide columns
-   */
-  hiddenColumns?: number[];
-  /**
    * Callback fired when cells are modified
    */
   onChangeCells?: (id: SheetID, changes: Cells) => void;
