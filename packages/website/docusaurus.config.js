@@ -11,18 +11,18 @@ module.exports = {
     // sidebarCollapsible: false,
     algolia: {
       apiKey: "0c4892a9e16a5115dac7b31c0e43803d",
-      indexName: "rowsncolumns"
+      indexName: "rowsncolumns",
       // appId: 'app-id', // Optional, if you run the DocSearch crawler on your own
       // algoliaOptions: {}, // Optional, if provided by Algolia
     },
     prism: {
-      theme: require("prism-react-renderer/themes/dracula")
+      theme: require("prism-react-renderer/themes/dracula"),
     },
     navbar: {
       title: "Rows n' Columns",
       logo: {
         alt: "Rows n' Columns",
-        src: "img/logo.png"
+        src: "img/logo.png",
       },
       links: [
         // {to: '/features', label: 'Features', position: 'left'},
@@ -31,21 +31,21 @@ module.exports = {
           to: "docs/",
           activeBasePath: "docs",
           label: "Documentation",
-          position: "left"
+          position: "left",
         },
         { to: "pricing", label: "Pricing", position: "left" },
         { to: "contact", label: "Contact", position: "left" },
         {
           href: "https://discord.gg/K4cNVh6",
           label: "Chat",
-          position: "right"
+          position: "right",
         },
         {
           href: "https://github.com/rowsncolumns",
           label: "GitHub",
-          position: "right"
-        }
-      ]
+          position: "right",
+        },
+      ],
     },
     footer: {
       style: "dark",
@@ -55,47 +55,51 @@ module.exports = {
           items: [
             {
               label: "What is Spreadsheet",
-              to: "/docs"
+              to: "/docs",
             },
             {
               label: "Examples",
-              to: "docs/sizing"
-            }
-          ]
+              to: "docs/sizing",
+            },
+            {
+              label: "Features",
+              to: "docs/features/initialize",
+            },
+          ],
         },
         {
           title: "Community",
           items: [
             {
               label: "Discord",
-              href: "https://discord.gg/K4cNVh6"
+              href: "https://discord.gg/K4cNVh6",
             },
             {
               label: "Twitter",
-              href: "https://twitter.com/rowsncolumnsapp"
-            }
-          ]
+              href: "https://twitter.com/rowsncolumnsapp",
+            },
+          ],
         },
         {
           title: "More",
           items: [
             {
               label: "Privacy policy",
-              to: "/privacy"
+              to: "/privacy",
             },
             {
               label: "Terms of use",
-              to: "/terms-of-use"
+              to: "/terms-of-use",
             },
             {
               label: "GitHub",
-              href: "https://github.com/rowsncolumns"
-            }
-          ]
-        }
+              href: "https://github.com/rowsncolumns",
+            },
+          ],
+        },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Rows n' Columns. Made in Sunny Singapore.`
-    }
+      copyright: `Copyright © ${new Date().getFullYear()} Rows n' Columns. Made in Sunny Singapore.`,
+    },
   },
   presets: [
     [
@@ -106,19 +110,19 @@ module.exports = {
           homePageId: "introduction",
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
-          editUrl: "https://github.com/rowsncolumns/grid/edit/master/website/"
+          editUrl: "https://github.com/rowsncolumns/grid/edit/master/website/",
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            "https://github.com/rowsncolumns/grid/edit/master/website/blog/"
+            "https://github.com/rowsncolumns/grid/edit/master/website/blog/",
         },
         theme: {
-          customCss: require.resolve("./src/css/custom.css")
-        }
-      }
-    ]
+          customCss: require.resolve("./src/css/custom.css"),
+        },
+      },
+    ],
   ],
   plugins: [
     [
@@ -126,8 +130,8 @@ module.exports = {
       {
         cacheTime: 600 * 1000, // 600 sec - cache purge period
         changefreq: "weekly",
-        priority: 0.5
-      }
-    ]
-  ]
+        priority: 0.5,
+      },
+    ],
+  ],
 };

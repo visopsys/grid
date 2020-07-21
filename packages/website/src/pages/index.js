@@ -231,6 +231,7 @@ function Home() {
             align="left"
             title="Text Formatting"
             description="Full support for text formatting, just like Excel and Google sheets. Align, change fonts, make text bold, add underline or custom number format is very easy."
+            url="/docs/styles"
           />
           <Feature
             align="left"
