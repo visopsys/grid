@@ -30,5 +30,8 @@
 
 
 .main-wrapper {
-  display: flex;
+  display: flex;  
 }
+  .main-wrapper > * {
+    flex: 1;
+  }

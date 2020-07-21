@@ -1310,58 +1310,48 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     /**
      * Fired when user tries to scroll the canvas
      */
-    const handleWheel = useCallback(
-      (event: globalThis.MouseWheelEvent) => {
-        /* Prevent browser back in Mac */
-        event.preventDefault();
-        const { deltaX, deltaY, deltaMode } = event;
-        /* If snaps are active */
+    const handleWheel = useCallback((event: globalThis.MouseWheelEvent) => {
+      /* Prevent browser back in Mac */
 
-        if (snap) {
-          snapToRowThrottler.current({
-            deltaY,
-          });
-          snapToColumnThrottler.current({
-            deltaX,
-          });
-          return;
-        }
-        /* Scroll natively */
-        if (wheelingRef.current) return;
-        let dx = deltaX;
-        let dy = deltaY;
+      event.preventDefault();
+      const { deltaX, deltaY, deltaMode } = event;
+      /* If snaps are active */
 
-        /* Scroll only in one direction */
-        const isHorizontal = Math.abs(dx) > Math.abs(dy);
-
-        if (deltaMode === 1) {
-          dy = dy * scrollbarSize;
-        }
-        if (!horizontalScrollRef.current || !verticalScrollRef.current) return;
-        const currentScroll = isHorizontal
-          ? horizontalScrollRef.current?.scrollLeft
-          : verticalScrollRef.current?.scrollTop;
-        wheelingRef.current = window.requestAnimationFrame(() => {
-          wheelingRef.current = null;
-          if (isHorizontal) {
-            if (horizontalScrollRef.current)
-              horizontalScrollRef.current.scrollLeft = currentScroll + dx;
-          } else {
-            if (verticalScrollRef.current)
-              verticalScrollRef.current.scrollTop = currentScroll + dy;
-          }
+      if (snap) {
+        snapToRowThrottler.current({
+          deltaY,
         });
-      },
-      [
-        rowStartIndex,
-        columnStartIndex,
-        rowCount,
-        columnCount,
-        snap,
-        frozenColumns,
-        frozenRows,
-      ]
-    );
+        snapToColumnThrottler.current({
+          deltaX,
+        });
+        return;
+      }
+      /* Scroll natively */
+      if (wheelingRef.current) return;
+      let dx = deltaX;
+      let dy = deltaY;
+
+      /* Scroll only in one direction */
+      const isHorizontal = Math.abs(dx) > Math.abs(dy);
+
+      if (deltaMode === 1) {
+        dy = dy * scrollbarSize;
+      }
+      if (!horizontalScrollRef.current || !verticalScrollRef.current) return;
+      const currentScroll = isHorizontal
+        ? horizontalScrollRef.current?.scrollLeft
+        : verticalScrollRef.current?.scrollTop;
+      wheelingRef.current = window.requestAnimationFrame(() => {
+        wheelingRef.current = null;
+        if (isHorizontal) {
+          if (horizontalScrollRef.current)
+            horizontalScrollRef.current.scrollLeft = currentScroll + dx;
+        } else {
+          if (verticalScrollRef.current)
+            verticalScrollRef.current.scrollTop = currentScroll + dy;
+        }
+      });
+    }, []);
 
     /* Callback when visible rows or columns have changed */
     useEffect(() => {
