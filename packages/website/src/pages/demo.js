@@ -255,7 +255,7 @@ function Home() {
           }
         `}
       />
-      <Box padding={2} flex={1} display="flex">
+      <Box padding={2} flex={1} display="flex" minWidth={0}>
         <SpreadSheet initialColorMode="light" sheets={initialState} />
       </Box>
     </Layout>
