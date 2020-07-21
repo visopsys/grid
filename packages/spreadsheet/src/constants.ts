@@ -420,37 +420,41 @@ export const cellsInSelectionVariant = (
                 strokeBottomWidth: thickness,
               };
             }
-            if (j === bounds.top) {
-              cells[rowIndex][columnIndex] = {
-                ...cells[rowIndex][columnIndex],
-                strokeBottomColor: color,
-                strokeBottomDash: dash,
-                strokeBottomWidth: thickness,
-              };
+            if (bounds.top !== bounds.bottom) {
+              if (j === bounds.top) {
+                cells[rowIndex][columnIndex] = {
+                  ...cells[rowIndex][columnIndex],
+                  strokeBottomColor: color,
+                  strokeBottomDash: dash,
+                  strokeBottomWidth: thickness,
+                };
+              }
+              if (j === bounds.bottom) {
+                cells[rowIndex][columnIndex] = {
+                  ...cells[rowIndex][columnIndex],
+                  strokeTopColor: color,
+                  strokeTopDash: dash,
+                  strokeTopWidth: thickness,
+                };
+              }
             }
-            if (j === bounds.bottom) {
-              cells[rowIndex][columnIndex] = {
-                ...cells[rowIndex][columnIndex],
-                strokeTopColor: color,
-                strokeTopDash: dash,
-                strokeTopWidth: thickness,
-              };
-            }
-            if (k === bounds.left) {
-              cells[rowIndex][columnIndex] = {
-                ...cells[rowIndex][columnIndex],
-                strokeRightColor: color,
-                strokeRightDash: dash,
-                strokeRightWidth: thickness,
-              };
-            }
-            if (k === bounds.right) {
-              cells[rowIndex][columnIndex] = {
-                ...cells[rowIndex][columnIndex],
-                strokeLeftColor: color,
-                strokeLeftDash: dash,
-                strokeLeftWidth: thickness,
-              };
+            if (bounds.left !== bounds.right) {
+              if (k === bounds.left) {
+                cells[rowIndex][columnIndex] = {
+                  ...cells[rowIndex][columnIndex],
+                  strokeRightColor: color,
+                  strokeRightDash: dash,
+                  strokeRightWidth: thickness,
+                };
+              }
+              if (k === bounds.right) {
+                cells[rowIndex][columnIndex] = {
+                  ...cells[rowIndex][columnIndex],
+                  strokeLeftColor: color,
+                  strokeLeftDash: dash,
+                  strokeLeftWidth: thickness,
+                };
+              }
             }
             break;
 
