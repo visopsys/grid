@@ -58,13 +58,13 @@ const initialState = [
           text: "Last Name",
         },
         6: {
-          text: "Country",
+          text: "Gender",
         },
         7: {
-          text: "Age",
+          text: "Country",
         },
         8: {
-          text: "Date",
+          text: "Age",
         },
       },
       5: {
