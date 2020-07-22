@@ -420,15 +420,11 @@ const useEditable = ({
         const scrollPosition = gridRef.current.getScrollPosition();
         const value = initialValue || getValueRef.current(coords) || "";
 
-        setValue(value);
+        /* Trigger onChange handlers */
+        handleChange?.(value, coords);
         setAutoFocus(autoFocus);
         setPosition(getCellPosition(pos, scrollPosition));
         showEditor();
-        /* In the next frame */
-        /**
-         * Fixes a bug where on first keypress, input's onChange handler gets fired
-         */
-        requestAnimationFrame(() => onChange?.(value, coords));
       }
     },
     []
@@ -520,6 +516,9 @@ const useEditable = ({
           : e.nativeEvent.key;
 
       makeEditable({ rowIndex, columnIndex }, initialValue);
+
+      /* Prevent the first keystroke */
+      e.preventDefault();
     },
     [getValue, selections, activeCell]
   );
