@@ -22,6 +22,7 @@ import {
   DATATYPES,
   DataValidation,
 } from "./types";
+import SheetGrid from "./Grid/Grid";
 
 /* Enabled patches in immer */
 enablePatches();
@@ -86,6 +87,7 @@ export enum ACTION_TYPE {
   REMOVE_CELLS = "REMOVE_CELLS",
   PASTE = "PASTE",
   REPLACE_SHEETS = "REPLACE_SHEETS",
+  VALIDATION_SUCCESS = "VALIDATION_SUCCESS",
 }
 
 export type ActionTypes =
@@ -116,9 +118,7 @@ export type ActionTypes =
       id: SheetID;
       cell: CellInterface;
       value: React.ReactText;
-      valid?: boolean;
       datatype?: DATATYPES;
-      prompt?: string;
       undoable?: boolean;
     }
   | {
@@ -246,7 +246,15 @@ export type ActionTypes =
       activeCell: CellInterface;
       undoable?: boolean;
     }
-  | { type: ACTION_TYPE.REPLACE_SHEETS; sheets: Sheet[]; undoable?: boolean };
+  | { type: ACTION_TYPE.REPLACE_SHEETS; sheets: Sheet[]; undoable?: boolean }
+  | {
+      type: ACTION_TYPE.VALIDATION_SUCCESS;
+      id: SheetID;
+      cell: CellInterface;
+      valid?: boolean;
+      prompt?: string;
+      undoable?: boolean;
+    };
 
 export interface StateReducerProps {
   addUndoPatch: <T>(patches: PatchInterface<T>) => void;
@@ -300,27 +308,40 @@ export const createStateReducer = ({
             const sheet = draft.sheets.find((sheet) => sheet.id === action.id);
             if (sheet) {
               const { activeCell, selections } = sheet;
-              const { cell, value, valid, datatype, prompt } = action;
+              const { cell, value, datatype } = action;
               sheet.cells[cell.rowIndex] = sheet.cells[cell.rowIndex] ?? {};
               sheet.cells[cell.rowIndex][cell.columnIndex] =
                 sheet.cells[cell.rowIndex][cell.columnIndex] ?? {};
               const currentCell = sheet.cells[cell.rowIndex][cell.columnIndex];
               currentCell.text = value;
-              if (valid !== void 0) {
-                currentCell.valid = valid;
-              }
+
               if (datatype !== void 0) {
                 currentCell.datatype = datatype;
+              }
+
+              /* Keep reference of active cell, so we can focus back */
+              draft.currentActiveCell = activeCell;
+              draft.currentSelections = selections;
+            }
+            break;
+          }
+
+          case ACTION_TYPE.VALIDATION_SUCCESS: {
+            const sheet = draft.sheets.find((sheet) => sheet.id === action.id);
+            if (sheet) {
+              const { valid, cell, prompt } = action;
+              sheet.cells[cell.rowIndex] = sheet.cells[cell.rowIndex] ?? {};
+              sheet.cells[cell.rowIndex][cell.columnIndex] =
+                sheet.cells[cell.rowIndex][cell.columnIndex] ?? {};
+              const currentCell = sheet.cells[cell.rowIndex][cell.columnIndex];
+              if (valid !== void 0) {
+                currentCell.valid = valid;
               }
               if (prompt !== void 0) {
                 currentCell.dataValidation =
                   currentCell.dataValidation ?? createCustomValidation();
                 currentCell.dataValidation.prompt = prompt;
               }
-
-              /* Keep reference of active cell, so we can focus back */
-              draft.currentActiveCell = activeCell;
-              draft.currentSelections = selections;
             }
             break;
           }

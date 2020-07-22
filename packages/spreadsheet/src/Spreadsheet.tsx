@@ -592,9 +592,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       async (id: SheetID, value: React.ReactText, cell: CellInterface) => {
         const config = getCellConfig(cell);
         const datatype = detectDataType(value);
-        /* Validate */
-        const { valid, message } =
-          (await onValidate(value, id, cell, config)) || {};
 
         dispatch({
           type: ACTION_TYPE.CHANGE_SHEET_CELL,
@@ -602,11 +599,23 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
           cell,
           id,
           datatype,
-          valid,
-          prompt: message,
         });
 
         onChangeCell?.(id, value, cell);
+
+        /* Validate */
+        requestAnimationFrame(async () => {
+          const { valid, message } =
+            (await onValidate(value, id, cell, config)) || {};
+
+          dispatch({
+            type: ACTION_TYPE.VALIDATION_SUCCESS,
+            cell,
+            id,
+            valid,
+            prompt: message,
+          });
+        });
       },
       [activeCellConfig]
     );
