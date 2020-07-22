@@ -5,7 +5,7 @@ This monorepo contains
 1. [Grid](https://github.com/rowsncolumns/grid/tree/master/packages/grid) - MIT Licensed Declarative Canvas Grid. Refer to [Storybook](https://rowsncolumns.github.io/grid) for all demos.
 
 
-2. [SpreadSheet](https://github.com/rowsncolumns/grid/tree/master/packages/spreadsheet) - Commercially available Excel-like Grid
+2. [SpreadSheet](https://github.com/rowsncolumns/grid/tree/master/packages/spreadsheet) - Excel-like Grid available as Non-commercial and Commercially licensed product
 
 3. [Exporter](https://github.com/rowsncolumns/grid/tree/master/packages/export) - Excel Export plugin
 
