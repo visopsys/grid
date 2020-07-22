@@ -25,7 +25,9 @@ export const validate = async (
       const validList = cellConfig?.dataValidation?.formulae;
       if (!validList) {
         valid = false;
+        return { valid };
       }
+      valid = validList?.includes(value);
       return {
         valid,
       };
@@ -35,7 +37,9 @@ export const validate = async (
       const validList = cellConfig?.dataValidation?.formulae;
       if (!validList) {
         valid = false;
+        return { valid };
       }
+      valid = validList?.includes(value);
       return {
         valid,
       };
