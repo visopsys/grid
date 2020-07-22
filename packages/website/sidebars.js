@@ -40,6 +40,6 @@ module.exports = {
       "excel",
       "csv",
     ],
-    Advanced: ["ref"],
+    Advanced: ["ref", "state-reducer"],
   },
 };

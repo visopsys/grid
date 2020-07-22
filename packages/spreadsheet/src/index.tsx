@@ -4,6 +4,7 @@ import Cell from "./Cell";
 export * from "./Spreadsheet";
 export default Spreadsheet;
 export { Editor as DefaultEditor, Cell as DefaultCell };
-export { defaultSheets }
-export * from './constants'
-export * from './types'
+export { defaultSheets };
+export * from "./constants";
+export * from "./types";
+export * from "./state";

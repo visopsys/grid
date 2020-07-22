@@ -50,7 +50,12 @@ import Editor, { CustomEditorProps } from "./Editor/Editor";
 import StatusBarComponent from "./StatusBar";
 import { StatusBarProps } from "./StatusBar/StatusBar";
 import useFonts from "./hooks/useFonts";
-import { createStateReducer, ACTION_TYPE } from "./state";
+import {
+  createStateReducer,
+  ACTION_TYPE,
+  StateInterface,
+  ActionTypes,
+} from "./state";
 import { Patch } from "immer";
 import { ContextMenuComponentProps } from "./ContextMenu/ContextMenu";
 import ContextMenuComponent from "./ContextMenu";
@@ -197,6 +202,10 @@ export interface SpreadSheetProps {
    * Snap to row and column as user scrolls
    */
   snap?: boolean;
+  /**
+   * Add your own state interface
+   */
+  stateReducer?: (state: StateInterface, action: ActionTypes) => StateInterface;
   // TODO
   // onMouseOver?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
   // onMouseDown?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
@@ -331,6 +340,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       fontList = FONT_FAMILIES,
       selectionPolicy,
       snap = false,
+      stateReducer,
     } = props;
 
     /* Last active cells: for undo, redo */
@@ -353,7 +363,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
      * Undo hook
      */
     const {
-      add: addToUndo,
+      add: addUndoPatch,
       canRedo,
       canUndo,
       undo,
@@ -408,7 +418,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
 
     const [state, dispatch] = useReducer(
       useCallback(
-        createStateReducer({ onUpdate: addToUndo, getCellBounds }),
+        createStateReducer({ addUndoPatch, getCellBounds, stateReducer }),
         []
       ),
       {
@@ -559,6 +569,9 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       []
     );
 
+    /**
+     * Handle sheet name
+     */
     const handleChangeSheetName = useCallback((id: SheetID, name: string) => {
       dispatch({
         type: ACTION_TYPE.CHANGE_SHEET_NAME,

@@ -236,21 +236,28 @@ export type ActionTypes =
     }
   | { type: ACTION_TYPE.REPLACE_SHEETS; sheets: Sheet[]; undoable?: boolean };
 
-export interface Props {
-  onUpdate: <T>(patches: PatchInterface<T>) => void;
+export interface StateReducerProps {
+  addUndoPatch: <T>(patches: PatchInterface<T>) => void;
   getCellBounds: (cell: CellInterface | null) => AreaProps | undefined;
+  stateReducer?: (state: StateInterface, action: ActionTypes) => StateInterface;
 }
 
-const initialState: StateInterface = {
+export const initialState: StateInterface = {
   selectedSheet: 0,
   sheets: defaultSheets,
   currentActiveCell: null,
   currentSelections: null,
 };
 
-export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
+const defaultStateReducer = (state: StateInterface) => state;
+
+export const createStateReducer = ({
+  addUndoPatch,
+  getCellBounds,
+  stateReducer = defaultStateReducer,
+}: StateReducerProps) => {
   return (state = initialState, action: ActionTypes): StateInterface => {
-    return produce(
+    const newState = produce(
       state,
       (draft) => {
         switch (action.type) {
@@ -807,9 +814,11 @@ export const createStateReducer = ({ onUpdate, getCellBounds }: Props) => {
           return;
         }
         requestAnimationFrame(() =>
-          onUpdate<Patch[]>({ patches, inversePatches })
+          addUndoPatch<Patch[]>({ patches, inversePatches })
         );
       }
     );
+
+    return stateReducer(newState, action);
   };
 };
