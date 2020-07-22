@@ -33,6 +33,12 @@ module.exports = {
           label: "Documentation",
           position: "left",
         },
+        {
+          to: "/#features",
+          activeBasePath: "feature",
+          label: "Features",
+          position: "left",
+        },
         { to: "pricing", label: "Pricing", position: "left" },
         { to: "contact", label: "Contact", position: "left" },
         {

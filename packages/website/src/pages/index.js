@@ -74,7 +74,7 @@ function Home() {
               formatting etc
             </ListItem>
             <ListItem fontWeight="bold" textDecoration="underline">
-              <a href="#features">Feature packed</a>
+              <a href="#features">View features</a>
             </ListItem>
           </List>
           <Box>
