@@ -262,7 +262,7 @@ function Home() {
           <Feature
             align="left"
             title="Formula (coming soon)"
-            description="Make complex calculations, with cross-sheet references, external data source etc. Highly performance as calculations run in a separate thread."
+            description="Make complex calculations, with cross-sheet references, external data source etc. High performance as calculations run in a separate thread."
             url="/docs/formula"
           />
         </SimpleGrid>
