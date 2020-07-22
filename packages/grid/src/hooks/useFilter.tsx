@@ -184,7 +184,7 @@ const useFilter = ({
       const value = isNull(text) ? "" : text;
       filterValues.add(value);
     }
-    return [...filterValues];
+    return Array.from(filterValues);
   }, [filterCell, currentFilter]);
 
   const filterComponent =
