@@ -8,7 +8,6 @@ import {
 } from "../constants";
 import { Box, Link } from "@chakra-ui/core";
 import { CellConfig } from "../Spreadsheet";
-import { DATATYPE } from "../types";
 
 export interface TooltipProps extends DefaultTooltipProps, CellConfig {
   valid?: boolean;
@@ -70,7 +69,7 @@ const Tooltip: React.FC<TooltipProps> = ({
       onMouseLeave={onMouseLeave}
       onMouseEnter={onMouseEnter}
     >
-      {datatype === DATATYPE.Hyperlink ? (
+      {datatype === "hyperlink" ? (
         <HyperLink title={text} url={hyperlink} variantColor={variantColor} />
       ) : (
         <Alert title={title} content={content} variantColor={variantColor} />

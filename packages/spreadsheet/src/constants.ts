@@ -1,6 +1,5 @@
 import { Sheet, CellConfig, Cells } from "./Spreadsheet";
 import {
-  DATATYPE,
   CellDataFormatting,
   BORDER_VARIANT,
   BORDER_STYLE,
@@ -9,6 +8,7 @@ import {
   EditorType,
   DataValidationType,
   FormatInputValue,
+  DATATYPES,
 } from "./types";
 import {
   isNull,
@@ -141,34 +141,34 @@ export const castToString = (value: any): string | undefined => {
  */
 export const format = (
   value: FormatInputValue,
-  datatype?: DATATYPE,
-  formatting?: CellDataFormatting
+  datatype?: DATATYPES,
+  cellConfig?: CellConfig
 ): string | undefined => {
   if (value === void 0 || isNull(value) || isNull(datatype))
     return castToString(value);
-  if (!formatting) return castToString(value);
-  if (datatype === DATATYPE.Date) {
-    return SSF.format(formatting.format || DEFAULT_DATE_FORMAT, value);
+  if (!cellConfig) return castToString(value);
+  if (datatype === "date") {
+    return SSF.format(cellConfig.format || DEFAULT_DATE_FORMAT, value);
   }
   const num = parseFloat(typeof value !== "string" ? "" + value : value);
   try {
-    if (formatting.decimals) {
-      let fmt = Array.from({ length: formatting.decimals })
+    if (cellConfig.decimals) {
+      let fmt = Array.from({ length: cellConfig.decimals })
         .map((_, i) => "0")
         .join("");
       value = SSF.format(`#.${fmt}`, num);
     }
-    if (formatting.percent) {
+    if (cellConfig.percent) {
       value = SSF.format(FORMAT_PERCENT, num);
     }
-    if (formatting.currency) {
+    if (cellConfig.currency) {
       value = SSF.format(
-        `${formatting.currencySymbol || "$"}${FORMAT_CURRENCY}`,
+        `${cellConfig.currencySymbol || "$"}${FORMAT_CURRENCY}`,
         num
       );
     }
-    if (formatting.format) {
-      value = SSF.format(formatting.format, num);
+    if (cellConfig.format) {
+      value = SSF.format(cellConfig.format, num);
     }
   } catch (err) {
     console.error("Error while formatting ", num, err);
@@ -180,17 +180,17 @@ export const format = (
  * Check if a cell is numeric
  */
 export const isNumeric = (cell: CellConfig) => {
-  return cell && cell.datatype === DATATYPE.Number;
+  return cell && cell.datatype === "number";
 };
 
 /**
  * Detect datatype of a string
  * @param value
  */
-export const detectDataType = (value?: any): DATATYPE | undefined => {
+export const detectDataType = (value?: any): DATATYPES | undefined => {
   if (isNull(value)) return undefined;
-  if (!isNaN(Number(value))) return DATATYPE.Number;
-  if (castToString(value)?.startsWith("=")) return DATATYPE.Formula;
+  if (!isNaN(Number(value))) return "number";
+  if (castToString(value)?.startsWith("=")) return "formula";
   return undefined;
 };
 

@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import Spreadsheet, {
   Sheet,
   defaultSheets,
-  DATATYPE,
+  DATATYPES,
 } from "@rowsncolumns/spreadsheet";
 import { parse, download } from "@rowsncolumns/export";
 
@@ -266,7 +266,7 @@ const initialValidationSheet: Sheet[] = [
       4: {
         2: {
           text: "TRUE",
-          datatype: DATATYPE.Boolean,
+          datatype: "boolean",
           dataValidation: {
             allowBlank: true,
             type: "boolean",
@@ -276,7 +276,7 @@ const initialValidationSheet: Sheet[] = [
       },
       5: {
         2: {
-          datatype: DATATYPE.Hyperlink,
+          datatype: "hyperlink",
           text: "Hello world",
           color: "#1155CC",
           underline: true,
@@ -285,7 +285,7 @@ const initialValidationSheet: Sheet[] = [
       },
       6: {
         2: {
-          datatype: DATATYPE.Formula,
+          datatype: "formula",
           text: "=SUM(A1,A2)",
           result: "4",
           error: "#VALUE!",
@@ -342,6 +342,29 @@ export const UsingStateReducer = () => {
         </div>
       </>
     );
+  };
+  return <App />;
+};
+
+export const CustomDataType = () => {
+  const App = () => {
+    const sheets: Sheet[] = [
+      {
+        name: "Sheet 1",
+        id: 1,
+        activeCell: null,
+        selections: [],
+        cells: {
+          1: {
+            2: {
+              datatype: "boolean",
+              type: "hello",
+            },
+          },
+        },
+      },
+    ];
+    return <Spreadsheet sheets={sheets} />;
   };
   return <App />;
 };

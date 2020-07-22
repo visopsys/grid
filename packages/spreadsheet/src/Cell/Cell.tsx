@@ -9,13 +9,10 @@ import {
   ERROR_COLOR,
 } from "../constants";
 import {
-  DATATYPE,
   FONT_WEIGHT,
   FONT_STYLE,
-  HORIZONTAL_ALIGNMENT,
   TEXT_DECORATION,
-  VERTICAL_ALIGNMENT,
-  FormatType,
+  Formatter,
 } from "./../types";
 import { CellConfig } from "../Spreadsheet";
 import { Shape, Text } from "react-konva";
@@ -26,7 +23,7 @@ import Checkbox from "./../Checkbox";
 import { FILTER_ICON_DIM } from "../FilterIcon/FilterIcon";
 
 export interface CellProps extends RendererProps, CellConfig {
-  formatter?: FormatType;
+  formatter?: Formatter;
   showStrokeOnFill?: boolean;
   isSelected?: boolean;
   isLightMode?: boolean;
@@ -35,6 +32,7 @@ export interface CellProps extends RendererProps, CellConfig {
   onFilterClick?: (cell: CellInterface) => void;
   onEdit?: (cell: CellInterface) => void;
   onCheck?: (cell: CellInterface, value: boolean) => void;
+  cellConfig?: CellConfig;
 }
 
 export interface CellRenderProps extends Omit<CellProps, "text"> {
@@ -52,14 +50,7 @@ const ERROR_TAG_WIDTH = 6.5;
  * @param props
  */
 const Cell: React.FC<CellProps> = memo((props) => {
-  const {
-    datatype,
-    decimals,
-    percent,
-    currency,
-    formatter,
-    isLightMode,
-  } = props;
+  const { datatype, formatter, isLightMode } = props;
   const {
     stroke,
     strokeTopColor,
@@ -80,26 +71,20 @@ const Cell: React.FC<CellProps> = memo((props) => {
     format,
     currencySymbol,
     dataValidation,
+    cellConfig,
     ...cellProps
   } = props;
-
   const validatorType = dataValidation?.type;
   const checked =
     validatorType === "boolean"
       ? props.text === dataValidation?.formulae?.[0]
       : false;
-  const isFormula = datatype === DATATYPE.Formula;
+  const isFormula = datatype === "formula";
   const textValue = isFormula
     ? props.error || props.result || props.text
     : props.text;
   const text = formatter
-    ? formatter(textValue, datatype, {
-        decimals,
-        percent,
-        currency,
-        format,
-        currencySymbol,
-      })
+    ? formatter(textValue, datatype, cellConfig)
     : castToString(textValue);
   return (
     <DefaultCell
@@ -154,7 +139,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     onCheck,
     error,
   } = props;
-  const isBoolean = datatype === DATATYPE.Boolean;
+  const isBoolean = datatype === "boolean";
   const textWrap = wrap === "wrap" ? "word" : DEFAULT_WRAP;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
     strike ? TEXT_DECORATION.STRIKE : ""
@@ -166,7 +151,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
   const vAlign = verticalAlign;
   const hAlign =
     horizontalAlign === void 0
-      ? datatype === DATATYPE.Number && !plaintext
+      ? datatype === "number" && !plaintext
         ? "right"
         : "left"
       : horizontalAlign;

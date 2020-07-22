@@ -50,7 +50,7 @@ import Cell from "./../Cell";
 import { GridWrapper, ThemeType } from "./../styled";
 import { Cells, CellConfig, SizeType, SheetID } from "../Spreadsheet";
 import { Direction } from "@rowsncolumns/grid";
-import { AXIS, FormatType, SELECTION_MODE, DATATYPE } from "../types";
+import { AXIS, Formatter, SELECTION_MODE } from "../types";
 import Editor from "./../Editor";
 import { EditorProps } from "@rowsncolumns/grid";
 import { CustomEditorProps } from "../Editor/Editor";
@@ -96,7 +96,7 @@ export interface GridProps {
   ) => void;
   onActiveCellValueChange: (value: string) => void;
   onDelete?: (activeCell: CellInterface, selections: SelectionArea[]) => void;
-  formatter?: FormatType;
+  formatter?: Formatter;
   onResize?: (axis: AXIS, index: number, dimension: number) => void;
   columnSizes?: SizeType;
   rowSizes?: SizeType;
@@ -807,7 +807,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         const datatype = cellConfig?.datatype;
         const hasError = !!cellConfig?.error;
         const hasTooltip = cellConfig?.tooltip;
-        const isHyperLink = datatype === DATATYPE.Hyperlink;
+        const isHyperLink = datatype === "hyperlink";
         const showTooltip =
           isValid === false || hasError === true || isHyperLink || hasTooltip;
         if (!showTooltip) return null;
@@ -871,7 +871,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
             horizontalAlign={config?.horizontalAlign}
             scale={scale}
             wrap={config?.wrap}
-            type={type}
+            editorType={type}
             options={options}
           />
         );
@@ -1037,7 +1037,10 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       const formulae: string[] =
         cellConfig?.dataValidation?.formulae ?? DEFAULT_CHECKBOX_VALUES;
       if (!type) {
-        console.error("Type is not specified", cellConfig);
+        console.error(
+          "Type is not specified. Cell Config should contain a dataValidation object",
+          cellConfig
+        );
         return;
       }
       const text = formulae[checked ? 0 : 1];
@@ -1101,6 +1104,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
           <CellRenderer
             {...props}
             {...cellConfig}
+            cellConfig={cellConfig}
             isLightMode={isLightMode}
             formatter={formatter}
             showStrokeOnFill={showGridLines}

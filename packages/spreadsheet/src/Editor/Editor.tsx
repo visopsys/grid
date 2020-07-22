@@ -25,7 +25,7 @@ export interface CustomEditorProps extends EditorProps {
   wrap?: any;
   horizontalAlign?: any;
   scale?: number;
-  type?: EditorType;
+  editorType?: EditorType;
   options?: string[];
   underline?: boolean;
 }
@@ -57,7 +57,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
     horizontalAlign,
     underline,
     scale = 1,
-    type = "text",
+    editorType = "text",
     options,
     ...rest
   } = props;
@@ -166,7 +166,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
           {address}
         </div>
       ) : null}
-      {type === "text" ? (
+      {editorType === "text" ? (
         <TextEditor
           value={value}
           fontFamily={fontFamily}
@@ -181,7 +181,7 @@ const Editor: React.FC<CustomEditorProps> = (props) => {
           onCancel={handleCancel}
         />
       ) : null}
-      {type === "list" ? (
+      {editorType === "list" ? (
         <ListEditor
           value={value}
           fontFamily={fontFamily}

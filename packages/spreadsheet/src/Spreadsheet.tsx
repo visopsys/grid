@@ -39,7 +39,7 @@ import {
   AXIS,
   BORDER_VARIANT,
   BORDER_STYLE,
-  FormatType,
+  Formatter,
   SELECTION_MODE,
 } from "./types";
 import { WorkbookGridRef } from "./Grid/Grid";
@@ -113,7 +113,7 @@ export interface SpreadSheetProps {
   /**
    * Conditionally format cell text
    */
-  formatter?: FormatType;
+  formatter?: Formatter;
   /**
    * Enabled or disable dark mode
    */

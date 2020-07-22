@@ -12,6 +12,7 @@ module.exports = {
     Features: [
       "features/initialize",
       "features/sheets",
+      "features/custom_formatting",
       "features/tabstrip",
       "features/statusbar",
       "features/gridlines",

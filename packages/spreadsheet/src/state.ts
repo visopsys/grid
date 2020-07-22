@@ -19,7 +19,6 @@ import {
   AXIS,
   BORDER_STYLE,
   BORDER_VARIANT,
-  DATATYPE,
 } from "./types";
 
 /* Enabled patches in immer */
@@ -302,7 +301,7 @@ export const createStateReducer = ({
                   const datatype = detectDataType(text);
                   cell.text = text;
                   cell.datatype = isBoolean
-                    ? DATATYPE.Boolean
+                    ? "boolean"
                     : datatype === void 0
                     ? cell.datatype
                     : datatype;
