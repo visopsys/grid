@@ -87,7 +87,8 @@ const TextEditor: React.FC<TextEditorProps> = memo(
           }
 
           if (e.which === KeyCodes.Tab) {
-            // e.preventDefault();
+            /* Trap focus inside the grid */
+            e.preventDefault();
             onSubmit &&
               onSubmit(value, isShiftKey ? Direction.Left : Direction.Right);
           }

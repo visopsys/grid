@@ -308,7 +308,7 @@ const DefaultEditor: React.FC<EditorProps> = (props) => {
           }
 
           if (e.which === KeyCodes.Tab) {
-            // e.preventDefault();
+            e.preventDefault();
             onSubmit &&
               onSubmit(
                 value,
