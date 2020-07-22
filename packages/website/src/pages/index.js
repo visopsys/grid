@@ -124,7 +124,7 @@ function Home() {
           />
           <Feature
             title="High Performance"
-            description="Data is rendered in Canvas, which means no DOM nodes. So you are able to display millions of rows and columsn without any peformance impact."
+            description="Data is rendered in Canvas, which means no DOM nodes. So you are able to display millions of rows and columns without any peformance impact."
             imageUrl="/img/undraw_fast_loading_0lbh.svg"
           />
         </SimpleGrid>
