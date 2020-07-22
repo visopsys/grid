@@ -32,6 +32,7 @@ import {
   SYSTEM_FONT,
   format as defaultFormat,
   FONT_FAMILIES,
+  detectDataType,
 } from "./constants";
 import {
   FORMATTING_TYPE,
@@ -60,6 +61,7 @@ import { Patch } from "immer";
 import { ContextMenuComponentProps } from "./ContextMenu/ContextMenu";
 import ContextMenuComponent from "./ContextMenu";
 import TooltipComponent, { TooltipProps } from "./Tooltip";
+import validate, { ValidationResponse } from "./validation";
 
 export interface SpreadSheetProps {
   /**
@@ -93,7 +95,11 @@ export interface SpreadSheetProps {
   /**
    * Callback fired when cells are modified
    */
-  onChangeCells?: (id: SheetID, changes: Cells) => void;
+  onChangeCell?: (
+    id: SheetID,
+    value: React.ReactText,
+    cell: CellInterface
+  ) => void;
   /**
    * Get the new selected sheet
    */
@@ -206,6 +212,15 @@ export interface SpreadSheetProps {
    * Add your own state interface
    */
   stateReducer?: (state: StateInterface, action: ActionTypes) => StateInterface;
+  /**
+   * Custom onvalidator
+   */
+  onValidate?: (
+    value: React.ReactText,
+    id: SheetID,
+    cell: CellInterface,
+    cellConfig: CellConfig | undefined
+  ) => Promise<ValidationResponse>;
   // TODO
   // onMouseOver?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
   // onMouseDown?: (event: React.MouseEvent<HTMLDivElement>, cell: CellInterface) => void;
@@ -317,7 +332,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       activeSheet,
       onChangeSelectedSheet,
       onChange,
-      onChangeCells,
+      onChangeCell,
       showToolbar = true,
       formatter = defaultFormat,
       enableDarkMode = true,
@@ -341,6 +356,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       selectionPolicy,
       snap = false,
       stateReducer,
+      onValidate = validate,
     } = props;
 
     /* Last active cells: for undo, redo */
@@ -411,11 +427,18 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
         }
       },
     });
+
+    /**
+     * Get cell bounds
+     */
     const getCellBounds = useCallback((cell: CellInterface | null) => {
       if (!cell) return undefined;
       return currentGrid.current?.getCellBounds?.(cell);
     }, []);
 
+    /**
+     * State reducer
+     */
     const [state, dispatch] = useReducer(
       useCallback(
         createStateReducer({ addUndoPatch, getCellBounds, stateReducer }),
@@ -537,18 +560,56 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
     }, [sheets, selectedSheet]);
 
     /**
+     * Pass active cell config back to toolbars
+     */
+    const currentSheet = useMemo(() => {
+      return sheets.find((sheet) => sheet.id === selectedSheet) as Sheet;
+    }, [sheets, selectedSheet]);
+
+    /**
+     * Get cell config
+     */
+    const getCellConfig = useCallback(
+      (cell: CellInterface): CellConfig | undefined => {
+        return currentSheet.cells[cell.rowIndex]?.[cell.columnIndex];
+      },
+      [currentSheet]
+    );
+
+    const [activeCellConfig, activeCell] = useMemo(() => {
+      const { activeCell, cells } = currentSheet || {};
+      const activeCellConfig = activeCell
+        ? cells?.[activeCell.rowIndex]?.[activeCell.columnIndex]
+        : null;
+      return [activeCellConfig, activeCell];
+    }, [currentSheet]);
+
+    /**
      * Cell changes on user input
      * General purpos changes
      */
-    const handleChange = useCallback((id: SheetID, changes: Cells) => {
-      dispatch({
-        type: ACTION_TYPE.CHANGE_SHEET_CELL,
-        changes,
-        id,
-      });
+    const handleChange = useCallback(
+      async (id: SheetID, value: React.ReactText, cell: CellInterface) => {
+        const config = getCellConfig(cell);
+        const datatype = detectDataType(value);
+        /* Validate */
+        const { valid, message } =
+          (await onValidate(value, id, cell, config)) || {};
 
-      onChangeCells?.(id, changes);
-    }, []);
+        dispatch({
+          type: ACTION_TYPE.CHANGE_SHEET_CELL,
+          value,
+          cell,
+          id,
+          datatype,
+          valid,
+          prompt: message,
+        });
+
+        onChangeCell?.(id, value, cell);
+      },
+      [activeCellConfig]
+    );
 
     const handleSheetAttributesChange = useCallback(
       (
@@ -683,21 +744,6 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
       },
       [selectedSheet, sheets]
     );
-
-    /**
-     * Pass active cell config back to toolbars
-     */
-    const currentSheet = useMemo(() => {
-      return sheets.find((sheet) => sheet.id === selectedSheet) as Sheet;
-    }, [sheets, selectedSheet]);
-
-    const [activeCellConfig, activeCell] = useMemo(() => {
-      const { activeCell, cells } = currentSheet || {};
-      const activeCellConfig = activeCell
-        ? cells?.[activeCell.rowIndex]?.[activeCell.columnIndex]
-        : null;
-      return [activeCellConfig, activeCell];
-    }, [currentSheet]);
 
     const handleActiveCellChange = useCallback(
       (id: SheetID, cell: CellInterface | null, value) => {
@@ -1246,6 +1292,7 @@ const Spreadsheet: React.FC<SpreadSheetProps & RefAttributeSheetGrid> = memo(
             selectionPolicy={selectionPolicy}
             ContextMenu={ContextMenu}
             snap={snap}
+            Tooltip={Tooltip}
           />
         </Flex>
       </>

@@ -52,5 +52,9 @@
     "react-test-renderer": "^16.13.1",
     "rimraf": "^3.0.2",
     "typescript": "^3.9.3"
+  },
+  "dependencies": {
+    "@babel/plugin-transform-runtime": "^7.10.5",
+    "@babel/runtime": "^7.10.5"
   }
 }

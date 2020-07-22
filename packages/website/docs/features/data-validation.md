@@ -83,7 +83,7 @@ const initialValidationSheet: Sheet[] = [
       4: {
         2: {
           text: 'TRUE',
-          datatype: DATATYPE.Boolean,
+          datatype: 'boolean',
           dataValidation: {
             allowBlank: true,
             type: "boolean",

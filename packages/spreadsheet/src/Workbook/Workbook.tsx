@@ -10,14 +10,14 @@ import {
   Sheet,
   Cells,
   SizeType,
-  SheetID
+  SheetID,
 } from "../Spreadsheet";
 import {
   CellInterface,
   SelectionArea,
   ScrollCoords,
   isNull,
-  FilterDefinition
+  FilterDefinition,
 } from "@rowsncolumns/grid";
 import { WorkbookGridRef } from "../Grid/Grid";
 import { AXIS } from "../types";
@@ -25,7 +25,7 @@ import {
   DARK_MODE_COLOR_LIGHT,
   EMPTY_ARRAY,
   DEFAULT_COLUMN_COUNT,
-  DEFAULT_ROW_COUNT
+  DEFAULT_ROW_COUNT,
 } from "../constants";
 import { current } from "immer";
 
@@ -70,7 +70,7 @@ export interface WorkbookProps
   ) => void;
   hiddenRows?: number[];
   hiddenColumns?: number[];
-  onChange?: (id: SheetID, changes: Cells) => void;
+  onChange?: (id: SheetID, value: React.ReactText, cell: CellInterface) => void;
   onPaste?: (
     id: SheetID,
     rows: (string | null)[][],
@@ -160,13 +160,13 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       scale = 1,
       ContextMenu,
       Tooltip,
-      snap
+      snap,
     } = props;
 
     const { colorMode } = useColorMode();
     const isLight = colorMode === "light";
     const [containerRef, { width, height }] = useMeasure({
-      polyfill: ResizeObserver
+      polyfill: ResizeObserver,
     });
 
     const {
@@ -184,7 +184,7 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
       showGridLines = true,
       filterViews,
       rowCount = DEFAULT_ROW_COUNT,
-      columnCount = DEFAULT_COLUMN_COUNT
+      columnCount = DEFAULT_COLUMN_COUNT,
     } = currentSheet;
 
     /* Current sheet ref */
@@ -192,9 +192,9 @@ const Workbook: React.FC<WorkbookProps & WorkBookRefAttribute> = memo(
     useEffect(() => {
       selectedSheetRef.current = selectedSheet;
     });
-    const handleChange = useCallback((changes: Cells) => {
+    const handleChange = useCallback((value, cell) => {
       if (isNull(selectedSheetRef.current)) return;
-      onChange?.(selectedSheetRef.current, changes);
+      onChange?.(selectedSheetRef.current, value, cell);
     }, []);
     const handleFill = useCallback(
       (

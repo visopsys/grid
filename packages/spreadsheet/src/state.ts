@@ -19,10 +19,19 @@ import {
   AXIS,
   BORDER_STYLE,
   BORDER_VARIANT,
+  DATATYPES,
+  DataValidation,
 } from "./types";
 
 /* Enabled patches in immer */
 enablePatches();
+
+/* Create custom validation */
+export const createCustomValidation = (): DataValidation => {
+  return {
+    type: "custom",
+  };
+};
 
 export const defaultSheets: Sheet[] = [
   {
@@ -105,7 +114,11 @@ export type ActionTypes =
   | {
       type: ACTION_TYPE.CHANGE_SHEET_CELL;
       id: SheetID;
-      changes: Cells;
+      cell: CellInterface;
+      value: React.ReactText;
+      valid?: boolean;
+      datatype?: DATATYPES;
+      prompt?: string;
       undoable?: boolean;
     }
   | {
@@ -287,25 +300,22 @@ export const createStateReducer = ({
             const sheet = draft.sheets.find((sheet) => sheet.id === action.id);
             if (sheet) {
               const { activeCell, selections } = sheet;
-              for (const row in action.changes) {
-                sheet.cells[row] = sheet.cells[row] ?? {};
-                for (const col in action.changes[row]) {
-                  /* Grab the previous value for undo */
-                  sheet.cells[row][col] = sheet.cells[row][col] ?? {};
-                  const cell = sheet.cells[row][col];
-                  /* Validate */
-                  const type = cell.dataValidation?.type;
-                  const isBoolean = type === "boolean";
-                  const text = action.changes[row][col].text;
-                  /* Get datatype of user input */
-                  const datatype = detectDataType(text);
-                  cell.text = text;
-                  cell.datatype = isBoolean
-                    ? "boolean"
-                    : datatype === void 0
-                    ? cell.datatype
-                    : datatype;
-                }
+              const { cell, value, valid, datatype, prompt } = action;
+              sheet.cells[cell.rowIndex] = sheet.cells[cell.rowIndex] ?? {};
+              sheet.cells[cell.rowIndex][cell.columnIndex] =
+                sheet.cells[cell.rowIndex][cell.columnIndex] ?? {};
+              const currentCell = sheet.cells[cell.rowIndex][cell.columnIndex];
+              currentCell.text = value;
+              if (valid !== void 0) {
+                currentCell.valid = valid;
+              }
+              if (datatype !== void 0) {
+                currentCell.datatype = datatype;
+              }
+              if (prompt !== void 0) {
+                currentCell.dataValidation =
+                  currentCell.dataValidation ?? createCustomValidation();
+                currentCell.dataValidation.prompt = prompt;
               }
 
               /* Keep reference of active cell, so we can focus back */

@@ -74,7 +74,7 @@ export interface GridProps {
   width?: number;
   height?: number;
   cells: Cells;
-  onChange: (changes: Cells) => void;
+  onChange: (value: React.ReactText, cell: CellInterface) => void;
   onFill?: (
     activeCell: CellInterface,
     currentSelection: SelectionArea | null,
@@ -784,15 +784,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         cell: CellInterface,
         nextActiveCell?: CellInterface | null
       ) => {
-        const changes: Cells = {
-          [cell.rowIndex]: {
-            [cell.columnIndex]: {
-              text: value,
-            },
-          },
-        };
-
-        onChange?.(changes);
+        onChange?.(value, cell);
 
         /* Focus on next active cell */
         if (nextActiveCell) setActiveCell(nextActiveCell, true);
@@ -1044,14 +1036,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         return;
       }
       const text = formulae[checked ? 0 : 1];
-      const changes = {
-        [cell.rowIndex]: {
-          [cell.columnIndex]: {
-            text,
-          },
-        },
-      };
-      onChange?.(changes);
+      onChange?.(text, cell);
       onActiveCellValueChange?.(text);
     }, []);
 

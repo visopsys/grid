@@ -611,27 +611,24 @@ const useEditable = ({
   );
 
   /* Save the value */
-  const handleSubmit = useCallback(
-    (
-      value: React.ReactText,
-      activeCell: CellInterface,
-      nextActiveCell?: CellInterface | null
-    ) => {
-      /**
-       * Hide the editor first, so that we can handle onBlur events
-       * 1. Editor hides -> Submit
-       * 2. If user clicks outside the grid, onBlur is called, if there is a activeCell, we do another submit
-       */
-      hideEditor();
+  const handleSubmit = (
+    value: React.ReactText,
+    activeCell: CellInterface,
+    nextActiveCell?: CellInterface | null
+  ) => {
+    /**
+     * Hide the editor first, so that we can handle onBlur events
+     * 1. Editor hides -> Submit
+     * 2. If user clicks outside the grid, onBlur is called, if there is a activeCell, we do another submit
+     */
+    hideEditor();
 
-      /* Save the new value */
-      onSubmit && onSubmit(value, activeCell, nextActiveCell);
+    /* Save the new value */
+    onSubmit && onSubmit(value, activeCell, nextActiveCell);
 
-      /* Keep the focus */
-      focusGrid();
-    },
-    []
-  );
+    /* Keep the focus */
+    focusGrid();
+  };
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {

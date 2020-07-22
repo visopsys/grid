@@ -1,19 +1,18 @@
 ---
 title: Datatypes
 ---
-import SpreadSheet, { uuid, DATATYPE } from "@rowsncolumns/spreadsheet";
+import SpreadSheet, { uuid } from "@rowsncolumns/spreadsheet";
 
 SpreadSheet Grid supports the following `datatypes`
 
 ```jsx
-export enum DATATYPE {
-  Null = "null",
-  Number = "number",
-  String = "string",  
-  Boolean = "boolean",
-  Error = "error",
-  Hyperlink = "hyperlink",
-}
+export type DATATYPES =
+  | "null"
+  | "number"
+  | "string"
+  | "boolean"
+  | "error"
+  | "hyperlink";
 ```
 
 :::note
@@ -34,7 +33,7 @@ const sheets = [
     cells: {
       1: {
         1: {
-          datatype: DATATYPE.Number,
+          datatype: 'number',
           text: 200.00,
           format: '\\S$ #.00'
         }
@@ -52,7 +51,7 @@ export const NumberType = () => {
       cells: {
         1: {
           1: {
-            datatype: DATATYPE.Number,
+            datatype: 'number',
             text: 200.00,
             format: '\\S$ #.00'
           }
@@ -75,7 +74,7 @@ const sheets = [
     cells: {
       1: {
         1: {
-          datatype: DATATYPE.String,
+          datatype: 'string',
           text: '1'
         }
       }
@@ -92,7 +91,7 @@ export const StringType = () => {
       cells: {
         1: {
           1: {
-            datatype: DATATYPE.String,
+            datatype: 'string',
             text: 'Hello world'
           }
         }
@@ -118,7 +117,7 @@ const sheets = [
       1: {
         1: {
           text: "TRUE",
-          datatype: DATATYPE.Boolean,
+          datatype: 'boolean',
           dataValidation: {
             allowBlank: true,
             type: "boolean",
@@ -140,7 +139,7 @@ export const Boolean = () => {
         1: {
           1: {
             text: "TRUE",
-            datatype: DATATYPE.Boolean,
+            datatype: 'boolean',
             dataValidation: {
               allowBlank: true,
               type: "boolean",
@@ -167,7 +166,7 @@ const sheets = [
     cells: {
       1: {
         1: {
-          datatype: DATATYPE.Hyperlink,
+          datatype: 'hyperlink',
           text: "Hello world",
           color: "#1155CC",
           underline: true,
@@ -187,7 +186,7 @@ export const HyperLink = () => {
       cells: {
         1: {
           1: {
-            datatype: DATATYPE.Hyperlink,
+            datatype: 'hyperlink',
             text: "Hello world",
             color: "#1155CC",
             underline: true,
@@ -214,7 +213,7 @@ const sheets = [
         1: {
           text: 'hello',
           valid: false,
-          datatype: DATATYPE.Number,
+          datatype: 'number',
           dataValidation: {
             type: 'decimal',
             prompt: 'Enter a valid number'

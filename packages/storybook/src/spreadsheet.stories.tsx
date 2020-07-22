@@ -270,6 +270,7 @@ const initialValidationSheet: Sheet[] = [
           dataValidation: {
             allowBlank: true,
             type: "boolean",
+            prompt: "Invalid entry",
             formulae: ["TRUE", "FALSE"],
           },
         },
