@@ -139,7 +139,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
     onCheck,
     error,
   } = props;
-  const isBoolean = datatype === "boolean";
+  const isBoolean = validatorType === "boolean";
   const textWrap = wrap === "wrap" ? "word" : DEFAULT_WRAP;
   const textDecoration = `${underline ? TEXT_DECORATION.UNDERLINE + " " : ""}${
     strike ? TEXT_DECORATION.STRIKE : ""
@@ -201,7 +201,7 @@ const DefaultCell: React.FC<CellRenderProps> = memo((props) => {
           sceneFunc={fillFunc}
         />
       ) : null}
-      {isBoolean ? (
+      {isBoolean && !isInValid ? (
         <Checkbox
           x={x}
           y={y}

@@ -314,10 +314,7 @@ export const createStateReducer = ({
                 sheet.cells[cell.rowIndex][cell.columnIndex] ?? {};
               const currentCell = sheet.cells[cell.rowIndex][cell.columnIndex];
               currentCell.text = value;
-
-              if (datatype !== void 0) {
-                currentCell.datatype = datatype;
-              }
+              currentCell.datatype = datatype;
 
               /* Keep reference of active cell, so we can focus back */
               draft.currentActiveCell = activeCell;
