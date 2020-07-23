@@ -5,12 +5,12 @@ title: Range Selection
 import { useState } from 'react';
 import SpreadSheet, { DefaultCell } from "@rowsncolumns/spreadsheet";
 
-Multiple selection is enabled by default. You can disable it by setting `allowMultipleSelection` to `false`
+Multiple selection is enabled by default. You can disable it by setting `selectionPolicy` to `single`
 
 ### Example
 
 ```jsx
-<SpreadSheet allowMultipleSelection={false}>
+<SpreadSheet selectionPolicy='single'>
 ```
 
 ### Callback on Active cell change
