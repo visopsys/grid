@@ -193,6 +193,11 @@ export interface ContextMenuProps {
   top: number;
 }
 
+interface InternalRef {
+  rowCount: number;
+  columnCount: number;
+}
+
 /**
  * Grid component
  * @param props
@@ -257,6 +262,11 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
     const onSheetChangeRef = useRef(debounce(onSheetChange, 100));
     const rowCount = initialRowCount + 1;
     const columnCount = initialColumnCount + 1;
+    /**
+     * Keep track of variables in `refs` cos we bound events to `document`
+     * : mousemove, mouseup
+     */
+    const internalRefs = useRef<InternalRef>({ rowCount, columnCount });
     const frozenRows = Math.max(1, userFrozenRows + 1);
     const frozenColumns = Math.max(1, userFrozenColumns + 1);
     const debounceScroll = useRef(debounce(onScroll, 500));
@@ -275,6 +285,14 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         };
       });
     }, [filterViews]);
+
+    /* Update internal refs */
+    useEffect(() => {
+      internalRefs.current = {
+        rowCount,
+        columnCount,
+      };
+    }, [rowCount, columnCount]);
 
     const isCellRowHeader = useCallback((rowIndex: number) => {
       return rowIndex === 0;
@@ -489,6 +507,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
         endRef
       ) => {
         if (!gridRef.current) return;
+        const { rowCount, columnCount } = internalRefs.current;
         const isShiftKey = e.nativeEvent.shiftKey;
         const isMetaKey = e.nativeEvent.ctrlKey || e.nativeEvent.metaKey;
         const isRowHeader = isCellRowHeader(coords.rowIndex);
@@ -546,12 +565,13 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
           return false;
         }
       },
-      [rowCount, columnCount, frozenRows, frozenColumns, mergedCells]
+      [frozenRows, frozenColumns, mergedCells]
     );
 
     /* Mouse move */
     const handleMouseMoveSelection = useCallback(
-      (_, coords: CellInterface, startRef, endRef, rowCount, columnCount) => {
+      (_, coords: CellInterface, startRef, endRef) => {
+        const { rowCount, columnCount } = internalRefs.current;
         const isRowHeader =
           startRef.current?.rowIndex === selectionTopBound &&
           endRef.current?.rowIndex === rowCount - 1;
@@ -607,6 +627,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       mouseDownInterceptor: handleMouseDownSelection,
       mouseMoveInterceptor: handleMouseMoveSelection,
       canSelectionSpanMergedCells: (start, end) => {
+        const { rowCount, columnCount } = internalRefs.current;
         if (
           start.rowIndex === selectionTopBound &&
           end.rowIndex === rowCount - 1

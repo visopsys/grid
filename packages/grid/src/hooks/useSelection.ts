@@ -106,9 +106,7 @@ export interface UseSelectionOptions {
     e: globalThis.MouseEvent,
     coords: CellInterface,
     start: React.MutableRefObject<CellInterface | null>,
-    end: React.MutableRefObject<CellInterface | null>,
-    rowCount: number,
-    columnCount: number
+    end: React.MutableRefObject<CellInterface | null>
   ) => boolean | undefined;
   canSelectionSpanMergedCells: (
     start: CellInterface,
@@ -561,14 +559,8 @@ const useSelection = ({
       if (!coords) return;
 
       if (
-        mouseMoveInterceptor?.(
-          e,
-          coords,
-          selectionStart,
-          selectionEnd,
-          rowCount,
-          columnCount
-        ) === false
+        mouseMoveInterceptor?.(e, coords, selectionStart, selectionEnd) ===
+        false
       ) {
         return;
       }
