@@ -537,35 +537,31 @@ const useSelection = ({
   /**
    * Mousemove handler
    */
-  const handleMouseMove = useCallback(
-    (e: globalThis.MouseEvent) => {
-      /* Exit if user is not in selection mode */
-      if (!isSelecting.current || !gridRef?.current) return;
+  const handleMouseMove = useCallback((e: globalThis.MouseEvent) => {
+    /* Exit if user is not in selection mode */
+    if (!isSelecting.current || !gridRef?.current) return;
 
-      const coords = gridRef.current.getCellCoordsFromOffset(
-        e.clientX,
-        e.clientY
-      );
+    const coords = gridRef.current.getCellCoordsFromOffset(
+      e.clientX,
+      e.clientY
+    );
 
-      if (!coords) return;
+    if (!coords) return;
 
-      if (
-        mouseMoveInterceptor?.(e, coords, selectionStart, selectionEnd) ===
-        false
-      ) {
-        return;
-      }
+    if (
+      mouseMoveInterceptor?.(e, coords, selectionStart, selectionEnd) === false
+    ) {
+      return;
+    }
 
-      if (isEqualCells(firstActiveCell.current, coords)) {
-        return clearSelections();
-      }
+    if (isEqualCells(firstActiveCell.current, coords)) {
+      return clearSelections();
+    }
 
-      modifySelection(coords, true);
+    modifySelection(coords, true);
 
-      gridRef.current?.scrollToItem(coords);
-    },
-    [rowCount, columnCount, mergedCells]
-  );
+    gridRef.current?.scrollToItem(coords);
+  }, []);
   /**
    * Mouse up handler
    */
@@ -917,113 +913,107 @@ const useSelection = ({
    * TODO
    * 1. Fill does not extend to merged cells
    */
-  const handleFillHandleMouseMove = useCallback(
-    (e: globalThis.MouseEvent) => {
-      /* Exit if user is not in selection mode */
-      if (!isFilling.current || !gridRef?.current || !activeCellRef.current)
-        return;
+  const handleFillHandleMouseMove = useCallback((e: globalThis.MouseEvent) => {
+    /* Exit if user is not in selection mode */
+    if (!isFilling.current || !gridRef?.current || !activeCellRef.current)
+      return;
 
-      const coords = gridRef.current.getCellCoordsFromOffset(
-        e.clientX,
-        e.clientY
-      );
-      if (!coords) return;
-      let bounds = selectionFromStartEnd(activeCellRef.current, coords);
-      const hasSelections = selections.length > 0;
-      const activeCellBounds = hasSelections
-        ? selections[selections.length - 1].bounds
-        : gridRef.current.getCellBounds(activeCellRef.current);
-      if (!bounds) return;
+    const coords = gridRef.current.getCellCoordsFromOffset(
+      e.clientX,
+      e.clientY
+    );
+    if (!coords) return;
+    let bounds = selectionFromStartEnd(activeCellRef.current, coords);
+    const hasSelections = selections.length > 0;
+    const activeCellBounds = hasSelections
+      ? selections[selections.length - 1].bounds
+      : gridRef.current.getCellBounds(activeCellRef.current);
+    if (!bounds) return;
 
-      const direction =
-        bounds.right > activeCellBounds.right
-          ? Direction.Right
-          : bounds.top < activeCellBounds.top
-          ? Direction.Up
-          : bounds.left < activeCellBounds.left
-          ? Direction.Left
-          : Direction.Down;
+    const direction =
+      bounds.right > activeCellBounds.right
+        ? Direction.Right
+        : bounds.top < activeCellBounds.top
+        ? Direction.Up
+        : bounds.left < activeCellBounds.left
+        ? Direction.Left
+        : Direction.Down;
 
-      if (direction === Direction.Right) {
-        bounds = { ...activeCellBounds, right: bounds.right };
+    if (direction === Direction.Right) {
+      bounds = { ...activeCellBounds, right: bounds.right };
+    }
+
+    if (direction === Direction.Up) {
+      bounds = { ...activeCellBounds, top: bounds.top };
+    }
+
+    if (direction === Direction.Left) {
+      bounds = { ...activeCellBounds, left: bounds.left };
+    }
+
+    if (direction === Direction.Down) {
+      bounds = { ...activeCellBounds, bottom: bounds.bottom };
+    }
+
+    /**
+     * If user moves back to the same selection, clear
+     */
+    if (
+      hasSelections &&
+      boundsSubsetOfSelection(bounds, selections[0].bounds)
+    ) {
+      setFillSelection(null);
+      return;
+    }
+
+    setFillSelection({ bounds });
+
+    gridRef.current.scrollToItem(coords);
+  }, []);
+
+  const handleFillHandleMouseUp = useCallback((e: globalThis.MouseEvent) => {
+    isFilling.current = false;
+
+    /* Remove listener */
+    document.removeEventListener("mousemove", handleFillHandleMouseMove);
+    document.removeEventListener("mouseup", handleFillHandleMouseUp);
+
+    /* Exit early */
+    if (!gridRef || !activeCellRef.current) return;
+
+    /* Update last selection */
+    let fillSelection: SelectionArea | null = null;
+
+    setFillSelection((prev) => {
+      fillSelection = prev;
+      return null;
+    });
+
+    if (!activeCell || !fillSelection) return;
+
+    const newBounds = (fillSelection as SelectionArea)?.bounds;
+    if (!newBounds) return;
+
+    /* Callback */
+    onFill && onFill(activeCellRef.current, fillSelection, selections);
+
+    /* Modify last selection */
+    setSelections((prevSelection) => {
+      const len = prevSelection.length;
+      if (!len) {
+        return [{ bounds: newBounds }];
       }
-
-      if (direction === Direction.Up) {
-        bounds = { ...activeCellBounds, top: bounds.top };
-      }
-
-      if (direction === Direction.Left) {
-        bounds = { ...activeCellBounds, left: bounds.left };
-      }
-
-      if (direction === Direction.Down) {
-        bounds = { ...activeCellBounds, bottom: bounds.bottom };
-      }
-
-      /**
-       * If user moves back to the same selection, clear
-       */
-      if (
-        hasSelections &&
-        boundsSubsetOfSelection(bounds, selections[0].bounds)
-      ) {
-        setFillSelection(null);
-        return;
-      }
-
-      setFillSelection({ bounds });
-
-      gridRef.current.scrollToItem(coords);
-    },
-    [selections]
-  );
-
-  const handleFillHandleMouseUp = useCallback(
-    (e: globalThis.MouseEvent) => {
-      isFilling.current = false;
-
-      /* Remove listener */
-      document.removeEventListener("mousemove", handleFillHandleMouseMove);
-      document.removeEventListener("mouseup", handleFillHandleMouseUp);
-
-      /* Exit early */
-      if (!gridRef || !activeCellRef.current) return;
-
-      /* Update last selection */
-      let fillSelection: SelectionArea | null = null;
-
-      setFillSelection((prev) => {
-        fillSelection = prev;
-        return null;
-      });
-
-      if (!activeCell || !fillSelection) return;
-
-      const newBounds = (fillSelection as SelectionArea)?.bounds;
-      if (!newBounds) return;
-
-      /* Callback */
-      onFill && onFill(activeCellRef.current, fillSelection, selections);
-
-      /* Modify last selection */
-      setSelections((prevSelection) => {
-        const len = prevSelection.length;
-        if (!len) {
-          return [{ bounds: newBounds }];
+      return prevSelection.map((sel, i) => {
+        if (len - 1 === i) {
+          return {
+            ...sel,
+            bounds: newBounds,
+          };
         }
-        return prevSelection.map((sel, i) => {
-          if (len - 1 === i) {
-            return {
-              ...sel,
-              bounds: newBounds,
-            };
-          }
-          return sel;
-        });
+        return sel;
       });
-    },
-    [selections]
-  );
+    });
+  }, []);
 
   /**
    * Remove the last selection from state
