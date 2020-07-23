@@ -7,6 +7,7 @@ module.exports = {
   organizationName: "rowsncolumns", // Usually your GitHub org/user name.
   projectName: "grid", // Usually your repo name.
   themeConfig: {
+    image: "/img/logo-2-full.png",
     disableDarkMode: true,
     // sidebarCollapsible: false,
     algolia: {
