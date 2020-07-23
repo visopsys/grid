@@ -551,7 +551,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
 
     /* Mouse move */
     const handleMouseMoveSelection = useCallback(
-      (_, coords: CellInterface, startRef, endRef) => {
+      (_, coords: CellInterface, startRef, endRef, rowCount, columnCount) => {
         const isRowHeader =
           startRef.current?.rowIndex === selectionTopBound &&
           endRef.current?.rowIndex === rowCount - 1;
@@ -572,7 +572,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
           return false;
         }
       },
-      [rowCount, columnCount, mergedCells]
+      []
     );
 
     /**
