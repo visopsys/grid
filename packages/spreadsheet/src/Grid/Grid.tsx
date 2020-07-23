@@ -405,6 +405,14 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       [cells, filterHeaderCells]
     );
 
+    /**
+     * To bypass closures
+     */
+    const getValueRef = useRef(getValue);
+    useEffect(() => {
+      getValueRef.current = getValue;
+    }, [getValue]);
+
     const getValueText = useCallback(
       (cell) => {
         return getValue(cell)?.text;
@@ -1051,7 +1059,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
      * Called when checkbox is checked/unchecked
      */
     const handleCheck = useCallback((cell: CellInterface, checked: boolean) => {
-      const cellConfig = getValue(cell);
+      const cellConfig = getValueRef.current(cell);
       const type = cellConfig?.dataValidation?.type;
       const formulae: string[] =
         cellConfig?.dataValidation?.formulae ?? DEFAULT_CHECKBOX_VALUES;
