@@ -1,5 +1,6 @@
 import { CellConfig, SheetID } from "./Spreadsheet";
 import { CellInterface } from "@rowsncolumns/grid";
+import { detectDataType } from "./constants";
 
 export interface ValidationResponse {
   valid?: boolean;
@@ -43,6 +44,24 @@ export const validate = async (
       return {
         valid,
       };
+    }
+
+    case "decimal": {
+      const { operator, formulae } = cellConfig.dataValidation;
+      const inferredType = detectDataType(value);
+      if (inferredType !== "number") return { valid: false };
+      let valid = true;
+      switch (operator) {
+        case "between":
+          const val = parseFloat(value as string);
+          const [from, to] = formulae as number[];
+          valid = val >= from && val <= to;
+          break;
+      }
+      return {
+        valid,
+      };
+      break;
     }
 
     default:

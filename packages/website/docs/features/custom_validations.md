@@ -21,6 +21,8 @@ SpreadSheet Grid supports validation for the following datatypes
 ## Adding a custom validation (sync)
 
 ```jsx
+import { validate as defaultValidation } from '@rowsncolumns/spreadsheet'
+
 const handleValidate = async (value, sheet, cell, cellConfig) => {
   if (value !== 'hello') return {
     valid: false,
@@ -51,6 +53,79 @@ export const App = () => {
 }
 
 <App />
+
+## Example: Email validation
+
+```jsx
+const sheets = [
+  {
+    name: 'Sheet 1',
+    cells: {
+      1: {
+        1: {
+          text: '',
+          dataValidation: {
+            type: 'text',
+            operator: 'email'
+          }
+        }
+      }
+    }
+  }
+]
+
+import { validate as defaultValidation } from '@rowsncolumns/spreadsheet'
+
+const handleValidate = async (value, sheet, cell, cellConfig) => {
+  const dataValidation = cellConfig?.dataValidation
+  if (dataValidation?.type === 'text' &&
+      dataValidation?.operator === 'email') {
+    return {
+      valid: value.indexOf('@') !== -1,
+    }
+  }
+  return defaultValidation(value, sheet, cell, cellConfig)
+}
+return (
+  <SpreadSheet onValidate={handleValidate} />
+)
+```
+
+export const EmailValidation = () => {
+  const sheets = [
+    {
+      name: 'Sheet 1',
+      id: 1,
+      cells: {
+        1: {
+          1: {
+            text: '',
+            dataValidation: {
+              type: 'text',
+              operator: 'email',
+              prompt: 'Invalid email'
+            }
+          }
+        }
+      }
+    }
+  ]
+  const handleValidate = async (value, sheet, cell, cellConfig) => {
+    const dataValidation = cellConfig?.dataValidation
+    if (dataValidation?.type === 'text' &&
+        dataValidation?.operator === 'email') {
+      return {
+        valid: value.indexOf('@') !== -1,
+      }
+    }
+    return defaultValidation(value, sheet, cell, cellConfig)
+  }
+  return (
+    <SpreadSheet onValidate={handleValidate} sheets={sheets} />
+  )
+}
+
+<EmailValidation />
 
 ## Async validation
 

@@ -297,6 +297,15 @@ const initialValidationSheet: Sheet[] = [
           text: "tooltip",
           tooltip: "hello world",
         },
+        3: {
+          text: "12",
+          dataValidation: {
+            type: "decimal",
+            operator: "between",
+            formulae: [0, 10],
+            prompt: "Please enter a valid number between 0 and 10",
+          },
+        },
       },
     },
   },
