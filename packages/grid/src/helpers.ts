@@ -476,7 +476,7 @@ export const getEstimatedTotalWidth = (
 
 /* Create a stringified cell identifier */
 export const cellIdentifier = (rowIndex: number, columnIndex: number): string =>
-  [rowIndex, columnIndex].toString();
+  `${rowIndex},${columnIndex}`;
 
 /**
  * @desc Throttle fn

@@ -231,6 +231,7 @@ const useSelection = ({
    */
   const activeCellRef = useRef(activeCell);
   const activeSelectionsRef = useRef(selections);
+  const mergedCellsRef = useRef(mergedCells);
 
   useEffect(() => {
     activeCellRef.current = activeCell;
@@ -238,6 +239,9 @@ const useSelection = ({
   useEffect(() => {
     activeSelectionsRef.current = selections;
   }, [selections]);
+  useEffect(() => {
+    mergedCellsRef.current = mergedCells;
+  }, [mergedCells]);
 
   /* Check if cell is out of bounds */
   const isCellOutOfBounds = useCallback(
@@ -286,7 +290,9 @@ const useSelection = ({
       left: Math.min(boundsStart.left, boundsEnd.left),
       right: Math.max(boundsStart.right, boundsEnd.right),
     };
-    return spanMerges ? extendAreaToMergedCells(bounds, mergedCells) : bounds;
+    return spanMerges
+      ? extendAreaToMergedCells(bounds, mergedCellsRef.current)
+      : bounds;
   };
 
   /* Modify current selection */
@@ -534,7 +540,6 @@ const useSelection = ({
       alwaysScrollToActiveCell,
       rowCount,
       columnCount,
-      mergedCells,
     ]
   );
 
