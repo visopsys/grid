@@ -822,7 +822,7 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
             <Tooltip
               {...props}
               {...cellConfig}
-              // tipposition={position}
+              position={position}
               content={content}
               variant={variant}
             />
@@ -922,16 +922,16 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
     /* Width calculator */
     const columnWidth = useCallback(
       (columnIndex: number) => {
-        if (columnIndex === 0) return COLUMN_HEADER_WIDTH;
         if (hiddenColumns[columnIndex]) return 0;
+        if (columnIndex === 0) return COLUMN_HEADER_WIDTH;
         return columnSizes[columnIndex] ?? minColumnWidth;
       },
       [minColumnWidth, columnSizes, selectedSheet]
     );
     const rowHeight = useCallback(
       (rowIndex: number) => {
-        if (rowIndex === 0) return ROW_HEADER_HEIGHT;
         if (hiddenRows[rowIndex]) return 0;
+        if (rowIndex === 0) return ROW_HEADER_HEIGHT;
         return rowSizes[rowIndex] ?? minRowHeight;
       },
       [minRowHeight, hiddenRows, rowSizes, selectedSheet]

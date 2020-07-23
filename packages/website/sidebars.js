@@ -41,6 +41,7 @@ module.exports = {
       "autofilter",
       "excel",
       "csv",
+      "hide-headers",
     ],
     Advanced: ["ref", "state-reducer"],
   },
