@@ -379,9 +379,13 @@ const useSelection = ({
     cell: CellInterface,
     selections: SelectionArea[]
   ) => {
+    const id = cellIdentifier(
+      Math.max(selectionTopBound, cell.rowIndex),
+      Math.max(selectionLeftBound, cell.columnIndex)
+    );
     return selections.findIndex((sel) => {
       const boundedCells = getBoundedCells(sel.bounds);
-      return boundedCells.has(cellIdentifier(cell.rowIndex, cell.columnIndex));
+      return boundedCells.has(id);
     });
   };
 
