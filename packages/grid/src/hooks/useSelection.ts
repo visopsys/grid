@@ -230,10 +230,14 @@ const useSelection = ({
    * registered in document
    */
   const activeCellRef = useRef(activeCell);
+  const activeSelectionsRef = useRef(selections);
 
   useEffect(() => {
     activeCellRef.current = activeCell;
-  });
+  }, [activeCell]);
+  useEffect(() => {
+    activeSelectionsRef.current = selections;
+  }, [selections]);
 
   /* Check if cell is out of bounds */
   const isCellOutOfBounds = useCallback(
@@ -923,6 +927,7 @@ const useSelection = ({
       e.clientY
     );
     if (!coords) return;
+    const selections = activeSelectionsRef.current;
     let bounds = selectionFromStartEnd(activeCellRef.current, coords);
     const hasSelections = selections.length > 0;
     const activeCellBounds = hasSelections
@@ -989,13 +994,16 @@ const useSelection = ({
       return null;
     });
 
+    /* Use ref, as we are binding to document */
+    const selections = activeSelectionsRef.current;
+    const activeCell = activeCellRef.current;
     if (!activeCell || !fillSelection) return;
 
     const newBounds = (fillSelection as SelectionArea)?.bounds;
     if (!newBounds) return;
 
     /* Callback */
-    onFill && onFill(activeCellRef.current, fillSelection, selections);
+    onFill && onFill(activeCell, fillSelection, selections);
 
     /* Modify last selection */
     setSelections((prevSelection) => {
