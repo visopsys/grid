@@ -408,11 +408,11 @@ const useEditable = ({
       /* Check if its the same cell */
       if (isEqualCells(coords, currentActiveCellRef.current)) return;
 
-      /*  Focus */
-      gridRef.current?.scrollToItem(coords);
-
       /* Call on before edit */
       if (canEdit(coords)) {
+        /*  Focus */
+        gridRef.current?.scrollToItem(coords);
+
         currentActiveCellRef.current = coords;
 
         /* Get offsets */
