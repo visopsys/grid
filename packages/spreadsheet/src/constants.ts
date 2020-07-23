@@ -188,10 +188,10 @@ export const isNumeric = (cell: CellConfig) => {
  * @param value
  */
 export const detectDataType = (value?: any): DATATYPES | undefined => {
-  if (isNull(value)) return undefined;
+  if (isNull(value)) return void 0;
   if (!isNaN(Number(value))) return "number";
   if (castToString(value)?.startsWith("=")) return "formula";
-  return undefined;
+  return void 0;
 };
 
 export const FONT_SIZES = [6, 7, 8, 9, 10, 11, 12, 14, 18, 24, 36];

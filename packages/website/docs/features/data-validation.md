@@ -7,9 +7,9 @@ SpreadSheet Grid supports the following cell level data Validation
 
 1. List (static)
 1. Checkbox
+1. Decimal
 1. List (formula range) - Coming soon
 1. Date - Coming soon
-1. Decimal - Coming soon
 
 ## List (static)
 
@@ -126,3 +126,48 @@ export const Demo2 = ()  => {
 }
 
 <Demo2 />
+
+
+## Decimal
+
+Validation for decimals number can be added using this schema
+
+```jsx
+const initialValidationSheet: Sheet[] = [
+  {
+    name: "Sheet 1",
+    id: 0,
+    activeCell: null,
+    selections: [],
+    cells: {
+      4: {
+        2: {
+          text: '',
+          dataValidation: {
+            allowBlank: true,
+            type: "decimal",
+            operator: 'between',
+            prompt: 'Enter a decimal between 0 and 10',
+            formulae: [0, 10]
+          }
+        }
+      }
+    }
+  }
+];
+```
+
+:::note
+Supported operators
+```jsx
+export type DataValidationOperator =
+  | "between"
+  | "notBetween"
+  | "equal"
+  | "notEqual"
+  | "greaterThan"
+  | "lessThan"
+  | "greaterThanOrEqual"
+  | "lessThanOrEqual";
+```
+:::

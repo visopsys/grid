@@ -119,6 +119,9 @@ const CellRenderer = (props: RendererProps) => {
     lineCap = "square",
     key,
   } = props;
+  const userStroke =
+    strokeTopColor || strokeRightColor || strokeBottomColor || strokeLeftColor;
+  if (!userStroke) return null;
   return (
     <CellOverlay
       key={key}

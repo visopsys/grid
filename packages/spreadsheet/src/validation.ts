@@ -51,11 +51,37 @@ export const validate = async (
       const inferredType = detectDataType(value);
       if (inferredType !== "number") return { valid: false };
       let valid = true;
+      const num = parseFloat(value as string);
       switch (operator) {
+        case "notBetween":
         case "between":
-          const val = parseFloat(value as string);
           const [from, to] = formulae as number[];
-          valid = val >= from && val <= to;
+          const isBetween = num >= from && num <= to;
+          valid = operator === "between" ? isBetween : !isBetween;
+          break;
+
+        case "equal":
+          valid = num === formulae?.[0];
+          break;
+
+        case "notEqual":
+          valid = num !== formulae?.[0];
+          break;
+
+        case "greaterThan":
+          valid = num > formulae?.[0];
+          break;
+
+        case "lessThan":
+          valid = num > formulae?.[0];
+          break;
+
+        case "greaterThanOrEqual":
+          valid = num >= formulae?.[0];
+          break;
+
+        case "lessThanOrEqual":
+          valid = num <= formulae?.[0];
           break;
       }
       return {
