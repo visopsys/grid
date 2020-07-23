@@ -19,7 +19,7 @@ import Grid, {
   ScrollCoords,
   AreaProps,
   useSizer as useAutoSizer,
-  CellOverlay,
+  CellOverlayRenderer as cellOverlayRenderer,
   useTouch,
   useFilter,
   FilterView,
@@ -1120,7 +1120,11 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
       (props: RendererProps) => {
         const { rowIndex, columnIndex } = props;
         const cell = { rowIndex, columnIndex };
-        return <CellOverlay {...props} {...getValue(cell)} />;
+        const cellConfig = getValue(cell);
+        return cellOverlayRenderer({
+          ...props,
+          ...cellConfig,
+        });
       },
       [cells, selectedRowsAndCols, activeCell, hiddenRows, hiddenColumns]
     );

@@ -1,6 +1,9 @@
 import Grid from "./Grid";
 import { CellRenderer, Cell } from "./Cell";
-import { CellOverlay } from "./CellOverlay";
+import {
+  CellOverlay,
+  CellRenderer as CellOverlayRenderer,
+} from "./CellOverlay";
 import useEditable from "./hooks/useEditable";
 import useSelection from "./hooks/useSelection";
 import useTooltip from "./hooks/useTooltip";
@@ -25,6 +28,7 @@ export {
   useUndo,
   useTouch,
   useFilter,
+  CellOverlayRenderer,
 };
 export default Grid;
 export * from "./Grid";
