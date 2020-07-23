@@ -435,6 +435,8 @@ const EMPTY_ARRAY: any = [];
 /**
  * Grid component using React Konva
  * @param props
+ *
+ * TODO: Fix bug with snapping, since onWheel is a global handler, rowCount, columnCount becomes state
  */
 const Grid: React.FC<GridProps & RefAttribute> = memo(
   forwardRef<GridRef, GridProps>((props, forwardedRef) => {

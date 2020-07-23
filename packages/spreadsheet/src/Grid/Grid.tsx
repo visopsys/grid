@@ -44,6 +44,7 @@ import {
   number2Alpha,
   getEditorType,
   DEFAULT_CHECKBOX_VALUES,
+  castToString,
 } from "./../constants";
 import HeaderCell from "./../HeaderCell";
 import Cell from "./../Cell";
@@ -492,6 +493,11 @@ const SheetGrid: React.FC<GridProps & RefAttributeGrid> = memo(
             ? LIST_ICON_DIM + iconPadding
             : 0;
         return { ...cellConfig, text: formattedValue, spacing };
+      },
+      getText: (cellConfig: CellConfig) => {
+        const isFormula = cellConfig?.datatype === "formula";
+        const text = isFormula ? cellConfig?.result : cellConfig?.text;
+        return text !== void 0 ? castToString(text) : text;
       },
       columnSizes,
       autoResize: false,

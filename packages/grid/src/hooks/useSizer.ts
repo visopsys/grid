@@ -84,11 +84,15 @@ export interface IProps {
    * Current scaling factor
    */
   scale?: number;
+  /**
+   * Get text value
+   */
+  getText: (config: any) => string | undefined;
 }
 
 export enum ResizeStrategy {
   "lazy" = "lazy",
-  "full" = "full"
+  "full" = "full",
 }
 
 export interface AutoResizerResults {
@@ -113,6 +117,8 @@ export interface AutoResizerResults {
 export type SizeType = {
   [key: number]: number;
 };
+
+const defaultGetText = (text: any) => text;
 
 /**
  * Auto sizer hook
@@ -140,7 +146,8 @@ const useAutoSizer = ({
   frozenRows = 0,
   scale = 1,
   isHiddenRow,
-  isHiddenColumn
+  isHiddenColumn,
+  getText = defaultGetText,
 }: IProps): AutoResizerResults => {
   invariant(
     !(resizeStrategy === ResizeStrategy.full && rowCount === void 0),
@@ -158,7 +165,7 @@ const useAutoSizer = ({
     visibleRowStartIndex: 0,
     visibleRowStopIndex: 0,
     visibleColumnStartIndex: 0,
-    visibleColumnStopIndex: 0
+    visibleColumnStopIndex: 0,
   });
   const isMounted = useRef(false);
   const getValueRef = useRef(getValue);
@@ -200,14 +207,14 @@ const useAutoSizer = ({
       const cellValue =
         getValueRef.current({
           rowIndex,
-          columnIndex
+          columnIndex,
         }) ?? null;
       let width = cellValue?.spacing ?? 0;
       /* Check if its null */
       if (cellValue !== null) {
         const isCellConfig = typeof cellValue === "object";
-        const text = isCellConfig ? cellValue.text : cellValue;
-        if (!isNull(text)) {
+        const text = getText(cellValue);
+        if (text !== void 0 && !isNull(text)) {
           /* Reset fonts */
           autoSizer.current.reset();
 
@@ -216,7 +223,7 @@ const useAutoSizer = ({
             autoSizer.current.setFont({
               fontWeight: isBold ? "bold" : "normal",
               fontSize: (cellValue.fontSize || fontSize) * scale,
-              fontFamily: cellValue.fontFamily
+              fontFamily: cellValue.fontFamily,
             });
           }
 
@@ -287,7 +294,7 @@ const useAutoSizer = ({
         if (!isMounted.current) return;
         debounceResizer.current({
           rowIndex: cells.rowStartIndex,
-          columnIndex: cells.columnStartIndex
+          columnIndex: cells.columnStartIndex,
         });
       }
     },
@@ -299,7 +306,7 @@ const useAutoSizer = ({
     getColumnWidth,
     // getRowHeight,
     onViewChange: handleViewChange,
-    getTextMetrics
+    getTextMetrics,
   };
 };
 
