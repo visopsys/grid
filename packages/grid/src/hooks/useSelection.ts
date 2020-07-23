@@ -424,15 +424,9 @@ const useSelection = ({
       const hasSelections = selections.length > 0;
       const isDeselecting = isMetaKey && allowDeselect;
 
-      /* Attaching mousemove to document, so we can detect drag move */
-      if (!isContextMenuClick) {
-        /* Prevent  mousemove if its contextmenu click */
-        if (selectionPolicy !== "single") {
-          document.addEventListener("mousemove", handleMouseMove);
-        }
-      }
-      if (selectionPolicy !== "single") {
+      if (!isContextMenuClick && selectionPolicy !== "single") {
         document.addEventListener("mouseup", handleMouseUp);
+        document.addEventListener("mousemove", handleMouseMove);
       }
 
       /* Activate selection mode */
@@ -987,6 +981,7 @@ const useSelection = ({
   const handleFillHandleMouseUp = useCallback(
     (e: globalThis.MouseEvent) => {
       isFilling.current = false;
+
       /* Remove listener */
       document.removeEventListener("mousemove", handleFillHandleMouseMove);
       document.removeEventListener("mouseup", handleFillHandleMouseUp);

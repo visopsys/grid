@@ -515,7 +515,7 @@ export function rafThrottle(callback: Function) {
   return function handleEvent(e: any) {
     // the actual event handler
     evt = e; // save our event at each call
-    evt && evt.persist();
+    evt && evt.persist && evt.persist();
     if (!active) {
       // only if we weren't already doing it
       active = true; // raise the flag
