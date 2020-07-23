@@ -1,3 +1,5 @@
+import { AreaProps } from "@rowsncolumns/grid";
+
 export enum FORMATTING_TYPE {
   BOLD = "bold",
   ITALIC = "italic",
@@ -80,6 +82,16 @@ export enum STROKE_FORMATTING {
 
 export interface CellFormatting extends CellDataFormatting {
   datatype?: DATATYPES;
+  /**
+   * Used for formulas to indicate datatype of result
+   */
+  effectiveType?: DATATYPES;
+  /**
+   * Formulas can extend range of a cell
+   * When a cell with `range` is deleted, all cells within that range will be cleared
+   */
+  effectiveRange?: AreaProps;
+
   plaintext?: boolean;
   [FORMATTING_TYPE.BOLD]?: boolean;
   [FORMATTING_TYPE.COLOR]?: string;

@@ -117,9 +117,11 @@ const CellRenderer = (props: RendererProps) => {
     strokeBottomWidth = strokeWidth,
     strokeLeftWidth = strokeWidth,
     lineCap = "square",
+    key,
   } = props;
   return (
     <CellOverlay
+      key={key}
       x={x}
       y={y}
       width={width}
