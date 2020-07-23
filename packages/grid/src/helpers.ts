@@ -901,7 +901,7 @@ export const isEqualCells = (
 export type HiddenType = (i: number) => boolean;
 export const clampIndex = (
   index: number,
-  isHidden: HiddenType,
+  isHidden: HiddenType | undefined,
   direction: Direction
 ) => {
   switch (direction) {

@@ -32,6 +32,7 @@ import {
   cancelTimeout,
   TimeoutID,
   Align,
+  clampIndex,
 } from "./helpers";
 import { ShapeConfig } from "konva/types/Shape";
 import { CellRenderer as defaultItemRenderer } from "./Cell";
@@ -416,6 +417,17 @@ export interface Style {
   strokeStyle?: string;
 }
 
+interface ScrollSnapRef {
+  visibleRowStartIndex: number;
+  rowCount: number;
+  frozenRows: number;
+  visibleColumnStartIndex: number;
+  columnCount: number;
+  frozenColumns: number;
+  isHiddenRow?: (rowIndex: number) => boolean;
+  isHiddenColumn?: (columnIndex: number) => boolean;
+}
+
 const DEFAULT_ESTIMATED_ITEM_SIZE = 50;
 const defaultShadowSettings: ShapeConfig = {
   strokeWidth: 1,
@@ -547,6 +559,7 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
       verticalScrollDirection: Direction.Down,
       horizontalScrollDirection: Direction.Right,
     });
+    const scrollSnapRefs = useRef<ScrollSnapRef | null>(null);
     const {
       scrollTop,
       scrollLeft,
@@ -817,47 +830,90 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
     ]);
 
     /**
+     * Update snap properties if its active
+     * We need this because we are binding `onwheel` event to document
+     * So props go stale
+     */
+    useEffect(() => {
+      if (snap) {
+        scrollSnapRefs.current = {
+          visibleRowStartIndex,
+          rowCount,
+          frozenRows,
+          visibleColumnStartIndex,
+          columnCount,
+          frozenColumns,
+          isHiddenRow,
+          isHiddenColumn,
+        };
+      }
+    }, [
+      snap,
+      visibleRowStartIndex,
+      rowCount,
+      frozenRows,
+      visibleColumnStartIndex,
+      columnCount,
+      frozenColumns,
+      isHiddenRow,
+      isHiddenColumn,
+    ]);
+
+    /**
      * Snaps vertical scrollbar to the next/prev visible row
      */
-    const snapToRowFn = useCallback(
-      ({ deltaY }: SnapRowProps) => {
-        if (!verticalScrollRef.current) return;
-        if (deltaY !== 0) {
-          const nextRowIndex =
-            deltaY < 0
-              ? // User is scrolling up
-                Math.max(0, visibleRowStartIndex - 1)
-              : Math.min(visibleRowStartIndex, rowCount - 1);
-          /* TODO: Fix bug when frozenRowHeight > minRow height, which causes rowStartIndex to be 1 even after a scroll */
-          const rowHeight = getRowHeight(nextRowIndex, instanceProps.current);
-          verticalScrollRef.current.scrollTop +=
-            (deltaY < 0 ? -1 : 1) * rowHeight;
-        }
-      },
-      [visibleRowStartIndex, rowCount, frozenRows]
-    );
+    const snapToRowFn = useCallback(({ deltaY }: SnapRowProps) => {
+      if (!verticalScrollRef.current || !scrollSnapRefs.current) return;
+      if (deltaY !== 0) {
+        const direction = deltaY < 0 ? Direction.Up : Direction.Down;
+        const {
+          visibleRowStartIndex,
+          rowCount,
+          isHiddenRow,
+        } = scrollSnapRefs.current;
+        let nextRowIndex =
+          direction === Direction.Up
+            ? // User is scrolling up
+              Math.max(0, visibleRowStartIndex - 1)
+            : Math.min(visibleRowStartIndex, rowCount - 1);
+        /* Ignore hidden row */
+        nextRowIndex = clampIndex(nextRowIndex, isHiddenRow, direction);
+        const rowHeight = getRowHeight(nextRowIndex, instanceProps.current);
+        verticalScrollRef.current.scrollTop +=
+          (direction === Direction.Up ? -1 : 1) * rowHeight;
+      }
+    }, []);
 
     /**
      * Snaps horizontal scrollbar to the next/prev visible column
      */
-    const snapToColumnFn = useCallback(
-      ({ deltaX }: SnapColumnProps) => {
-        if (!horizontalScrollRef.current) return;
-        if (deltaX !== 0) {
-          const nextColumnIndex =
-            deltaX < 0
-              ? Math.max(0, visibleColumnStartIndex - 1)
-              : Math.min(visibleColumnStartIndex, columnCount - 1);
-          const columnWidth = getColumnWidth(
-            nextColumnIndex,
-            instanceProps.current
-          );
-          horizontalScrollRef.current.scrollLeft +=
-            (deltaX < 0 ? -1 : 1) * columnWidth;
-        }
-      },
-      [visibleColumnStartIndex, columnCount, frozenColumns]
-    );
+    const snapToColumnFn = useCallback(({ deltaX }: SnapColumnProps) => {
+      if (!horizontalScrollRef.current || !scrollSnapRefs.current) return;
+      if (deltaX !== 0) {
+        const {
+          visibleColumnStartIndex,
+          columnCount,
+          isHiddenColumn,
+        } = scrollSnapRefs.current;
+        const direction = deltaX < 0 ? Direction.Left : Direction.Right;
+        let nextColumnIndex =
+          direction === Direction.Left
+            ? Math.max(0, visibleColumnStartIndex - 1)
+            : Math.min(visibleColumnStartIndex, columnCount - 1);
+        /* Ignore hidden column */
+        nextColumnIndex = clampIndex(
+          nextColumnIndex,
+          isHiddenColumn,
+          direction
+        );
+        const columnWidth = getColumnWidth(
+          nextColumnIndex,
+          instanceProps.current
+        );
+        horizontalScrollRef.current.scrollLeft +=
+          (direction === Direction.Left ? -1 : 1) * columnWidth;
+      }
+    }, []);
     const snapToRowThrottler = useRef(
       throttle(snapToRowFn, scrollThrottleTimeout)
     );
@@ -1314,7 +1370,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
      */
     const handleWheel = useCallback((event: globalThis.MouseWheelEvent) => {
       /* Prevent browser back in Mac */
-
       event.preventDefault();
       const { deltaX, deltaY, deltaMode } = event;
       /* If snaps are active */
@@ -1367,12 +1422,6 @@ const Grid: React.FC<GridProps & RefAttribute> = memo(
         visibleColumnStartIndex,
         visibleColumnStopIndex,
       });
-
-      snapToRowThrottler.current = throttle(snapToRowFn, scrollThrottleTimeout);
-      snapToColumnThrottler.current = throttle(
-        snapToColumnFn,
-        scrollThrottleTimeout
-      );
     }, [
       rowStartIndex,
       rowStopIndex,
